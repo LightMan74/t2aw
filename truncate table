@@ -1,0 +1,8 @@
+TRUNCATE TABLE `t2aw`.`categorie`;
+TRUNCATE TABLE `t2aw`.`tournoi`;
+TRUNCATE TABLE `t2aw`.`classement`;
+TRUNCATE TABLE `t2aw`.`equipe`;
+TRUNCATE TABLE `t2aw`.`match_poule`;
+TRUNCATE TABLE `t2aw`.`match_resultat`;
+TRUNCATE TABLE `t2aw`.`parametre`;
+TRUNCATE TABLE `t2aw`.`poule`;

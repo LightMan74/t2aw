@@ -1,3 +1,7 @@
+/* ========================================
+   Styles - Gestion Tournois Badminton
+   ======================================== */
+
 * {
     box-sizing: border-box;
     margin: 0;
@@ -5,139 +9,310 @@
 }
 
 body {
-    font-family: Arial, sans-serif;
-    background: #f4f4f4;
-    color: #222;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: #f5f5f5;
+    color: #333;
+    line-height: 1.6;
+    padding: 20px;
 }
 
-header {
-    background: #2c3e50;
-    color: white;
-    padding: 15px 20px;
-}
-
-main {
+.container {
     max-width: 900px;
-    margin: 20px auto;
-    padding: 0 15px;
+    margin: 0 auto;
 }
 
-.hidden {
-    display: none;
+h1 {
+    color: #2c3e50;
+    margin-bottom: 20px;
+    font-size: 1.8em;
 }
 
-.section-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+h2 {
+    color: #34495e;
+    margin-bottom: 15px;
+    font-size: 1.3em;
+    border-bottom: 2px solid #3498db;
+    padding-bottom: 5px;
+}
+
+.section {
+    background: #fff;
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+/* ---- Formulaires ---- */
+.form-group {
     margin-bottom: 15px;
 }
 
-button {
-    background: #2980b9;
-    color: white;
-    border: none;
-    padding: 10px 16px;
-    cursor: pointer;
-    border-radius: 4px;
-    font-size: 14px;
-}
-
-button:hover {
-    background: #1c5980;
-}
-
-.liste-tournois {
+.form-row {
     display: flex;
-    flex-direction: column;
-    gap: 10px;
+    gap: 15px;
 }
 
-.tournoi-card {
-    background: white;
-    padding: 15px;
-    border-radius: 6px;
-    border-left: 5px solid #2980b9;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-}
-
-.tournoi-card h3 {
-    margin-bottom: 5px;
-}
-
-.tournoi-card p {
-    font-size: 13px;
-    color: #555;
-}
-
-form {
-    background: white;
-    padding: 20px;
-    border-radius: 6px;
-}
-
-fieldset {
-    border: 1px solid #ccc;
-    margin-bottom: 20px;
-    padding: 15px;
-    border-radius: 6px;
-}
-
-legend {
-    font-weight: bold;
-    padding: 0 5px;
+.form-row .form-group {
+    flex: 1;
 }
 
 label {
     display: block;
-    margin-bottom: 12px;
-    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 5px;
+    color: #555;
 }
 
-input {
+input[type="text"],
+input[type="number"],
+input[type="time"],
+input[type="date"] {
     width: 100%;
-    padding: 8px;
-    margin-top: 4px;
-    border: 1px solid #ccc;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 1em;
+}
+
+input:focus {
+    outline: none;
+    border-color: #3498db;
+    box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
+}
+
+/* ---- Boutons ---- */
+.btn {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 1em;
+    font-weight: 600;
+    text-decoration: none;
+    display: inline-block;
+    transition: background 0.2s;
+}
+
+.btn-primary {
+    background: #3498db;
+    color: #fff;
+    width: 100%;
+    margin-top: 10px;
+}
+
+.btn-primary:hover {
+    background: #2980b9;
+}
+
+.btn-back {
+    background: #95a5a6;
+    color: #fff;
+    margin-bottom: 15px;
+}
+
+.btn-back:hover {
+    background: #7f8c8d;
+}
+
+.btn-mini {
+    padding: 5px 12px;
+    font-size: 0.9em;
+    border-radius: 4px;
+    border: none;
+    cursor: pointer;
+}
+
+.btn-plus {
+    background: #27ae60;
+    color: #fff;
+}
+
+.btn-plus:hover {
+    background: #219a52;
+}
+
+.btn-minus {
+    background: #e74c3c;
+    color: #fff;
+}
+
+.btn-minus:hover {
+    background: #c0392b;
+}
+
+/* ---- Contrôles compteur ---- */
+.counter-control {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.counter-control span {
+    font-size: 1.5em;
+    font-weight: 700;
+    min-width: 40px;
+    text-align: center;
+}
+
+.counter-control .btn-mini {
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* ---- Blocs dynamiques ---- */
+.categorie-block,
+.poule-block,
+.equipe-block {
+    background: #f9f9f9;
+    border: 1px solid #eee;
+    border-radius: 6px;
+    padding: 15px;
+    margin-bottom: 10px;
+}
+
+.categorie-block {
+    border-left: 4px solid #3498db;
+}
+
+.poule-block {
+    border-left: 4px solid #9b59b6;
+    margin-left: 20px;
+}
+
+.equipe-block {
+    border-left: 4px solid #27ae60;
+    margin-left: 40px;
+}
+
+.categorie-header,
+.poule-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+
+.categorie-header h3,
+.poule-header h4 {
+    margin: 0;
+    flex: 1;
+}
+
+.categorie-header input,
+.poule-header input {
+    flex: 2;
+}
+
+.equipes-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    align-items: center;
+}
+
+.equipe-item {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    background: #ecf0f1;
+    padding: 5px 10px;
     border-radius: 4px;
 }
 
-.bloc-categorie {
-    border: 1px dashed #2980b9;
+.equipe-item input {
+    width: 120px;
+    padding: 5px;
+    border: 1px solid #ddd;
+    border-radius: 3px;
+    font-size: 0.9em;
+}
+
+/* ---- Liste tournois ---- */
+.tournoi-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
     padding: 12px;
-    margin-top: 10px;
-    border-radius: 6px;
-    background: #f9fbfd;
+    border-bottom: 1px solid #eee;
 }
 
-.bloc-poule {
-    border: 1px dashed #999;
-    padding: 10px;
-    margin-top: 8px;
-    border-radius: 6px;
-    background: #fff;
+.tournoi-item:last-child {
+    border-bottom: none;
 }
 
-.bloc-titre {
-    font-weight: bold;
-    margin-bottom: 8px;
-    color: #2980b9;
+.tournoi-info {
+    flex: 1;
 }
 
-#message-retour {
-    margin-top: 10px;
-    font-weight: bold;
+.tournoi-nom {
+    font-weight: 600;
+    font-size: 1.1em;
 }
 
-.error {
-    color: red;
+.tournoi-date {
+    color: #777;
+    font-size: 0.85em;
 }
 
-.success {
-    color: green;
+.tournoi-actions {
+    display: flex;
+    gap: 8px;
+}
+
+.btn-modifier {
+    background: #f39c12;
+    color: #fff;
+}
+
+.btn-modifier:hover {
+    background: #d68910;
 }
 
 .loading {
-    color: #888;
+    color: #777;
     font-style: italic;
+}
+
+.message {
+    margin-top: 10px;
+    padding: 10px;
+    border-radius: 4px;
+    text-align: center;
+}
+
+.message.success {
+    background: #d4edda;
+    color: #155724;
+}
+
+.message.error {
+    background: #f8d7da;
+    color: #721c24;
+}
+
+.error-message {
+    background: #f8d7da;
+    color: #721c24;
+    padding: 15px;
+    border-radius: 4px;
+    margin: 20px 0;
+}
+
+/* ---- Responsive ---- */
+@media (max-width: 600px) {
+    .form-row {
+        flex-direction: column;
+    }
+
+    .poule-block {
+        margin-left: 10px;
+    }
+
+    .equipe-block {
+        margin-left: 20px;
+    }
 }

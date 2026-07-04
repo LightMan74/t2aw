@@ -7,7 +7,9 @@
 error_reporting(E_ALL);
 ini_set('display_errors', 0);
 ini_set('log_errors', 1);
-
+while (ob_get_level()) {
+    ob_end_clean();
+}
 try {
     $pdo = new PDO(
         'mysql:host=192.168.3.70;dbname=t2aw;charset=utf8mb4',
@@ -22,8 +24,8 @@ try {
 } catch (PDOException $e) {
     error_log('Connexion BDD echouee: ' . $e->getMessage());
     if (ob_get_level()) {
-    ob_end_clean();
-}
+        ob_end_clean();
+    }
     header('Content-Type: application/json; charset=utf-8');
     echo json_encode(['success' => false, 'error' => 'Connexion base de donnees impossible']);
     exit;
