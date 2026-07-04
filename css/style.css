@@ -40,7 +40,7 @@ h2 {
     border-radius: 8px;
     padding: 20px;
     margin-bottom: 20px;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 /* ---- Formulaires ---- */
@@ -315,4 +315,121 @@ input:focus {
     .equipe-block {
         margin-left: 20px;
     }
+}
+
+/* css/style.css */
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    background: #f4f4f4;
+    color: #222;
+    padding: 20px;
+}
+
+h1,
+h2 {
+    margin-bottom: 15px;
+}
+
+nav {
+    margin-bottom: 20px;
+}
+
+nav a {
+    margin-right: 15px;
+    text-decoration: none;
+    color: #2c5aa0;
+    font-weight: bold;
+}
+
+.container {
+    max-width: 1100px;
+    margin: 0 auto;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    background: white;
+    margin-bottom: 25px;
+}
+
+th,
+td {
+    border: 1px solid #ccc;
+    padding: 8px;
+    text-align: center;
+}
+
+th {
+    background: #2c5aa0;
+    color: white;
+}
+
+button {
+    padding: 6px 12px;
+    background: #2c5aa0;
+    color: white;
+    border: none;
+    cursor: pointer;
+    border-radius: 3px;
+}
+
+button:hover {
+    background: #1e3f75;
+}
+
+select,
+input[type=number],
+input[type=text] {
+    padding: 4px;
+    width: 100%;
+}
+
+.status-planifie {
+    background: #eee;
+}
+
+.status-en_cours {
+    background: #ffe08a;
+}
+
+.status-termine {
+    background: #b7f0b1;
+}
+
+.match-item {
+    background: white;
+    border: 1px solid #ccc;
+    padding: 10px;
+    margin-bottom: 8px;
+    cursor: move;
+    display: flex;
+    justify-content: space-between;
+}
+
+.match-item.dragging {
+    opacity: 0.5;
+}
+
+.msg {
+    padding: 10px;
+    margin-bottom: 15px;
+    border-radius: 4px;
+}
+
+.msg.success {
+    background: #d4edda;
+    color: #155724;
+}
+
+.msg.error {
+    background: #f8d7da;
+    color: #721c24;
 }

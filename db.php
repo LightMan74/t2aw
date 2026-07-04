@@ -5,7 +5,7 @@
  */
 
 error_reporting(E_ALL);
-ini_set('display_errors', 0);
+ini_set('display_errors', 0); 
 ini_set('log_errors', 1);
 while (ob_get_level()) {
     ob_end_clean();
