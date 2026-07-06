@@ -54,7 +54,7 @@ async function chargerTournois() {
             div.className = 'tournoi-item';
             div.innerHTML = `
                 <span><strong>${t.nom}</strong> (ID: ${t.id_tournoi})</span>
-                <span>Début poules: ${t.heure_debut_poule || 'N/A'}</span>
+                <a href="index.php?id_tournoi=${t.id_tournoi}">Ouvrir</a>
                 <a href="edit_tournoi.php?id_tournoi=${t.id_tournoi}">Modifier</a>
             `;
             listeDiv.appendChild(div);
@@ -273,12 +273,12 @@ function reordonnerPoules(container) {
     container.querySelectorAll('.poule-block').forEach((p, idx) => {
         const newId = idx + 1;
         const newLettre = indexToLettre(newId);
-        
+
         p.dataset.idPoule = newId;
-        
+
         // Mettre à jour le titre h4
         p.querySelector('h4').textContent = `Poule ${newLettre}`;
-        
+
         // Mettre à jour l'input du nom de la poule (si auto-généré)
         const inputNomPoule = p.querySelector('.poule-header > input[type="text"]');
         if (inputNomPoule) {
@@ -287,7 +287,7 @@ function reordonnerPoules(container) {
                 inputNomPoule.value = newLettre;
             }
         }
-        
+
         // Mettre à jour les équipes de cette poule
         mettreAJourEquipes(p, newLettre);
     });
@@ -300,7 +300,7 @@ function reordonnerPoules(container) {
 function mettreAJourEquipes(pouleBlock, lettrePoule) {
     const equipesContainer = pouleBlock.querySelector('.equipes-container');
     const equipes = equipesContainer.querySelectorAll('.equipe-item');
-    
+
     equipes.forEach((item, idx) => {
         const input = item.querySelector('input[type="text"]');
         if (input && estNomEquipeAutoGenere(input.value)) {
@@ -385,7 +385,7 @@ function supprimerEquipe(btn) {
  */
 function reordonnerEquipes(container) {
     const pouleBlock = container.closest('.poule-block');
-    
+
     // Récupérer la lettre de la poule
     const inputNomPoule = pouleBlock.querySelector('.poule-header > input[type="text"]');
     const lettrePoule = inputNomPoule ? inputNomPoule.value : indexToLettre(parseInt(pouleBlock.dataset.idPoule));
@@ -393,13 +393,13 @@ function reordonnerEquipes(container) {
     container.querySelectorAll('.equipe-item').forEach((item, idx) => {
         const newId = idx + 1;
         const input = item.querySelector('input[type="text"]');
-        
+
         // Mettre à jour le name (indices)
         const categorieBlock = pouleBlock.closest('.categorie-block');
         const id_categorie = parseInt(categorieBlock.dataset.idCategorie);
         const id_poule = parseInt(pouleBlock.dataset.idPoule);
         input.name = `equipe_nom_${id_categorie}_${id_poule}_${newId}`;
-        
+
         // Mettre à jour le nom de l'équipe (si auto-généré)
         if (estNomEquipeAutoGenere(input.value)) {
             input.value = `${newId}${lettrePoule}`;

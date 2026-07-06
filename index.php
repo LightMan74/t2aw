@@ -16,10 +16,7 @@ require_once 'config.php';
         <h1>Gestion des Tournois de Badminton</h1>
         <div class="container">
             <nav>
-                <a href="index.php">Accueil</a>
-                <a href="generation.php">Génération</a>
-                <a href="matchs.php">Matchs</a>
-                <a href="classement.php">Classement</a>
+                <?php include 'menu.php'; ?>
             </nav>
         </div>
         <!-- Liste des tournois -->

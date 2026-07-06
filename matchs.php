@@ -13,16 +13,13 @@
 <body>
     <div class="container">
         <nav>
-            <a href="index.php">Accueil</a>
-            <a href="generation.php">Génération</a>
-            <a href="matchs.php">Matchs</a>
-            <a href="classement.php">Classement</a>
+<?php include 'menu.php'; ?>
         </nav>
 
         <h1>Gestion des matchs de poule</h1>
 
         <!-- <label>ID Tournoi :</label> -->
-        <input type="number" id="id_tournoi" value="<?php echo $_GET["idtournoi"];?>" style="width:100px; margin-bottom:15px;" hidden>
+        <input type="number" id="id_tournoi" value="<?php echo $_GET["id_tournoi"];?>" style="width:100px; margin-bottom:15px;" hidden>
         <!-- <input type="number" id="id_tournoi" value="1" style="width:100px; margin-bottom:15px;"> -->
         <!-- <button onclick="chargerMatchs()">Charger les matchs</button> -->
 
