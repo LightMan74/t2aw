@@ -1,7 +1,7 @@
 <?php
 // api/generer_matchs.php
-// Retourne l'ordre proposé des matchs (sans les inserer en base) 
-// avec alternance categorie / poule
+// Retourne l'ordre proposé des matchs (sans les insérer en base)
+// avec alternance tour par tour entre les poules (et catégories)
 
 header('Content-Type: application/json');
 require 'db.php';
@@ -19,7 +19,12 @@ try {
     $stmtCat->execute([$id_tournoi]);
     $categories = $stmtCat->fetchAll();
 
-    $matchsParPouleParCat = []; // structure: [id_categorie][id_poule] => [liste de matchs]
+    // Structure : $donneesPoules[id_categorie][id_poule] = [
+    //     'nom_categorie' => ..., 'nom_poule' => ...,
+    //     'tours' => [ [match, match, ...], [match, match, ...], ... ] // découpé par tour
+    // ]
+    $donneesPoules = [];
+    $maxToursGlobal = 0;
 
     foreach ($categories as $cat) {
         $id_categorie = $cat['id_categorie'];
@@ -40,7 +45,7 @@ try {
             $nbEquipes = count($equipes);
             if ($nbEquipes < 2) continue;
 
-            // Récupérer le pattern d'ordre selon le nombre d'equipes
+            // Récupérer le pattern d'ordre selon le nombre d'équipes
             $stmtOrdre = $pdo->prepare("SELECT ordre FROM ordre_match_poule WHERE nbre_equipe = ?");
             $stmtOrdre->execute([$nbEquipes]);
             $ordreRow = $stmtOrdre->fetch();
@@ -54,20 +59,18 @@ try {
             $pattern = $ordreRow['ordre'];
             preg_match_all('/match\d+\((\d+);(\d+)\)/', $pattern, $matches, PREG_SET_ORDER);
 
-            $matchsPoule = [];
-            $numMatch = 1;
+            // Construire la liste plate des matchs de la poule (dans l'ordre du pattern)
+            $matchsPoulePlats = [];
             foreach ($matches as $m) {
-                $pos1 = (int)$m[1]; // position dans la poule (1-indexed)
+                $pos1 = (int)$m[1];
                 $pos2 = (int)$m[2];
 
-                // Retrouver les équipes correspondantes (equipes ordonnées par id_equipe)
                 $equipe1 = $equipes[$pos1 - 1] ?? null;
                 $equipe2 = $equipes[$pos2 - 1] ?? null;
 
                 if (!$equipe1 || !$equipe2) continue;
 
-                $matchsPoule[] = [
-                    'num_match_poule' => $numMatch,
+                $matchsPoulePlats[] = [
                     'id_categorie' => $id_categorie,
                     'nom_categorie' => $cat['nom'],
                     'id_poule' => $id_poule,
@@ -77,47 +80,52 @@ try {
                     'id_equipe_2' => $equipe2['id_equipe'],
                     'nom_equipe_2' => $equipe2['nom'],
                 ];
-                $numMatch++;
             }
 
-            $matchsParPouleParCat[$id_categorie][$id_poule] = $matchsPoule;
+            // Découper en tours : 
+            // - poule paire  (N équipes) => N/2 matchs par tour
+            // - poule impaire (N équipes) => (N-1)/2 matchs par tour
+            $matchsParTour = ($nbEquipes % 2 === 0) ? intdiv($nbEquipes, 2) : intdiv($nbEquipes - 1, 2);
+
+            $tours = array_chunk($matchsPoulePlats, $matchsParTour);
+
+            $donneesPoules[$id_categorie][$id_poule] = [
+                'nom_categorie' => $cat['nom'],
+                'nom_poule' => $poule['nom'],
+                'tours' => $tours,
+                'num_match_poule' => 1, // compteur "Match X" affiché pour cette poule
+            ];
+
+            $maxToursGlobal = max($maxToursGlobal, count($tours));
         }
     }
 
-    // Algorithme d'alternance : cat1-poule1, cat1-poule2, cat2-poule1, cat2-poule2...
-    // On tourne round-robin sur (categorie, poule) et on prend un match a chaque tour
-    $listeCatPoule = [];
-    foreach ($matchsParPouleParCat as $id_cat => $poulesArr) {
-        foreach ($poulesArr as $id_poule => $matchsArr) {
-            $listeCatPoule[] = ['id_categorie' => $id_cat, 'id_poule' => $id_poule];
-        }
-    }
-
+    // Alternance : Tour1 (toutes les poules, catégorie par catégorie), puis Tour2, etc.
     $matchsFinal = [];
-    $indexParPoule = []; // pointeur pour savoir où on en est dans chaque poule
-    foreach ($listeCatPoule as $cp) {
-        $indexParPoule[$cp['id_categorie'] . '_' . $cp['id_poule']] = 0;
-    }
-
-    $resteMatchs = true;
     $ordreGlobal = 1;
 
-    while ($resteMatchs) {
-        $resteMatchs = false;
-        foreach ($listeCatPoule as $cp) {
-            $key = $cp['id_categorie'] . '_' . $cp['id_poule'];
-            $idx = $indexParPoule[$key];
-            $matchsDePoule = $matchsParPouleParCat[$cp['id_categorie']][$cp['id_poule']];
+    for ($numTour = 0; $numTour < $maxToursGlobal; $numTour++) {
+        foreach ($donneesPoules as $id_categorie => &$poulesArr) {
+            foreach ($poulesArr as $id_poule => &$dataPoule) {
+                if (!isset($dataPoule['tours'][$numTour])) {
+                    continue; // cette poule n'a plus de tour à ce niveau
+                }
 
-            if ($idx < count($matchsDePoule)) {
-                $match = $matchsDePoule[$idx];
-                $match['ordre_global'] = $ordreGlobal;
-                $matchsFinal[] = $match;
-                $ordreGlobal++;
-                $indexParPoule[$key]++;
-                $resteMatchs = true;
+                foreach ($dataPoule['tours'][$numTour] as $match) {
+                    $match['num_match_poule'] = $dataPoule['num_match_poule'];
+                    $match['num_tour'] = $numTour + 1;
+                    $match['id_poule'] = $id_poule;
+                    $match['ordre_global'] = $ordreGlobal;
+
+                    $matchsFinal[] = $match;
+
+                    $dataPoule['num_match_poule']++;
+                    $ordreGlobal++;
+                }
             }
+            unset($dataPoule);
         }
+        unset($poulesArr);
     }
 
     echo json_encode(['success' => true, 'matchs' => $matchsFinal]);

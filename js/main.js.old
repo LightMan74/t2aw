@@ -57,6 +57,11 @@ async function chargerTournois() {
                 <span>Début poules: ${t.heure_debut_poule || 'N/A'}</span>
                 <a href="edit_tournoi.php?id_tournoi=${t.id_tournoi}">Modifier</a>
             `;
+            // div.innerHTML = `
+            //     <span><strong>${t.nom}</strong> (ID: ${t.id_tournoi})</span>
+            //     <span>Début poules: ${t.heure_debut_poule || 'N/A'}</span>
+            //     <a href="index.php?id_tournoi=${t.id_tournoi}">Modifier</a>
+            // `;
             listeDiv.appendChild(div);
         });
 
@@ -98,6 +103,7 @@ function setupFormulaire() {
                 messageEl.textContent = 'Tournoi créé avec succès !';
                 messageEl.className = 'message success';
                 form.reset();
+                // genererCategories();
                 document.getElementById('categories-container').innerHTML = '';
                 document.getElementById('nbre_categories').textContent = '1';
                 document.getElementById('categories-container').appendChild(creerBlocCategorie(1));
@@ -111,38 +117,6 @@ function setupFormulaire() {
             messageEl.className = 'message error';
         }
     });
-}
-
-// ==========================================
-// UTILITAIRES DE CONVERSION
-// ==========================================
-
-/**
- * Convertit un index (1-based) en lettre alphabétique
- * 1 -> A, 2 -> B, ..., 26 -> Z, 27 -> AA, 28 -> AB, etc.
- */
-function indexToLettre(index) {
-    let result = '';
-    while (index > 0) {
-        index--;
-        result = String.fromCharCode((index % 26) + 65) + result;
-        index = Math.floor(index / 26);
-    }
-    return result;
-}
-
-/**
- * Vérifie si un nom de poule semble auto-généré (ex: A, B, AA)
- */
-function estNomPouleAutoGenere(nom) {
-    return /^[A-Z]{1,2}$/.test(nom);
-}
-
-/**
- * Vérifie si un nom d'équipe semble auto-généré (ex: 1A, 2A, 12AB)
- */
-function estNomEquipeAutoGenere(nom) {
-    return /^\d+[A-Z]{1,2}$/.test(nom);
 }
 
 // ==========================================
@@ -165,6 +139,15 @@ function genererCategories() {
 /**
  * Ajuste le nombre de catégories (+1 ou -1)
  */
+// function ajusterCategories(delta) {
+//     const span = document.getElementById('nbre_categories');
+//     let nbre = parseInt(span.textContent) + delta;
+//     if (nbre < 1) nbre = 1;
+//     if (nbre > 10) nbre = 10;
+//     span.textContent = nbre;
+//     genererCategories();
+// }
+
 function ajusterCategories(delta) {
     const container = document.getElementById('categories-container');
     const span = document.getElementById('nbre_categories');
@@ -193,9 +176,6 @@ function creerBlocCategorie(id_categorie) {
     block.className = 'categorie-block';
     block.dataset.idCategorie = id_categorie;
 
-    // Première poule = A
-    const lettrePoule = indexToLettre(1);
-
     block.innerHTML = `
         <div class="categorie-header">
             <h3>Catégorie ${id_categorie}</h3>
@@ -205,8 +185,8 @@ function creerBlocCategorie(id_categorie) {
         <div class="poules-container" data-id-categorie="${id_categorie}">
             <div class="poule-block" data-id-poule="1">
                 <div class="poule-header">
-                    <h4>Poule ${lettrePoule}</h4>
-                    <input type="text" name="poule_nom_${id_categorie}_1" value="${lettrePoule}" required>
+                    <h4>Poule 1</h4>
+                    <input type="text" name="poule_nom_${id_categorie}_1" placeholder="Nom de la poule" required>
                     <button type="button" class="btn-mini btn-plus" onclick="ajouterEquipe(this)">+ Équipe</button>
                 </div>
                 <div class="equipes-container"></div>
@@ -214,7 +194,7 @@ function creerBlocCategorie(id_categorie) {
         </div>
     `;
 
-    // Ajouter 4 équipes par défaut
+    // Ajouter 2 équipes par défaut
     const firstPoule = block.querySelector('.poule-block');
     ajouterEquipesInitial(firstPoule, 4);
 
@@ -232,17 +212,14 @@ function ajouterPoule(btn) {
     const nbrePoules = poulesContainer.querySelectorAll('.poule-block').length + 1;
     if (nbrePoules > 20) return alert('Maximum 20 poules par catégorie');
 
-    // Calculer la lettre pour cette nouvelle poule
-    const lettrePoule = indexToLettre(nbrePoules);
-
     const newPoule = document.createElement('div');
     newPoule.className = 'poule-block';
     newPoule.dataset.idPoule = nbrePoules;
 
     newPoule.innerHTML = `
         <div class="poule-header">
-            <h4>Poule ${lettrePoule}</h4>
-            <input type="text" name="poule_nom_${id_categorie}_${nbrePoules}" value="${lettrePoule}" required>
+            <h4>Poule ${nbrePoules}</h4>
+            <input type="text" name="poule_nom_${id_categorie}_${nbrePoules}" placeholder="Nom de la poule" required>
             <button type="button" class="btn-mini btn-plus" onclick="ajouterEquipe(this)">+ Équipe</button>
             <button type="button" class="btn-mini btn-minus" onclick="supprimerPoule(this)">−</button>
         </div>
@@ -266,50 +243,16 @@ function supprimerPoule(btn) {
 
 /**
  * Réordonne les indices des poules après suppression
- * Met à jour les lettres ET les noms des équipes (si auto-générés)
  */
 function reordonnerPoules(container) {
     const id_categorie = parseInt(container.dataset.idCategorie);
     container.querySelectorAll('.poule-block').forEach((p, idx) => {
         const newId = idx + 1;
-        const newLettre = indexToLettre(newId);
-        
         p.dataset.idPoule = newId;
-        
-        // Mettre à jour le titre h4
-        p.querySelector('h4').textContent = `Poule ${newLettre}`;
-        
-        // Mettre à jour l'input du nom de la poule (si auto-généré)
-        const inputNomPoule = p.querySelector('.poule-header > input[type="text"]');
-        if (inputNomPoule) {
-            inputNomPoule.name = `poule_nom_${id_categorie}_${newId}`;
-            if (estNomPouleAutoGenere(inputNomPoule.value)) {
-                inputNomPoule.value = newLettre;
-            }
-        }
-        
-        // Mettre à jour les équipes de cette poule
-        mettreAJourEquipes(p, newLettre);
-    });
-}
-
-/**
- * Met à jour les noms d'équipes selon la lettre de la poule
- * Ne modifie que les équipes avec un nom auto-généré
- */
-function mettreAJourEquipes(pouleBlock, lettrePoule) {
-    const equipesContainer = pouleBlock.querySelector('.equipes-container');
-    const equipes = equipesContainer.querySelectorAll('.equipe-item');
-    
-    equipes.forEach((item, idx) => {
-        const input = item.querySelector('input[type="text"]');
-        if (input && estNomEquipeAutoGenere(input.value)) {
-            // Extraire le numéro d'équipe et construire le nouveau nom
-            const match = input.value.match(/^(\d+)/);
-            if (match) {
-                const numEquipe = match[1];
-                input.value = `${numEquipe}${lettrePoule}`;
-            }
+        p.querySelector('h4').textContent = `Poule ${newId}`;
+        const input = p.querySelector('input[type="text"]');
+        if (input) {
+            input.name = `poule_nom_${id_categorie}_${newId}`;
         }
     });
 }
@@ -332,7 +275,7 @@ function ajouterEquipe(btn) {
 }
 
 /**
- * Crée et ajoute un champ équipe avec nom auto-généré
+ * Crée et ajoute un champ équipe
  */
 function ajouterChampEquipe(pouleBlock) {
     const equipesContainer = pouleBlock.querySelector('.equipes-container');
@@ -342,18 +285,13 @@ function ajouterChampEquipe(pouleBlock) {
     const id_categorie = parseInt(categorieBlock.dataset.idCategorie);
     const id_poule = parseInt(pouleBlock.dataset.idPoule);
 
-    // Récupérer la lettre de la poule
-    const inputNomPoule = pouleBlock.querySelector('.poule-header > input[type="text"]');
-    const lettrePoule = inputNomPoule ? inputNomPoule.value : indexToLettre(id_poule);
-
     const div = document.createElement('div');
     div.className = 'equipe-item';
 
     const input = document.createElement('input');
     input.type = 'text';
     input.name = `equipe_nom_${id_categorie}_${id_poule}_${nbreEquipes}`;
-    // Nom auto-généré : numéro + lettre poule (ex: 1A, 2A, 1B)
-    input.value = `${nbreEquipes}${lettrePoule}`;
+    input.placeholder = `Équipe ${nbreEquipes}`;
 
     const btnSuppr = document.createElement('button');
     btnSuppr.type = 'button';
@@ -381,29 +319,12 @@ function supprimerEquipe(btn) {
 
 /**
  * Réordonne les équipes après suppression
- * Met à jour les noms (si auto-générés) et préserve le numéro de l'équipe
  */
 function reordonnerEquipes(container) {
-    const pouleBlock = container.closest('.poule-block');
-    
-    // Récupérer la lettre de la poule
-    const inputNomPoule = pouleBlock.querySelector('.poule-header > input[type="text"]');
-    const lettrePoule = inputNomPoule ? inputNomPoule.value : indexToLettre(parseInt(pouleBlock.dataset.idPoule));
-
     container.querySelectorAll('.equipe-item').forEach((item, idx) => {
         const newId = idx + 1;
-        const input = item.querySelector('input[type="text"]');
-        
-        // Mettre à jour le name (indices)
-        const categorieBlock = pouleBlock.closest('.categorie-block');
-        const id_categorie = parseInt(categorieBlock.dataset.idCategorie);
-        const id_poule = parseInt(pouleBlock.dataset.idPoule);
-        input.name = `equipe_nom_${id_categorie}_${id_poule}_${newId}`;
-        
-        // Mettre à jour le nom de l'équipe (si auto-généré)
-        if (estNomEquipeAutoGenere(input.value)) {
-            input.value = `${newId}${lettrePoule}`;
-        }
+        item.querySelector('input').name = item.querySelector('input').name.replace(/_(\d+)$/, `_${newId}`);
+        item.querySelector('input').placeholder = `Équipe ${newId}`;
     });
 }
 
@@ -433,6 +354,10 @@ function collectFormData() {
         const poules = [];
         catBlock.querySelectorAll('.poule-block').forEach((pouleBlock, idxPoule) => {
             const id_poule = idxPoule + 1;
+            const inputNomPoule = poules.length === 0
+                ? catBlock.querySelector('input[name^="poule_nom_"]')
+                : null;
+            // On cherche le champ nom de la poule dans le bloc courant
             const allPouleInputs = catBlock.querySelectorAll('input[name^="poule_nom_"]');
             const nomPoule = allPouleInputs[idxPoule] ? allPouleInputs[idxPoule].value : '';
 
