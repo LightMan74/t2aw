@@ -1,8 +1,13 @@
 /**
  * edit.js - Modification d'un tournoi existant
+ * Charge les données via API, génère les blocs pré-remplis, envoie les modifs via AJAX
  */
 
 'use strict';
+
+// ==========================================
+// INITIALISATION
+// ==========================================
 
 document.addEventListener('DOMContentLoaded', function () {
     chargerDonneesTournoi();
@@ -10,25 +15,17 @@ document.addEventListener('DOMContentLoaded', function () {
 });
 
 // ==========================================
-// UTILITAIRE : index -> lettre (A, B, C...)
-// ==========================================
-function indexToLettre(index) {
-    let lettre = '';
-    while (index > 0) {
-        const reste = (index - 1) % 26;
-        lettre = String.fromCharCode(65 + reste) + lettre;
-        index = Math.floor((index - 1) / 26);
-    }
-    return lettre;
-}
-
-// ==========================================
 // CHARGEMENT DES DONNÉES DU TOURNOI
 // ==========================================
+
+/**
+ * Charge les données complètes du tournoi via get_tournoi_detail.php
+ */
 async function chargerDonneesTournoi() {
-    var loadingMsg = document.getElementById('loading-message');
-    var editSection = document.getElementById('edit-section');
-    var id_tournoi = window.idTournoi;
+    const loadingMsg = document.getElementById('loading-message');
+    const editSection = document.getElementById('edit-section');
+    const errorMsg = document.getElementById('error-message');
+    const id_tournoi = window.idTournoi;
 
     if (!id_tournoi) {
         afficherErreur('ID du tournoi manquant dans l\'URL.');
@@ -36,14 +33,15 @@ async function chargerDonneesTournoi() {
     }
 
     try {
-        var response = await fetch('api/get_tournoi_detail.php?id_tournoi=' + id_tournoi);
-        var data = await response.json();
+        const response = await fetch('api/get_tournoi_detail.php?id_tournoi=' + id_tournoi);
+        const data = await response.json();
 
         if (!data.success) {
             afficherErreur(data.error || 'Tournoi introuvable.');
             return;
         }
 
+        // Remplir les champs de base
         document.getElementById('nom_tournoi').value = data.tournoi.nom || '';
         document.getElementById('nbre_terrain_poule').value = data.parametre.nbre_terrain_poule || '';
         document.getElementById('nbre_terrain_phasefinal').value = data.parametre.nbre_terrain_phasefinal || '';
@@ -51,11 +49,14 @@ async function chargerDonneesTournoi() {
         document.getElementById('heure_debut_poule').value = data.parametre.heure_debut_poule || '';
         document.getElementById('heure_debut_phasefinal').value = data.parametre.heure_debut_phasefinal || '';
 
+        // Titre
         document.querySelector('h1').textContent = 'Modifier : ' + data.tournoi.nom;
 
+        // Afficher le formulaire
         loadingMsg.style.display = 'none';
         editSection.style.display = 'block';
 
+        // Générer les catégories pré-remplies
         genererCategoriesAvecDonnees(data.categories);
 
     } catch (err) {
@@ -63,6 +64,9 @@ async function chargerDonneesTournoi() {
     }
 }
 
+/**
+ * Affiche un message d'erreur et masque le chargement
+ */
 function afficherErreur(msg) {
     document.getElementById('loading-message').style.display = 'none';
     var errorMsg = document.getElementById('error-message');
@@ -73,6 +77,10 @@ function afficherErreur(msg) {
 // ==========================================
 // GÉNÉRATION DES BLOCS PRÉ-REMPLIS
 // ==========================================
+
+/**
+ * Génère les catégories/poules/équipes depuis les données JSON
+ */
 function genererCategoriesAvecDonnees(categories) {
     var nbre = categories && categories.length > 0 ? categories.length : 1;
     document.getElementById('nbre_categories').textContent = nbre;
@@ -86,12 +94,12 @@ function genererCategoriesAvecDonnees(categories) {
             var block = creerBlocCategorie(id_categorie, cat.nom);
 
             var poulesContainer = block.querySelector('.poules-container');
+            // Supprimer la poule par défaut générée par creerBlocCategorie
             poulesContainer.innerHTML = '';
 
             if (cat.poules && cat.poules.length > 0) {
                 cat.poules.forEach(function (poule, idxPoule) {
                     var id_poule = idxPoule + 1;
-                    var lettrePoule = indexToLettre(id_poule);
                     var pouleBlock = creerBlocPoule(id_categorie, id_poule, poule.nom);
 
                     var equipesContainer = pouleBlock.querySelector('.equipes-container');
@@ -99,29 +107,30 @@ function genererCategoriesAvecDonnees(categories) {
 
                     if (poule.equipes && poule.equipes.length > 0) {
                         poule.equipes.forEach(function (eq, idxEq) {
-                            ajouterChampEquipePreserve(equipesContainer, id_categorie, id_poule, eq.nom, lettrePoule);
+                            ajouterChampEquipePreserve(equipesContainer, id_categorie, id_poule, eq.nom);
                         });
                     } else {
-                        ajouterChampEquipePreserve(equipesContainer, id_categorie, id_poule, '', lettrePoule);
-                        ajouterChampEquipePreserve(equipesContainer, id_categorie, id_poule, '', lettrePoule);
+                        // 2 équipes vides par défaut
+                        ajouterChampEquipePreserve(equipesContainer, id_categorie, id_poule, '');
+                        ajouterChampEquipePreserve(equipesContainer, id_categorie, id_poule, '');
                     }
 
                     poulesContainer.appendChild(pouleBlock);
                 });
             } else {
-                var defaultPoule = creerBlocPoule(id_categorie, 1, indexToLettre(1));
+                // Une poule vide
+                var defaultPoule = creerBlocPoule(id_categorie, 1, '');
                 var defEquipes = defaultPoule.querySelector('.equipes-container');
                 defEquipes.innerHTML = '';
-                ajouterChampEquipePreserve(defEquipes, id_categorie, 1, '', 'A');
-                ajouterChampEquipePreserve(defEquipes, id_categorie, 1, '', 'A');
+                ajouterChampEquipePreserve(defEquipes, id_categorie, 1, '');
+                ajouterChampEquipePreserve(defEquipes, id_categorie, 1, '');
                 poulesContainer.appendChild(defaultPoule);
             }
 
             container.appendChild(block);
         });
     } else {
-        var blockVide = creerBlocCategorie(1, '');
-        container.appendChild(blockVide);
+        container.appendChild(creerBlocCategorie(1, ''));
     }
 }
 
@@ -133,8 +142,6 @@ function creerBlocCategorie(id_categorie, nom) {
     block.className = 'categorie-block';
     block.dataset.idCategorie = id_categorie;
 
-    var lettrePoule = indexToLettre(1);
-
     block.innerHTML =
         '<div class="categorie-header">' +
         '<h3>Catégorie ' + id_categorie + '</h3>' +
@@ -144,8 +151,8 @@ function creerBlocCategorie(id_categorie, nom) {
         '<div class="poules-container" data-id-categorie="' + id_categorie + '">' +
         '<div class="poule-block" data-id-poule="1">' +
         '<div class="poule-header">' +
-        '<h4>Poule ' + lettrePoule + '</h4>' +
-        '<input type="text" name="poule_nom_' + id_categorie + '_1" placeholder="Nom de la poule" value="' + lettrePoule + '" required>' +
+        '<h4>Poule 1</h4>' +
+        '<input type="text" name="poule_nom_' + id_categorie + '_1" placeholder="Nom de la poule" required>' +
         '<button type="button" class="btn-mini btn-plus" onclick="ajouterEquipe(this)">+ Équipe</button>' +
         '</div>' +
         '<div class="equipes-container"></div>' +
@@ -156,20 +163,17 @@ function creerBlocCategorie(id_categorie, nom) {
 }
 
 /**
- * Crée un bloc poule avec nom pré-rempli (lettre auto si nom vide)
+ * Crée un bloc poule avec nom pré-rempli
  */
 function creerBlocPoule(id_categorie, id_poule, nom) {
     var block = document.createElement('div');
     block.className = 'poule-block';
     block.dataset.idPoule = id_poule;
 
-    var lettrePoule = indexToLettre(id_poule);
-    var nomAffiche = (nom !== undefined && nom !== null && nom !== '') ? nom : lettrePoule;
-
     block.innerHTML =
         '<div class="poule-header">' +
-        '<h4>Poule ' + lettrePoule + '</h4>' +
-        '<input type="text" name="poule_nom_' + id_categorie + '_' + id_poule + '" placeholder="Nom de la poule" value="' + escapeHtml(nomAffiche) + '" required>' +
+        '<h4>Poule ' + id_poule + '</h4>' +
+        '<input type="text" name="poule_nom_' + id_categorie + '_' + id_poule + '" placeholder="Nom de la poule" value="' + escapeHtml(nom || '') + '" required>' +
         '<button type="button" class="btn-mini btn-plus" onclick="ajouterEquipe(this)">+ Équipe</button>' +
         '<button type="button" class="btn-mini btn-minus" onclick="supprimerPoule(this)">−</button>' +
         '</div>' +
@@ -179,14 +183,10 @@ function creerBlocPoule(id_categorie, id_poule, nom) {
 }
 
 /**
- * Ajoute un champ équipe pré-rempli avec un nom (auto si vide)
+ * Ajoute un champ équipe pré-rempli avec un nom
  */
-function ajouterChampEquipePreserve(equipesContainer, id_categorie, id_poule, nom, lettrePoule) {
+function ajouterChampEquipePreserve(equipesContainer, id_categorie, id_poule, nom) {
     var nbreEquipes = equipesContainer.querySelectorAll('.equipe-item').length + 1;
-    if (!lettrePoule) lettrePoule = indexToLettre(id_poule);
-
-    var nomAuto = nbreEquipes + lettrePoule;
-    var nomFinal = (nom !== undefined && nom !== null && nom !== '') ? nom : nomAuto;
 
     var div = document.createElement('div');
     div.className = 'equipe-item';
@@ -194,8 +194,8 @@ function ajouterChampEquipePreserve(equipesContainer, id_categorie, id_poule, no
     var input = document.createElement('input');
     input.type = 'text';
     input.name = 'equipe_nom_' + id_categorie + '_' + id_poule + '_' + nbreEquipes;
-    input.placeholder = nomAuto;
-    input.value = nomFinal;
+    input.placeholder = 'Équipe ' + nbreEquipes;
+    input.value = nom || '';
 
     var btnSuppr = document.createElement('button');
     btnSuppr.type = 'button';
@@ -209,11 +209,16 @@ function ajouterChampEquipePreserve(equipesContainer, id_categorie, id_poule, no
     div.appendChild(input);
     div.appendChild(btnSuppr);
     equipesContainer.appendChild(div);
-}
+} ajouterPoule()
 
 // ==========================================
-// AJUSTEMENT DU NOMBRE DE CATÉGORIES
+// GÉNÉRATION VIDE (sans données)
 // ==========================================
+
+/**
+ * Ajuste le nombre de catégories (boutons + / -)
+ */
+
 function ajusterCategories(delta) {
     var container = document.getElementById('categories-container');
     var span = document.getElementById('nbre_categories');
@@ -228,12 +233,13 @@ function ajusterCategories(delta) {
         nbreActuel++;
         var nouveauBloc = creerBlocCategorie(nbreActuel, '');
 
+        // Ajoute une poule par défaut avec 2 équipes vides
         var poulesContainer = nouveauBloc.querySelector('.poules-container');
         poulesContainer.innerHTML = '';
-        var defaultPoule = creerBlocPoule(nbreActuel, 1, 'A');
+        var defaultPoule = creerBlocPoule(nbreActuel, 1, '');
         var eqCont = defaultPoule.querySelector('.equipes-container');
-        ajouterChampEquipePreserve(eqCont, nbreActuel, 1, '', 'A');
-        ajouterChampEquipePreserve(eqCont, nbreActuel, 1, '', 'A');
+        ajouterChampEquipePreserve(eqCont, nbreActuel, 1, '');
+        ajouterChampEquipePreserve(eqCont, nbreActuel, 1, '');
         poulesContainer.appendChild(defaultPoule);
 
         container.appendChild(nouveauBloc);
@@ -246,9 +252,14 @@ function ajusterCategories(delta) {
     span.textContent = nbreActuel;
 }
 
+
 // ==========================================
-// AJOUT / SUPPRESSION POULES
+// FONCTIONS DYNAMIQUES (ajout / suppression)
 // ==========================================
+
+/**
+ * Ajoute une poule à une catégorie
+ */
 function ajouterPoule(btn) {
     var categorieBlock = btn.closest('.categorie-block');
     var poulesContainer = categorieBlock.querySelector('.poules-container');
@@ -260,15 +271,18 @@ function ajouterPoule(btn) {
         return;
     }
 
-    var lettrePoule = indexToLettre(nbrePoules);
-    var newPoule = creerBlocPoule(id_categorie, nbrePoules, lettrePoule);
+    var newPoule = creerBlocPoule(id_categorie, nbrePoules, '');
     poulesContainer.appendChild(newPoule);
 
+    // 2 équipes par défaut
     var eqCont = newPoule.querySelector('.equipes-container');
-    ajouterChampEquipePreserve(eqCont, id_categorie, nbrePoules, '', lettrePoule);
-    ajouterChampEquipePreserve(eqCont, id_categorie, nbrePoules, '', lettrePoule);
+    ajouterChampEquipePreserve(eqCont, id_categorie, nbrePoules, '');
+    ajouterChampEquipePreserve(eqCont, id_categorie, nbrePoules, '');
 }
 
+/**
+ * Supprime une poule (au moins 1 doit rester)
+ */
 function supprimerPoule(btn) {
     var poulesContainer = btn.closest('.poules-container');
     var pouleBlock = btn.closest('.poule-block');
@@ -278,58 +292,35 @@ function supprimerPoule(btn) {
 }
 
 /**
- * Réordonne les poules après suppression (lettres + équipes suivent)
+ * Réordonne les indices des poules après suppression
  */
 function reordonnerPoules(container) {
     var id_categorie = parseInt(container.dataset.idCategorie);
     container.querySelectorAll('.poule-block').forEach(function (p, idx) {
         var newId = idx + 1;
-        var newLettre = indexToLettre(newId);
-        var ancienId = parseInt(p.dataset.idPoule);
-
         p.dataset.idPoule = newId;
-        p.querySelector('h4').textContent = 'Poule ' + newLettre;
-
-        var input = p.querySelector('.poule-header input[type="text"]');
+        p.querySelector('h4').textContent = 'Poule ' + newId;
+        var input = p.querySelector('input[type="text"]');
         if (input) {
-            var ancienneLettre = indexToLettre(ancienId);
-            // On ne remplace la valeur que si elle suivait l'ancien format auto (une lettre)
-            if (/^[A-Z]{1,2}$/.test(input.value) || input.value === '') {
-                input.value = newLettre;
-            }
             input.name = 'poule_nom_' + id_categorie + '_' + newId;
         }
-
-        // Met à jour les inputs équipes (name + valeur auto si besoin)
-        var equipesContainer = p.querySelector('.equipes-container');
-        equipesContainer.querySelectorAll('.equipe-item').forEach(function (item, idxEq) {
-            var eqInput = item.querySelector('input');
-            var numEquipe = idxEq + 1;
-            var ancienNomAuto = numEquipe + ancienneLettre;
-            var nouveauNomAuto = numEquipe + newLettre;
-
-            eqInput.name = 'equipe_nom_' + id_categorie + '_' + newId + '_' + numEquipe;
-            eqInput.placeholder = nouveauNomAuto;
-
-            if (eqInput.value === ancienNomAuto || eqInput.value === '') {
-                eqInput.value = nouveauNomAuto;
-            }
-        });
     });
 }
 
-// ==========================================
-// AJOUT / SUPPRESSION ÉQUIPES
-// ==========================================
+/**
+ * Ajoute un champ équipe à une poule
+ */
 function ajouterEquipe(btn) {
     var pouleBlock = btn.closest('.poule-block');
     var equipesContainer = pouleBlock.querySelector('.equipes-container');
     var id_categorie = parseInt(pouleBlock.closest('.categorie-block').dataset.idCategorie);
     var id_poule = parseInt(pouleBlock.dataset.idPoule);
-    var lettrePoule = indexToLettre(id_poule);
-    ajouterChampEquipePreserve(equipesContainer, id_categorie, id_poule, '', lettrePoule);
+    ajouterChampEquipePreserve(equipesContainer, id_categorie, id_poule, '');
 }
 
+/**
+ * Supprime une équipe
+ */
 function supprimerEquipe(btn) {
     var equipeItem = btn.closest('.equipe-item');
     var equipesContainer = equipeItem.closest('.equipes-container');
@@ -341,27 +332,22 @@ function supprimerEquipe(btn) {
  * Réordonne les équipes après suppression
  */
 function reordonnerEquipes(container) {
-    var pouleBlock = container.closest('.poule-block');
-    var id_poule = pouleBlock ? parseInt(pouleBlock.dataset.idPoule) : 1;
-    var lettrePoule = indexToLettre(id_poule);
-
     container.querySelectorAll('.equipe-item').forEach(function (item, idx) {
         var newId = idx + 1;
         var input = item.querySelector('input');
-        var nouveauNomAuto = newId + lettrePoule;
-
+        // Remplacer le dernier segment numérique du name
         input.name = input.name.replace(/_(\d+)$/, '_' + newId);
-
-        if (/^\d+[A-Z]{1,2}$/.test(input.value) || input.value === '') {
-            input.value = nouveauNomAuto;
-        }
-        input.placeholder = nouveauNomAuto;
+        input.placeholder = 'Équipe ' + newId;
     });
 }
 
 // ==========================================
 // ENVOI DU FORMULAIRE
 // ==========================================
+
+/**
+ * Configure l'écouteur de soumission du formulaire
+ */
 function setupFormulaireModification() {
     var form = document.getElementById('form-edit-tournoi');
     if (!form) return;
@@ -414,23 +400,23 @@ function collectFormData() {
 
     document.querySelectorAll('.categorie-block').forEach(function (catBlock, idxCat) {
         var id_categorie = idxCat + 1;
-        var nomCatInput = catBlock.querySelector('.categorie-header input[type="text"]');
-        var nomCat = nomCatInput ? nomCatInput.value : '';
+        var allCatInputs = catBlock.querySelectorAll('input[type="text"]');
+        var nomCat = allCatInputs[0].value;
 
         if (!nomCat) return;
 
         var poules = [];
         var catPouleBlocks = catBlock.querySelectorAll('.poule-block');
+        var allPouleInputs = catBlock.querySelectorAll('input[name^="poule_nom_"]');
 
         catPouleBlocks.forEach(function (pouleBlock, idxPoule) {
             var id_poule = idxPoule + 1;
-            var nomPouleInput = pouleBlock.querySelector('.poule-header input[type="text"]');
-            var nomPoule = nomPouleInput ? nomPouleInput.value : '';
+            var nomPoule = allPouleInputs[idxPoule] ? allPouleInputs[idxPoule].value : '';
 
             if (!nomPoule) return;
 
             var equipes = [];
-            var equipesContainer = pouleBlock.querySelector('.equipes-container');
+            var equipesContainer = catPouleBlocks[idxPoule].querySelector('.equipes-container');
             equipesContainer.querySelectorAll('.equipe-item input').forEach(function (input, idxEq) {
                 if (input.value.trim()) {
                     equipes.push({
@@ -471,6 +457,7 @@ function collectFormData() {
 // ==========================================
 // UTILITAIRES
 // ==========================================
+
 function escapeHtml(text) {
     if (!text) return '';
     var div = document.createElement('div');

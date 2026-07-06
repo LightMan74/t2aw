@@ -68,12 +68,12 @@ $id_tournoi = isset($_GET['id_tournoi']) ? (int)$_GET['id_tournoi'] : 0;
 
                 <div id="categories-container"></div>
 
-                <button type="submit" class="btn btn-primary">Enregistrer les modifications</button>
+                <div id="error-message" class="error-message" style="display:none;"></div>
                 <p id="form-message" class="message"></p>
+                <button type="submit" class="btn btn-primary">Enregistrer les modifications</button>
             </form>
         </section>
 
-        <div id="error-message" class="error-message" style="display:none;"></div>
     </div>
 
     <script>

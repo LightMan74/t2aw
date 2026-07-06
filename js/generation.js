@@ -5,7 +5,7 @@ let matchsActuels = [];
 function afficherMessage(texte, type) {
     const div = document.getElementById('message');
     div.innerHTML = `<div class="msg ${type}">${texte}</div>`;
-    setTimeout(() => div.innerHTML = '', 60000);
+    setTimeout(() => div.innerHTML = '', 5000);
 }
 
 function chargerMatchs() {
