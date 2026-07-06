@@ -23,7 +23,7 @@ try {
 
             // Si le match passe à "termine", recalculer le classement
             if ($status === 'termine') {
-                recalculerClassementMatch($pdo, $id);
+                // recalculerClassementMatch($pdo, $id);
             }
 
             echo json_encode(['success' => true]);

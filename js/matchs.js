@@ -3,9 +3,9 @@
 let matchsData = [];
 
 function afficherMessage(texte, type) {
-    const div = document.getElementById('message');
-    div.innerHTML = `<div class="msg ${type}">${texte}</div>`;
-    setTimeout(() => div.innerHTML = '', 4000);
+    // const div = document.getElementById('message');
+    // div.innerHTML = `<div class="msg ${type}">${texte}</div>`;
+    // setTimeout(() => div.innerHTML = '', 4000);
 }
 
 function chargerMatchs() {
@@ -21,6 +21,15 @@ function chargerMatchs() {
                 afficherMessage(data.error, 'error');
             }
         });
+}
+
+function autosaveandreload() {
+    console.log("Exécution...START");
+    matchsData.forEach((m, index) => {
+        sauverMatch(index);
+    });
+    chargerMatchs();
+    console.log("Exécution...END");
 }
 
 function afficherTable() {
@@ -49,9 +58,9 @@ function afficherTable() {
             </td>
             <td><input type="text" value="${m.heure_debut ?? ''}" id="hdebut-${index}"></td>
             <td><input type="text" value="${m.heure_fin ?? ''}" id="hfin-${index}"></td>
-            <td><button onclick="sauverMatch(${index})">Enregistrer</button></td>
         `;
 
+        // <td><button onclick="sauverMatch(${index})">Enregistrer</button></td>
         corps.appendChild(tr);
     });
 }
@@ -79,7 +88,7 @@ function sauverMatch(index) {
         .then(data => {
             if (data.success) {
                 afficherMessage('Match mis à jour', 'success');
-                chargerMatchs(); // recharge sans reload de page
+                // chargerMatchs(); // recharge sans reload de page
             } else {
                 afficherMessage(data.error, 'error');
             }

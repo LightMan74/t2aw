@@ -13,11 +13,11 @@
 <body>
     <div class="container">
         <nav>
-<?php include 'menu.php'; ?>
+            <?php include 'menu.php'; ?>
         </nav>
 
         <h1>Gestion des matchs de poule</h1>
-
+        <button onclick="autosaveandreload()">Enregistrer</button>
         <!-- <label>ID Tournoi :</label> -->
         <input type="number" id="id_tournoi" value="<?php echo $_GET["id_tournoi"];?>" style="width:100px; margin-bottom:15px;" hidden>
         <!-- <input type="number" id="id_tournoi" value="1" style="width:100px; margin-bottom:15px;"> -->
@@ -39,7 +39,7 @@
                     <th>Statut</th>
                     <th>Heure début</th>
                     <th>Heure fin</th>
-                    <th>Action</th>
+                    <!-- <th>Action</th> -->
                 </tr>
             </thead>
             <tbody id="corps-table"></tbody>
