@@ -36,6 +36,7 @@ try {
     $temps_de_match = (int)($data['temps_de_match'] ?? 0);
     $heure_debut_poule = trim($data['heure_debut_poule'] ?? '');
     $heure_debut_phasefinal = trim($data['heure_debut_phasefinal'] ?? '');
+    $troissets = trim($data['troissets'] ?? 0);
     $categories = $data['categories'] ?? [];
 
     if (empty($nom)) {
@@ -57,7 +58,8 @@ try {
             nbre_terrain_phasefinal = :nbre_terrain_phasefinal,
             temps_de_match = :temps_de_match,
             heure_debut_poule = :heure_debut_poule,
-            heure_debut_phasefinal = :heure_debut_phasefinal
+            heure_debut_phasefinal = :heure_debut_phasefinal,
+            troissets = :troissets
         WHERE id_tournoi = :id_tournoi
     ");
     $stmtUpdateParam->execute([
@@ -66,6 +68,7 @@ try {
         'temps_de_match' => $temps_de_match,
         'heure_debut_poule' => $heure_debut_poule,
         'heure_debut_phasefinal' => $heure_debut_phasefinal,
+        'troissets' => $troissets,
         'id_tournoi' => $id_tournoi
     ]);
 
@@ -134,7 +137,7 @@ try {
         $pdo->rollBack();
     }
     error_log('update_tournoi PDOException: ' . $e->getMessage());
-    echo json_encode(['success' => false, 'error' => 'Erreur base de donnees']);
+    echo json_encode(['success' => false, 'error' => 'Erreur base de donnees'.$e->getMessage()]);
 } catch (Exception $e) {
     if ($pdo->inTransaction()) {
         $pdo->rollBack();

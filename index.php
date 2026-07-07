@@ -49,9 +49,15 @@ require_once 'config.php';
                     </div>
                 </div>
 
-                <div class="form-group">
-                    <label for="temps_de_match">Temps de match (minutes)</label>
-                    <input type="number" id="temps_de_match" name="temps_de_match" min="5" value="15" required>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="troissets">Nombre de set</label>
+                        <input type="number" id="troissets" name="troissets" min="1" max="3" value="3" step="2" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="temps_de_match">Temps de match (minutes)</label>
+                        <input type="number" id="temps_de_match" name="temps_de_match" min="5" value="15" required>
+                    </div>
                 </div>
 
                 <div class="form-row">

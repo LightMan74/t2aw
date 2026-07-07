@@ -6,12 +6,14 @@ $id_tournoi = isset($_GET['id_tournoi']) ? (int)$_GET['id_tournoi'] : 0;
 ?>
 <!DOCTYPE html>
 <html lang="fr">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Modifier le tournoi - Gestion Tournois Badminton</title>
     <link rel="stylesheet" href="css/style.css">
 </head>
+
 <body>
     <div class="container">
         <a href="index.php" class="btn btn-back">← Retour</a>
@@ -40,9 +42,15 @@ $id_tournoi = isset($_GET['id_tournoi']) ? (int)$_GET['id_tournoi'] : 0;
                     </div>
                 </div>
 
-                <div class="form-group">
-                    <label for="temps_de_match">Temps de match (minutes)</label>
-                    <input type="number" id="temps_de_match" name="temps_de_match" min="5" required>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="troissets">Nombre de set</label>
+                        <input type="number" id="troissets" name="troissets" min="1" max="3" value="3" step="2" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="temps_de_match">Temps de match (minutes)</label>
+                        <input type="number" id="temps_de_match" name="temps_de_match" min="5" required>
+                    </div>
                 </div>
 
                 <div class="form-row">
@@ -77,9 +85,10 @@ $id_tournoi = isset($_GET['id_tournoi']) ? (int)$_GET['id_tournoi'] : 0;
     </div>
 
     <script>
-        // Passer l'ID du tournoi en JS
-        window.idTournoi = <?php echo $id_tournoi; ?>;
+    // Passer l'ID du tournoi en JS
+    window.idTournoi = <?php echo $id_tournoi; ?>;
     </script>
     <script src="js/edit.js"></script>
 </body>
+
 </html>

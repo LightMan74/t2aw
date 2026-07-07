@@ -50,6 +50,7 @@ async function chargerDonneesTournoi() {
         document.getElementById('temps_de_match').value = data.parametre.temps_de_match || '';
         document.getElementById('heure_debut_poule').value = data.parametre.heure_debut_poule || '';
         document.getElementById('heure_debut_phasefinal').value = data.parametre.heure_debut_phasefinal || '';
+        document.getElementById('troissets').value = data.parametre.troissets || '';
 
         document.querySelector('h1').textContent = 'Modifier : ' + data.tournoi.nom;
 
@@ -409,6 +410,7 @@ function collectFormData() {
     var temps_de_match = parseInt(document.getElementById('temps_de_match').value) || 0;
     var heure_debut_poule = document.getElementById('heure_debut_poule').value;
     var heure_debut_phasefinal = document.getElementById('heure_debut_phasefinal').value;
+    var troissets = document.getElementById('troissets').value;
 
     var categories = [];
 
@@ -464,6 +466,7 @@ function collectFormData() {
         temps_de_match: temps_de_match,
         heure_debut_poule: heure_debut_poule,
         heure_debut_phasefinal: heure_debut_phasefinal,
+        troissets: troissets,
         categories: categories
     };
 }

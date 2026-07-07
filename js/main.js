@@ -421,6 +421,7 @@ function collectFormData() {
     const temps_de_match = parseInt(document.getElementById('temps_de_match').value) || 0;
     const heure_debut_poule = document.getElementById('heure_debut_poule').value;
     const heure_debut_phasefinal = document.getElementById('heure_debut_phasefinal').value;
+    const troissets = document.getElementById('troissets').value;
 
     const categories = [];
 
@@ -472,6 +473,7 @@ function collectFormData() {
         temps_de_match: temps_de_match,
         heure_debut_poule: heure_debut_poule,
         heure_debut_phasefinal: heure_debut_phasefinal,
+        troissets: troissets,
         categories: categories
     };
 }

@@ -28,6 +28,7 @@ try {
     $temps_de_match = (int)($data['temps_de_match'] ?? 0);
     $heure_debut_poule = trim($data['heure_debut_poule'] ?? '');
     $heure_debut_phasefinal = trim($data['heure_debut_phasefinal'] ?? '');
+    $troissets = trim($data['troissets'] ?? '');
     $categories = $data['categories'] ?? [];
 
     if (empty($nom)) {
@@ -49,8 +50,8 @@ try {
 
     // Insérer les paramètres
     $stmtInsertParam = $pdo->prepare("
-        INSERT INTO parametre (id_tournoi, nbre_terrain_poule, nbre_terrain_phasefinal, temps_de_match, heure_debut_poule, heure_debut_phasefinal)
-        VALUES (:id_tournoi, :nbre_terrain_poule, :nbre_terrain_phasefinal, :temps_de_match, :heure_debut_poule, :heure_debut_phasefinal)
+        INSERT INTO parametre (id_tournoi, nbre_terrain_poule, nbre_terrain_phasefinal, temps_de_match, heure_debut_poule, heure_debut_phasefinal, troissets)
+        VALUES (:id_tournoi, :nbre_terrain_poule, :nbre_terrain_phasefinal, :temps_de_match, :heure_debut_poule, :heure_debut_phasefinal, :troissets)
     ");
     $stmtInsertParam->execute([
         'id_tournoi' => $id_tournoi,
@@ -58,7 +59,8 @@ try {
         'nbre_terrain_phasefinal' => $nbre_terrain_phasefinal,
         'temps_de_match' => $temps_de_match,
         'heure_debut_poule' => $heure_debut_poule,
-        'heure_debut_phasefinal' => $heure_debut_phasefinal
+        'heure_debut_phasefinal' => $heure_debut_phasefinal,
+        'troissets' => $troissets
     ]);
 
     // Préparer les requêtes d'insertion
