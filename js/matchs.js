@@ -40,27 +40,40 @@ function afficherTable() {
         const tr = document.createElement('tr');
         tr.className = 'status-' + m.status;
 
-        tr.innerHTML = `
-            <td>${m.nom_categorie}</td>
-            <td>${m.nom_poule}</td>
-            <td>${m.id_match}</td>
-            <td><input type="number" min="1" value="${m.terrain ?? ''}" id="terrain-${index}"></td>
-            <td>${m.nom_equipe_1}</td>
-            <td><input type="number" min="0" value="${m.score_equipe_1 ?? 0}" id="score1-${index}"></td>
-            <td><input type="number" min="0" value="${m.score_equipe_2 ?? 0}" id="score2-${index}"></td>
-            <td>${m.nom_equipe_2}</td>
-            <td>
-                <select id="status-${index}">
-                    <option value="planifie" ${m.status === 'planifie' ? 'selected' : ''}>Planifié</option>
-                    <option value="en_cours" ${m.status === 'en_cours' ? 'selected' : ''}>En cours</option>
-                    <option value="termine" ${m.status === 'termine' ? 'selected' : ''}>Terminé</option>
-                </select>
-            </td>
-            <td><input type="text" value="${m.heure_debut ?? ''}" id="hdebut-${index}"></td>
-            <td><input type="text" value="${m.heure_fin ?? ''}" id="hfin-${index}"></td>
-        `;
+        const scoresEquipe1 = String(m.score_equipe_1 ?? '0;0;0').split('*');
+        const scoresEquipe2 = String(m.score_equipe_2 ?? '0;0;0').split('*');
 
-        // <td><button onclick="sauverMatch(${index})">Enregistrer</button></td>
+        const s1set1 = scoresEquipe1[0] ?? 0;
+        const s1set2 = scoresEquipe1[1] ?? 0;
+        const s1set3 = scoresEquipe1[2] ?? 0;
+
+        const s2set1 = scoresEquipe2[0] ?? 0;
+        const s2set2 = scoresEquipe2[1] ?? 0;
+        const s2set3 = scoresEquipe2[2] ?? 0;
+
+        tr.innerHTML = `
+    <td>${m.nom_categorie}</td>
+    <td>${m.nom_poule}</td>
+    <td><input type="number" min="1" value="${m.terrain ?? ''}" id="terrain-${index}"></td>
+    <td>${m.nom_equipe_1}</td>
+    <td><input type="number" min="0" value="${s1set1}" id="score1s1-${index}"></td>   
+    <td><input type="number" min="0" value="${s1set2}" id="score1s2-${index}"></td>   
+    <td><input type="number" min="0" value="${s1set3}" id="score1s3-${index}"></td>            
+    <td>vs</td>
+    <td><input type="number" min="0" value="${s2set1}" id="score2s1-${index}"></td>
+    <td><input type="number" min="0" value="${s2set2}" id="score2s2-${index}"></td>
+    <td><input type="number" min="0" value="${s2set3}" id="score2s3-${index}"></td>
+    <td>${m.nom_equipe_2}</td>
+    <td>
+        <select id="status-${index}">
+            <option value="planifie" ${m.status === 'planifie' ? 'selected' : ''}>Planifié</option>
+            <option value="en_cours" ${m.status === 'en_cours' ? 'selected' : ''}>En cours</option>
+            <option value="termine" ${m.status === 'termine' ? 'selected' : ''}>Terminé</option>
+        </select>
+    </td>
+    <td><input type="text" value="${m.heure_debut ?? ''}" id="hdebut-${index}"></td>
+`;
+
         corps.appendChild(tr);
     });
 }
@@ -73,10 +86,9 @@ function sauverMatch(index) {
         id: m.id,
         terrain: document.getElementById(`terrain-${index}`).value,
         status: document.getElementById(`status-${index}`).value,
-        score_equipe_1: document.getElementById(`score1-${index}`).value,
-        score_equipe_2: document.getElementById(`score2-${index}`).value,
+        score_equipe_1: document.getElementById(`score1s1-${index}`).value + "*" + document.getElementById(`score1s2-${index}`).value + "*" + document.getElementById(`score1s3-${index}`).value,
+        score_equipe_2: document.getElementById(`score2s1-${index}`).value + "*" + document.getElementById(`score2s2-${index}`).value + "*" + document.getElementById(`score2s3-${index}`).value,
         heure_debut: document.getElementById(`hdebut-${index}`).value,
-        heure_fin: document.getElementById(`hfin-${index}`).value
     };
 
     fetch('api/matchs_actions.php', {

@@ -30,16 +30,18 @@
                 <tr>
                     <th>Catégorie</th>
                     <th>Poule</th>
-                    <th>Match</th>
                     <th>Terrain</th>
                     <th>Equipe 1</th>
-                    <th>Score 1</th>
-                    <th>Score 2</th>
+                    <th>SET 1</th>
+                    <th>SET 2</th>
+                    <th>SET 3</th>
+                    <th>vs</th>
+                    <th>SET 1</th>
+                    <th>SET 2</th>
+                    <th>SET 3</th>
                     <th>Equipe 2</th>
                     <th>Statut</th>
                     <th>Heure début</th>
-                    <th>Heure fin</th>
-                    <!-- <th>Action</th> -->
                 </tr>
             </thead>
             <tbody id="corps-table"></tbody>

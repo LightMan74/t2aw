@@ -63,36 +63,61 @@ try {
 
     // Parcourir les matchs terminés pour calculer les stats
     foreach ($matchs as $m) {
-        if ($m['status'] !== 'termine') continue;
+    if ($m['status'] !== 'termine') continue;
 
-        $key1 = $m['id_categorie'] . '_' . $m['id_poule'] . '_' . $m['id_equipe_1'];
-        $key2 = $m['id_categorie'] . '_' . $m['id_poule'] . '_' . $m['id_equipe_2'];
+    $key1 = $m['id_categorie'] . '_' . $m['id_poule'] . '_' . $m['id_equipe_1'];
+    $key2 = $m['id_categorie'] . '_' . $m['id_poule'] . '_' . $m['id_equipe_2'];
 
-        if (!isset($classement[$key1]) || !isset($classement[$key2])) continue;
+    if (!isset($classement[$key1]) || !isset($classement[$key2])) continue;
 
-        $score1 = (int)$m['score_equipe_1'];
-        $score2 = (int)$m['score_equipe_2'];
+    // Split des scores par set
+    $sets1 = explode('*', $m['score_equipe_1'] ?? '0*0*0');
+    $sets2 = explode('*', $m['score_equipe_2'] ?? '0*0*0');
 
-        $classement[$key1]['point_marquer']   += $score1;
-        $classement[$key1]['point_encaisser'] += $score2;
-        $classement[$key2]['point_marquer']   += $score2;
-        $classement[$key2]['point_encaisser'] += $score1;
+    $nbSets = max(count($sets1), count($sets2));
 
-        $classement[$key1]['matchs_joues']++;
-        $classement[$key2]['matchs_joues']++;
+    $totalScore1 = 0;
+    $totalScore2 = 0;
+    $setsGagnesEquipe1 = 0;
+    $setsGagnesEquipe2 = 0;
 
-        if ($score1 > $score2) {
-            $classement[$key1]['victoire']++;
-            $classement[$key1]['set_gagner']++;
-            $classement[$key2]['defaite']++;
-            $classement[$key2]['set_perdu']++;
-        } elseif ($score2 > $score1) {
-            $classement[$key2]['victoire']++;
-            $classement[$key2]['set_gagner']++;
-            $classement[$key1]['defaite']++;
-            $classement[$key1]['set_perdu']++;
+    for ($i = 0; $i < $nbSets; $i++) {
+        $s1 = (int)($sets1[$i] ?? 0);
+        $s2 = (int)($sets2[$i] ?? 0);
+
+        $totalScore1 += $s1;
+        $totalScore2 += $s2;
+
+        if ($s1 > $s2) {
+            $setsGagnesEquipe1++;
+        } elseif ($s2 > $s1) {
+            $setsGagnesEquipe2++;
         }
     }
+
+    $classement[$key1]['point_marquer']   += $totalScore1;
+    $classement[$key1]['point_encaisser'] += $totalScore2;
+    $classement[$key2]['point_marquer']   += $totalScore2;
+    $classement[$key2]['point_encaisser'] += $totalScore1;
+
+    $classement[$key1]['matchs_joues']++;
+    $classement[$key2]['matchs_joues']++;
+
+    $classement[$key1]['set_gagner'] += $setsGagnesEquipe1;
+    $classement[$key1]['set_perdu']  += $setsGagnesEquipe2;
+    $classement[$key2]['set_gagner'] += $setsGagnesEquipe2;
+    $classement[$key2]['set_perdu']  += $setsGagnesEquipe1;
+
+    // Détermination du vainqueur du match selon le nombre de sets gagnés
+if ($totalScore1 > $totalScore2) {
+    $classement[$key1]['victoire']++;
+    $classement[$key2]['defaite']++;
+} elseif ($totalScore2 > $totalScore1) {
+    $classement[$key2]['victoire']++;
+    $classement[$key1]['defaite']++;
+}
+}
+
 
     // Convertir en tableau simple
     $result = array_values($classement);
