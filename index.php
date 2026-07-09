@@ -90,6 +90,7 @@ require_once 'config.php';
     </div>
 
     <script src="js/main.js"></script>
+    <script src="js/supprimer_tournoi.js"></script>
 </body>
 
 </html>

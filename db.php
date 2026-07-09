@@ -1,7 +1,7 @@
 <?php
 /**
  * Connexion PDO MySQL - Base t2aw
- * À personnaliser avec vos identifiants
+ * À personnaliser avec vos identifiants 
  */
 
 error_reporting(E_ALL);
