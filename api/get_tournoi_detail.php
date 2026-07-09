@@ -9,7 +9,7 @@ if (ob_get_level()) {
 }
 // ob_start();
 header('Content-Type: application/json; charset=utf-8');
-
+include "api/check_connected.php";
 require_once __DIR__ . '/db.php';
 
 try {

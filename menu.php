@@ -1,11 +1,21 @@
 <?php 
-if (str_contains($_SERVER['REQUEST_URI'],"index.php")){
+include 'api/db.php'; ?>
+<header class="top-header">
+    <h1>Gestion des Tournois de Badminton</h1>
+    <h3>Tournoi Actuel -> <?php echo ($tournoi_name_menu[0]["nom"] != "") ? $tournoi_name_menu[0]["nom"]: 'AUCUN'; ?></h3>
+    <div class="user-info">
+        <span>👤 <?php echo htmlspecialchars($currentUser); ?></span>
+        <button id="btn-logout" class="btn btn-logout">Déconnexion</button>
+    </div>
+</header>
+<?php 
+if (str_contains($_SERVER['REQUEST_URI'],"dashboard.php")){
 ?>
-<a href="index.php">Accueil</a>
+<a href="dashboard.php">Accueil</a>
 <?php
 }else{    
 ?>
-<a href="index.php<?php echo htmlspecialchars((isset($_GET["id_tournoi"])) ? '?id_tournoi='.$_GET["id_tournoi"] : '');?>">Accueil</a>
+<a href="dashboard.php<?php echo htmlspecialchars((isset($_GET["id_tournoi"])) ? '?id_tournoi='.$_GET["id_tournoi"] : '');?>">Accueil</a>
 <?php
 }
 ?>

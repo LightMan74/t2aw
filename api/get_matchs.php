@@ -1,6 +1,7 @@
 <?php
 // api/get_matchs.php
 header('Content-Type: application/json');
+include "api/check_connected.php";
 require 'db.php';
 
 $id_tournoi = $_GET['id_tournoi'] ?? null;

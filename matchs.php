@@ -13,7 +13,9 @@
 <body>
     <div class="container">
         <nav>
-            <?php include 'menu.php'; ?>
+            <?php 
+            include "api/check_connected.php";
+            include 'menu.php'; ?>
         </nav>
 
         <h1>Gestion des matchs de poule</h1>

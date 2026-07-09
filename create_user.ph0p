@@ -1,0 +1,30 @@
+<?php
+
+
+
+function generateUUIDv4() {
+    $data = random_bytes(16);
+    
+    // Définir la version (0100) et les bits de variant (10)
+    $data[6] = chr(ord($data[6]) & 0x0f | 0x40); // version 4
+    $data[8] = chr(ord($data[8]) & 0x3f | 0x80); // variant
+
+    return vsprintf('%s%s-%s-%s-%s-%s%s%s', str_split(bin2hex($data), 4));
+}
+
+// $pdo = getPDO();
+include 'api/db.php';
+
+$username = '***';
+$password = '***';
+$uid = generateUUIDv4();
+$hash = password_hash($password, PASSWORD_DEFAULT);
+
+
+try {
+$stmt = $pdo->prepare("INSERT INTO user (user, password, uid) VALUES (:user, :password, :uid)");
+$stmt->execute(['user' => $username, 'password' => $hash, 'uid' => $uid]);
+} catch (PDOException $e) {
+    echo json_encode(['success' => false, 'error' => $e->getMessage()]);
+}
+echo "Utilisateur créé : $username / $password";

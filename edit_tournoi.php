@@ -1,5 +1,5 @@
 <?php
-require_once 'config.php';
+include "api/check_connected.php";
 
 // Récupérer l'id_tournoi depuis l'URL
 $id_tournoi = isset($_GET['id_tournoi']) ? (int)$_GET['id_tournoi'] : 0;
@@ -13,10 +13,15 @@ $id_tournoi = isset($_GET['id_tournoi']) ? (int)$_GET['id_tournoi'] : 0;
     <title>Modifier le tournoi - Gestion Tournois Badminton</title>
     <link rel="stylesheet" href="css/style.css">
 </head>
+<div class="container">
+    <nav>
+        <?php include 'menu.php'; ?>
+    </nav>
+</div>
 
 <body>
     <div class="container">
-        <a href="index.php" class="btn btn-back">← Retour</a>
+        <!-- <a href="index.php" class="btn btn-back">← Retour</a> -->
 
         <h1>Modifier le tournoi</h1>
 

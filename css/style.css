@@ -302,6 +302,47 @@ input:focus {
     margin: 20px 0;
 }
 
+.top-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+    margin-bottom: 1rem;
+}
+
+.top-header h1 {
+    font-size: 1.3rem;
+    color: #333;
+}
+
+.user-info {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.user-info span {
+    color: #555;
+    font-size: 0.9rem;
+}
+
+.btn-logout {
+    padding: 0.4rem 0.9rem;
+    background-color: #d32f2f;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.85rem;
+}
+
+.btn-logout:hover {
+    background-color: #b71c1c;
+}
+
 /* ---- Responsive ---- */
 @media (max-width: 600px) {
     .form-row {

@@ -10,6 +10,8 @@ if (ob_get_level()) {
 }
 header('Content-Type: application/json; charset=utf-8');
 
+include "api/check_connected.php";
+
 $raw = file_get_contents('php://input');
 $data = json_decode($raw, true);
 
@@ -45,8 +47,8 @@ try {
     $id_tournoi = $stmtMaxId->fetch(PDO::FETCH_ASSOC)['next_id'];
 
     // Insérer le tournoi
-    $stmtInsertTournoi = $pdo->prepare("INSERT INTO tournoi (id_tournoi, nom) VALUES (:id_tournoi, :nom)");
-    $stmtInsertTournoi->execute(['id_tournoi' => $id_tournoi, 'nom' => $nom]);
+    $stmtInsertTournoi = $pdo->prepare("INSERT INTO tournoi (id_tournoi, nom, uid) VALUES (:id_tournoi, :nom, :uid)");
+    $stmtInsertTournoi->execute(['id_tournoi' => $id_tournoi, 'nom' => $nom, 'uid' => $_SESSION['uid']]);
 
     // Insérer les paramètres
     $stmtInsertParam = $pdo->prepare("

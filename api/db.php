@@ -19,6 +19,16 @@ try {
             PDO::ATTR_EMULATE_PREPARES => false,
         ]
     );
+    $stmt = $pdo->prepare("
+        SELECT nom
+        FROM tournoi
+        WHERE id_tournoi = :id
+    ");
+    $stmt->execute(['id' => htmlspecialchars(($_GET["id_tournoi"]))]);
+    $tournoi_name_menu = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    // echo htmlspecialchars(($_GET["id_tournoi"]));
+    // var_dump($tournoi_name_menu);
+    // echo "***".$tournoi_name_menu[0]["nom"];
 } catch (PDOException $e) {
     error_log('Connexion BDD echouee: ' . $e->getMessage());
     if (ob_get_level()) {

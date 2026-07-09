@@ -4,6 +4,7 @@
 // avec alternance tour par tour entre les poules (et catégories)
 
 header('Content-Type: application/json');
+include "api/check_connected.php";
 require 'db.php';
 
 $id_tournoi = $_POST['id_tournoi'] ?? null;

@@ -9,7 +9,7 @@ if (ob_get_level()) {
     ob_end_clean();
 }
 header('Content-Type: application/json; charset=utf-8');
-
+include "api/check_connected.php";
 $raw = file_get_contents('php://input');
 $data = json_decode($raw, true);
 

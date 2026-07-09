@@ -1,5 +1,13 @@
 <?php
-require_once 'config.php';
+session_start();
+
+// var_dump($_SESSION);
+// Protection : si pas connecté, on redirige vers la connexion
+include "api/check_connected.php";
+
+// On récupère les infos de l'utilisateur connecté
+$currentUid = $_SESSION['uid'];
+$currentUser = $_SESSION['user'];
 ?>
 <!DOCTYPE html>
 <html lang="fr">
@@ -13,12 +21,14 @@ require_once 'config.php';
 
 <body>
     <div class="container">
-        <h1>Gestion des Tournois de Badminton</h1>
+
+
         <div class="container">
             <nav>
                 <?php include 'menu.php'; ?>
             </nav>
         </div>
+
         <!-- Liste des tournois -->
         <section class="section">
             <h2>Tournois existants</h2>
@@ -28,7 +38,7 @@ require_once 'config.php';
             <div id="liste-tournois"></div>
         </section>
 
-
+        <?php if($tournoi_name_menu[0]["nom"] == ""){?>
         <!-- Création d'un nouveau tournoi -->
         <section class="section">
             <h2>Créer un nouveau tournoi</h2>
@@ -88,9 +98,12 @@ require_once 'config.php';
             </form>
         </section>
     </div>
-
+    <?php
+        }
+?>
     <script src="js/main.js"></script>
     <script src="js/supprimer_tournoi.js"></script>
+    <script src="js/logout.js"></script>
 </body>
 
 </html>
