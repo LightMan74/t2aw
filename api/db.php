@@ -26,6 +26,8 @@ try {
     ");
     $stmt->execute(['id' => htmlspecialchars(($_GET["id_tournoi"]))]);
     $tournoi_name_menu = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    if ($_SESSION['user'] == "admin"){$tournoi_name_menu[0]["uid"] = "%";}
+
     // echo htmlspecialchars(($_GET["id_tournoi"]));
     // var_dump($tournoi_name_menu);
     // echo "***".$tournoi_name_menu[0]["nom"];

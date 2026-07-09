@@ -28,7 +28,9 @@
         </nav>
 
         <h1>Gestion des matchs de poule</h1>
+        <?php if (isset($_GET["admin"])){?>
         <button onclick="autosaveandreload()">Enregistrer</button>
+        <?php } ?>
         <!-- <label>ID Tournoi :</label> -->
         <input type="number" id="id_tournoi" value="<?php echo $_GET["id_tournoi"];?>" style="width:100px; margin-bottom:15px;" hidden>
         <!-- <input type="number" id="id_tournoi" value="1" style="width:100px; margin-bottom:15px;"> -->

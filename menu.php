@@ -1,4 +1,5 @@
 <?php 
+include "api/check_connected.php";
 include 'api/db.php'; 
 // On récupère les infos de l'utilisateur connecté
 $currentUid = $_SESSION['uid'];
@@ -13,35 +14,37 @@ $currentUser = $_SESSION['user'];
     </div>
 </header>
 <?php 
-if ($tournoi_name_menu[0]["uid"] != $currentUid && isset($_GET["id_tournoi"])){
-    echo "Le tournoi demandé n'existe pas ou n'est pas liée a l'identifiant actuelle !<br><br>";
+    if (($tournoi_name_menu[0]["uid"] != $currentUid && isset($_GET["id_tournoi"]))){
+        echo "Le tournoi demandé n'existe pas ou n'est pas liée a l'identifiant actuelle !<br><br>";
 ?>
 <a href="dashboard.php">Accueil</a>
 <?php
-exit;
-}
-if (str_contains($_SERVER['REQUEST_URI'],"dashboard.php")){
+        exit;
+    }
+    if (str_contains($_SERVER['REQUEST_URI'],"dashboard.php")){
 ?>
 <a href="dashboard.php">Accueil</a>
 <?php
-}else{    
+    }else{    
 ?>
 <a href="dashboard.php<?php echo htmlspecialchars((isset($_GET["id_tournoi"])) ? '?id_tournoi='.$_GET["id_tournoi"] : '');?>">Accueil</a>
 <?php
 }
 ?>
 <?php
-if (isset($_GET["id_tournoi"])){
+    if (isset($_GET["id_tournoi"])){
 ?>
 <?php 
-if (str_contains($_SERVER['REQUEST_URI'],"edit_tournoi.php")||str_contains($_SERVER['REQUEST_URI'],"generation.php")){
+        if (str_contains($_SERVER['REQUEST_URI'],"edit_tournoi.php")||str_contains($_SERVER['REQUEST_URI'],"generation.php")){
 ?>
 <a href="generation.php<?php echo htmlspecialchars((isset($_GET["id_tournoi"])) ? '?id_tournoi='.$_GET["id_tournoi"] : '');?>">Génération</a>
 <?php
-}   
+        }   
 ?>
-<a href="matchs.php<?php echo htmlspecialchars((isset($_GET["id_tournoi"])) ? '?id_tournoi='.$_GET["id_tournoi"] : '');?>">Matchs</a>
-<a href="classement.php<?php echo htmlspecialchars((isset($_GET["id_tournoi"])) ? '?id_tournoi='.$_GET["id_tournoi"] : '');?>">Classement</a>
+<a href="matchs.php?admin<?php echo htmlspecialchars((isset($_GET["id_tournoi"])) ? '&id_tournoi='.$_GET["id_tournoi"] : '');?>">Matchs</a>
+<a href="classement.php?admin<?php echo htmlspecialchars((isset($_GET["id_tournoi"])) ? '&id_tournoi='.$_GET["id_tournoi"] : '');?>">Classement</a>
 <?php
-}
+    }
 ?>
+
+<script src="js/logout.js"></script>

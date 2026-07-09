@@ -104,7 +104,6 @@ include "api/check_connected.php";
         }
 ?>
 
-    <script src="js/logout.js"></script>
 </body>
 
 </html>

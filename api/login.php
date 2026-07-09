@@ -14,7 +14,7 @@ if (!isset($data['user']) || !isset($data['password'])) {
     echo json_encode($response);
     exit;
 }
-
+ 
 $username = trim($data['user']);
 $password = $data['password'];
 
@@ -38,7 +38,8 @@ try {
         $_SESSION['user'] = $userData['user'];
         $_SESSION['logged_in'] = true;
         $_SESSION['expire'] = "";
-
+        if ($userData['user'] == "admin"){$_SESSION['uid'] = "%";}
+        
         $response['success'] = true;
         $response['message'] = 'Connexion réussie';
         $response['redirect'] = 'dashboard.php';
