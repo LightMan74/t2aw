@@ -20,7 +20,7 @@ try {
         ]
     );
     $stmt = $pdo->prepare("
-        SELECT nom
+        SELECT nom, uid
         FROM tournoi
         WHERE id_tournoi = :id
     ");

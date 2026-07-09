@@ -1,5 +1,9 @@
 <?php 
-include 'api/db.php'; ?>
+include 'api/db.php'; 
+// On récupère les infos de l'utilisateur connecté
+$currentUid = $_SESSION['uid'];
+$currentUser = $_SESSION['user'];
+?>
 <header class="top-header">
     <h1>Gestion des Tournois de Badminton</h1>
     <h3>Tournoi Actuel -> <?php echo ($tournoi_name_menu[0]["nom"] != "") ? $tournoi_name_menu[0]["nom"]: 'AUCUN'; ?></h3>
@@ -9,6 +13,13 @@ include 'api/db.php'; ?>
     </div>
 </header>
 <?php 
+if ($tournoi_name_menu[0]["uid"] != $currentUid && isset($_GET["id_tournoi"])){
+    echo "Le tournoi demandé n'existe pas ou n'est pas liée a l'identifiant actuelle !<br><br>";
+?>
+<a href="dashboard.php">Accueil</a>
+<?php
+exit;
+}
 if (str_contains($_SERVER['REQUEST_URI'],"dashboard.php")){
 ?>
 <a href="dashboard.php">Accueil</a>

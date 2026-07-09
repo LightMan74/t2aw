@@ -15,7 +15,16 @@
         <nav>
             <?php 
             include "api/check_connected.php";
-            include 'menu.php'; ?>
+            include 'menu.php'; 
+        $stmt = $pdo->prepare("
+        SELECT troissets
+        FROM parametre
+        WHERE id_tournoi = :id
+        ");
+    $stmt->execute(['id' => htmlspecialchars(($_GET["id_tournoi"]))]);
+    $tournoi_troissets_match = $stmt->fetchAll(PDO::FETCH_ASSOC)[0]['troissets'];
+            ?>
+
         </nav>
 
         <h1>Gestion des matchs de poule</h1>
@@ -26,7 +35,6 @@
         <!-- <button onclick="chargerMatchs()">Charger les matchs</button> -->
 
         <div id="message"></div>
-
         <table id="table-matchs">
             <thead>
                 <tr>
@@ -35,12 +43,16 @@
                     <th>Terrain</th>
                     <th>Equipe 1</th>
                     <th>SET 1</th>
+                    <?php if ($tournoi_troissets_match>1){ ?>
                     <th>SET 2</th>
                     <th>SET 3</th>
+                    <?php } ?>
                     <th>vs</th>
                     <th>SET 1</th>
+                    <?php if ($tournoi_troissets_match>1){ ?>
                     <th>SET 2</th>
                     <th>SET 3</th>
+                    <?php } ?>
                     <th>Equipe 2</th>
                     <th>Statut</th>
                     <th>Heure début</th>
@@ -50,6 +62,9 @@
         </table>
     </div>
 
+    <script>
+    const tournoi_troissets_match = <?= json_encode($tournoi_troissets_match); ?>;
+    </script>
     <script src="js/matchs.js"></script>
     <script>
     chargerMatchs();

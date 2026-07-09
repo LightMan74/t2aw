@@ -50,19 +50,19 @@ function afficherTable() {
         const s2set1 = scoresEquipe2[0] ?? 0;
         const s2set2 = scoresEquipe2[1] ?? 0;
         const s2set3 = scoresEquipe2[2] ?? 0;
-
+        const hiddenSets = tournoi_troissets_match > 1 ? '' : 'hidden';
         tr.innerHTML = `
     <td>${m.nom_categorie}</td>
     <td>${m.nom_poule}</td>
     <td><input type="number" min="1" value="${m.terrain ?? ''}" id="terrain-${index}"></td>
     <td>${m.nom_equipe_1}</td>
     <td><input type="number" min="0" value="${s1set1}" id="score1s1-${index}"></td>   
-    <td><input type="number" min="0" value="${s1set2}" id="score1s2-${index}"></td>   
-    <td><input type="number" min="0" value="${s1set3}" id="score1s3-${index}"></td>            
+    <td ${hiddenSets}><input type="number" min="0" value="${s1set2}" id="score1s2-${index}"></td>   
+    <td ${hiddenSets}><input type="number" min="0" value="${s1set3}" id="score1s3-${index}"></td>            
     <td>vs</td>
     <td><input type="number" min="0" value="${s2set1}" id="score2s1-${index}"></td>
-    <td><input type="number" min="0" value="${s2set2}" id="score2s2-${index}"></td>
-    <td><input type="number" min="0" value="${s2set3}" id="score2s3-${index}"></td>
+    <td ${hiddenSets}><input type="number" min="0" value="${s2set2}" id="score2s2-${index}"></td>
+    <td ${hiddenSets}><input type="number" min="0" value="${s2set3}" id="score2s3-${index}"></td>
     <td>${m.nom_equipe_2}</td>
     <td>
         <select id="status-${index}">

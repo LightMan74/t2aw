@@ -5,9 +5,7 @@ session_start();
 // Protection : si pas connecté, on redirige vers la connexion
 include "api/check_connected.php";
 
-// On récupère les infos de l'utilisateur connecté
-$currentUid = $_SESSION['uid'];
-$currentUser = $_SESSION['user'];
+
 ?>
 <!DOCTYPE html>
 <html lang="fr">
@@ -29,6 +27,7 @@ $currentUser = $_SESSION['user'];
             </nav>
         </div>
 
+        <?php if($tournoi_name_menu[0]["nom"] == ""){?>
         <!-- Liste des tournois -->
         <section class="section">
             <h2>Tournois existants</h2>
@@ -38,7 +37,6 @@ $currentUser = $_SESSION['user'];
             <div id="liste-tournois"></div>
         </section>
 
-        <?php if($tournoi_name_menu[0]["nom"] == ""){?>
         <!-- Création d'un nouveau tournoi -->
         <section class="section">
             <h2>Créer un nouveau tournoi</h2>
@@ -98,11 +96,14 @@ $currentUser = $_SESSION['user'];
             </form>
         </section>
     </div>
-    <?php
-        }
-?>
     <script src="js/main.js"></script>
     <script src="js/supprimer_tournoi.js"></script>
+    <?php
+        }else{
+            echo ' <h1>Tournoi actuellement ouvert<br><br>&nbsp;&nbsp;&nbsp;'.$tournoi_name_menu[0]["nom"].'</h1>';
+        }
+?>
+
     <script src="js/logout.js"></script>
 </body>
 
