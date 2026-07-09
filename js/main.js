@@ -53,7 +53,7 @@ async function chargerTournois() {
             const div = document.createElement('div');
             div.className = 'tournoi-item';
             div.innerHTML = `
-                <span><strong>${t.nom}</strong> (ID: ${t.id_tournoi})</span>
+                <span><strong>${t.nom}</strong></span>
                 <a href="dashboard.php?id_tournoi=${t.id_tournoi}">Ouvrir</a>
                 <a href="edit_tournoi.php?id_tournoi=${t.id_tournoi}">Modifier</a>
                 <a href="#" onclick="supprimerTournoi('${t.id_tournoi}')">Supprimer</a>

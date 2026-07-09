@@ -86,19 +86,19 @@ try {
     }
 
     // Initialiser le classement pour chaque équipe si non existant
-    $stmtEquipes = $pdo->prepare("SELECT * FROM equipe WHERE id_tournoi = ?");
-    $stmtEquipes->execute([$id_tournoi]);
-    $equipes = $stmtEquipes->fetchAll();
+    // $stmtEquipes = $pdo->prepare("SELECT * FROM equipe WHERE id_tournoi = ?");
+    // $stmtEquipes->execute([$id_tournoi]);
+    // $equipes = $stmtEquipes->fetchAll();
 
-    $stmtCheckClassement = $pdo->prepare("SELECT id FROM classement WHERE id_tournoi=? AND id_categorie=? AND id_poule=? AND id_equipe=?");
-    $stmtInsertClassement = $pdo->prepare("INSERT INTO classement (id_tournoi, id_categorie, id_poule, id_equipe, victoire, defaite, set_gagner, point_marquer, point_encaisser) VALUES (?, ?, ?, ?, 0, 0, 0, 0, 0)");
+    // $stmtCheckClassement = $pdo->prepare("SELECT id FROM classement WHERE id_tournoi=? AND id_categorie=? AND id_poule=? AND id_equipe=?");
+    // $stmtInsertClassement = $pdo->prepare("INSERT INTO classement (id_tournoi, id_categorie, id_poule, id_equipe, victoire, defaite, set_gagner, point_marquer, point_encaisser) VALUES (?, ?, ?, ?, 0, 0, 0, 0, 0)");
 
-    foreach ($equipes as $eq) {
-        $stmtCheckClassement->execute([$id_tournoi, $eq['id_categorie'], $eq['id_poule'], $eq['id_equipe']]);
-        if (!$stmtCheckClassement->fetch()) {
-            $stmtInsertClassement->execute([$id_tournoi, $eq['id_categorie'], $eq['id_poule'], $eq['id_equipe']]);
-        }
-    }
+    // foreach ($equipes as $eq) {
+    //     $stmtCheckClassement->execute([$id_tournoi, $eq['id_categorie'], $eq['id_poule'], $eq['id_equipe']]);
+    //     if (!$stmtCheckClassement->fetch()) {
+    //         $stmtInsertClassement->execute([$id_tournoi, $eq['id_categorie'], $eq['id_poule'], $eq['id_equipe']]);
+    //     }
+    // }
 
     $pdo->commit();
     echo json_encode(['success' => true]);

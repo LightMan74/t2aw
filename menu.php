@@ -22,7 +22,13 @@ if (str_contains($_SERVER['REQUEST_URI'],"dashboard.php")){
 <?php
 if (isset($_GET["id_tournoi"])){
 ?>
+<?php 
+if (str_contains($_SERVER['REQUEST_URI'],"edit_tournoi.php")||str_contains($_SERVER['REQUEST_URI'],"generation.php")){
+?>
 <a href="generation.php<?php echo htmlspecialchars((isset($_GET["id_tournoi"])) ? '?id_tournoi='.$_GET["id_tournoi"] : '');?>">Génération</a>
+<?php
+}   
+?>
 <a href="matchs.php<?php echo htmlspecialchars((isset($_GET["id_tournoi"])) ? '?id_tournoi='.$_GET["id_tournoi"] : '');?>">Matchs</a>
 <a href="classement.php<?php echo htmlspecialchars((isset($_GET["id_tournoi"])) ? '?id_tournoi='.$_GET["id_tournoi"] : '');?>">Classement</a>
 <?php
