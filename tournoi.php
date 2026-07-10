@@ -22,6 +22,7 @@ $id_tournoi = isset($_GET['id_tournoi']) ? (int)$_GET['id_tournoi'] : 0;
                 <input type="number" id="refresh-interval" value="10" min="3" max="120">
                 <span id="countdown">10</span>s
             </div>
+            <button id="dark-mode-toggle" class="btn-dark" title="Basculer le mode sombre">🌙</button>
         </div>
     </header>
 
@@ -32,26 +33,32 @@ $id_tournoi = isset($_GET['id_tournoi']) ? (int)$_GET['id_tournoi'] : 0;
     </nav>
 
     <main>
-        <!-- Onglet Matchs -->
+        <!-- Onglet Matchs : 3 colonnes -->
         <section id="tab-matchs" class="tab-content active">
-            <h2>Matchs en cours</h2>
-            <div id="matchs-en-cours" class="liste-matchs"></div>
-
-            <h2>Matchs à venir</h2>
-            <div id="matchs-a-venir" class="liste-matchs"></div>
-
-            <h2>Derniers résultats</h2>
-            <div id="matchs-termines" class="liste-matchs"></div>
+            <div class="grid-matchs">
+                <div class="colonne">
+                    <h2>Matchs en cours</h2>
+                    <div id="matchs-en-cours" class="liste-matchs scroll-colonne"></div>
+                </div>
+                <div class="colonne">
+                    <h2>Matchs à venir</h2>
+                    <div id="matchs-a-venir" class="liste-matchs scroll-colonne"></div>
+                </div>
+                <div class="colonne">
+                    <h2>Derniers résultats</h2>
+                    <div id="matchs-termines" class="liste-matchs scroll-colonne"></div>
+                </div>
+            </div>
         </section>
 
-        <!-- Onglet Classement -->
+        <!-- Onglet Classement : grille multi-colonnes -->
         <section id="tab-classement" class="tab-content">
-            <div id="classement-content"></div>
+            <div id="classement-content" class="grid-multicol scroll-colonne"></div>
         </section>
 
-        <!-- Onglet Joueurs -->
+        <!-- Onglet Joueurs : grille multi-colonnes -->
         <section id="tab-joueurs" class="tab-content">
-            <div id="joueurs-content"></div>
+            <div id="joueurs-content" class="grid-multicol scroll-colonne"></div>
         </section>
     </main>
 

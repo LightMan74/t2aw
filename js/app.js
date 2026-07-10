@@ -5,6 +5,7 @@ let secondsLeft = 10;
 
 document.addEventListener('DOMContentLoaded', () => {
     initTabs();
+    initDarkMode();
     updateHorloge();
     setInterval(updateHorloge, 1000);
 
@@ -20,6 +21,24 @@ document.addEventListener('DOMContentLoaded', () => {
         initRefresh();
     });
 });
+
+// ----- Dark mode -----
+function initDarkMode() {
+    const btn = document.getElementById('dark-mode-toggle');
+    const saved = localStorage.getItem('darkMode');
+
+    if (saved === 'true') {
+        document.body.classList.add('dark');
+        btn.textContent = '☀️';
+    }
+
+    btn.addEventListener('click', () => {
+        document.body.classList.toggle('dark');
+        const isDark = document.body.classList.contains('dark');
+        localStorage.setItem('darkMode', isDark);
+        btn.textContent = isDark ? '☀️' : '🌙';
+    });
+}
 
 // ----- Onglets -----
 function initTabs() {
@@ -150,6 +169,7 @@ function chargerClassement() {
             catDiv.className = 'categorie-block';
 
             let html = `<h3>${escapeHTML(cat.nom_categorie)}</h3>`;
+            html += `<div class="categorie-block-poules">`;
 
             cat.poules.forEach(poule => {
                 html += `<div class="poule-block"><h4>${escapeHTML(poule.nom_poule)}</h4>`;
@@ -161,8 +181,8 @@ function chargerClassement() {
                             <th>J</th>
                             <th>V</th>
                             <th>D</th>
-                            <th>Sets +/-</th>
-                            <th>Pts +/-</th>
+                            <th>Sets</th>
+                            <th>Pts</th>
                         </tr>
                     </thead>
                     <tbody>`;
@@ -182,6 +202,7 @@ function chargerClassement() {
                 html += `</tbody></table></div>`;
             });
 
+            html += `</div>`;
             catDiv.innerHTML = html;
             container.appendChild(catDiv);
         });
@@ -199,33 +220,43 @@ function chargerJoueurs() {
             return;
         }
 
-        // Grouper par catégorie
-        const groupes = {};
+        // Groupement catégorie -> poule -> joueurs
+        const categories = {};
         data.joueurs.forEach(j => {
-            const key = j.nom_categorie || 'Sans catégorie';
-            if (!groupes[key]) groupes[key] = [];
-            groupes[key].push(j);
+            const cat = j.nom_categorie || 'Sans catégorie';
+            const poule = j.nom_poule || 'Sans poule';
+
+            if (!categories[cat]) categories[cat] = {};
+            if (!categories[cat][poule]) categories[cat][poule] = [];
+
+            categories[cat][poule].push(j);
         });
 
-        for (const cat in groupes) {
+        for (const cat in categories) {
             const catDiv = document.createElement('div');
             catDiv.className = 'categorie-block';
 
             let html = `<h3>${escapeHTML(cat)}</h3>`;
-            html += `<table>
-                <thead>
-                    <tr><th>Nom</th><th>Poule</th></tr>
-                </thead>
-                <tbody>`;
+            html += `<div class="categorie-block-poules">`;
 
-            groupes[cat].forEach(j => {
-                html += `<tr>
-                    <td style="text-align:left;">${escapeHTML(j.nom)}</td>
-                    <td>${escapeHTML(j.nom_poule || '-')}</td>
-                </tr>`;
-            });
+            for (const poule in categories[cat]) {
+                html += `<div class="poule-block"><h4>${escapeHTML(poule)}</h4>`;
+                html += `<table>
+                    <thead>
+                        <tr><th>Nom</th></tr>
+                    </thead>
+                    <tbody>`;
 
-            html += `</tbody></table>`;
+                categories[cat][poule].forEach(j => {
+                    html += `<tr>
+                        <td style="text-align:left;">${escapeHTML(j.nom)}</td>
+                    </tr>`;
+                });
+
+                html += `</tbody></table></div>`;
+            }
+
+            html += `</div>`;
             catDiv.innerHTML = html;
             container.appendChild(catDiv);
         }
