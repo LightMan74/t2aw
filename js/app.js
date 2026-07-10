@@ -164,28 +164,34 @@ function chargerClassement() {
             return;
         }
 
+        // Grille globale aplatie : toutes les poules de toutes les catégories, 2 par ligne
+        const grid = document.createElement('div');
+        grid.className = 'grid-classement-poules';
+
         data.categories.forEach(cat => {
-            const catDiv = document.createElement('div');
-            catDiv.className = 'categorie-block';
-
-            let html = `<h3>${escapeHTML(cat.nom_categorie)}</h3>`;
-            html += `<div class="categorie-block-poules">`;
-
             cat.poules.forEach(poule => {
-                html += `<div class="poule-block"><h4>${escapeHTML(poule.nom_poule)}</h4>`;
-                html += `<table>
-                    <thead>
-                        <tr>
-                            <th>#</th>
-                            <th>Équipe</th>
-                            <th>J</th>
-                            <th>V</th>
-                            <th>D</th>
-                            <th>Sets</th>
-                            <th>Pts</th>
-                        </tr>
-                    </thead>
-                    <tbody>`;
+                const bloc = document.createElement('div');
+                bloc.className = 'poule-block-classement';
+
+                let html = `<div class="poule-header">
+                    <span class="poule-cat">${escapeHTML(cat.nom_categorie)}</span>
+                    <span class="poule-nom">${escapeHTML(poule.nom_poule)}</span>
+                </div>`;
+
+                html += `<div class="poule-scroll">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Équipe</th>
+                                <th>J</th>
+                                <th>V</th>
+                                <th>D</th>
+                                <th>Sets</th>
+                                <th>Pts</th>
+                            </tr>
+                        </thead>
+                        <tbody>`;
 
                 poule.classement.forEach((eq, index) => {
                     html += `<tr>
@@ -200,12 +206,12 @@ function chargerClassement() {
                 });
 
                 html += `</tbody></table></div>`;
+                bloc.innerHTML = html;
+                grid.appendChild(bloc);
             });
-
-            html += `</div>`;
-            catDiv.innerHTML = html;
-            container.appendChild(catDiv);
         });
+
+        container.appendChild(grid);
     });
 }
 

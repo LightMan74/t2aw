@@ -354,6 +354,77 @@ tr:nth-child(even) {
     background: #f9f9f9;
 }
 
+/* ---------- CLASSEMENT : 2 poules max par ligne ---------- */
+.grid-classement-poules {
+    display: grid;
+    grid-template-columns: repeat(2, 48vw);
+    grid-auto-rows: 1fr;
+    gap: 15px;
+    height: 100%;
+    width: 100%;
+    min-height: 0;
+}
+
+.poule-block-classement {
+    background: #fff;
+    border-radius: 6px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    overflow: hidden;
+}
+
+.poule-header {
+    flex-shrink: 0;
+    padding: 8px 14px;
+    background: #34495e;
+    color: #fff;
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    border-radius: 6px 6px 0 0;
+}
+
+.poule-header .poule-cat {
+    font-size: 0.9rem;
+    opacity: 0.85;
+}
+
+.poule-header .poule-nom {
+    font-size: 1.1rem;
+    font-weight: bold;
+}
+
+.poule-scroll {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    padding: 0 10px 10px;
+}
+
+/* Scrollbar discrète pour les poules trop longues */
+.poule-scroll::-webkit-scrollbar {
+    width: 6px;
+}
+
+.poule-scroll::-webkit-scrollbar-thumb {
+    background: #bbb;
+    border-radius: 3px;
+}
+
+.poule-scroll table {
+    font-size: 1rem;
+    margin-top: 8px;
+}
+
+.poule-scroll th {
+    position: sticky;
+    top: 0;
+    background: #ecf0f1;
+    z-index: 1;
+}
+
 /* ---------- RESPONSIVE MOBILE ---------- */
 @media (max-width: 900px) {
     body {
@@ -418,6 +489,31 @@ tr:nth-child(even) {
     table,
     th,
     td {
+        font-size: 0.9rem;
+    }
+
+    /* Classement en mobile : 1 colonne, scroll de page, plus de limite de hauteur interne */
+    .grid-classement-poules {
+        grid-template-columns: 1fr;
+        grid-auto-rows: auto;
+        height: auto;
+    }
+
+    .poule-block-classement {
+        min-height: auto;
+        overflow: visible;
+    }
+
+    .poule-scroll {
+        overflow-y: visible;
+        max-height: none;
+    }
+
+    .poule-header .poule-nom {
+        font-size: 1rem;
+    }
+
+    .poule-scroll table {
         font-size: 0.9rem;
     }
 }

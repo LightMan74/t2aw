@@ -43,6 +43,7 @@ $currentUser = $_SESSION['user'];
 ?>
 <a href="matchs.php?admin<?php echo htmlspecialchars((isset($_GET["id_tournoi"])) ? '&id_tournoi='.$_GET["id_tournoi"] : '');?>">Matchs</a>
 <a href="classement.php?admin<?php echo htmlspecialchars((isset($_GET["id_tournoi"])) ? '&id_tournoi='.$_GET["id_tournoi"] : '');?>">Classement</a>
+<a href="afficheur.php?<?php echo htmlspecialchars((isset($_GET["id_tournoi"])) ? 'id_tournoi='.$_GET["id_tournoi"] : '');?>">Afficheur</a>
 <?php
     }
 ?>
