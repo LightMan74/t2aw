@@ -41,8 +41,8 @@ try {
     }
 
     $insert = $pdo->prepare("INSERT INTO match_poule 
-        (id_tournoi, id_categorie, id_poule, id_match, terrain, id_equipe_1, id_equipe_2, status, heure_debut, heure_fin, ordre_affichage)
-        VALUES (?, ?, ?, ?, ?, ?, ?, 'planifie', ?, ?, ?)");
+        (id_tournoi, id_categorie, id_poule, id_poule_2, id_match, terrain, id_equipe_1, id_equipe_2, status, heure_debut, heure_fin, ordre_affichage)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'planifie', ?, ?, ?)");
 
     $ordreAffichage = 1;
     $terrainActuel = 1;
@@ -50,6 +50,7 @@ try {
     foreach ($matchs as $m) {
         $id_categorie = $m['id_categorie'];
         $id_poule = $m['id_poule'];
+        $id_poule_2 = $m['id_poule_2'];
         $keyPoule = $id_categorie . '_' . $id_poule;
 
         if (!isset($compteurMatchParPoule[$keyPoule])) {
@@ -71,6 +72,7 @@ try {
             $id_tournoi,
             $id_categorie,
             $id_poule,
+            $id_poule_2,
             $id_match,
             $terrain,
             $m['id_equipe_1'],
