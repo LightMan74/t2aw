@@ -22,11 +22,11 @@ include "api/check_connected.php";
     <div class="container">
 
 
-        <div class="container">
-            <nav>
-                <?php include 'menu.php'; ?>
-            </nav>
-        </div>
+        <!-- <div class="container"> -->
+        <nav>
+            <?php include 'menu.php'; ?>
+        </nav>
+        <!-- </div> -->
 
         <?php if($tournoi_name_menu[0]["nom"] == ""){?>
         <!-- Liste des tournois -->
