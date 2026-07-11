@@ -5,10 +5,18 @@ include 'api/db.php';
 $currentUid = $_SESSION['uid'];
 $currentUser = $_SESSION['user'];
 ?>
+<script>
+// Applique le thème AVANT le rendu du header pour éviter le flash
+(function() {
+    const saved = localStorage.getItem('theme') || 'light';
+    document.documentElement.setAttribute('data-theme', saved);
+})();
+</script>
 <header class="top-header">
     <h1>Gestion des Tournois de Badminton</h1>
     <h3>Tournoi Actuel -> <?php echo ($tournoi_name_menu[0]["nom"] != "") ? $tournoi_name_menu[0]["nom"]: 'AUCUN'; ?></h3>
     <div class="user-info">
+        <button id="btn-theme-toggle" class="theme-toggle">🌙 Sombre</button>
         <span>👤 <?php echo htmlspecialchars($currentUser); ?></span>
         <button id="btn-logout" class="btn btn-logout">Déconnexion</button>
     </div>
@@ -47,5 +55,5 @@ $currentUser = $_SESSION['user'];
 <?php
     }
 ?>
-
 <script src="js/logout.js"></script>
+<script src="js/theme.js"></script>

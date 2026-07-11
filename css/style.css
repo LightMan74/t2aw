@@ -2,6 +2,60 @@
    Styles - Gestion Tournois Badminton
    ======================================== */
 
+/* ---- Variables CSS thème clair (défaut) ---- */
+:root {
+    --bg-body: #f5f5f5;
+    --bg-container: #fff;
+    --bg-header: #fff;
+    --text-main: #333;
+    --text-secondary: #555;
+    --text-muted: #777;
+    --border-color: #a3a3a3;
+    --border-color-light: #a3a3a3;
+    --th-bg: #2c5aa0;
+    --th-text: #fff;
+    --table-bg: #fff;
+    --input-bg: #fff;
+    --input-border: #ddd;
+    --section-shadow: rgba(0, 0, 0, 0.1);
+    --link-color: #2c5aa0;
+    --block-bg: #f9f9f9;
+    --equipe-bg: #ecf0f1;
+    --btn-primary: #3498db;
+    --btn-primary-hover: #2980b9;
+    --btn-back: #95a5a6;
+    --btn-back-hover: #7f8c8d;
+    --btn-plus: #27ae60;
+    --btn-plus-hover: #219a52;
+    --btn-minus: #e74c3c;
+    --btn-minus-hover: #c0392b;
+    --btn-modifier: #f39c12;
+    --btn-modifier-hover: #d68910;
+    --btn-logout: #d32f2f;
+    --btn-logout-hover: #b71c1c;
+    --msg-success-bg: #d4edda;
+    --msg-success-color: #155724;
+    --msg-error-bg: #f8d7da;
+    --msg-error-color: #721c24;
+    --categorie-accent: #3498db;
+    --poule-accent: #9b59b6;
+    --equipe-accent: #27ae60;
+    --save-icon-unsaved: #d9534f;
+
+    /* Status badges — badges inline (span/div) */
+    --status-badge-planifie-bg: #6c757d;
+    --status-badge-planifie-text: #fff;
+    --status-badge-en_cours-bg: #f0ad4e;
+    --status-badge-en_cours-text: #fff;
+    --status-badge-termine-bg: #5cb85c;
+    --status-badge-termine-text: #fff;
+
+    /* Status lignes (tr) — fond des rangées de tableau */
+    --status-tr-planifie-bg: transparent;
+    --status-tr-en_cours-bg: #ffeaa3;
+    --status-tr-termine-bg: #b2f3b7;
+}
+
 * {
     box-sizing: border-box;
     margin: 0;
@@ -9,38 +63,75 @@
 }
 
 body {
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-    background: #f5f5f5;
-    color: #333;
+    background: var(--bg-body);
+    color: var(--text-main);
+    font-family: Arial, sans-serif;
     line-height: 1.6;
     padding: 20px;
+    transition: background 0.2s ease, color 0.2s ease;
 }
 
 .container {
-    max-width: 900px;
+    max-width: 1100px;
     margin: 0 auto;
+    color: var(--text-main);
+}
+
+a {
+    color: var(--text-main);
 }
 
 h1 {
-    color: #2c3e50;
+    color: var(--text-main);
     margin-bottom: 20px;
     font-size: 1.8em;
 }
 
 h2 {
-    color: #34495e;
+    color: var(--text-main);
     margin-bottom: 15px;
     font-size: 1.3em;
-    border-bottom: 2px solid #3498db;
+    border-bottom: 2px solid var(--categorie-accent);
     padding-bottom: 5px;
 }
 
+h3,
+h4 {
+    color: var(--text-main);
+}
+
+/* ---- Navigation ---- */
+nav {
+    margin-bottom: 20px;
+}
+
+nav a {
+    margin-right: 15px;
+    text-decoration: none;
+    color: var(--link-color);
+    font-weight: bold;
+}
+
+/* ---- Sections ---- */
 .section {
-    background: #fff;
+    background: var(--bg-container);
     border-radius: 8px;
     padding: 20px;
     margin-bottom: 20px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 2px 4px var(--section-shadow);
+    color: var(--text-main);
+}
+
+.top-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem;
+    background: var(--bg-header);
+    border-radius: 8px;
+    box-shadow: 0 1px 4px var(--section-shadow);
+    margin-bottom: 1rem;
+    color: var(--text-main);
 }
 
 /* ---- Formulaires ---- */
@@ -61,27 +152,47 @@ label {
     display: block;
     font-weight: 600;
     margin-bottom: 5px;
-    color: #555;
+    color: var(--text-secondary);
 }
 
 input[type="text"],
 input[type="number"],
 input[type="time"],
-input[type="date"] {
+input[type="date"],
+select {
     width: 100%;
     padding: 10px;
-    border: 1px solid #ddd;
+    border: 1px solid var(--input-border);
     border-radius: 4px;
     font-size: 1em;
+    background: var(--input-bg);
+    color: var(--text-main);
 }
 
-input:focus {
+input:focus,
+select:focus {
     outline: none;
-    border-color: #3498db;
+    border-color: var(--btn-primary);
     box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
 }
 
 /* ---- Boutons ---- */
+button {
+    padding: 6px 12px;
+    background: var(--th-bg);
+    color: var(--th-text);
+    border: none;
+    cursor: pointer;
+    border-radius: 3px;
+    font-size: 1em;
+    transition: background 0.2s;
+}
+
+button:hover {
+    background: var(--th-bg);
+    opacity: 0.85;
+}
+
 .btn {
     padding: 10px 20px;
     border: none;
@@ -95,24 +206,24 @@ input:focus {
 }
 
 .btn-primary {
-    background: #3498db;
+    background: var(--btn-primary);
     color: #fff;
     width: 100%;
     margin-top: 10px;
 }
 
 .btn-primary:hover {
-    background: #2980b9;
+    background: var(--btn-primary-hover);
 }
 
 .btn-back {
-    background: #95a5a6;
+    background: var(--btn-back);
     color: #fff;
     margin-bottom: 15px;
 }
 
 .btn-back:hover {
-    background: #7f8c8d;
+    background: var(--btn-back-hover);
 }
 
 .btn-mini {
@@ -121,24 +232,35 @@ input:focus {
     border-radius: 4px;
     border: none;
     cursor: pointer;
+    background: var(--btn-primary);
+    color: #fff;
 }
 
 .btn-plus {
-    background: #27ae60;
+    background: var(--btn-plus);
     color: #fff;
 }
 
 .btn-plus:hover {
-    background: #219a52;
+    background: var(--btn-plus-hover);
 }
 
 .btn-minus {
-    background: #e74c3c;
+    background: var(--btn-minus);
     color: #fff;
 }
 
 .btn-minus:hover {
-    background: #c0392b;
+    background: var(--btn-minus-hover);
+}
+
+.btn-modifier {
+    background: var(--btn-modifier);
+    color: #fff;
+}
+
+.btn-modifier:hover {
+    background: var(--btn-modifier-hover);
 }
 
 /* ---- Contrôles compteur ---- */
@@ -153,6 +275,7 @@ input:focus {
     font-weight: 700;
     min-width: 40px;
     text-align: center;
+    color: var(--text-main);
 }
 
 .counter-control .btn-mini {
@@ -167,24 +290,26 @@ input:focus {
 .categorie-block,
 .poule-block,
 .equipe-block {
-    background: #f9f9f9;
-    border: 1px solid #eee;
+    background: var(--block-bg);
+    border: 1px solid var(--border-color-light);
     border-radius: 6px;
     padding: 15px;
     margin-bottom: 10px;
+    color: var(--text-main);
 }
 
 .categorie-block {
-    border-left: 4px solid #3498db;
+    border-left: 4px solid var(--categorie-accent);
+    margin-left: 0;
 }
 
 .poule-block {
-    border-left: 4px solid #9b59b6;
+    border-left: 4px solid var(--poule-accent);
     margin-left: 20px;
 }
 
 .equipe-block {
-    border-left: 4px solid #27ae60;
+    border-left: 4px solid var(--equipe-accent);
     margin-left: 40px;
 }
 
@@ -200,6 +325,7 @@ input:focus {
 .poule-header h4 {
     margin: 0;
     flex: 1;
+    color: var(--text-main);
 }
 
 .categorie-header input,
@@ -218,17 +344,20 @@ input:focus {
     display: flex;
     align-items: center;
     gap: 5px;
-    background: #ecf0f1;
+    background: var(--equipe-bg);
     padding: 5px 10px;
     border-radius: 4px;
+    border: 1px solid var(--border-color);
 }
 
 .equipe-item input {
     width: 120px;
     padding: 5px;
-    border: 1px solid #ddd;
+    border: 1px solid var(--input-border);
     border-radius: 3px;
     font-size: 0.9em;
+    background: var(--input-bg);
+    color: var(--text-main);
 }
 
 /* ---- Liste tournois ---- */
@@ -237,7 +366,8 @@ input:focus {
     justify-content: space-between;
     align-items: center;
     padding: 12px;
-    border-bottom: 1px solid #eee;
+    border-bottom: 1px solid var(--border-color-light);
+    color: var(--text-main);
 }
 
 .tournoi-item:last-child {
@@ -251,10 +381,11 @@ input:focus {
 .tournoi-nom {
     font-weight: 600;
     font-size: 1.1em;
+    color: var(--text-main);
 }
 
 .tournoi-date {
-    color: #777;
+    color: var(--text-muted);
     font-size: 0.85em;
 }
 
@@ -263,61 +394,41 @@ input:focus {
     gap: 8px;
 }
 
-.btn-modifier {
-    background: #f39c12;
-    color: #fff;
-}
-
-.btn-modifier:hover {
-    background: #d68910;
-}
-
 .loading {
-    color: #777;
+    color: var(--text-muted);
     font-style: italic;
 }
 
-.message {
+/* ---- Messages ---- */
+.message,
+.msg {
     margin-top: 10px;
     padding: 10px;
     border-radius: 4px;
     text-align: center;
 }
 
-.message.success {
-    background: #d4edda;
-    color: #155724;
+.message.success,
+.msg.success {
+    background: var(--msg-success-bg);
+    color: var(--msg-success-color);
 }
 
-.message.error {
-    background: #f8d7da;
-    color: #721c24;
+.message.error,
+.msg.error {
+    background: var(--msg-error-bg);
+    color: var(--msg-error-color);
 }
 
 .error-message {
-    background: #f8d7da;
-    color: #721c24;
+    background: var(--msg-error-bg);
+    color: var(--msg-error-color);
     padding: 15px;
     border-radius: 4px;
     margin: 20px 0;
 }
 
-.top-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 1rem;
-    background: white;
-    border-radius: 8px;
-    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
-    margin-bottom: 1rem;
-}
-
-.top-header h1 {
-    font-size: 1.3rem;
-    color: #333;
-}
-
+/* ---- User info ---- */
 .user-info {
     display: flex;
     align-items: center;
@@ -325,13 +436,13 @@ input:focus {
 }
 
 .user-info span {
-    color: #555;
+    color: var(--text-secondary);
     font-size: 0.9rem;
 }
 
 .btn-logout {
     padding: 0.4rem 0.9rem;
-    background-color: #d32f2f;
+    background-color: var(--btn-logout);
     color: white;
     border: none;
     border-radius: 4px;
@@ -340,9 +451,10 @@ input:focus {
 }
 
 .btn-logout:hover {
-    background-color: #b71c1c;
+    background-color: var(--btn-logout-hover);
 }
 
+/* ---- Save icon ---- */
 .save-icon {
     cursor: pointer;
     font-size: 1.2em;
@@ -350,7 +462,7 @@ input:focus {
 }
 
 .save-icon.non-sauvegarde {
-    color: #d9534f;
+    color: var(--save-icon-unsaved);
     animation: pulse 1s infinite;
 }
 
@@ -368,34 +480,79 @@ input:focus {
     }
 }
 
+/* ---- Status badges (badges inline : span, div) ---- */
 .status-badge {
     display: inline-block;
     padding: 3px 8px;
     border-radius: 4px;
     font-size: 0.85em;
     cursor: pointer;
-    color: #fff;
     user-select: none;
 }
 
 .status-badge-planifie {
-    background-color: #6c757d;
+    background-color: var(--status-badge-planifie-bg);
+    color: var(--status-badge-planifie-text);
 }
 
 .status-badge-en_cours {
-    background-color: #f0ad4e;
+    background-color: var(--status-badge-en_cours-bg);
+    color: var(--status-badge-en_cours-text);
 }
 
 .status-badge-termine {
-    background-color: #5cb85c;
+    background-color: var(--status-badge-termine-bg);
+    color: var(--status-badge-termine-text);
+}
+
+/* ---- Status rangées de tableau (tr) ---- */
+tr.status-planifie {
+    background-color: var(--status-tr-planifie-bg);
 }
 
 tr.status-en_cours {
-    background-color: #fff8e1;
+    background-color: var(--status-tr-en_cours-bg);
 }
 
 tr.status-termine {
-    background-color: #e8f5e9;
+    background-color: var(--status-tr-termine-bg);
+}
+
+/* ---- Tables ---- */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    background: var(--table-bg);
+    margin-bottom: 25px;
+    color: var(--text-main);
+}
+
+th,
+td {
+    border: 1px solid var(--border-color);
+    padding: 8px;
+    text-align: center;
+}
+
+th {
+    background: var(--th-bg);
+    color: var(--th-text);
+}
+
+/* ---- Match items ---- */
+.match-item {
+    background: var(--table-bg);
+    border: 1px solid var(--border-color);
+    padding: 10px;
+    margin-bottom: 8px;
+    cursor: move;
+    display: flex;
+    justify-content: space-between;
+    color: var(--text-main);
+}
+
+.match-item.dragging {
+    opacity: 0.5;
 }
 
 /* ---- Responsive ---- */
@@ -411,121 +568,4 @@ tr.status-termine {
     .equipe-block {
         margin-left: 20px;
     }
-}
-
-/* css/style.css */
-
-* {
-    box-sizing: border-box;
-    margin: 0;
-    padding: 0;
-}
-
-body {
-    font-family: Arial, sans-serif;
-    background: #f4f4f4;
-    color: #222;
-    padding: 20px;
-}
-
-h1,
-h2 {
-    margin-bottom: 15px;
-}
-
-nav {
-    margin-bottom: 20px;
-}
-
-nav a {
-    margin-right: 15px;
-    text-decoration: none;
-    color: #2c5aa0;
-    font-weight: bold;
-}
-
-.container {
-    max-width: 1100px;
-    margin: 0 auto;
-}
-
-table {
-    width: 100%;
-    border-collapse: collapse;
-    background: white;
-    margin-bottom: 25px;
-}
-
-th,
-td {
-    border: 1px solid #ccc;
-    padding: 8px;
-    text-align: center;
-}
-
-th {
-    background: #2c5aa0;
-    color: white;
-}
-
-button {
-    padding: 6px 12px;
-    background: #2c5aa0;
-    color: white;
-    border: none;
-    cursor: pointer;
-    border-radius: 3px;
-}
-
-button:hover {
-    background: #1e3f75;
-}
-
-select,
-input[type=number],
-input[type=text] {
-    padding: 4px;
-    width: 100%;
-}
-
-.status-planifie {
-    background: #eee;
-}
-
-.status-en_cours {
-    background: #ffe08a;
-}
-
-.status-termine {
-    background: #b7f0b1;
-}
-
-.match-item {
-    background: white;
-    border: 1px solid #ccc;
-    padding: 10px;
-    margin-bottom: 8px;
-    cursor: move;
-    display: flex;
-    justify-content: space-between;
-}
-
-.match-item.dragging {
-    opacity: 0.5;
-}
-
-.msg {
-    padding: 10px;
-    margin-bottom: 15px;
-    border-radius: 4px;
-}
-
-.msg.success {
-    background: #d4edda;
-    color: #155724;
-}
-
-.msg.error {
-    background: #f8d7da;
-    color: #721c24;
 }

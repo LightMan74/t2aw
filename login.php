@@ -13,6 +13,7 @@ if (isset($_SESSION['logged_in']) || $_SESSION['logged_in'] == true) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Connexion - Gestion Tournois Badminton</title>
     <link rel="stylesheet" href="css/login.css">
+    <link rel="stylesheet" href="css/dark-mode.css">
 </head>
 
 <body>
@@ -38,6 +39,9 @@ if (isset($_SESSION['logged_in']) || $_SESSION['logged_in'] == true) {
     </div>
 
     <script src="js/auth.js"></script>
+    <script src="js/theme.js"></script>
+    <button id="btn-theme-toggle" class="theme-toggle" style="position:absolute; top:15px; right:15px;">🌙 Sombre</button>
+
 </body>
 
 </html>

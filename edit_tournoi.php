@@ -12,6 +12,7 @@ $id_tournoi = isset($_GET['id_tournoi']) ? (int)$_GET['id_tournoi'] : 0;
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Modifier le tournoi - Gestion Tournois Badminton</title>
     <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/dark-mode.css">
 </head>
 <div class="container">
     <nav>

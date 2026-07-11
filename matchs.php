@@ -8,6 +8,7 @@
     <meta charset="UTF-8">
     <title>Gestion des matchs</title>
     <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/dark-mode.css">
 </head>
 
 <body>
