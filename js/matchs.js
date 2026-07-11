@@ -8,10 +8,10 @@ function afficherMessage(texte, type) {
     // setTimeout(() => div.innerHTML = '', 4000);
 }
 
-function chargerMatchs() {
+async function chargerMatchs() {
     const id_tournoi = document.getElementById('id_tournoi').value;
 
-    fetch(`api/get_matchs.php?id_tournoi=${id_tournoi}`)
+    return fetch(`api/get_matchs.php?id_tournoi=${id_tournoi}`)
         .then(res => res.json())
         .then(data => {
             if (data.success) {
@@ -23,12 +23,10 @@ function chargerMatchs() {
         });
 }
 
-function autosaveandreload() {
+async function autosaveandreload() {
     console.log("Exécution...START");
-    matchsData.forEach((m, index) => {
-        sauverMatch(index);
-    });
-    chargerMatchs();
+    await Promise.all(matchsData.map((m, index) => sauverMatch(index)));
+    await chargerMatchs();
     console.log("Exécution...END");
 }
 
@@ -78,7 +76,7 @@ function afficherTable() {
     });
 }
 
-function sauverMatch(index) {
+async function sauverMatch(index) {
     const m = matchsData[index];
 
     const payload = {
@@ -91,7 +89,7 @@ function sauverMatch(index) {
         heure_debut: document.getElementById(`hdebut-${index}`).value,
     };
 
-    fetch('api/matchs_actions.php', {
+    return fetch('api/matchs_actions.php', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)
