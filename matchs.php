@@ -2,7 +2,7 @@
 // matchs.php
 ?>
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="fr"> 
 
 <head>
     <meta charset="UTF-8">
