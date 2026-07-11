@@ -58,6 +58,7 @@
                     <th>Equipe 2</th>
                     <th>Statut</th>
                     <th>Heure début</th>
+                    <th></th> <!-- Colonne pour l'icône de sauvegarde -->
                 </tr>
             </thead>
             <tbody id="corps-table"></tbody>

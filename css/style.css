@@ -343,6 +343,61 @@ input:focus {
     background-color: #b71c1c;
 }
 
+.save-icon {
+    cursor: pointer;
+    font-size: 1.2em;
+    user-select: none;
+}
+
+.save-icon.non-sauvegarde {
+    color: #d9534f;
+    animation: pulse 1s infinite;
+}
+
+@keyframes pulse {
+    0% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0.4;
+    }
+
+    100% {
+        opacity: 1;
+    }
+}
+
+.status-badge {
+    display: inline-block;
+    padding: 3px 8px;
+    border-radius: 4px;
+    font-size: 0.85em;
+    cursor: pointer;
+    color: #fff;
+    user-select: none;
+}
+
+.status-badge-planifie {
+    background-color: #6c757d;
+}
+
+.status-badge-en_cours {
+    background-color: #f0ad4e;
+}
+
+.status-badge-termine {
+    background-color: #5cb85c;
+}
+
+tr.status-en_cours {
+    background-color: #fff8e1;
+}
+
+tr.status-termine {
+    background-color: #e8f5e9;
+}
+
 /* ---- Responsive ---- */
 @media (max-width: 600px) {
     .form-row {
