@@ -135,32 +135,92 @@ function afficherListeMatchs(containerId, matchs, texteVide) {
 
         let scoreHTML = '';
         let heure_debut = '';
+        let nomEquipe1 = escapeHTML(m.nom_equipe_1 || '?');
+        let nomEquipe2 = escapeHTML(m.nom_equipe_2 || '?');
+
         if (m.status === 'termine' || m.status === 'en_cours') {
+            const sets1 = m.score_equipe_1.split('*');
+            const sets2 = m.score_equipe_2.split('*');
+
             if (m.troissets == '3') {
-                const s1 = m.score_equipe_1.split('*')[0] + " - " + m.score_equipe_2.split('*')[0];
-                const s2 = m.score_equipe_1.split('*')[1] + " - " + m.score_equipe_2.split('*')[1];
-                let s3 = "";
-                if (m.score_equipe_1.split('*')[2] > '0' && m.score_equipe_2.split('*')[2] > '0') {
-                    s3 = " | " + m.score_equipe_1.split('*')[2] + " - " + m.score_equipe_2.split('*')[2];
+                const setsHTML = [];
+                let victoiresE1 = 0;
+                let victoiresE2 = 0;
+
+                for (let i = 0; i < 3; i++) {
+                    const v1 = parseInt(sets1[i]);
+                    const v2 = parseInt(sets2[i]);
+
+                    if (isNaN(v1) || isNaN(v2)) continue;
+                    if (v1 === 0 && v2 === 0 && i === 2) continue; // 3e set non joué
+
+                    let classe1 = '';
+                    let classe2 = '';
+
+                    if (v1 > v2) {
+                        classe1 = 'set-gagne';
+                        classe2 = 'set-perdu';
+                        victoiresE1++;
+                    } else if (v2 > v1) {
+                        classe1 = 'set-perdu';
+                        classe2 = 'set-gagne';
+                        victoiresE2++;
+                    }
+
+                    setsHTML.push(`<span class="${classe1}">${v1}</span> - <span class="${classe2}">${v2}</span>`);
                 }
-                scoreHTML = `<div class="match-score">${s1} | ${s2}${s3}</div>`;
+
+                scoreHTML = `<div class="match-score">${setsHTML.join(' | ')}</div>`;
+
+                // Coloration des noms (basée sur les sets gagnés, même en cours)
+                if (victoiresE1 > victoiresE2) {
+                    nomEquipe1 = `<span class="equipe-gagnante">${nomEquipe1}</span>`;
+                    nomEquipe2 = `<span class="equipe-perdante">${nomEquipe2}</span>`;
+                } else if (victoiresE2 > victoiresE1) {
+                    nomEquipe1 = `<span class="equipe-perdante">${nomEquipe1}</span>`;
+                    nomEquipe2 = `<span class="equipe-gagnante">${nomEquipe2}</span>`;
+                }
+
             } else {
-                const s1 = m.score_equipe_1.split('*')[0];
-                const s2 = m.score_equipe_2.split('*')[0];
-                scoreHTML = `<div class="match-score">${s1} - ${s2}</div>`;
+                const v1 = parseInt(sets1[0]);
+                const v2 = parseInt(sets2[0]);
+
+                let classe1 = '';
+                let classe2 = '';
+
+                if (v1 > v2) {
+                    classe1 = 'set-gagne';
+                    classe2 = 'set-perdu';
+                } else if (v2 > v1) {
+                    classe1 = 'set-perdu';
+                    classe2 = 'set-gagne';
+                }
+
+                scoreHTML = `<div class="match-score"><span class="${classe1}">${v1}</span> - <span class="${classe2}">${v2}</span></div>`;
+
+                // Coloration des noms (basée sur le score actuel, même en cours)
+                if (v1 > v2) {
+                    nomEquipe1 = `<span class="equipe-gagnante">${nomEquipe1}</span>`;
+                    nomEquipe2 = `<span class="equipe-perdante">${nomEquipe2}</span>`;
+                } else if (v2 > v1) {
+                    nomEquipe1 = `<span class="equipe-perdante">${nomEquipe1}</span>`;
+                    nomEquipe2 = `<span class="equipe-gagnante">${nomEquipe2}</span>`;
+                }
             }
         }
+
         if (m.status === 'planifie') {
-            heure_debut = `<div class="match-heure">${escapeHTML(m.heure_debut || '')}</div>`
+            heure_debut = `<div class="match-heure">${escapeHTML(m.heure_debut || '')}</div>`;
         }
+
         div.innerHTML = `
-            <div class="match-equipes">
-                ${escapeHTML(m.nom_equipe_1 || '?')} <span style="color:#999;">vs</span> ${escapeHTML(m.nom_equipe_2 || '?')}
-                <div class="match-infos">${escapeHTML(m.nom_categorie || '')} - ${escapeHTML(m.nom_poule || '')} ${m.terrain ? '- Terrain ' + m.terrain : ''}</div>
-            </div>
-            ${scoreHTML}
-            ${heure_debut}
-        `;
+        <div class="match-equipes">
+            ${nomEquipe1} <span style="color:#999;">vs</span> ${nomEquipe2}
+            <div class="match-infos">${escapeHTML(m.nom_categorie || '')} - ${escapeHTML(m.nom_poule || '')} ${m.terrain ? '- Terrain ' + m.terrain : ''}</div>
+        </div>
+        ${scoreHTML}
+        ${heure_debut}
+    `;
 
         container.appendChild(div);
     });

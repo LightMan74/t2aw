@@ -136,6 +136,41 @@ header h1 {
     background: rgba(255, 255, 255, 0.3);
 }
 
+/* ---------- COULEURS RESULTATS ---------- */
+.equipe-gagnante {
+    color: #27ae60;
+    font-weight: bold;
+}
+
+.equipe-perdante {
+    color: #e74c3c;
+}
+
+.set-gagne {
+    color: #27ae60;
+    font-weight: bold;
+}
+
+.set-perdu {
+    color: #e74c3c;
+}
+
+body.dark .equipe-gagnante {
+    color: #2ecc71;
+}
+
+body.dark .equipe-perdante {
+    color: #ff6b6b;
+}
+
+body.dark .set-gagne {
+    color: #2ecc71;
+}
+
+body.dark .set-perdu {
+    color: #ff6b6b;
+}
+
 /* ---------- TABS PRINCIPAUX ---------- */
 .tabs {
     display: flex;
