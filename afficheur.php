@@ -8,7 +8,7 @@ $id_tournoi = isset($_GET['id_tournoi']) ? (int)$_GET['id_tournoi'] : 0;
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Suivi Tournoi</title>
-    <link rel="stylesheet" href="css/app.css">
+    <link rel="stylesheet" href="css/afficheur.css">
 </head>
 
 <body>
@@ -65,7 +65,7 @@ $id_tournoi = isset($_GET['id_tournoi']) ? (int)$_GET['id_tournoi'] : 0;
     <script>
     const ID_TOURNOI = <?php echo json_encode($id_tournoi); ?>;
     </script>
-    <script src="js/app.js"></script>
+    <script src="js/afficheur.js"></script>
 </body>
 
 </html>

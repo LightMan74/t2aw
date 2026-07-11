@@ -134,19 +134,32 @@ function afficherListeMatchs(containerId, matchs, texteVide) {
         div.className = `match-card ${m.status}`;
 
         let scoreHTML = '';
+        let heure_debut = '';
         if (m.status === 'termine' || m.status === 'en_cours') {
-            const s1 = m.score_equipe_1.split('*').join(' / ');
-            const s2 = m.score_equipe_2.split('*').join(' / ');
-            scoreHTML = `<div class="match-score">${s1} - ${s2}</div>`;
+            if (m.troissets == '3') {
+                const s1 = m.score_equipe_1.split('*')[0] + " - " + m.score_equipe_2.split('*')[0];
+                const s2 = m.score_equipe_1.split('*')[1] + " - " + m.score_equipe_2.split('*')[1];
+                let s3 = "";
+                if (m.score_equipe_1.split('*')[2] > '0' && m.score_equipe_2.split('*')[2] > '0') {
+                    s3 = " / " + m.score_equipe_1.split('*')[2] + " - " + m.score_equipe_2.split('*')[2];
+                }
+                scoreHTML = `<div class="match-score">${s1} / ${s2}${s3}</div>`;
+            } else {
+                const s1 = m.score_equipe_1.split('*')[0];
+                const s2 = m.score_equipe_2.split('*')[0];
+                scoreHTML = `<div class="match-score">${s1} - ${s2}</div>`;
+            }
         }
-
+        if (m.status === 'planifie') {
+            heure_debut = `<div class="match-heure">${escapeHTML(m.heure_debut || '')}</div>`
+        }
         div.innerHTML = `
             <div class="match-equipes">
                 ${escapeHTML(m.nom_equipe_1 || '?')} <span style="color:#999;">vs</span> ${escapeHTML(m.nom_equipe_2 || '?')}
                 <div class="match-infos">${escapeHTML(m.nom_categorie || '')} - ${escapeHTML(m.nom_poule || '')} ${m.terrain ? '- Terrain ' + m.terrain : ''}</div>
             </div>
             ${scoreHTML}
-            <div class="match-heure">${escapeHTML(m.heure_debut || '')}</div>
+            ${heure_debut}
         `;
 
         container.appendChild(div);
@@ -164,21 +177,25 @@ function chargerClassement() {
             return;
         }
 
-        // Grille globale aplatie : toutes les poules de toutes les catégories, 2 par ligne
+        const nbCategories = data.categories.length;
         const grid = document.createElement('div');
-        grid.className = 'grid-classement-poules';
+        grid.className = 'grid-classement-categories';
+
+        // Cas particulier : 1 seule catégorie -> ses poules côte à côte pleine largeur
+        if (nbCategories === 1) {
+            grid.classList.add('mode-une-categorie');
+        }
 
         data.categories.forEach(cat => {
+            const catDiv = document.createElement('div');
+            catDiv.className = 'categorie-block-classement';
+
+            let html = `<h3>${escapeHTML(cat.nom_categorie)}</h3>`;
+            html += `<div class="poules-wrapper">`;
+
             cat.poules.forEach(poule => {
-                const bloc = document.createElement('div');
-                bloc.className = 'poule-block-classement';
-
-                let html = `<div class="poule-header">
-                    <span class="poule-cat">${escapeHTML(cat.nom_categorie)}</span>
-                    <span class="poule-nom">${escapeHTML(poule.nom_poule)}</span>
-                </div>`;
-
-                html += `<div class="poule-scroll">
+                html += `<div class="poule-block-classement">
+                    <div class="poule-header"><span class="poule-nom">${escapeHTML(poule.nom_poule)}</span></div>
                     <table>
                         <thead>
                             <tr>
@@ -206,9 +223,11 @@ function chargerClassement() {
                 });
 
                 html += `</tbody></table></div>`;
-                bloc.innerHTML = html;
-                grid.appendChild(bloc);
             });
+
+            html += `</div>`;
+            catDiv.innerHTML = html;
+            grid.appendChild(catDiv);
         });
 
         container.appendChild(grid);
