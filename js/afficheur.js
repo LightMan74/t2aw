@@ -141,9 +141,9 @@ function afficherListeMatchs(containerId, matchs, texteVide) {
                 const s2 = m.score_equipe_1.split('*')[1] + " - " + m.score_equipe_2.split('*')[1];
                 let s3 = "";
                 if (m.score_equipe_1.split('*')[2] > '0' && m.score_equipe_2.split('*')[2] > '0') {
-                    s3 = " / " + m.score_equipe_1.split('*')[2] + " - " + m.score_equipe_2.split('*')[2];
+                    s3 = " | " + m.score_equipe_1.split('*')[2] + " - " + m.score_equipe_2.split('*')[2];
                 }
-                scoreHTML = `<div class="match-score">${s1} / ${s2}${s3}</div>`;
+                scoreHTML = `<div class="match-score">${s1} | ${s2}${s3}</div>`;
             } else {
                 const s1 = m.score_equipe_1.split('*')[0];
                 const s2 = m.score_equipe_2.split('*')[0];
@@ -177,25 +177,15 @@ function chargerClassement() {
             return;
         }
 
-        const nbCategories = data.categories.length;
-        const grid = document.createElement('div');
-        grid.className = 'grid-classement-categories';
-
-        // Cas particulier : 1 seule catégorie -> ses poules côte à côte pleine largeur
-        if (nbCategories === 1) {
-            grid.classList.add('mode-une-categorie');
-        }
-
-        data.categories.forEach(cat => {
-            const catDiv = document.createElement('div');
-            catDiv.className = 'categorie-block-classement';
-
-            let html = `<h3>${escapeHTML(cat.nom_categorie)}</h3>`;
-            html += `<div class="poules-wrapper">`;
+        construireSousOnglets(container, data.categories, 'classement', (cat) => {
+            const wrapper = document.createElement('div');
+            wrapper.className = 'poules-grid-2col';
 
             cat.poules.forEach(poule => {
-                html += `<div class="poule-block-classement">
-                    <div class="poule-header"><span class="poule-nom">${escapeHTML(poule.nom_poule)}</span></div>
+                const pouleDiv = document.createElement('div');
+                pouleDiv.className = 'poule-block-classement';
+
+                let html = `<div class="poule-header"><span class="poule-nom">${escapeHTML(cat.nom_categorie)} -- ${escapeHTML(poule.nom_poule)}</span></div>
                     <table>
                         <thead>
                             <tr>
@@ -222,15 +212,13 @@ function chargerClassement() {
                     </tr>`;
                 });
 
-                html += `</tbody></table></div>`;
+                html += `</tbody></table>`;
+                pouleDiv.innerHTML = html;
+                wrapper.appendChild(pouleDiv);
             });
 
-            html += `</div>`;
-            catDiv.innerHTML = html;
-            grid.appendChild(catDiv);
+            return wrapper;
         });
-
-        container.appendChild(grid);
     });
 }
 
@@ -246,46 +234,111 @@ function chargerJoueurs() {
         }
 
         // Groupement catégorie -> poule -> joueurs
-        const categories = {};
+        const categoriesMap = {};
         data.joueurs.forEach(j => {
             const cat = j.nom_categorie || 'Sans catégorie';
             const poule = j.nom_poule || 'Sans poule';
 
-            if (!categories[cat]) categories[cat] = {};
-            if (!categories[cat][poule]) categories[cat][poule] = [];
+            if (!categoriesMap[cat]) categoriesMap[cat] = {};
+            if (!categoriesMap[cat][poule]) categoriesMap[cat][poule] = [];
 
-            categories[cat][poule].push(j);
+            categoriesMap[cat][poule].push(j);
         });
 
-        for (const cat in categories) {
-            const catDiv = document.createElement('div');
-            catDiv.className = 'categorie-block';
+        // Transformation en tableau uniforme pour construireSousOnglets
+        const categories = Object.keys(categoriesMap).map(nomCat => ({
+            nom_categorie: nomCat,
+            poules: Object.keys(categoriesMap[nomCat]).map(nomPoule => ({
+                nom_poule: nomPoule,
+                joueurs: categoriesMap[nomCat][nomPoule]
+            }))
+        }));
 
-            let html = `<h3>${escapeHTML(cat)}</h3>`;
-            html += `<div class="categorie-block-poules">`;
+        construireSousOnglets(container, categories, 'joueurs', (cat) => {
+            const wrapper = document.createElement('div');
+            wrapper.className = 'poules-grid-2col';
 
-            for (const poule in categories[cat]) {
-                html += `<div class="poule-block"><h4>${escapeHTML(poule)}</h4>`;
-                html += `<table>
-                    <thead>
-                        <tr><th>Nom</th></tr>
-                    </thead>
-                    <tbody>`;
+            cat.poules.forEach(poule => {
+                const pouleDiv = document.createElement('div');
+                pouleDiv.className = 'poule-block';
 
-                categories[cat][poule].forEach(j => {
+                let html = `<div class="poule-header"><span class="poule-nom">${escapeHTML(cat.nom_categorie)} -- ${escapeHTML(poule.nom_poule)}</span></div>
+                    <table>
+                        <thead>
+                            <tr><th>Nom</th></tr>
+                        </thead>
+                        <tbody>`;
+
+                poule.joueurs.forEach(j => {
                     html += `<tr>
                         <td style="text-align:left;">${escapeHTML(j.nom)}</td>
                     </tr>`;
                 });
 
-                html += `</tbody></table></div>`;
-            }
+                html += `</tbody></table>`;
+                pouleDiv.innerHTML = html;
+                wrapper.appendChild(pouleDiv);
+            });
 
-            html += `</div>`;
-            catDiv.innerHTML = html;
-            container.appendChild(catDiv);
-        }
+            return wrapper;
+        });
     });
+}
+
+// ----- Construction générique des sous-onglets par catégorie -----
+// contenuBuilder(cat) doit retourner un élément DOM (le contenu à afficher pour cette catégorie)
+function construireSousOnglets(container, categories, prefixId, contenuBuilder) {
+    // Si une seule catégorie, on affiche directement sans sous-onglets
+    if (categories.length <= 1) {
+        const contentDiv = document.createElement('div');
+        contentDiv.className = 'sous-onglet-content active';
+        if (categories.length === 1) {
+            contentDiv.appendChild(contenuBuilder(categories[0]));
+        }
+        container.appendChild(contentDiv);
+        return;
+    }
+
+    // Barre de sous-onglets
+    const nav = document.createElement('nav');
+    nav.className = 'sous-tabs';
+
+    const contentsWrapper = document.createElement('div');
+    contentsWrapper.className = 'sous-onglets-wrapper';
+
+    // Mémorise l'onglet actif précédemment sélectionné (persistance simple par prefixId)
+    const storageKey = `sousOnglet_${prefixId}_${ID_TOURNOI}`;
+    let indexActif = parseInt(sessionStorage.getItem(storageKey));
+    if (isNaN(indexActif) || indexActif < 0 || indexActif >= categories.length) {
+        indexActif = 0;
+    }
+
+    categories.forEach((cat, index) => {
+        const btn = document.createElement('button');
+        btn.className = 'sous-tab-btn' + (index === indexActif ? ' active' : '');
+        btn.textContent = cat.nom_categorie;
+        btn.dataset.index = index;
+
+        btn.addEventListener('click', () => {
+            nav.querySelectorAll('.sous-tab-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+
+            contentsWrapper.querySelectorAll('.sous-onglet-content').forEach(c => c.classList.remove('active'));
+            contentsWrapper.children[index].classList.add('active');
+
+            sessionStorage.setItem(storageKey, index);
+        });
+
+        nav.appendChild(btn);
+
+        const contentDiv = document.createElement('div');
+        contentDiv.className = 'sous-onglet-content' + (index === indexActif ? ' active' : '');
+        contentDiv.appendChild(contenuBuilder(cat));
+        contentsWrapper.appendChild(contentDiv);
+    });
+
+    container.appendChild(nav);
+    container.appendChild(contentsWrapper);
 }
 
 // ----- Utilitaire -----

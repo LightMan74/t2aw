@@ -86,8 +86,10 @@ body.dark .categorie-block-classement {
     background: #262a33;
 }
 
-body.dark .poule-block-classement {
+body.dark .poule-block-classement,
+body.dark .poule-block {
     border-color: #3a3f4a;
+    background: #262a33;
 }
 
 /* ---------- HEADER ---------- */
@@ -134,7 +136,7 @@ header h1 {
     background: rgba(255, 255, 255, 0.3);
 }
 
-/* ---------- TABS ---------- */
+/* ---------- TABS PRINCIPAUX ---------- */
 .tabs {
     display: flex;
     background: #34495e;
@@ -279,143 +281,111 @@ body.dark .scroll-colonne::-webkit-scrollbar-thumb {
     padding: 10px;
 }
 
-/* ---------- GRID MULTI-COLONNES (classement / joueurs) ---------- */
-.grid-multicol {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    grid-auto-rows: 1fr;
-    gap: 15px;
+/* ---------- CONTENEURS CLASSEMENT / JOUEURS ---------- */
+#classement-content,
+#joueurs-content {
+    display: flex;
+    flex-direction: column;
     height: 100%;
     min-height: 0;
-    width: 100%;
-}
-
-.categorie-block {
-    background: #fff;
-    border-radius: 6px;
-    padding: 12px 18px;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
-    display: flex;
-    flex-direction: column;
-    min-height: 0;
     overflow: hidden;
 }
 
-.categorie-block h3 {
-    margin-bottom: 10px;
-    color: #2c3e50;
-    font-size: 1.15rem;
+/* ---------- SOUS-ONGLETS (catégories) ---------- */
+.sous-tabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-bottom: 12px;
     flex-shrink: 0;
 }
 
-.categorie-block-poules {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-    grid-auto-rows: 1fr;
-    gap: 10px;
+.sous-tab-btn {
+    padding: 8px 16px;
+    background: #dfe6e9;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    color: #333;
+    transition: background 0.2s, color 0.2s;
+}
+
+.sous-tab-btn:hover {
+    background: #c9d1d3;
+}
+
+.sous-tab-btn.active {
+    background: #2c3e50;
+    color: #fff;
+    font-weight: bold;
+}
+
+body.dark .sous-tab-btn {
+    background: #2a2f38;
+    color: #ccc;
+}
+
+body.dark .sous-tab-btn:hover {
+    background: #343b47;
+}
+
+body.dark .sous-tab-btn.active {
+    background: #4a6fa5;
+    color: #fff;
+}
+
+.sous-onglets-wrapper {
     flex: 1;
     min-height: 0;
     overflow: hidden;
-}
-
-.poule-block {
     display: flex;
     flex-direction: column;
+}
+
+.sous-onglet-content {
+    display: none;
+    flex: 1;
     min-height: 0;
-}
-
-.poule-block h4 {
-    margin-bottom: 6px;
-    font-size: 1rem;
-    color: #555;
-    flex-shrink: 0;
-}
-
-.poule-block table {
-    font-size: 0.95rem;
-}
-
-.poule-block th,
-.poule-block td {
-    padding: 4px 6px;
-}
-
-table {
-    width: 100%;
-    border-collapse: collapse;
-    font-size: 1rem;
-}
-
-th,
-td {
-    border: 1px solid #ddd;
-    padding: 6px 8px;
-    text-align: center;
-}
-
-th {
-    background: #ecf0f1;
-    font-size: 0.95rem;
-}
-
-tr:nth-child(even) {
-    background: #f9f9f9;
-}
-
-/* ---------- CLASSEMENT : adaptatif selon nb catégories ---------- */
-
-/* Conteneur onglet classement : autorise le scroll de page si besoin */
-#tab-classement.active {
     overflow-y: auto;
-    display: block;
+    padding-right: 4px;
 }
 
-.grid-classement-categories {
+.sous-onglet-content.active {
+    display: flex;
+    flex-direction: column;
+}
+
+.sous-onglet-content::-webkit-scrollbar {
+    width: 6px;
+}
+
+.sous-onglet-content::-webkit-scrollbar-thumb {
+    background: #bbb;
+    border-radius: 4px;
+}
+
+body.dark .sous-onglet-content::-webkit-scrollbar-thumb {
+    background: #444;
+}
+
+/* ---------- GRILLE 2 POULES MAX PAR LIGNE ---------- */
+.poules-grid-2col {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
+    grid-auto-rows: min-content;
     gap: 15px;
+    align-content: start;
     width: 100%;
-    align-items: start;
 }
 
-/* 1 seule catégorie : une seule colonne pleine largeur, poules côte à côte à l'intérieur */
-.grid-classement-categories.mode-une-categorie {
-    grid-template-columns: 1fr;
-}
-
-.grid-classement-categories.mode-une-categorie .poules-wrapper {
-    flex-direction: row;
-    flex-wrap: wrap;
-}
-
-.grid-classement-categories.mode-une-categorie .poule-block-classement {
-    flex: 1;
-    min-width: 300px;
-}
-
-.categorie-block-classement {
-    background: #fff;
-    border-radius: 6px;
-    padding: 12px 18px;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
-}
-
-.categorie-block-classement h3 {
-    margin-bottom: 10px;
-    color: #2c3e50;
-    font-size: 1.2rem;
-}
-
-.poules-wrapper {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-}
-
+/* ---------- BLOC POULE - CLASSEMENT ---------- */
 .poule-block-classement {
+    background: #fff;
     border: 1px solid #eee;
     border-radius: 6px;
     overflow: hidden;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
 }
 
 .poule-header {
@@ -436,6 +406,48 @@ tr:nth-child(even) {
 
 .poule-block-classement th {
     background: #ecf0f1;
+}
+
+/* ---------- BLOC POULE - JOUEURS ---------- */
+.poule-block {
+    background: #fff;
+    border: 1px solid #eee;
+    border-radius: 6px;
+    overflow: hidden;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
+}
+
+.poule-block table {
+    font-size: 0.95rem;
+    width: 100%;
+}
+
+.poule-block th,
+.poule-block td {
+    padding: 4px 6px;
+}
+
+/* ---------- TABLES GENERIQUES ---------- */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 1rem;
+}
+
+th,
+td {
+    border: 1px solid #ddd;
+    padding: 6px 8px;
+    text-align: center;
+}
+
+th {
+    background: #ecf0f1;
+    font-size: 0.95rem;
+}
+
+tr:nth-child(even) {
+    background: #f9f9f9;
 }
 
 /* ---------- RESPONSIVE MOBILE ---------- */
@@ -468,82 +480,38 @@ tr:nth-child(even) {
         overflow-y: auto;
     }
 
-    /* Classement / Joueurs en mobile : scroll autorisé, 1 colonne */
-    .grid-multicol {
-        grid-template-columns: 1fr;
-        grid-auto-rows: auto;
-        height: auto;
+    /* Classement / Joueurs en mobile : scroll de page, 1 colonne */
+    #classement-content,
+    #joueurs-content {
         overflow: visible;
-    }
-
-    .categorie-block {
-        overflow: visible;
-        min-height: auto;
-    }
-
-    .categorie-block-poules {
-        grid-template-columns: 1fr;
-        grid-auto-rows: auto;
-        overflow: visible;
-    }
-
-    .poule-block {
-        min-height: auto;
-    }
-
-    .categorie-block h3 {
-        font-size: 1.1rem;
-    }
-
-    .poule-block h4 {
-        font-size: 0.95rem;
-    }
-
-    table,
-    th,
-    td {
-        font-size: 0.9rem;
-    }
-
-    /* Classement en mobile : 1 colonne, scroll de page, plus de limite de hauteur interne */
-    .grid-classement-poules {
-        grid-template-columns: 1fr;
-        grid-auto-rows: auto;
         height: auto;
     }
 
-    .poule-block-classement {
-        min-height: auto;
+    .sous-onglets-wrapper {
         overflow: visible;
+        height: auto;
     }
 
-    .poule-scroll {
-        overflow-y: visible;
-        max-height: none;
+    .sous-onglet-content {
+        overflow: visible;
+        height: auto;
+    }
+
+    .sous-tabs {
+        justify-content: center;
+    }
+
+    .poules-grid-2col {
+        grid-template-columns: 1fr;
     }
 
     .poule-header .poule-nom {
         font-size: 1rem;
     }
 
-    .poule-scroll table {
-        font-size: 0.9rem;
-    }
-
-    .grid-classement-categories,
-    .grid-classement-categories.mode-une-categorie {
-        grid-template-columns: 1fr;
-    }
-
-    .grid-classement-categories.mode-une-categorie .poules-wrapper {
-        flex-direction: column;
-    }
-
-    .categorie-block-classement h3 {
-        font-size: 1.1rem;
-    }
-
-    .poule-block-classement table {
+    table,
+    th,
+    td {
         font-size: 0.9rem;
     }
 }
