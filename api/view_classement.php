@@ -49,16 +49,32 @@ foreach ($categories as $cat) {
             ];
         }
 
-        // Récupérer les matchs terminés de cette poule
-        $stmtM = $pdo->prepare("SELECT * FROM match_poule WHERE id_tournoi = ? AND id_categorie = ? AND id_poule = ? AND status = 'termine'");
-        $stmtM->execute([$id_tournoi, $id_categorie, $id_poule]);
+        // Récupérer les matchs terminés où cette poule est impliquée
+        // soit comme poule principale (id_poule), soit comme poule 2 (id_poule_2)
+        $stmtM = $pdo->prepare("
+            SELECT * FROM match_poule 
+            WHERE id_tournoi = ? 
+              AND id_categorie = ? 
+              AND (id_poule = ? OR id_poule_2 = ?) 
+              AND status = 'termine'
+        ");
+        $stmtM->execute([$id_tournoi, $id_categorie, $id_poule, $id_poule]);
         $matchs = $stmtM->fetchAll();
 
         foreach ($matchs as $m) {
             $e1 = $m['id_equipe_1'];
             $e2 = $m['id_equipe_2'];
 
-            if (!isset($stats[$e1]) || !isset($stats[$e2])) continue;
+            // Déterminer à quelle poule appartient réellement chaque équipe
+            $poule_e1 = $m['id_poule'];
+            $poule_e2 = $m['id_poule_2'] ?? $m['id_poule'];
+
+            // On ne traite l'équipe que si elle appartient à CETTE poule
+            $e1_dans_cette_poule = ($poule_e1 == $id_poule) && isset($stats[$e1]);
+            $e2_dans_cette_poule = ($poule_e2 == $id_poule) && isset($stats[$e2]);
+
+            // Si aucune des deux équipes n'appartient à cette poule, on ignore
+            if (!$e1_dans_cette_poule && !$e2_dans_cette_poule) continue;
 
             $sets1 = explode('*', $m['score_equipe_1']);
             $sets2 = explode('*', $m['score_equipe_2']);
@@ -78,23 +94,28 @@ foreach ($categories as $cat) {
                 elseif ($p2 > $p1) $setsGagnes2++;
             }
 
-            $stats[$e1]['joues']++;
-            $stats[$e2]['joues']++;
-            $stats[$e1]['sets_gagnes'] += $setsGagnes1;
-            $stats[$e1]['sets_perdus'] += $setsGagnes2;
-            $stats[$e2]['sets_gagnes'] += $setsGagnes2;
-            $stats[$e2]['sets_perdus'] += $setsGagnes1;
-            $stats[$e1]['points_marques'] += $pointsMarques1;
-            $stats[$e1]['points_encaisses'] += $pointsMarques2;
-            $stats[$e2]['points_marques'] += $pointsMarques2;
-            $stats[$e2]['points_encaisses'] += $pointsMarques1;
+            $victoireE1 = $setsGagnes1 > $setsGagnes2;
+            $victoireE2 = $setsGagnes2 > $setsGagnes1;
 
-            if ($setsGagnes1 > $setsGagnes2) {
-                $stats[$e1]['victoires']++;
-                $stats[$e2]['defaites']++;
-            } elseif ($setsGagnes2 > $setsGagnes1) {
-                $stats[$e2]['victoires']++;
-                $stats[$e1]['defaites']++;
+            // Mise à jour des stats uniquement pour l'équipe qui appartient à cette poule
+            if ($e1_dans_cette_poule) {
+                $stats[$e1]['joues']++;
+                $stats[$e1]['sets_gagnes'] += $setsGagnes1;
+                $stats[$e1]['sets_perdus'] += $setsGagnes2;
+                $stats[$e1]['points_marques'] += $pointsMarques1;
+                $stats[$e1]['points_encaisses'] += $pointsMarques2;
+                if ($victoireE1) $stats[$e1]['victoires']++;
+                elseif ($victoireE2) $stats[$e1]['defaites']++;
+            }
+
+            if ($e2_dans_cette_poule) {
+                $stats[$e2]['joues']++;
+                $stats[$e2]['sets_gagnes'] += $setsGagnes2;
+                $stats[$e2]['sets_perdus'] += $setsGagnes1;
+                $stats[$e2]['points_marques'] += $pointsMarques2;
+                $stats[$e2]['points_encaisses'] += $pointsMarques1;
+                if ($victoireE2) $stats[$e2]['victoires']++;
+                elseif ($victoireE1) $stats[$e2]['defaites']++;
             }
         }
 
