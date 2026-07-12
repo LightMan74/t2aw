@@ -3,6 +3,126 @@ let refreshTimer = null;
 let countdownTimer = null;
 let secondsLeft = 10;
 
+/* ======================================================
+   PALETTE DE COULEURS & FONCTIONS DE HACHAGE STABLE
+   ======================================================
+
+   Palette категорий и пул:
+   - 10 couleurs разработаны для гармоничного, различного вида.
+   - Couleurs réutilisées depuis style.css (même teinte,EB0 hue).
+
+   Garantie de stabilité couleur → nom :
+   Алгоритм хэширования:
+   1. Для категории:  index = hash(nom_categorie) % 10  → {cat-1..cat-10}
+   2. Pour poules:    index = hash(nom_poule) % 10       → {poule-1..poule-10}
+   Хэш-функция: djb2 (Дэниел Дж. Бернштейн, 1991).
+   djb2("ABCD") = ((((5381 · 33 + 65) · 33 + 66) · 33 + 67) · 33 + 68
+   Результат: всегда одно и то же целое число для одной и той же строки.
+   Порядок добавления/удаления категорий или пул не влияет.
+
+   Палитра:
+   cat-color-1  = #e74c3c  rouge
+   cat-color-2  = #3498db  bleu
+   cat-color-3  = #f1c40f  jaune
+   cat-color-4  = #2ecc71  vert
+   cat-color-5  = #9b59b6  violet
+   cat-color-6  = #1abc9c  turquoise
+   cat-color-7  = #e67e22  orange
+   cat-color-8  = #34495e  gris-bleu
+   cat-color-9  = #ff6b9d  rose
+   cat-color-10 = #16a085  vert foncé
+
+   poule-color-1 = #3498db  bleu
+   poule-color-2 = #9b59b6  violet
+   poule-color-3 = #27ae60  vert
+   poule-color-4 = #e67e22  orange
+   poule-color-5 = #e74c3c  rouge
+   poule-color-6 = #1abc9c  turquoise
+   poule-color-7 = #f39c12  doré
+   poule-color-8 = #2c3e50  bleu nuit
+   poule-color-9 = #d35400 orange foncé
+   poule-color-10 = #8e44ad violet foncé
+   ====================================================== */
+
+const PALETTE_CAT   = 10;
+const PALETTE_POULE = 10;
+
+/**
+ * хэш-функция djb2
+ * @param {string} str
+ * @returns {number} hash stable entre 0 et 2^32
+ */
+function djb2Hash(str) {
+    let hash = 5381;
+    for (let i = 0; i < str.length; i++) {
+        hash = ((hash << 5) + hash) + str.charCodeAt(i);
+        hash = hash & hash; // 32-bit overflow
+    }
+    return Math.abs(hash);
+}
+
+/**
+ * Renvoie la classe CSS catégorie stable pour un nom de catégorie.
+ * ex: getCatClass("U11") → "cat-badge cat-3"
+ *
+ * @param {string|null} nomCat
+ * @returns {string} classe badge couleur, ou chaîne vide
+ */
+function getCatClass(nomCat) {
+    if (!nomCat) return '';
+    const idx = (djb2Hash(nomCat) % PALETTE_CAT) + 1;
+    return `cat-badge cat-${idx}`;
+}
+
+/**
+ * Renvoie la classe CSS poule stable pour un nom de poule.
+ * ex: getPouleClass("Poule A") → "poule-badge poule-2"
+ *
+ * @param {string|null} nomPoule
+ * @returns {string} classe badge couleur, ou chaîne vide
+ */
+function getPouleClass(nomPoule) {
+    if (!nomPoule) return '';
+    const idx = (djb2Hash(nomPoule) % PALETTE_POULE) + 1;
+    return `poule-badge poule-${idx}`;
+}
+
+/**
+ * Renvoie le code hexadécimal de la couleur catégorie.
+ *
+ * @param {string|null} nomCat
+ * @returns {string} code hex ou ''
+ */
+function getCatColor(nomCat) {
+    if (!nomCat) return '';
+    const idx = (djb2Hash(nomCat) % PALETTE_CAT) + 1;
+    const map = {
+        1: '#e74c3c', 2: '#3498db', 3: '#f1c40f', 4: '#2ecc71', 5: '#9b59b6',
+        6: '#1abc9c', 7: '#e67e22', 8: '#34495e', 9: '#ff6b9d', 10: '#16a085'
+    };
+    return map[idx] || '';
+}
+
+/**
+ * Renvoie le code hexadécimal de la couleur poule.
+ *
+ * @param {string|null} nomPoule
+ * @returns {string} code hex ou ''
+ */
+function getPouleColor(nomPoule) {
+    if (!nomPoule) return '';
+    const idx = (djb2Hash(nomPoule) % PALETTE_POULE) + 1;
+    const map = {
+        1: '#3498db', 2: '#9b59b6', 3: '#27ae60', 4: '#e67e22', 5: '#e74c3c',
+        6: '#1abc9c', 7: '#f39c12', 8: '#2c3e50', 9: '#d35400', 10: '#8e44ad'
+    };
+    return map[idx] || '';
+}
+
+/* ======================================================
+   INITIALISATION
+   ====================================================== */
+
 document.addEventListener('DOMContentLoaded', () => {
     initTabs();
     initDarkMode();
@@ -213,10 +333,22 @@ function afficherListeMatchs(containerId, matchs, texteVide) {
             heure_debut = `<div class="match-heure">${escapeHTML(m.heure_debut || '')}</div>`;
         }
 
+        // --- Badges couleur catégorie & poule ---
+        const catBadge = getCatClass(m.nom_categorie);
+        const pouleBadge = getPouleClass(m.nom_poule);
+        const catBadgeHTML = catBadge ? `<span class="${catBadge}">${escapeHTML(m.nom_categorie || '')}</span>` : '';
+        const pouleBadgeHTML = pouleBadge ? `<span class="${pouleBadge}">${escapeHTML(m.nom_poule || '')}</span>` : '';
+
+        const infosExtra = m.terrain
+            ? ` - Terrain ${escapeHTML(m.terrain)}`
+            : '';
+
         div.innerHTML = `
         <div class="match-equipes">
             ${nomEquipe1} <span style="color:#999;">vs</span> ${nomEquipe2}
-            <div class="match-infos">${escapeHTML(m.nom_categorie || '')} - ${escapeHTML(m.nom_poule || '')} ${m.terrain ? '- Terrain ' + m.terrain : ''}</div>
+            <div class="match-infos">
+                ${catBadgeHTML}${pouleBadgeHTML}${infosExtra}
+            </div>
         </div>
         ${scoreHTML}
         ${heure_debut}
@@ -241,11 +373,28 @@ function chargerClassement() {
             const wrapper = document.createElement('div');
             wrapper.className = 'poules-grid-2col';
 
+            // Badge couleur catégorie
+            const catBadge = getCatClass(cat.nom_categorie);
+            const catBadgeHTML = catBadge
+                ? `<span class="${catBadge}">${escapeHTML(cat.nom_categorie)}</span>`
+                : escapeHTML(cat.nom_categorie);
+
             cat.poules.forEach(poule => {
                 const pouleDiv = document.createElement('div');
                 pouleDiv.className = 'poule-block-classement';
 
-                let html = `<div class="poule-header"><span class="poule-nom">${escapeHTML(cat.nom_categorie)} -- ${escapeHTML(poule.nom_poule)}</span></div>
+                // Badge couleur poule
+                const pBadge = getPouleClass(poule.nom_poule);
+                const pBadgeHTML = pBadge
+                    ? `<span class="${pBadge}">${escapeHTML(poule.nom_poule)}</span>`
+                    : escapeHTML(poule.nom_poule);
+
+                let html = `
+                    <div class="poule-header">
+                        <span class="poule-nom">
+                            ${catBadgeHTML} &mdash; ${pBadgeHTML}
+                        </span>
+                    </div>
                     <table>
                         <thead>
                             <tr>
@@ -318,11 +467,28 @@ function chargerJoueurs() {
             const wrapper = document.createElement('div');
             wrapper.className = 'poules-grid-2col';
 
+            // Badge couleur catégorie
+            const catBadge = getCatClass(cat.nom_categorie);
+            const catBadgeHTML = catBadge
+                ? `<span class="${catBadge}">${escapeHTML(cat.nom_categorie)}</span>`
+                : escapeHTML(cat.nom_categorie);
+
             cat.poules.forEach(poule => {
                 const pouleDiv = document.createElement('div');
                 pouleDiv.className = 'poule-block';
 
-                let html = `<div class="poule-header"><span class="poule-nom">${escapeHTML(cat.nom_categorie)} -- ${escapeHTML(poule.nom_poule)}</span></div>
+                // Badge couleur poule
+                const pBadge = getPouleClass(poule.nom_poule);
+                const pBadgeHTML = pBadge
+                    ? `<span class="${pBadge}">${escapeHTML(poule.nom_poule)}</span>`
+                    : escapeHTML(poule.nom_poule);
+
+                let html = `
+                    <div class="poule-header">
+                        <span class="poule-nom">
+                            ${catBadgeHTML} &mdash; ${pBadgeHTML}
+                        </span>
+                    </div>
                     <table>
                         <thead>
                             <tr><th>Nom</th></tr>
@@ -359,7 +525,7 @@ function construireSousOnglets(container, categories, prefixId, contenuBuilder) 
         return;
     }
 
-    // Barre de sous-onglets
+    // Barre de sous-onglets — chaque bouton porte le badge couleur de la catégorie
     const nav = document.createElement('nav');
     nav.className = 'sous-tabs';
 
@@ -376,8 +542,14 @@ function construireSousOnglets(container, categories, prefixId, contenuBuilder) 
     categories.forEach((cat, index) => {
         const btn = document.createElement('button');
         btn.className = 'sous-tab-btn' + (index === indexActif ? ' active' : '');
-        btn.textContent = cat.nom_categorie;
         btn.dataset.index = index;
+
+        // Bouton de sous-onglet : badge couleur catégorie + nom
+        const catBadge = getCatClass(cat.nom_categorie);
+        const catBadgeHTML = catBadge
+            ? `<span class="${catBadge}">${escapeHTML(cat.nom_categorie)}</span>`
+            : escapeHTML(cat.nom_categorie);
+        btn.innerHTML = catBadgeHTML;
 
         btn.addEventListener('click', () => {
             nav.querySelectorAll('.sous-tab-btn').forEach(b => b.classList.remove('active'));

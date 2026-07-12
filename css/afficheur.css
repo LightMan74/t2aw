@@ -20,6 +20,37 @@ body {
     transition: background 0.3s, color 0.3s;
 }
 
+/* ======================================================
+   PALETTE CATÉGORIES & POULES
+   Réutilise la palette de style.css — 10 couleurs distinctes,
+   bon contraste texte/fond, harmonieuses entre elles.
+   ====================================================== */
+:root {
+    /* --- Catégories --- */
+    --cat-color-1: #e74c3c;   /* rouge          */
+    --cat-color-2: #3498db;   /* bleu           */
+    --cat-color-3: #f1c40f;   /* jaune          */
+    --cat-color-4: #2ecc71;   /* vert           */
+    --cat-color-5: #9b59b6;   /* violet         */
+    --cat-color-6: #1abc9c;   /* turquoise      */
+    --cat-color-7: #e67e22;   /* orange         */
+    --cat-color-8: #34495e;   /* gris-bleu      */
+    --cat-color-9: #ff6b9d;   /* rose           */
+    --cat-color-10: #16a085;  /* vert foncé     */
+
+    /* --- Poules --- */
+    --poule-color-1: #3498db;  /* bleu           */
+    --poule-color-2: #9b59b6;  /* violet         */
+    --poule-color-3: #27ae60;  /* vert           */
+    --poule-color-4: #e67e22;  /* orange         */
+    --poule-color-5: #e74c3c;  /* rouge          */
+    --poule-color-6: #1abc9c;  /* turquoise      */
+    --poule-color-7: #f39c12;  /* doré           */
+    --poule-color-8: #2c3e50;  /* bleu nuit      */
+    --poule-color-9: #d35400;  /* orange foncé   */
+    --poule-color-10: #8e44ad; /* violet foncé   */
+}
+
 /* ---------- DARK MODE ---------- */
 body.dark {
     background: #1a1c22;
@@ -170,6 +201,64 @@ body.dark .set-gagne {
 body.dark .set-perdu {
     color: #ff6b6b;
 }
+
+/* ---------- BADGES CATÉGORIE & POULE ----------
+   Petits rectangles arrondis collés au texte.
+   Couleur de fond = couleur de la palette.
+   Texte = blanc (bon contraste sur toutes les couleurs).
+   ====================================================== */
+
+/* Badge catégorie */
+.cat-badge {
+    display: inline-block;
+    padding: 2px 7px;
+    border-radius: 4px;
+    font-size: 0.75em;
+    font-weight: 600;
+    color: #fff;
+    vertical-align: middle;
+    line-height: 1.4;
+    white-space: nowrap;
+    margin: 0 2px;
+}
+
+/* Badge poule */
+.poule-badge {
+    display: inline-block;
+    padding: 2px 7px;
+    border-radius: 4px;
+    font-size: 0.75em;
+    font-weight: 600;
+    color: #fff;
+    vertical-align: middle;
+    line-height: 1.4;
+    white-space: nowrap;
+    margin: 0 2px;
+}
+
+/* 10 couleurs catégories (cat-color-1 à cat-color-10) */
+.cat-badge.cat-1 { background: var(--cat-color-1); }
+.cat-badge.cat-2 { background: var(--cat-color-2); }
+.cat-badge.cat-3 { background: var(--cat-color-3); color: #333; }  /* jaune → texte sombre */
+.cat-badge.cat-4 { background: var(--cat-color-4); }
+.cat-badge.cat-5 { background: var(--cat-color-5); }
+.cat-badge.cat-6 { background: var(--cat-color-6); }
+.cat-badge.cat-7 { background: var(--cat-color-7); }
+.cat-badge.cat-8 { background: var(--cat-color-8); }
+.cat-badge.cat-9 { background: var(--cat-color-9); }
+.cat-badge.cat-10 { background: var(--cat-color-10); }
+
+/* 10 couleurs poules (poule-color-1 à poule-color-10) */
+.poule-badge.poule-1 { background: var(--poule-color-1); }
+.poule-badge.poule-2 { background: var(--poule-color-2); }
+.poule-badge.poule-3 { background: var(--poule-color-3); }
+.poule-badge.poule-4 { background: var(--poule-color-4); }
+.poule-badge.poule-5 { background: var(--poule-color-5); }
+.poule-badge.poule-6 { background: var(--poule-color-6); }
+.poule-badge.poule-7 { background: var(--poule-color-7); }
+.poule-badge.poule-8 { background: var(--poule-color-8); }
+.poule-badge.poule-9 { background: var(--poule-color-9); }
+.poule-badge.poule-10 { background: var(--poule-color-10); }
 
 /* ---------- TABS PRINCIPAUX ---------- */
 .tabs {
@@ -432,6 +521,16 @@ body.dark .sous-onglet-content::-webkit-scrollbar-thumb {
 .poule-header .poule-nom {
     font-size: 1.05rem;
     font-weight: bold;
+}
+
+.poule-header .poule-nom .cat-badge {
+    background: rgba(255,255,255,0.25);
+    color: #fff;
+}
+
+.poule-header .poule-nom .poule-badge {
+    background: rgba(255,255,255,0.25);
+    color: #fff;
 }
 
 .poule-block-classement table {
