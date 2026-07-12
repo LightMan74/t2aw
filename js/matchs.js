@@ -63,7 +63,8 @@ function afficherTable() {
 
     matchsData.forEach((m, index) => {
         const tr = document.createElement('tr');
-        tr.className = 'status-' + (m.status ?? '');
+        const pouleClass = getPouleColorClass(m);
+        tr.className = 'status-' + (m.status ?? '') + ' ' + pouleClass;
         tr.id = `row-${index}`;
 
         const scoresEquipe1 = String(m.score_equipe_1 ?? '0*0*0').split('*');
@@ -82,7 +83,7 @@ function afficherTable() {
 
         tr.innerHTML = `
             <td>${m.nom_categorie ?? ''}</td>
-            <td>${m.nom_poule ?? ''}</td>
+            <td class="poule-badge ${pouleClass}">${m.nom_poule ?? ''}</td>
             <td><input type="number" min="1" value="${m.terrain ?? ''}" id="terrain-${index}"></td>
             <td>${m.nom_equipe_1 ?? ''}</td>
             <td><input type="number" min="0" value="${s1set1}" id="score1s1-${index}"></td>
@@ -285,4 +286,17 @@ async function sauvegarderLigne(index) {
     } catch (err) {
         afficherMessage('Erreur réseau : ' + err.message, 'error');
     }
+}
+
+// Fonction utilitaire : détermine la classe CSS de couleur pour une poule
+function getPouleColorClass(m) {
+    // Si le match est un inter-poule (2 poules différentes), couleur spécifique
+    if (m.id_poule_2 !== null && m.id_poule_2 !== undefined && m.id_poule_2 !== '') {
+        return 'poule-inter';
+    }
+    const idPoule = parseInt(m.id_poule, 10);
+    if (isNaN(idPoule)) return '';
+    // Cycle sur 10 couleurs si plus de 10 poules
+    const numCouleur = ((idPoule - 1) % 10) + 1;
+    return `poule-${numCouleur}`;
 }
