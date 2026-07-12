@@ -105,6 +105,8 @@ include 'menu.php'; ?>
         </center>
 
         <div style="margin: 15px 0; text-align:center;">
+            <label for="nb-terrains-auto">Nombre de terrains à utiliser pour la répartition auto :</label>
+            <input type="number" id="nb-terrains-auto" min="1" style="width:60px;">
             <button onclick="repartitionAutomatique()">⚡ Répartition automatique dans les terrains</button>
             <button onclick="validerOrdre()">💾 Valider et enregistrer les matchs</button>
         </div>

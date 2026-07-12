@@ -26,6 +26,13 @@ function chargerMatchs() {
                 nbTerrains = parseInt(dataParam.nbre_terrain_poule) || 1;
             }
 
+            // Initialise le champ "nombre de terrains à utiliser" avec le max par défaut
+            const inputNbTerrainsAuto = document.getElementById('nb-terrains-auto');
+            if (inputNbTerrainsAuto) {
+                inputNbTerrainsAuto.max = nbTerrains;
+                inputNbTerrainsAuto.value = nbTerrains;
+            }
+
             const formData = new FormData();
             formData.append('id_tournoi', id_tournoi);
 
@@ -391,17 +398,30 @@ function zoneDrop(e) {
 /* ------------------------------------------------------ */
 
 function repartitionAutomatique() {
+    const inputNbTerrainsAuto = document.getElementById('nb-terrains-auto');
+    let nbTerrainsAUtiliser = parseInt(inputNbTerrainsAuto.value) || 1;
+
+    // Sécurité : on ne peut pas dépasser le nombre réel de terrains
+    if (nbTerrainsAUtiliser > nbTerrains) {
+        nbTerrainsAUtiliser = nbTerrains;
+        inputNbTerrainsAuto.value = nbTerrains;
+    }
+    if (nbTerrainsAUtiliser < 1) {
+        nbTerrainsAUtiliser = 1;
+        inputNbTerrainsAuto.value = 1;
+    }
+
     const enAttente = matchsActuels.filter(m => !m.terrain);
 
     let terrainActuel = 1;
     enAttente.forEach(m => {
         m.terrain = terrainActuel;
         terrainActuel++;
-        if (terrainActuel > nbTerrains) terrainActuel = 1;
+        if (terrainActuel > nbTerrainsAUtiliser) terrainActuel = 1;
     });
 
     afficherListeMatchs();
-    afficherMessage('Répartition automatique effectuée', 'success');
+    afficherMessage(`Répartition automatique effectuée sur ${nbTerrainsAUtiliser} terrain(s)`, 'success');
 }
 
 /* ------------------------------------------------------ */
