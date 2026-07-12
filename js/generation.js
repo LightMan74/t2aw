@@ -96,6 +96,41 @@ function afficherListeMatchs() {
             document.getElementById('zone-content-attente').appendChild(div);
         }
     });
+    afficherLegendePoules();
+}
+
+const PALETTE_POULES = [
+    'var(--poule-color-1)',
+    'var(--poule-color-2)',
+    'var(--poule-color-3)',
+    'var(--poule-color-4)',
+    'var(--poule-color-5)',
+    'var(--poule-color-6)',
+    'var(--poule-color-7)',
+    'var(--poule-color-8)',
+    'var(--poule-color-9)',
+    'var(--poule-color-10)',
+];
+
+let mapCouleurPoules = {}; // { id_poule: couleur }
+let indexCouleurSuivant = 0;
+
+function getCouleurPoule(id_poule) {
+    if (!(id_poule in mapCouleurPoules)) {
+        mapCouleurPoules[id_poule] = PALETTE_POULES[indexCouleurSuivant % PALETTE_POULES.length];
+        indexCouleurSuivant++;
+    }
+    return mapCouleurPoules[id_poule];
+}
+
+function afficherLegendePoules() {
+    const container = document.getElementById('legende-poules');
+    if (!container) return;
+
+    container.innerHTML = Object.entries(mapCouleurPoules).map(([id, couleur]) => {
+        const nomPoule = matchsActuels.find(m => m.id_poule == id)?.nom_poule || `Poule ${id}`;
+        return `<span class="legende-item"><span class="legende-couleur" style="background:${couleur}"></span>${nomPoule}</span>`;
+    }).join('');
 }
 
 function creerElementMatch(m, index) {
@@ -114,6 +149,10 @@ function creerElementMatch(m, index) {
 
     const libelleBouton = m.terrain ? '↩' : '✕';
     const titreBouton = m.terrain ? "Renvoyer en file d'attente" : "Supprimer le match";
+
+    // Couleur selon la poule (id_poule ou id_poule_equipe_1 en cas d'inter-poule)
+    const idPoulePourCouleur = m.id_poule || m.id_poule_equipe_1;
+    div.style.borderLeftColor = getCouleurPoule(idPoulePourCouleur);
 
     div.innerHTML = `
         <button class="btn-suppr-match" title="${titreBouton}" onclick="onClickBoutonAction(event, ${index})">${libelleBouton}</button>

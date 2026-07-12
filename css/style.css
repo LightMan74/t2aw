@@ -54,6 +54,18 @@
     --status-tr-planifie-bg: transparent;
     --status-tr-en_cours-bg: #ffeaa3;
     --status-tr-termine-bg: #b2f3b7;
+
+    --poule-color-1: #3498db;
+    --poule-color-2: #9b59b6;
+    --poule-color-3: #27ae60;
+    --poule-color-4: #e67e22;
+    --poule-color-5: #e74c3c;
+    --poule-color-6: #1abc9c;
+    --poule-color-7: #f39c12;
+    --poule-color-8: #2c3e50;
+    --poule-color-9: #d35400;
+    --poule-color-10: #8e44ad;
+
 }
 
 * {
@@ -590,21 +602,39 @@ th {
     background: color-mix(in srgb, var(--btn-primary) 15%, var(--bg-container));
 }
 
+
+
 .match-item-terrain {
     position: relative;
     border: 1px solid var(--border-color);
+    border-left: 5px solid var(--border-color);
+    /* remplacé dynamiquement en JS */
     border-radius: 4px;
     padding: 6px 28px 6px 8px;
-    /* espace à droite pour le bouton */
     margin-bottom: 6px;
     background: var(--bg-container);
     cursor: grab;
     box-sizing: border-box;
     height: 56px;
-    /* hauteur fixe pour tous les matchs */
     overflow: hidden;
     font-size: 12px;
 }
+
+.legende-item {
+    display: inline-flex;
+    align-items: center;
+    font-size: 12px;
+    gap: 4px;
+    color: var(--text-secondary);
+}
+
+.legende-couleur {
+    width: 12px;
+    height: 12px;
+    border-radius: 3px;
+    display: inline-block;
+}
+
 
 .match-item-terrain.dragging {
     opacity: 0.5;
