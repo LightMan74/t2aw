@@ -87,8 +87,8 @@ function afficherTable() {
         const statusActuel = m.status ?? 'planifie';
 
         tr.innerHTML = `
-            <td class="categorie-badge ${catClass}" style="border-left: 5px solid var(--categorie-color-${catClass.match(/\d+/) ? catClass.match(/\d+/)[0] : '1'})">${m.nom_categorie ?? ''}</td>
-            <td class="poule-badge ${poleClass}" style="border-right: 10px solid var(--poule-color-${poleClass === 'poule-inter' ? '8' : (poleClass.match(/\d+/) ? poleClass.match(/\d+/)[0] : '1')})">${m.nom_poule ?? ''}</td>
+            <td class="categorie-badge ${catClass}">${m.nom_categorie ?? ''}</td>
+            <td class="poule-badge ${poleClass}">${m.nom_poule ?? ''}</td>
             <td><input type="number" min="1" value="${m.terrain ?? ''}" id="terrain-${index}"></td>
             <td>${m.nom_equipe_1 ?? ''}</td>
             <td><input type="number" min="0" value="${s1set1}" id="score1s1-${index}"> - <input type="number" min="0" value="${s2set1}" id="score2s1-${index}"><span ${hiddenSets}>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;
