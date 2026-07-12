@@ -127,10 +127,23 @@ function afficherLegendePoules() {
     const container = document.getElementById('legende-poules');
     if (!container) return;
 
-    container.innerHTML = Object.entries(mapCouleurPoules).map(([id, couleur]) => {
-        const nomPoule = matchsActuels.find(m => m.id_poule == id)?.nom_poule || `Poule ${id}`;
-        return `<span class="legende-item"><span class="legende-couleur" style="background:${couleur}"></span>${nomPoule}</span>`;
-    }).join('');
+    let html = '';
+    let aInterPoule = false;
+
+    // Légende pour chaque poule (dans l'ordre d'apparition)
+    Object.entries(mapCouleurPoules).forEach(([id, couleur]) => {
+        const matchTrouve = matchsActuels.find(m => (m.id_poule || m.nom_poule) == id && !m.inter_poule);
+        const nomPoule = matchTrouve ? matchTrouve.nom_poule : `Poule ${id}`;
+        html += `<span class="legende-item"><span class="legende-couleur" style="background:${couleur}"></span>${nomPoule}</span>`;
+    });
+
+    // Vérifie s'il existe au moins un match inter-poule
+    aInterPoule = matchsActuels.some(m => m.inter_poule);
+    if (aInterPoule) {
+        html += `<span class="legende-item"><span class="legende-couleur" style="background:var(--inter-poule-color)"></span>Inter-poules</span>`;
+    }
+
+    container.innerHTML = html;
 }
 
 function creerElementMatch(m, index) {
@@ -150,9 +163,13 @@ function creerElementMatch(m, index) {
     const libelleBouton = m.terrain ? '↩' : '✕';
     const titreBouton = m.terrain ? "Renvoyer en file d'attente" : "Supprimer le match";
 
-    // Couleur selon la poule (id_poule ou id_poule_equipe_1 en cas d'inter-poule)
-    const idPoulePourCouleur = m.id_poule || m.id_poule_equipe_1;
-    div.style.borderLeftColor = getCouleurPoule(idPoulePourCouleur);
+    // Couleur : spécifique si inter-poule, sinon selon la poule
+    if (m.inter_poule) {
+        div.style.borderLeftColor = 'var(--inter-poule-color)';
+    } else {
+        const idPoulePourCouleur = m.id_poule || m.nom_poule;
+        div.style.borderLeftColor = getCouleurPoule(idPoulePourCouleur);
+    }
 
     div.innerHTML = `
         <button class="btn-suppr-match" title="${titreBouton}" onclick="onClickBoutonAction(event, ${index})">${libelleBouton}</button>
