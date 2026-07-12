@@ -108,7 +108,7 @@ function afficherTable() {
                     <option value="termine" ${statusActuel === 'termine' ? 'selected' : ''}>Terminé</option>
                 </select>
             </td>
-            <td><input type="text" value="${m.heure_debut ?? ''}" id="hdebut-${index}"></td>
+            <td><input type="time" step="60" value="${(m.heure_debut ?? '').substring(0, 5)}" id="hdebut-${index}"></td>
             <td>
                 <span class="save-icon" id="save-icon-${index}" title="Aucune modification en attente" onclick="sauvegarderLigne(${index})"></span>
             </td>

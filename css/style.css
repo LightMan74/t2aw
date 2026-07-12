@@ -82,8 +82,8 @@
 /* Optionnel: petit badge coloré devant le nom de poule */
 .poule-badge {
     /* display: inline-block; */
-    /* width: 10px; */
-    /* height: 10px; */
+    width: 10px;
+    height: 10px;
     border-radius: 50%;
     /* margin-right: 3px; */
     vertical-align: middle;
@@ -135,6 +135,8 @@
 }
 
 .categorie-badge {
+    width: 10px;
+    height: 10px;
     border-radius: 50%;
     vertical-align: middle;
 }
@@ -177,6 +179,17 @@
 
 .categorie-badge.categorie-10 {
     background: var(--categorie-color-10);
+}
+
+
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+input[type="number"] {
+    -moz-appearance: textfield;
 }
 
 * {
@@ -277,6 +290,16 @@ label {
     font-weight: 600;
     margin-bottom: 5px;
     color: var(--text-secondary);
+}
+
+input[type="number"] {
+    max-width: 50px;
+    text-align: center;
+}
+
+input[type="time"] {
+    max-width: 80px;
+    text-align: center;
 }
 
 input[type="text"],
