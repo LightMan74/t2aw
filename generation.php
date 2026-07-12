@@ -27,6 +27,7 @@ include 'menu.php'; ?>
         <button onclick="chargerMatchs()" hidden>Charger / Générer l'ordre</button>
 
         <center>
+            <div id="legende-categories" style="margin-bottom:5px; display:flex; flex-wrap:wrap; gap:10px;"></div>
             <div id="legende-poules" style="margin-bottom:10px; display:flex; flex-wrap:wrap; gap:10px;"></div>
             <div style="max-width:30%">
 

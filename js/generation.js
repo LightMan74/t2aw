@@ -96,8 +96,34 @@ function afficherListeMatchs() {
             document.getElementById('zone-content-attente').appendChild(div);
         }
     });
+    afficherLegendeCategories();
     afficherLegendePoules();
 }
+
+const PALETTE_CATEGORIES = [
+    'var(--categorie-color-1)',
+    'var(--categorie-color-2)',
+    'var(--categorie-color-3)',
+    'var(--categorie-color-4)',
+    'var(--categorie-color-5)',
+    'var(--categorie-color-6)',
+    'var(--categorie-color-7)',
+    'var(--categorie-color-8)',
+    'var(--categorie-color-9)',
+    'var(--categorie-color-10)',
+];
+
+let mapCouleurCategories = {}; // { id_categorie: couleur }
+let indexCouleurCategorieSuivant = 0;
+
+function getCouleurCategorie(id_categorie) {
+    if (!(id_categorie in mapCouleurCategories)) {
+        mapCouleurCategories[id_categorie] = PALETTE_CATEGORIES[indexCouleurCategorieSuivant % PALETTE_CATEGORIES.length];
+        indexCouleurCategorieSuivant++;
+    }
+    return mapCouleurCategories[id_categorie];
+}
+
 
 const PALETTE_POULES = [
     'var(--poule-color-1)',
@@ -121,6 +147,20 @@ function getCouleurPoule(id_poule) {
         indexCouleurSuivant++;
     }
     return mapCouleurPoules[id_poule];
+}
+
+function afficherLegendeCategories() {
+    const container = document.getElementById('legende-categories');
+    if (!container) return;
+
+    let html = '';
+    Object.entries(mapCouleurCategories).forEach(([id, couleur]) => {
+        const matchTrouve = matchsActuels.find(m => m.id_categorie == id);
+        const nomCategorie = matchTrouve ? matchTrouve.nom_categorie : `Catégorie ${id}`;
+        html += `<span class="legende-item"><span class="legende-couleur" style="background:${couleur}"></span>${nomCategorie}</span>`;
+    });
+
+    container.innerHTML = html;
 }
 
 function afficherLegendePoules() {
@@ -163,7 +203,10 @@ function creerElementMatch(m, index) {
     const libelleBouton = m.terrain ? '↩' : '✕';
     const titreBouton = m.terrain ? "Renvoyer en file d'attente" : "Supprimer le match";
 
-    // Couleur : spécifique si inter-poule, sinon selon la poule
+    // Couleur de catégorie (bandeau du haut)
+    div.style.borderTopColor = getCouleurCategorie(m.id_categorie);
+
+    // Couleur de poule (bordure gauche) : spécifique si inter-poule, sinon selon la poule
     if (m.inter_poule) {
         div.style.borderLeftColor = 'var(--inter-poule-color)';
     } else {
