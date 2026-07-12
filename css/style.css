@@ -556,6 +556,124 @@ th {
     opacity: 0.5;
 }
 
+.zones-terrains {
+    display: flex;
+    gap: 10px;
+    overflow-x: auto;
+    padding-bottom: 10px;
+}
+
+.zone-terrain {
+    min-width: 220px;
+    max-width: 220px;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    padding: 8px;
+    background: var(--block-bg);
+    flex-shrink: 0;
+}
+
+.zone-terrain h3 {
+    text-align: center;
+    font-size: 14px;
+    margin: 0 0 8px 0;
+    padding-bottom: 5px;
+    border-bottom: 1px solid var(--border-color-light);
+    color: var(--text-main);
+}
+
+.zone-terrain.file-attente {
+    background: var(--equipe-bg);
+}
+
+.zone-terrain.drag-over {
+    background: color-mix(in srgb, var(--btn-primary) 15%, var(--bg-container));
+}
+
+.match-item-terrain {
+    position: relative;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    padding: 6px 28px 6px 8px;
+    /* espace à droite pour le bouton */
+    margin-bottom: 6px;
+    background: var(--bg-container);
+    cursor: grab;
+    box-sizing: border-box;
+    height: 56px;
+    /* hauteur fixe pour tous les matchs */
+    overflow: hidden;
+    font-size: 12px;
+}
+
+.match-item-terrain.dragging {
+    opacity: 0.5;
+}
+
+.match-item-terrain.drag-over-match {
+    border-top: 3px solid var(--btn-primary);
+}
+
+.match-item-terrain.placeholder {
+    background: color-mix(in srgb, var(--btn-primary) 15%, var(--bg-container));
+    border: 2px dashed var(--btn-primary);
+    box-shadow: none;
+}
+
+.match-content {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    height: 100%;
+}
+
+.match-item-terrain .ligne1 {
+    font-size: 11px;
+    color: var(--text-secondary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.match-item-terrain .ligne2 {
+    font-size: 13px;
+    font-weight: bold;
+    color: var(--text-main);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.badge-ajout {
+    font-size: 9px;
+    background: var(--btn-modifier);
+    color: var(--th-text);
+    padding: 1px 4px;
+    border-radius: 3px;
+    margin-left: 4px;
+    font-style: normal;
+}
+
+.btn-suppr-match {
+    position: absolute;
+    top: 4px;
+    right: 4px;
+    width: 20px;
+    height: 20px;
+    border: none;
+    border-radius: 50%;
+    background: var(--btn-minus);
+    color: var(--th-text);
+    font-size: 12px;
+    line-height: 1;
+    cursor: pointer;
+    padding: 0;
+}
+
+.btn-suppr-match:hover {
+    background: var(--btn-minus-hover);
+}
+
 /* ---- Responsive ---- */
 @media (max-width: 600px) {
     .form-row {
