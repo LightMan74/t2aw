@@ -64,6 +64,7 @@ function afficherTable() {
     matchsData.forEach((m, index) => {
         const tr = document.createElement('tr');
         const pouleClass = getPouleColorClass(m);
+        const categorieClass = getCategorieColorClass(m);
         tr.className = 'status-' + (m.status ?? '') + ' ' + pouleClass;
         tr.id = `row-${index}`;
 
@@ -82,7 +83,7 @@ function afficherTable() {
         const statusActuel = m.status ?? 'planifie';
 
         tr.innerHTML = `
-            <td>${m.nom_categorie ?? ''}</td>
+            <td class="categorie-badge ${categorieClass}">${m.nom_categorie ?? ''}</td>
             <td class="poule-badge ${pouleClass}">${m.nom_poule ?? ''}</td>
             <td><input type="number" min="1" value="${m.terrain ?? ''}" id="terrain-${index}"></td>
             <td>${m.nom_equipe_1 ?? ''}</td>
@@ -286,6 +287,15 @@ async function sauvegarderLigne(index) {
     } catch (err) {
         afficherMessage('Erreur réseau : ' + err.message, 'error');
     }
+}
+
+// Fonction utilitaire : détermine la classe CSS de couleur pour une catégorie
+function getCategorieColorClass(m) {
+    const idCategorie = parseInt(m.id_categorie, 10);
+    if (isNaN(idCategorie)) return '';
+    // Cycle sur 10 couleurs si plus de 10 catégories
+    const numCouleur = ((idCategorie - 1) % 10) + 1;
+    return `categorie-${numCouleur}`;
 }
 
 // Fonction utilitaire : détermine la classe CSS de couleur pour une poule

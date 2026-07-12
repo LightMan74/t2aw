@@ -134,6 +134,51 @@
     background: var(--inter-poule-color);
 }
 
+.categorie-badge {
+    border-radius: 50%;
+    vertical-align: middle;
+}
+
+.categorie-badge.categorie-1 {
+    background: var(--categorie-color-1);
+}
+
+.categorie-badge.categorie-2 {
+    background: var(--categorie-color-2);
+}
+
+.categorie-badge.categorie-3 {
+    background: var(--categorie-color-3);
+}
+
+.categorie-badge.categorie-4 {
+    background: var(--categorie-color-4);
+}
+
+.categorie-badge.categorie-5 {
+    background: var(--categorie-color-5);
+}
+
+.categorie-badge.categorie-6 {
+    background: var(--categorie-color-6);
+}
+
+.categorie-badge.categorie-7 {
+    background: var(--categorie-color-7);
+}
+
+.categorie-badge.categorie-8 {
+    background: var(--categorie-color-8);
+}
+
+.categorie-badge.categorie-9 {
+    background: var(--categorie-color-9);
+}
+
+.categorie-badge.categorie-10 {
+    background: var(--categorie-color-10);
+}
+
 * {
     box-sizing: border-box;
     margin: 0;
