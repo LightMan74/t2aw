@@ -75,6 +75,7 @@
     <script>
     const tournoi_troissets_match = <?= json_encode($tournoi_troissets_match); ?>;
     </script>
+    <script src="js/colors.js"></script>
     <script src="js/matchs.js"></script>
     <script>
     chargerMatchs();

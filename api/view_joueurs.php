@@ -10,6 +10,8 @@ if (!$id_tournoi) {
 
 $sql = "SELECT 
             e.*,
+            e.id_categorie,
+            e.id_poule,
             c.nom AS nom_categorie,
             p.nom AS nom_poule
         FROM equipe e

@@ -65,6 +65,7 @@ $id_tournoi = isset($_GET['id_tournoi']) ? (int)$_GET['id_tournoi'] : 0;
     <script>
     const ID_TOURNOI = <?php echo json_encode($id_tournoi); ?>;
     </script>
+    <script src="js/colors.js"></script>
     <script src="js/afficheur.js"></script>
 </body>
 

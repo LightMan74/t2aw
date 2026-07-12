@@ -1,4 +1,8 @@
-// js/matchs.js — version unique et propre
+/**
+ * matchs.js — Gestion / saisie des matchs (page admin)
+ * Dépendance : colors.js (palette partagée catégories/poules, chargé AVANT ce fichier)
+ * Harmonisé avec afficheur.js — même logique getCategorieColorClass / getPouleColorClass
+ */
 
 let matchsData = [];
 const modifiedMatchs = new Set();
@@ -63,9 +67,9 @@ function afficherTable() {
 
     matchsData.forEach((m, index) => {
         const tr = document.createElement('tr');
-        const pouleClass = getPouleColorClass(m);
-        const categorieClass = getCategorieColorClass(m);
-        tr.className = 'status-' + (m.status ?? '') + ' ' + pouleClass;
+        const poleClass = getPouleColorClassById(m.id_poule, m.id_poule_2);
+        const catClass = getCategorieColorClassById(m.id_categorie);
+        tr.className = 'status-' + (m.status ?? '') + ' ' + poleClass;
         tr.id = `row-${index}`;
 
         const scoresEquipe1 = String(m.score_equipe_1 ?? '0*0*0').split('*');
@@ -83,8 +87,8 @@ function afficherTable() {
         const statusActuel = m.status ?? 'planifie';
 
         tr.innerHTML = `
-            <td class="categorie-badge ${categorieClass}">${m.nom_categorie ?? ''}</td>
-            <td class="poule-badge ${pouleClass}">${m.nom_poule ?? ''}</td>
+            <td class="categorie-badge ${catClass}" style="border-left: 5px solid var(--categorie-color-${catClass.match(/\d+/) ? catClass.match(/\d+/)[0] : '1'})">${m.nom_categorie ?? ''}</td>
+            <td class="poule-badge ${poleClass}" style="border-right: 10px solid var(--poule-color-${poleClass === 'poule-inter' ? '8' : (poleClass.match(/\d+/) ? poleClass.match(/\d+/)[0] : '1')})">${m.nom_poule ?? ''}</td>
             <td><input type="number" min="1" value="${m.terrain ?? ''}" id="terrain-${index}"></td>
             <td>${m.nom_equipe_1 ?? ''}</td>
             <td><input type="number" min="0" value="${s1set1}" id="score1s1-${index}"> - <input type="number" min="0" value="${s2set1}" id="score2s1-${index}"><span ${hiddenSets}>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;
@@ -126,7 +130,6 @@ function afficherTable() {
             el.addEventListener('input', () => marquerModifie(index));
             el.addEventListener('change', () => {
                 marquerModifie(index);
-                // Si le select change, on synchronise le badge visuel
                 if (id === `status-${index}`) {
                     majBadgeStatus(index, el.value);
                 }
@@ -152,7 +155,6 @@ function majBadgeStatus(index, nouveauStatus) {
     }
 }
 
-// Clic direct sur le badge = passage au statut suivant (sans passer par le select)
 function cyclerStatus(index) {
     const select = document.getElementById(`status-${index}`);
     if (!select) return;
@@ -229,7 +231,6 @@ async function autosaveandreload() {
     console.log('autosaveandreload — END');
 }
 
-// Sauvegarde individuelle d'une seule ligne (clic sur l'icône disquette)
 async function sauvegarderLigne(index) {
     if (!modifiedMatchs.has(index)) {
         afficherMessage('Aucune modification pour ce match', 'success');
@@ -286,27 +287,6 @@ async function sauvegarderLigne(index) {
     }
 }
 
-// Fonction utilitaire : détermine la classe CSS de couleur pour une catégorie
-function getCategorieColorClass(m) {
-    const idCategorie = parseInt(m.id_categorie, 10);
-    if (isNaN(idCategorie)) return '';
-    // Cycle sur 10 couleurs si plus de 10 catégories
-    const numCouleur = ((idCategorie - 1) % 10) + 1;
-    return `categorie-${numCouleur}`;
-}
-
-// Fonction utilitaire : détermine la classe CSS de couleur pour une poule
-function getPouleColorClass(m) {
-    // Si le match est un inter-poule (2 poules différentes), couleur spécifique
-    if (m.id_poule_2 !== null && m.id_poule_2 !== undefined && m.id_poule_2 !== '') {
-        return 'poule-inter';
-    }
-    const idPoule = parseInt(m.id_poule, 10);
-    if (isNaN(idPoule)) return '';
-    // Cycle sur 10 couleurs si plus de 10 poules
-    const numCouleur = ((idPoule - 1) % 10) + 1;
-    return `poule-${numCouleur}`;
-}
 document.addEventListener('focus', function (e) {
     if (e.target.tagName === 'INPUT') {
         e.target.select();
