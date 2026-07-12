@@ -18,7 +18,7 @@ $sql = "SELECT
         LEFT JOIN categorie c ON c.id_tournoi = e.id_tournoi AND c.id_categorie = e.id_categorie
         LEFT JOIN poule p ON p.id_tournoi = e.id_tournoi AND p.id_categorie = e.id_categorie AND p.id_poule = e.id_poule
         WHERE e.id_tournoi = ?
-        ORDER BY c.nom ASC, p.nom ASC, e.nom ASC";
+        ORDER BY c.id ASC";
 
 $stmt = $pdo->prepare($sql);
 $stmt->execute([$id_tournoi]);
