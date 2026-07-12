@@ -33,7 +33,59 @@ try {
     // Compteur d'id_match par poule (id_match doit incrémenter par poule)
     $compteurMatchParPoule = [];
 
-    // Calcul de l'heure de début pour chaque terrain (roulement round-robin par terrain)
+    /* -------------------------------------------------------------
+       ETAPE 1 : Répartir les matchs par terrain, dans l'ordre où
+       ils ont été placés (ordre du tableau JS = ordre voulu sur
+       CE terrain précis).
+       Les matchs "sans terrain" (file d'attente) sont traités comme
+       s'ils étaient sur un terrain automatique en round-robin.
+    ------------------------------------------------------------- */
+    $matchsParTerrain = []; // [terrain => [match, match, ...]]
+    for ($t = 1; $t <= $nbTerrains; $t++) {
+        $matchsParTerrain[$t] = [];
+    }
+
+    $terrainAutoActuel = 1; // pour l'attribution automatique des matchs sans terrain fixé
+
+    foreach ($matchs as $m) {
+        $terrainManuel = isset($m['terrain']) && $m['terrain'] !== null && $m['terrain'] !== ''
+            ? (int)$m['terrain']
+            : null;
+
+        if ($terrainManuel !== null && $terrainManuel >= 1 && $terrainManuel <= $nbTerrains) {
+            $terrain = $terrainManuel;
+        } else {
+            $terrain = $terrainAutoActuel;
+            $terrainAutoActuel++;
+            if ($terrainAutoActuel > $nbTerrains) $terrainAutoActuel = 1;
+        }
+
+        $matchsParTerrain[$terrain][] = $m;
+    }
+
+    /* -------------------------------------------------------------
+       ETAPE 2 : Reconstituer un planning "par tour" en alternant
+       terrain 1, terrain 2, ..., terrain N, puis on repart au tour
+       suivant. Cela garantit que ordre_affichage (et donc les heures)
+       reflètent bien la simultanéité réelle entre terrains.
+    ------------------------------------------------------------- */
+    $maxMatchsParTerrain = 0;
+    foreach ($matchsParTerrain as $liste) {
+        $maxMatchsParTerrain = max($maxMatchsParTerrain, count($liste));
+    }
+
+    $planningOrdonne = []; // liste finale [ ['terrain' => x, 'match' => m], ... ]
+    for ($i = 0; $i < $maxMatchsParTerrain; $i++) {
+        for ($t = 1; $t <= $nbTerrains; $t++) {
+            if (isset($matchsParTerrain[$t][$i])) {
+                $planningOrdonne[] = ['terrain' => $t, 'match' => $matchsParTerrain[$t][$i]];
+            }
+        }
+    }
+
+    /* -------------------------------------------------------------
+       ETAPE 3 : Calcul des heures par terrain + insertion
+    ------------------------------------------------------------- */
     $dateDebut = new DateTime($heureDebut);
     $heuresTerrain = [];
     for ($t = 1; $t <= $nbTerrains; $t++) {
@@ -45,9 +97,11 @@ try {
         VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'planifie', ?, ?, ?)");
 
     $ordreAffichage = 1;
-    $terrainAutoActuel = 1; // pour l'attribution automatique des matchs sans terrain fixé
 
-    foreach ($matchs as $m) {
+    foreach ($planningOrdonne as $item) {
+        $terrain = $item['terrain'];
+        $m = $item['match'];
+
         $id_categorie = $m['id_categorie'];
         $id_poule = $m['id_poule'];
         $id_poule_2 = $m['id_poule_2'] ?? null;
@@ -59,21 +113,6 @@ try {
             $compteurMatchParPoule[$keyPoule]++;
         }
         $id_match = $compteurMatchParPoule[$keyPoule];
-
-        // --- Détermination du terrain ---
-        // Si un terrain a été fixé manuellement (drag&drop), on l'utilise.
-        // Sinon on utilise le round-robin automatique.
-        $terrainManuel = isset($m['terrain']) && $m['terrain'] !== null && $m['terrain'] !== '' 
-            ? (int)$m['terrain'] 
-            : null;
-
-        if ($terrainManuel !== null && $terrainManuel >= 1 && $terrainManuel <= $nbTerrains) {
-            $terrain = $terrainManuel;
-        } else {
-            $terrain = $terrainAutoActuel;
-            $terrainAutoActuel++;
-            if ($terrainAutoActuel > $nbTerrains) $terrainAutoActuel = 1;
-        }
 
         $heureDebutMatch = clone $heuresTerrain[$terrain];
         $heureFinMatch = clone $heureDebutMatch;
