@@ -138,15 +138,9 @@ function afficherListeMatchs(containerId, matchs, texteVide) {
         const div = document.createElement('div');
         div.className = `match-card ${m.status}`;
 
-        // Badges colorés : catégorie et poule
+        // Couleur catégorie et poule (fond sur le texte)
         const catClass = getCategorieColorClassById(m.id_categorie);
-        const catBadge = catClass
-            ? `<span class="categorie-badge ${catClass}" title="${escapeHTML(m.nom_categorie || '')}"></span>`
-            : '';
         const poleClass = getPouleColorClassById(m.id_poule, m.id_poule_2);
-        const poleBadge = poleClass
-            ? `<span class="poule-badge ${poleClass}" title="${escapeHTML(m.nom_poule || '')}"></span>`
-            : '';
 
         let scoreHTML = '';
         let heure_debut = '';
@@ -167,7 +161,7 @@ function afficherListeMatchs(containerId, matchs, texteVide) {
                     const v2 = parseInt(sets2[i]);
 
                     if (isNaN(v1) || isNaN(v2)) continue;
-                    if (v1 === 0 && v2 === 0 && i === 2) continue; // 3e set non joué
+                    if (v1 === 0 && v2 === 0 && i === 2) continue;
 
                     let classe1 = '';
                     let classe2 = '';
@@ -187,7 +181,6 @@ function afficherListeMatchs(containerId, matchs, texteVide) {
 
                 scoreHTML = `<div class="match-score">${setsHTML.join(' | ')}</div>`;
 
-                // Coloration des noms (basée sur les sets gagnés, même en cours)
                 if (victoiresE1 > victoiresE2) {
                     nomEquipe1 = `<span class="equipe-gagnante">${nomEquipe1}</span>`;
                     nomEquipe2 = `<span class="equipe-perdante">${nomEquipe2}</span>`;
@@ -213,7 +206,6 @@ function afficherListeMatchs(containerId, matchs, texteVide) {
 
                 scoreHTML = `<div class="match-score"><span class="${classe1}">${v1}</span> - <span class="${classe2}">${v2}</span></div>`;
 
-                // Coloration des noms (basée sur le score actuel, même en cours)
                 if (v1 > v2) {
                     nomEquipe1 = `<span class="equipe-gagnante">${nomEquipe1}</span>`;
                     nomEquipe2 = `<span class="equipe-perdante">${nomEquipe2}</span>`;
@@ -228,13 +220,13 @@ function afficherListeMatchs(containerId, matchs, texteVide) {
             heure_debut = `<div class="match-heure">${escapeHTML(m.heure_debut || '')}</div>`;
         }
 
-        // Ligne infos : badges + catégorie textuel + poule textuel + terrain
+        // Tags couleur : fond coloré directement sur le texte
         const catText = escapeHTML(m.nom_categorie || '');
         const poleText = escapeHTML(m.nom_poule || '');
         const terrain = m.terrain ? ` — Terrain ${m.terrain}` : '';
         const matchInfos = `<div class="match-infos">
-            ${catBadge}${catText ? `<span>${catText}</span>` : ''}
-            ${poleBadge}${poleText ? `<span>${poleText}</span>` : ''}
+            ${catText ? `<span class="tag-couleur ${catClass}">${catText}</span>` : ''}
+            ${poleText ? `<span class="tag-couleur ${poleClass}">${poleText}</span>` : ''}
             ${terrain}
         </div>`;
 
@@ -270,15 +262,13 @@ function chargerClassement() {
                 const pouleDiv = document.createElement('div');
                 pouleDiv.className = 'poule-block-classement';
 
-                // Badges colorés : catégorie et poule
+                // Tags couleur : catégorie et poule (fond sur le texte)
                 const catClass = getCategorieColorClassById(cat.id_categorie);
-                const catBadge = catClass ? `<span class="categorie-badge ${catClass}"></span>` : '';
                 const poleClass = getPouleColorClassById(poule.id_poule, null);
-                const poleBadge = poleClass ? `<span class="poule-badge ${poleClass}"></span>` : '';
 
                 let html = `<div class="poule-header">
-                    ${catBadge}${poleBadge}
-                    <span class="poule-nom">${escapeHTML(cat.nom_categorie)} — ${escapeHTML(poule.nom_poule)}</span>
+                    <span class="tag-couleur ${catClass}">${escapeHTML(cat.nom_categorie)}</span>
+                    <span class="tag-couleur ${poleClass}">${escapeHTML(poule.nom_poule)}</span>
                 </div>
                     <table>
                         <thead>
@@ -327,7 +317,6 @@ function chargerJoueurs() {
             return;
         }
 
-        // Groupement catégorie -> poule -> joueurs
         const categoriesMap = {};
         data.joueurs.forEach(j => {
             const cat = j.nom_categorie || 'Sans catégorie';
@@ -341,7 +330,6 @@ function chargerJoueurs() {
             categoriesMap[cat].poules[pole].joueurs.push(j);
         });
 
-        // Transformation en tableau uniforme pour construireSousOnglets
         const categories = Object.keys(categoriesMap).map(nomCat => ({
             id_categorie: categoriesMap[nomCat].id_categorie,
             nom_categorie: nomCat,
@@ -360,15 +348,13 @@ function chargerJoueurs() {
                 const pouleDiv = document.createElement('div');
                 pouleDiv.className = 'poule-block';
 
-                // Badges colorés
+                // Tags couleur : catégorie et poule (fond sur le texte)
                 const catClass = getCategorieColorClassById(cat.id_categorie);
-                const catBadge = catClass ? `<span class="categorie-badge ${catClass}"></span>` : '';
                 const poleClass = getPouleColorClassById(poule.id_poule, null);
-                const poleBadge = poleClass ? `<span class="poule-badge ${poleClass}"></span>` : '';
 
                 let html = `<div class="poule-header">
-                    ${catBadge}${poleBadge}
-                    <span class="poule-nom">${escapeHTML(cat.nom_categorie)} — ${escapeHTML(poule.nom_poule)}</span>
+                    <span class="tag-couleur ${catClass}">${escapeHTML(cat.nom_categorie)}</span>
+                    <span class="tag-couleur ${poleClass}">${escapeHTML(poule.nom_poule)}</span>
                 </div>
                     <table>
                         <thead>
@@ -419,13 +405,11 @@ function construireSousOnglets(container, categories, prefixId, contenuBuilder) 
     categories.forEach((cat, index) => {
         const btn = document.createElement('button');
         btn.className = 'sous-tab-btn' + (index === indexActif ? ' active' : '');
-        // Badge coloré sur le bouton de l'onglet catégorie
+
+        // Tag couleur sur l'onglet catégorie (classe couleur appliquée sur le bouton)
         const catClass = getCategorieColorClassById(cat.id_categorie);
         if (catClass) {
-            const badge = document.createElement('span');
-            badge.className = `categorie-badge ${catClass}`;
-            badge.style.marginRight = '6px';
-            btn.prepend(badge);
+            btn.classList.add(catClass);
         }
         btn.appendChild(document.createTextNode(cat.nom_categorie));
         btn.dataset.index = index;

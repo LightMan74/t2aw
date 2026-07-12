@@ -26,52 +26,252 @@
     --poule-color-9: #d35400;
     --poule-color-10: #8e44ad;
     --inter-poule-color: #34495e;
+
+    --tag-text-light: #ffffff;
+    --tag-text-dark: #1a1a2e;
 }
 
-/* ---------- Badges catégorie ---------- */
-.categorie-badge {
+/* ---------- Tag couleur (fond coloré sur le texte) ---------- */
+.tag-couleur {
     display: inline-block;
-    width: 12px;
-    height: 12px;
-    border-radius: 50%;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-weight: 600;
+    font-size: 0.78rem;
     vertical-align: middle;
     margin-right: 4px;
-    flex-shrink: 0;
+    line-height: 1.4;
+    white-space: nowrap;
 }
 
-.categorie-badge.categorie-1 { background: var(--categorie-color-1); }
-.categorie-badge.categorie-2 { background: var(--categorie-color-2); }
-.categorie-badge.categorie-3 { background: var(--categorie-color-3); }
-.categorie-badge.categorie-4 { background: var(--categorie-color-4); }
-.categorie-badge.categorie-5 { background: var(--categorie-color-5); }
-.categorie-badge.categorie-6 { background: var(--categorie-color-6); }
-.categorie-badge.categorie-7 { background: var(--categorie-color-7); }
-.categorie-badge.categorie-8 { background: var(--categorie-color-8); }
-.categorie-badge.categorie-9 { background: var(--categorie-color-9); }
-.categorie-badge.categorie-10 { background: var(--categorie-color-10); }
-
-/* ---------- Badges poule ---------- */
-.poule-badge {
-    display: inline-block;
-    width: 12px;
-    height: 12px;
-    border-radius: 50%;
-    vertical-align: middle;
-    margin-right: 4px;
-    flex-shrink: 0;
+/* Couleurs catégories — background uniquement, texte adaptatif via CSS */
+.tag-couleur.categorie-1 {
+    background-color: var(--categorie-color-1);
+    color: var(--tag-text-light);
 }
 
-.poule-badge.poule-1 { background: var(--poule-color-1); }
-.poule-badge.poule-2 { background: var(--poule-color-2); }
-.poule-badge.poule-3 { background: var(--poule-color-3); }
-.poule-badge.poule-4 { background: var(--poule-color-4); }
-.poule-badge.poule-5 { background: var(--poule-color-5); }
-.poule-badge.poule-6 { background: var(--poule-color-6); }
-.poule-badge.poule-7 { background: var(--poule-color-7); }
-.poule-badge.poule-8 { background: var(--poule-color-8); }
-.poule-badge.poule-9 { background: var(--poule-color-9); }
-.poule-badge.poule-10 { background: var(--poule-color-10); }
-.poule-badge.poule-inter { background: var(--inter-poule-color); }
+.tag-couleur.categorie-2 {
+    background-color: var(--categorie-color-2);
+    color: var(--tag-text-light);
+}
+
+.tag-couleur.categorie-3 {
+    background-color: var(--categorie-color-3);
+    color: var(--tag-text-dark);
+}
+
+.tag-couleur.categorie-4 {
+    background-color: var(--categorie-color-4);
+    color: var(--tag-text-light);
+}
+
+.tag-couleur.categorie-5 {
+    background-color: var(--categorie-color-5);
+    color: var(--tag-text-light);
+}
+
+.tag-couleur.categorie-6 {
+    background-color: var(--categorie-color-6);
+    color: var(--tag-text-light);
+}
+
+.tag-couleur.categorie-7 {
+    background-color: var(--categorie-color-7);
+    color: var(--tag-text-light);
+}
+
+.tag-couleur.categorie-8 {
+    background-color: var(--categorie-color-8);
+    color: var(--tag-text-light);
+}
+
+.tag-couleur.categorie-9 {
+    background-color: var(--categorie-color-9);
+    color: var(--tag-text-light);
+}
+
+.tag-couleur.categorie-10 {
+    background-color: var(--categorie-color-10);
+    color: var(--tag-text-light);
+}
+
+/* Couleurs poules */
+.tag-couleur.poule-1 {
+    background-color: var(--poule-color-1);
+    color: var(--tag-text-light);
+}
+
+.tag-couleur.poule-2 {
+    background-color: var(--poule-color-2);
+    color: var(--tag-text-light);
+}
+
+.tag-couleur.poule-3 {
+    background-color: var(--poule-color-3);
+    color: var(--tag-text-light);
+}
+
+.tag-couleur.poule-4 {
+    background-color: var(--poule-color-4);
+    color: var(--tag-text-light);
+}
+
+.tag-couleur.poule-5 {
+    background-color: var(--poule-color-5);
+    color: var(--tag-text-light);
+}
+
+.tag-couleur.poule-6 {
+    background-color: var(--poule-color-6);
+    color: var(--tag-text-light);
+}
+
+.tag-couleur.poule-7 {
+    background-color: var(--poule-color-7);
+    color: var(--tag-text-dark);
+}
+
+.tag-couleur.poule-8 {
+    background-color: var(--poule-color-8);
+    color: var(--tag-text-light);
+}
+
+.tag-couleur.poule-9 {
+    background-color: var(--poule-color-9);
+    color: var(--tag-text-light);
+}
+
+.tag-couleur.poule-10 {
+    background-color: var(--poule-color-10);
+    color: var(--tag-text-light);
+}
+
+.tag-couleur.poule-inter {
+    background-color: var(--inter-poule-color);
+    color: var(--tag-text-light);
+}
+
+/* Sous-onglets : classe couleur appliquée sur le bouton lui-même */
+.sous-tab-btn.categorie-1 {
+    background-color: var(--categorie-color-1);
+    color: var(--tag-text-light);
+    border: none;
+}
+
+.sous-tab-btn.categorie-2 {
+    background-color: var(--categorie-color-2);
+    color: var(--tag-text-light);
+    border: none;
+}
+
+.sous-tab-btn.categorie-3 {
+    background-color: var(--categorie-color-3);
+    color: var(--tag-text-dark);
+    border: none;
+}
+
+.sous-tab-btn.categorie-4 {
+    background-color: var(--categorie-color-4);
+    color: var(--tag-text-light);
+    border: none;
+}
+
+.sous-tab-btn.categorie-5 {
+    background-color: var(--categorie-color-5);
+    color: var(--tag-text-light);
+    border: none;
+}
+
+.sous-tab-btn.categorie-6 {
+    background-color: var(--categorie-color-6);
+    color: var(--tag-text-light);
+    border: none;
+}
+
+.sous-tab-btn.categorie-7 {
+    background-color: var(--categorie-color-7);
+    color: var(--tag-text-light);
+    border: none;
+}
+
+.sous-tab-btn.categorie-8 {
+    background-color: var(--categorie-color-8);
+    color: var(--tag-text-light);
+    border: none;
+}
+
+.sous-tab-btn.categorie-9 {
+    background-color: var(--categorie-color-9);
+    color: var(--tag-text-light);
+    border: none;
+}
+
+.sous-tab-btn.categorie-10 {
+    background-color: var(--categorie-color-10);
+    color: var(--tag-text-light);
+    border: none;
+}
+
+/* Active state des sous-onglets reste lisible */
+.sous-tab-btn.active.categorie-1 {
+    background-color: var(--categorie-color-1);
+    color: var(--tag-text-light);
+    opacity: 0.85;
+}
+
+.sous-tab-btn.active.categorie-2 {
+    background-color: var(--categorie-color-2);
+    color: var(--tag-text-light);
+    opacity: 0.85;
+}
+
+.sous-tab-btn.active.categorie-3 {
+    background-color: var(--categorie-color-3);
+    color: var(--tag-text-dark);
+    opacity: 0.85;
+}
+
+.sous-tab-btn.active.categorie-4 {
+    background-color: var(--categorie-color-4);
+    color: var(--tag-text-light);
+    opacity: 0.85;
+}
+
+.sous-tab-btn.active.categorie-5 {
+    background-color: var(--categorie-color-5);
+    color: var(--tag-text-light);
+    opacity: 0.85;
+}
+
+.sous-tab-btn.active.categorie-6 {
+    background-color: var(--categorie-color-6);
+    color: var(--tag-text-light);
+    opacity: 0.85;
+}
+
+.sous-tab-btn.active.categorie-7 {
+    background-color: var(--categorie-color-7);
+    color: var(--tag-text-light);
+    opacity: 0.85;
+}
+
+.sous-tab-btn.active.categorie-8 {
+    background-color: var(--categorie-color-8);
+    color: var(--tag-text-light);
+    opacity: 0.85;
+}
+
+.sous-tab-btn.active.categorie-9 {
+    background-color: var(--categorie-color-9);
+    color: var(--tag-text-light);
+    opacity: 0.85;
+}
+
+.sous-tab-btn.active.categorie-10 {
+    background-color: var(--categorie-color-10);
+    color: var(--tag-text-light);
+    opacity: 0.85;
+}
 
 /* ======================================================= */
 /* Le reste du fichier original est conservé intact ci-dessous */
@@ -135,6 +335,10 @@ body.dark .categorie-block {
 body.dark .match-heure,
 body.dark .match-infos {
     color: #aaa;
+}
+
+body.dark .match-infos .tag-couleur {
+    opacity: 0.85;
 }
 
 body.dark .match-score,
@@ -368,6 +572,10 @@ body.dark .scroll-colonne::-webkit-scrollbar-thumb {
 .match-infos {
     font-size: 0.75rem;
     color: #777;
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 4px;
 }
 
 .match-equipes {
@@ -437,18 +645,71 @@ body.dark .scroll-colonne::-webkit-scrollbar-thumb {
     font-weight: bold;
 }
 
-body.dark .sous-tab-btn {
+/* Dark mode sous-onglets : les couleurs catégories priment sur le fond par défaut */
+/* body.dark .sous-tab-btn {
     background: #2a2f38;
     color: #ccc;
-}
+} */
 
 body.dark .sous-tab-btn:hover {
     background: #343b47;
 }
 
-body.dark .sous-tab-btn.active {
-    background: #4a6fa5;
-    color: #fff;
+/* Active state par défaut en mode sombre (surchargé par les couleurs catégories ci-dessus) */
+/* body.dark .sous-tab-btn.active {
+    background: #ffffff;
+    color: #000000;
+} */
+
+/* Pour les boutons avec couleur catégorie, on garde la couleur en dark mode */
+body.dark .sous-tab-btn.categorie-1,
+body.dark .sous-tab-btn.active.categorie-1 {
+    opacity: 0.85;
+}
+
+body.dark .sous-tab-btn.categorie-2,
+body.dark .sous-tab-btn.active.categorie-2 {
+    opacity: 0.85;
+}
+
+body.dark .sous-tab-btn.categorie-3,
+body.dark .sous-tab-btn.active.categorie-3 {
+    opacity: 0.85;
+}
+
+body.dark .sous-tab-btn.categorie-4,
+body.dark .sous-tab-btn.active.categorie-4 {
+    opacity: 0.85;
+}
+
+body.dark .sous-tab-btn.categorie-5,
+body.dark .sous-tab-btn.active.categorie-5 {
+    opacity: 0.85;
+}
+
+body.dark .sous-tab-btn.categorie-6,
+body.dark .sous-tab-btn.active.categorie-6 {
+    opacity: 0.85;
+}
+
+body.dark .sous-tab-btn.categorie-7,
+body.dark .sous-tab-btn.active.categorie-7 {
+    opacity: 0.85;
+}
+
+body.dark .sous-tab-btn.categorie-8,
+body.dark .sous-tab-btn.active.categorie-8 {
+    opacity: 0.85;
+}
+
+body.dark .sous-tab-btn.categorie-9,
+body.dark .sous-tab-btn.active.categorie-9 {
+    opacity: 0.85;
+}
+
+body.dark .sous-tab-btn.categorie-10,
+body.dark .sous-tab-btn.active.categorie-10 {
+    opacity: 0.85;
 }
 
 .sous-onglets-wrapper {
@@ -511,6 +772,7 @@ body.dark .sous-onglet-content::-webkit-scrollbar-thumb {
     display: flex;
     align-items: center;
     gap: 6px;
+    flex-wrap: wrap;
 }
 
 .poule-header .poule-nom {
