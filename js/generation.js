@@ -2,6 +2,7 @@
 
 let matchsActuels = [];
 let donneesReferentiel = null; // catégories/poules/équipes du tournoi
+let nbTerrains = 1;
 
 function afficherMessage(texte, type) {
     const div = document.getElementById('message');
@@ -12,17 +13,32 @@ function afficherMessage(texte, type) {
 function chargerMatchs() {
     const id_tournoi = document.getElementById('id_tournoi').value;
 
-    const formData = new FormData();
-    formData.append('id_tournoi', id_tournoi);
+    const formDataParam = new FormData();
+    formDataParam.append('id_tournoi', id_tournoi);
 
-    fetch('api/generer_matchs.php', {
+    fetch('api/get_parametres.php', {
         method: 'POST',
-        body: formData
+        body: formDataParam
     })
+        .then(res => res.json())
+        .then(dataParam => {
+            if (dataParam.success) {
+                nbTerrains = parseInt(dataParam.nbre_terrain_poule) || 1;
+            }
+
+            const formData = new FormData();
+            formData.append('id_tournoi', id_tournoi);
+
+            return fetch('api/generer_matchs.php', {
+                method: 'POST',
+                body: formData
+            });
+        })
         .then(res => res.json())
         .then(data => {
             if (data.success) {
-                matchsActuels = data.matchs;
+                matchsActuels = data.matchs.map(m => ({ ...m, terrain: null }));
+                genererZonesTerrains();
                 afficherListeMatchs();
                 afficherMessage('Ordre généré avec succès', 'success');
             } else {
@@ -32,69 +48,260 @@ function chargerMatchs() {
         .catch(err => afficherMessage('Erreur : ' + err, 'error'));
 }
 
-function afficherListeMatchs() {
-    const container = document.getElementById('liste-matchs');
+/* ------------------------------------------------------ */
+/* --------------- ZONES TERRAINS (DRAG&DROP) ------------ */
+/* ------------------------------------------------------ */
+
+function genererZonesTerrains() {
+    const container = document.getElementById('zones-terrains');
     container.innerHTML = '';
 
+    // Zone "file d'attente" = matchs sans terrain (ordre auto, réordonnable)
+    const zoneAttente = document.createElement('div');
+    zoneAttente.className = 'zone-terrain file-attente';
+    zoneAttente.dataset.terrain = ''; // vide = pas de terrain
+    zoneAttente.innerHTML = `<h3>File d'attente (auto)</h3><div class="zone-content" id="zone-content-attente"></div>`;
+    zoneAttente.addEventListener('dragover', zoneDragOver);
+    zoneAttente.addEventListener('dragleave', zoneDragLeave);
+    zoneAttente.addEventListener('drop', zoneDrop);
+    container.appendChild(zoneAttente);
+
+    for (let t = 1; t <= nbTerrains; t++) {
+        const zone = document.createElement('div');
+        zone.className = 'zone-terrain';
+        zone.dataset.terrain = t;
+        zone.innerHTML = `<h3>Terrain ${t}</h3><div class="zone-content" id="zone-content-terrain-${t}"></div>`;
+        zone.addEventListener('dragover', zoneDragOver);
+        zone.addEventListener('dragleave', zoneDragLeave);
+        zone.addEventListener('drop', zoneDrop);
+        container.appendChild(zone);
+    }
+}
+
+function afficherListeMatchs() {
+    // Vider toutes les zones
+    document.getElementById('zone-content-attente').innerHTML = '';
+    for (let t = 1; t <= nbTerrains; t++) {
+        const el = document.getElementById(`zone-content-terrain-${t}`);
+        if (el) el.innerHTML = '';
+    }
+
     matchsActuels.forEach((m, index) => {
-        const div = document.createElement('div');
-        div.className = 'match-item';
-        div.draggable = true;
-        div.dataset.index = index;
+        const div = creerElementMatch(m, index);
 
-        let libellePoule = m.nom_poule;
-        if (m.inter_poule) {
-            libellePoule = m.libelle_match || 'Inter-poules';
+        if (m.terrain) {
+            const zone = document.getElementById(`zone-content-terrain-${m.terrain}`);
+            if (zone) zone.appendChild(div);
+        } else {
+            document.getElementById('zone-content-attente').appendChild(div);
         }
-
-        const badge = m.ajout_manuel ? ' <em>(ajouté)</em>' : '';
-
-        div.innerHTML = `
-            <span><strong>${m.nom_categorie}</strong> - ${libellePoule} - Match ${m.num_match_poule}${badge}</span>
-            <span>${m.nom_equipe_1}${m.inter_poule ? ' (' + m.nom_poule_equipe_1 + ')' : ''} vs ${m.nom_equipe_2}${m.inter_poule ? ' (' + m.nom_poule_equipe_2 + ')' : ''}</span>
-            <button class="btn-suppr-match" onclick="supprimerMatch(${index})" style="margin-left:10px;">✕</button>
-        `;
-
-        div.addEventListener('dragstart', dragStart);
-        div.addEventListener('dragover', dragOver);
-        div.addEventListener('drop', drop);
-        div.addEventListener('dragend', dragEnd);
-
-        container.appendChild(div);
     });
 }
 
-function supprimerMatch(index) {
-    matchsActuels.splice(index, 1);
-    afficherListeMatchs();
+function creerElementMatch(m, index) {
+    const div = document.createElement('div');
+    div.className = 'match-item-terrain';
+    div.draggable = true;
+    div.dataset.index = index;
+    div._matchRef = m;
+
+    let libellePoule = m.nom_poule;
+    if (m.inter_poule) {
+        libellePoule = m.libelle_match || 'Inter-poules';
+    }
+
+    const badge = m.ajout_manuel ? ' <span class="badge-ajout">Ajouté</span>' : '';
+
+    const libelleBouton = m.terrain ? '↩' : '✕';
+    const titreBouton = m.terrain ? "Renvoyer en file d'attente" : "Supprimer le match";
+
+    div.innerHTML = `
+        <button class="btn-suppr-match" title="${titreBouton}" onclick="onClickBoutonAction(event, ${index})">${libelleBouton}</button>
+        <div class="match-content">
+            <div class="ligne1">${m.nom_categorie} - ${libellePoule} - Match ${m.num_match_poule}${badge}</div>
+            <div class="ligne2">${m.nom_equipe_1}${m.inter_poule ? ' (' + m.nom_poule_equipe_1 + ')' : ''} vs ${m.nom_equipe_2}${m.inter_poule ? ' (' + m.nom_poule_equipe_2 + ')' : ''}</div>
+        </div>
+    `;
+
+    div.addEventListener('dragstart', matchDragStart);
+    div.addEventListener('dragend', matchDragEnd);
+    div.addEventListener('dragover', matchDragOver);
+    div.addEventListener('drop', matchDrop);
+
+    return div;
 }
+
+/* --- Action du bouton (suppression ou renvoi file d'attente) --- */
+function onClickBoutonAction(event, index) {
+    event.stopPropagation(); // éviter de déclencher un drag/drop parasite
+
+    const m = matchsActuels[index];
+
+    if (m.terrain) {
+        // Le match est sur un terrain -> on le renvoie en file d'attente
+        m.terrain = null;
+        afficherListeMatchs();
+        afficherMessage('Match renvoyé en file d\'attente', 'success');
+    } else {
+        // Le match est déjà en file d'attente -> suppression réelle
+        matchsActuels.splice(index, 1);
+        afficherListeMatchs();
+        afficherMessage('Match supprimé', 'success');
+    }
+}
+
+/* --- Drag & drop entre zones (terrains / file d'attente) + réordonnancement --- */
+
+/* ------------------------------------------------------ */
+/* --------------- DRAG & DROP (version fluide) --------- */
+/* ------------------------------------------------------ */
 
 let dragSrcIndex = null;
+let placeholder = null;
 
-function dragStart(e) {
+function creerPlaceholder() {
+    const ph = document.createElement('div');
+    ph.className = 'match-item-terrain placeholder';
+    return ph;
+}
+
+function matchDragStart(e) {
     dragSrcIndex = parseInt(this.dataset.index);
     this.classList.add('dragging');
+    e.dataTransfer.effectAllowed = 'move';
+
+    placeholder = creerPlaceholder();
+    placeholder.style.height = this.offsetHeight + 'px';
+
+    // On insère le placeholder juste après l'élément déplacé
+    this.parentNode.insertBefore(placeholder, this.nextSibling);
+
+    // Léger délai pour laisser l'image de drag se générer avant de cacher l'original
+    setTimeout(() => {
+        this.style.display = 'none';
+    }, 0);
 }
 
-function dragOver(e) {
-    e.preventDefault();
+function matchDragEnd() {
+    this.style.display = '';
+    this.classList.remove('dragging');
+
+    document.querySelectorAll('.zone-terrain').forEach(z => z.classList.remove('drag-over'));
+
+    if (placeholder && placeholder.parentNode) {
+        placeholder.parentNode.removeChild(placeholder);
+    }
+    placeholder = null;
+    dragSrcIndex = null;
 }
 
-function drop(e) {
+function matchDragOver(e) {
     e.preventDefault();
-    const targetIndex = parseInt(this.dataset.index);
+    e.stopPropagation();
 
-    if (dragSrcIndex === null || dragSrcIndex === targetIndex) return;
+    if (!placeholder || dragSrcIndex === null) return;
 
-    const item = matchsActuels[dragSrcIndex];
+    const rect = this.getBoundingClientRect();
+    const insertAfter = (e.clientY - rect.top) > (rect.height / 2);
+
+    const zoneContent = this.parentNode;
+
+    if (insertAfter) {
+        zoneContent.insertBefore(placeholder, this.nextSibling);
+    } else {
+        zoneContent.insertBefore(placeholder, this);
+    }
+}
+
+function matchDrop(e) {
+    e.preventDefault();
+    e.stopPropagation();
+}
+
+function zoneDragOver(e) {
+    e.preventDefault();
+    this.classList.add('drag-over');
+
+    if (!placeholder || dragSrcIndex === null) return;
+
+    const zoneContent = this.querySelector('.zone-content');
+
+    // Si on survole directement le fond de la zone (pas un match précis),
+    // on place le placeholder à la fin
+    if (e.target === this || e.target === zoneContent) {
+        zoneContent.appendChild(placeholder);
+    }
+}
+
+function zoneDragLeave(e) {
+    this.classList.remove('drag-over');
+}
+
+function zoneDrop(e) {
+    e.preventDefault();
+    e.stopPropagation();
+    this.classList.remove('drag-over');
+
+    if (dragSrcIndex === null || !placeholder) return;
+
+    const terrainCible = this.dataset.terrain ? parseInt(this.dataset.terrain) : null;
+    const zoneContent = this.querySelector('.zone-content');
+
+    // Construire le nouvel ordre en lisant le DOM de CETTE zone (placeholder inclus)
+    const draggedItem = matchsActuels[dragSrcIndex];
+
+    // Retirer l'élément déplacé du tableau global
     matchsActuels.splice(dragSrcIndex, 1);
-    matchsActuels.splice(targetIndex, 0, item);
+    draggedItem.terrain = terrainCible;
+
+    // Trouver la position d'insertion : on compte les match-item-terrain
+    // (hors placeholder) qui précèdent le placeholder DANS CETTE ZONE
+    const enfants = Array.from(zoneContent.children);
+    const posPlaceholder = enfants.indexOf(placeholder);
+
+    // Récupérer les indices (dans matchsActuels) des matchs qui précèdent le placeholder dans cette zone
+    let matchAvant = null;
+    for (let i = posPlaceholder - 1; i >= 0; i--) {
+        if (enfants[i].dataset.index !== undefined) {
+            matchAvant = enfants[i]._matchRef;
+            break;
+        }
+    }
+
+    let insertIndex;
+    if (matchAvant) {
+        insertIndex = matchsActuels.indexOf(matchAvant) + 1;
+    } else {
+        // Aucun match avant dans cette zone -> on insère au début de cette zone
+        // On cherche le premier match de cette zone dans le tableau global
+        const premierMatchZone = matchsActuels.find(m => (m.terrain || null) === terrainCible);
+        insertIndex = premierMatchZone ? matchsActuels.indexOf(premierMatchZone) : matchsActuels.length;
+    }
+
+    matchsActuels.splice(insertIndex, 0, draggedItem);
 
     afficherListeMatchs();
+    dragSrcIndex = null;
+    placeholder = null;
 }
 
-function dragEnd() {
-    this.classList.remove('dragging');
+
+/* ------------------------------------------------------ */
+/* --------------- REPARTITION AUTOMATIQUE ---------------- */
+/* ------------------------------------------------------ */
+
+function repartitionAutomatique() {
+    const enAttente = matchsActuels.filter(m => !m.terrain);
+
+    let terrainActuel = 1;
+    enAttente.forEach(m => {
+        m.terrain = terrainActuel;
+        terrainActuel++;
+        if (terrainActuel > nbTerrains) terrainActuel = 1;
+    });
+
+    afficherListeMatchs();
+    afficherMessage('Répartition automatique effectuée', 'success');
 }
 
 /* ------------------------------------------------------ */
@@ -148,7 +355,6 @@ function remplirSelectCategories() {
 }
 
 function onCategorieChange() {
-    // Remplit à la fois le mode "poule unique" et le mode "inter-poules"
     remplirSelectsPoules();
 }
 
@@ -166,11 +372,9 @@ function getCategorieSelectionnee() {
 function remplirSelectsPoules() {
     const cat = getCategorieSelectionnee();
 
-    // --- Mode poule unique ---
     const selectPoule = document.getElementById('select-poule');
     selectPoule.innerHTML = '';
 
-    // --- Mode inter-poules ---
     const selectPouleE1 = document.getElementById('select-poule-e1');
     const selectPouleE2 = document.getElementById('select-poule-e2');
     selectPouleE1.innerHTML = '';
@@ -190,7 +394,6 @@ function remplirSelectsPoules() {
             selectPouleE2.appendChild(opt2);
         });
 
-        // Par défaut, sélectionner une 2ème poule différente pour l'équipe 2 si possible
         if (cat.poules.length > 1) {
             selectPouleE2.selectedIndex = 1;
         }
@@ -308,7 +511,8 @@ function ajouterMatchPouleUnique() {
         nom_equipe_2: equipe2.nom,
         num_match_poule: nbMatchsPoule + 1,
         ajout_manuel: true,
-        inter_poule: false
+        inter_poule: false,
+        terrain: null
     };
 
     matchsActuels.push(nouveauMatch);
@@ -345,8 +549,8 @@ function ajouterMatchInterPoule() {
     const nouveauMatch = {
         id_categorie: idCategorie,
         nom_categorie: cat.nom_categorie,
-        id_poule: idPouleE1,          // poule "principale" = poule de l'équipe 1
-        id_poule_2: idPouleE2,        // <-- NOUVEAU : poule de l'équipe 2
+        id_poule: idPouleE1,
+        id_poule_2: idPouleE2,
         nom_poule: libelle,
         id_equipe_1: equipe1.id_equipe,
         nom_equipe_1: equipe1.nom,
@@ -359,15 +563,19 @@ function ajouterMatchInterPoule() {
         num_match_poule: nbMatchsInter + 1,
         ajout_manuel: true,
         inter_poule: true,
-        libelle_match: libelle
+        libelle_match: libelle,
+        terrain: null
     };
 
     matchsActuels.push(nouveauMatch);
     afficherListeMatchs();
     afficherMessage('Match inter-poules ajouté à la liste', 'success');
-
     document.getElementById('libelle-match-inter').value = '';
 }
+
+/* ------------------------------------------------------ */
+/* --------------- VALIDATION / SAUVEGARDE ---------------- */
+/* ------------------------------------------------------ */
 
 function validerOrdre() {
     const id_tournoi = document.getElementById('id_tournoi').value;

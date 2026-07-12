@@ -45,12 +45,12 @@ try {
         VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'planifie', ?, ?, ?)");
 
     $ordreAffichage = 1;
-    $terrainActuel = 1;
+    $terrainAutoActuel = 1; // pour l'attribution automatique des matchs sans terrain fixé
 
     foreach ($matchs as $m) {
         $id_categorie = $m['id_categorie'];
         $id_poule = $m['id_poule'];
-        $id_poule_2 = $m['id_poule_2'];
+        $id_poule_2 = $m['id_poule_2'] ?? null;
         $keyPoule = $id_categorie . '_' . $id_poule;
 
         if (!isset($compteurMatchParPoule[$keyPoule])) {
@@ -60,8 +60,20 @@ try {
         }
         $id_match = $compteurMatchParPoule[$keyPoule];
 
-        // Attribution du terrain en round robin
-        $terrain = $terrainActuel;
+        // --- Détermination du terrain ---
+        // Si un terrain a été fixé manuellement (drag&drop), on l'utilise.
+        // Sinon on utilise le round-robin automatique.
+        $terrainManuel = isset($m['terrain']) && $m['terrain'] !== null && $m['terrain'] !== '' 
+            ? (int)$m['terrain'] 
+            : null;
+
+        if ($terrainManuel !== null && $terrainManuel >= 1 && $terrainManuel <= $nbTerrains) {
+            $terrain = $terrainManuel;
+        } else {
+            $terrain = $terrainAutoActuel;
+            $terrainAutoActuel++;
+            if ($terrainAutoActuel > $nbTerrains) $terrainAutoActuel = 1;
+        }
 
         $heureDebutMatch = clone $heuresTerrain[$terrain];
         $heureFinMatch = clone $heureDebutMatch;
@@ -83,24 +95,7 @@ try {
         ]);
 
         $ordreAffichage++;
-        $terrainActuel++;
-        if ($terrainActuel > $nbTerrains) $terrainActuel = 1;
     }
-
-    // Initialiser le classement pour chaque équipe si non existant
-    // $stmtEquipes = $pdo->prepare("SELECT * FROM equipe WHERE id_tournoi = ?");
-    // $stmtEquipes->execute([$id_tournoi]);
-    // $equipes = $stmtEquipes->fetchAll();
-
-    // $stmtCheckClassement = $pdo->prepare("SELECT id FROM classement WHERE id_tournoi=? AND id_categorie=? AND id_poule=? AND id_equipe=?");
-    // $stmtInsertClassement = $pdo->prepare("INSERT INTO classement (id_tournoi, id_categorie, id_poule, id_equipe, victoire, defaite, set_gagner, point_marquer, point_encaisser) VALUES (?, ?, ?, ?, 0, 0, 0, 0, 0)");
-
-    // foreach ($equipes as $eq) {
-    //     $stmtCheckClassement->execute([$id_tournoi, $eq['id_categorie'], $eq['id_poule'], $eq['id_equipe']]);
-    //     if (!$stmtCheckClassement->fetch()) {
-    //         $stmtInsertClassement->execute([$id_tournoi, $eq['id_categorie'], $eq['id_poule'], $eq['id_equipe']]);
-    //     }
-    // }
 
     $pdo->commit();
     echo json_encode(['success' => true]);
