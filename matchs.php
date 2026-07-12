@@ -2,7 +2,7 @@
 // matchs.php
 ?>
 <!DOCTYPE html>
-<html lang="fr"> 
+<html lang="fr">
 
 <head>
     <meta charset="UTF-8">
@@ -41,24 +41,52 @@
         <table id="table-matchs">
             <thead>
                 <tr>
-                    <th>Catégorie</th>
-                    <th>Poule</th>
-                    <th>Terrain</th>
-                    <th>Equipe 1</th>
-                    <th>SET 1</th>
+                    <th>
+                        <nobr>Catégorie</nobr>
+                    </th>
+                    <th>
+                        <nobr>Poule</nobr>
+                    </th>
+                    <th>
+                        <nobr>Terrain</nobr>
+                    </th>
+                    <th>
+                        <nobr>Equipe 1</nobr>
+                    </th>
+                    <th>
+                        <nobr>SET 1</nobr>
+                    </th>
                     <?php if ($tournoi_troissets_match>1){ ?>
-                    <th>SET 2</th>
-                    <th>SET 3</th>
+                    <th>
+                        <nobr>SET 2</nobr>
+                    </th>
+                    <th>
+                        <nobr>SET 3</nobr>
+                    </th>
                     <?php } ?>
-                    <th>vs</th>
-                    <th>SET 1</th>
+                    <th>
+                        <nobr>vs</nobr>
+                    </th>
+                    <th>
+                        <nobr>SET 1</nobr>
+                    </th>
                     <?php if ($tournoi_troissets_match>1){ ?>
-                    <th>SET 2</th>
-                    <th>SET 3</th>
+                    <th>
+                        <nobr>SET 2</nobr>
+                    </th>
+                    <th>
+                        <nobr>SET 3</nobr>
+                    </th>
                     <?php } ?>
-                    <th>Equipe 2</th>
-                    <th>Statut</th>
-                    <th>Heure début</th>
+                    <th>
+                        <nobr>Equipe 2</nobr>
+                    </th>
+                    <th>
+                        <nobr>Statut</nobr>
+                    </th>
+                    <th>
+                        <nobr>Heure début</nobr>
+                    </th>
                     <th></th> <!-- Colonne pour l'icône de sauvegarde -->
                 </tr>
             </thead>
