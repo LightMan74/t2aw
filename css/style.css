@@ -857,7 +857,16 @@ th {
 }
 
 /* ---- Responsive ---- */
-@media (max-width: 600px) {
+@media (max-width: 1300px) {
+    .container {
+        max-width: 100%;
+    }
+
+    th,
+    td {
+        padding: 3px;
+    }
+
     .form-row {
         flex-direction: column;
     }
