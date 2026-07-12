@@ -203,16 +203,17 @@ function creerElementMatch(m, index) {
     const libelleBouton = m.terrain ? '↩' : '✕';
     const titreBouton = m.terrain ? "Renvoyer en file d'attente" : "Supprimer le match";
 
-    // Couleur de catégorie (bandeau du haut)
-    div.style.borderTopColor = getCouleurCategorie(m.id_categorie);
+    // Couleur de catégorie (bordure gauche)
+    div.style.borderLeftColor = getCouleurCategorie(m.id_categorie);
 
-    // Couleur de poule (bordure gauche) : spécifique si inter-poule, sinon selon la poule
+    // Couleur de poule (bordure droite) : spécifique si inter-poule, sinon selon la poule
     if (m.inter_poule) {
-        div.style.borderLeftColor = 'var(--inter-poule-color)';
+        div.style.borderRightColor = 'var(--inter-poule-color)';
     } else {
         const idPoulePourCouleur = m.id_poule || m.nom_poule;
-        div.style.borderLeftColor = getCouleurPoule(idPoulePourCouleur);
+        div.style.borderRightColor = getCouleurPoule(idPoulePourCouleur);
     }
+
 
     div.innerHTML = `
         <button class="btn-suppr-match" title="${titreBouton}" onclick="onClickBoutonAction(event, ${index})">${libelleBouton}</button>

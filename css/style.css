@@ -675,9 +675,9 @@ th {
     position: relative;
     border: 1px solid var(--border-color);
     border-left: 5px solid var(--border-color);
-    /* couleur POULE (JS) */
-    border-top: 4px solid var(--border-color);
     /* couleur CATEGORIE (JS) */
+    border-right: 10px solid var(--border-color);
+    /* couleur POULE (JS) */
     border-radius: 4px;
     padding: 6px 28px 6px 8px;
     margin-bottom: 6px;
