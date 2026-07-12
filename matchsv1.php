@@ -54,8 +54,30 @@
                         <nobr>Equipe 1</nobr>
                     </th>
                     <th>
-                        <nobr>SCORE</nobr>
+                        <nobr>SET 1</nobr>
                     </th>
+                    <?php if ($tournoi_troissets_match>1){ ?>
+                    <th>
+                        <nobr>SET 2</nobr>
+                    </th>
+                    <th>
+                        <nobr>SET 3</nobr>
+                    </th>
+                    <?php } ?>
+                    <th>
+                        <nobr>vs</nobr>
+                    </th>
+                    <th>
+                        <nobr>SET 1</nobr>
+                    </th>
+                    <?php if ($tournoi_troissets_match>1){ ?>
+                    <th>
+                        <nobr>SET 2</nobr>
+                    </th>
+                    <th>
+                        <nobr>SET 3</nobr>
+                    </th>
+                    <?php } ?>
                     <th>
                         <nobr>Equipe 2</nobr>
                     </th>

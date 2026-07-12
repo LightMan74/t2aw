@@ -87,10 +87,13 @@ function afficherTable() {
             <td class="poule-badge ${pouleClass}">${m.nom_poule ?? ''}</td>
             <td><input type="number" min="1" value="${m.terrain ?? ''}" id="terrain-${index}"></td>
             <td>${m.nom_equipe_1 ?? ''}</td>
-            <td><input type="number" min="0" value="${s1set1}" id="score1s1-${index}"> - <input type="number" min="0" value="${s2set1}" id="score2s1-${index}"><span ${hiddenSets}>&nbsp; | &nbsp; 
-            <input  type="number" min="0" value="${s1set2}" id="score1s2-${index}"> - <input type="number" min="0" value="${s2set2}" id="score2s2-${index}">&nbsp; |  &nbsp;
-            <input type="number" min="0" value="${s1set3}" id="score1s3-${index}"> - <input type="number" min="0" value="${s2set3}" id="score2s3-${index}"></span>
-            </td>
+            <td><input type="number" min="0" value="${s1set1}" id="score1s1-${index}"></td>
+            <td ${hiddenSets}><input type="number" min="0" value="${s1set2}" id="score1s2-${index}"></td>
+            <td ${hiddenSets}><input type="number" min="0" value="${s1set3}" id="score1s3-${index}"></td>
+            <td>vs</td>
+            <td><input type="number" min="0" value="${s2set1}" id="score2s1-${index}"></td>
+            <td ${hiddenSets}><input type="number" min="0" value="${s2set2}" id="score2s2-${index}"></td>
+            <td ${hiddenSets}><input type="number" min="0" value="${s2set3}" id="score2s3-${index}"></td>
             <td>${m.nom_equipe_2 ?? ''}</td>
             <td>
                 <span class="status-badge status-badge-${statusActuel}" 
@@ -307,8 +310,3 @@ function getPouleColorClass(m) {
     const numCouleur = ((idPoule - 1) % 10) + 1;
     return `poule-${numCouleur}`;
 }
-document.addEventListener('focus', function (e) {
-    if (e.target.tagName === 'INPUT') {
-        e.target.select();
-    }
-}, true);
