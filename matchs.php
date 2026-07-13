@@ -18,13 +18,12 @@
             include "api/check_connected.php";
             include 'menu.php'; 
         $stmt = $pdo->prepare("
-            SELECT troissets, terrain_automatique
+            SELECT troissets
             FROM parametre
             WHERE id_tournoi = :id
         ");
         $stmt->execute(['id' => htmlspecialchars(($_GET["id_tournoi"]))]);
         $tournoi_troissets_match = $stmt->fetchAll(PDO::FETCH_ASSOC)[0]['troissets'];
-        $terrain_automatique = $stmt->fetchAll(PDO::FETCH_ASSOC)[0]['terrain_automatique'];
             ?>
 
         </nav>
@@ -75,7 +74,6 @@
 
     <script>
     const tournoi_troissets_match = <?= json_encode($tournoi_troissets_match); ?>;
-    const terrain_automatique = <?= json_encode($terrain_automatique); ?>;
     </script>
     <script src="js/colors.js"></script>
     <script src="js/matchs.js"></script>
