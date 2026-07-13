@@ -1,11 +1,6 @@
 <?php
 session_start();
-
-// var_dump($_SESSION);
-// Protection : si pas connecté, on redirige vers la connexion
 include "api/check_connected.php";
-
-
 ?>
 <!DOCTYPE html>
 <html lang="fr">
@@ -21,90 +16,29 @@ include "api/check_connected.php";
 <body>
     <div class="container">
 
-
-        <!-- <div class="container"> -->
         <nav>
             <?php include 'menu.php'; ?>
         </nav>
-        <!-- </div> -->
 
-        <?php if($tournoi_name_menu[0]["nom"] == ""){?>
-        <!-- Liste des tournois -->
-        <section class="section">
-            <h2>Tournois existants</h2>
-            <div id="tournoi-list">
-                <p class="loading">Chargement...</p>
-            </div>
-            <div id="liste-tournois"></div>
-        </section>
-
-        <!-- Création d'un nouveau tournoi -->
-        <section class="section">
-            <h2>Créer un nouveau tournoi</h2>
-            <form id="form-create-tournoi">
-                <div class="form-group">
-                    <label for="nom_tournoi">Nom du tournoi</label>
-                    <input type="text" id="nom_tournoi" name="nom_tournoi" required>
+        <?php if ($tournoi_name_menu[0]["nom"] == "") { ?>
+            <!-- Liste des tournois -->
+            <section class="section">
+                <div class="section-header">
+                    <h2>Tournois existants</h2>
+                    <a href="edit_tournoi.php" class="btn btn-primary">+ Ajouter un tournoi</a>
                 </div>
-
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="nbre_terrain_poule">Nombre de terrains (poules)</label>
-                        <input type="number" id="nbre_terrain_poule" name="nbre_terrain_poule" min="1" value="4" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="nbre_terrain_phasefinal">Nombre de terrains (phase finale)</label>
-                        <input type="number" id="nbre_terrain_phasefinal" name="nbre_terrain_phasefinal" min="1" value="2" required>
-                    </div>
+                <div id="liste-tournois">
+                    <p class="loading">Chargement...</p>
                 </div>
+            </section>
 
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="troissets">Nombre de set</label>
-                        <input type="number" id="troissets" name="troissets" min="1" max="3" value="3" step="2" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="temps_de_match">Temps de match (minutes)</label>
-                        <input type="number" id="temps_de_match" name="temps_de_match" min="5" value="15" required>
-                    </div>
-                </div>
+            <script src="js/main.js"></script>
+            <script src="js/supprimer_tournoi.js"></script>
+        <?php } else { ?>
+            <h1>Tournoi actuellement ouvert<br><br>&nbsp;&nbsp;&nbsp;<?php echo $tournoi_name_menu[0]["nom"]; ?></h1>
+        <?php } ?>
 
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="heure_debut_poule">Heure début poules</label>
-                        <input type="time" id="heure_debut_poule" name="heure_debut_poule" value="09:00" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="heure_debut_phasefinal">Heure début phase finale</label>
-                        <input type="time" id="heure_debut_phasefinal" name="heure_debut_phasefinal" value="14:00" required>
-                    </div>
-                </div>
-
-                <!-- Catégories dynamiques -->
-                <div class="form-group">
-                    <label>Nombre de catégories</label>
-                    <div class="counter-control">
-                        <button type="button" class="btn-minus" onclick="ajusterCategories(-1)">−</button>
-                        <span id="nbre_categories">1</span>
-                        <button type="button" class="btn-plus" onclick="ajusterCategories(1)">+</button>
-                    </div>
-                </div>
-
-                <div id="categories-container"></div>
-
-                <button type="submit" class="btn btn-primary">Créer le tournoi</button>
-                <p id="form-message" class="message"></p>
-            </form>
-        </section>
     </div>
-    <script src="js/main.js"></script>
-    <script src="js/supprimer_tournoi.js"></script>
-    <?php
-        }else{
-            echo ' <h1>Tournoi actuellement ouvert<br><br>&nbsp;&nbsp;&nbsp;'.$tournoi_name_menu[0]["nom"].'</h1>';
-        }
-?>
-
 </body>
 
 </html>

@@ -1,12 +1,16 @@
 /**
- * edit.js - Modification d'un tournoi existant
+ * edit.js - Création ET modification d'un tournoi
  */
 
 'use strict';
 
 document.addEventListener('DOMContentLoaded', function () {
-    chargerDonneesTournoi();
-    setupFormulaireModification();
+    if (window.modeCreation) {
+        initModeCreation();
+    } else {
+        chargerDonneesTournoi();
+    }
+    setupFormulaire();
 });
 
 // ==========================================
@@ -23,7 +27,30 @@ function indexToLettre(index) {
 }
 
 // ==========================================
-// CHARGEMENT DES DONNÉES DU TOURNOI
+// MODE CRÉATION : générer un bloc catégorie vide par défaut
+// ==========================================
+function initModeCreation() {
+    const container = document.getElementById('categories-container');
+    container.innerHTML = '';
+    document.getElementById('nbre_categories').textContent = '1';
+
+    const block = creerBlocCategorie(1, '');
+    const poulesContainer = block.querySelector('.poules-container');
+    poulesContainer.innerHTML = '';
+
+    const defaultPoule = creerBlocPoule(1, 1, 'A');
+    const eqCont = defaultPoule.querySelector('.equipes-container');
+    ajouterChampEquipePreserve(eqCont, 1, 1, '', 'A');
+    ajouterChampEquipePreserve(eqCont, 1, 1, '', 'A');
+    ajouterChampEquipePreserve(eqCont, 1, 1, '', 'A');
+    ajouterChampEquipePreserve(eqCont, 1, 1, '', 'A');
+    poulesContainer.appendChild(defaultPoule);
+
+    container.appendChild(block);
+}
+
+// ==========================================
+// CHARGEMENT DES DONNÉES DU TOURNOI (MODE ÉDITION)
 // ==========================================
 async function chargerDonneesTournoi() {
     var loadingMsg = document.getElementById('loading-message');
@@ -52,7 +79,7 @@ async function chargerDonneesTournoi() {
         document.getElementById('heure_debut_phasefinal').value = data.parametre.heure_debut_phasefinal || '';
         document.getElementById('troissets').value = data.parametre.troissets || '';
 
-        document.querySelector('h1').textContent = 'Modifier : ' + data.tournoi.nom;
+        document.getElementById('page-title').textContent = 'Modifier : ' + data.tournoi.nom;
 
         loadingMsg.style.display = 'none';
         editSection.style.display = 'block';
@@ -72,7 +99,7 @@ function afficherErreur(msg) {
 }
 
 // ==========================================
-// GÉNÉRATION DES BLOCS PRÉ-REMPLIS
+// GÉNÉRATION DES BLOCS PRÉ-REMPLIS (MODE ÉDITION)
 // ==========================================
 function genererCategoriesAvecDonnees(categories) {
     var nbre = categories && categories.length > 0 ? categories.length : 1;
@@ -99,7 +126,7 @@ function genererCategoriesAvecDonnees(categories) {
                     equipesContainer.innerHTML = '';
 
                     if (poule.equipes && poule.equipes.length > 0) {
-                        poule.equipes.forEach(function (eq, idxEq) {
+                        poule.equipes.forEach(function (eq) {
                             ajouterChampEquipePreserve(equipesContainer, id_categorie, id_poule, eq.nom, lettrePoule);
                         });
                     } else {
@@ -228,7 +255,6 @@ function ajusterCategories(delta) {
         }
         nbreActuel++;
         var nouveauBloc = creerBlocCategorie(nbreActuel, '');
-
         var poulesContainer = nouveauBloc.querySelector('.poules-container');
         poulesContainer.innerHTML = '';
         var defaultPoule = creerBlocPoule(nbreActuel, 1, 'A');
@@ -256,8 +282,8 @@ function ajouterPoule(btn) {
     var id_categorie = parseInt(categorieBlock.dataset.idCategorie);
 
     var nbrePoules = poulesContainer.querySelectorAll('.poule-block').length + 1;
-    if (nbrePoules > 6) {
-        alert('Maximum 6 poules par catégorie');
+    if (nbrePoules > 20) {
+        alert('Maximum 20 poules par catégorie');
         return;
     }
 
@@ -294,14 +320,12 @@ function reordonnerPoules(container) {
         var input = p.querySelector('.poule-header input[type="text"]');
         if (input) {
             var ancienneLettre = indexToLettre(ancienId);
-            // On ne remplace la valeur que si elle suivait l'ancien format auto (une lettre)
             if (/^[A-Z]{1,2}$/.test(input.value) || input.value === '') {
                 input.value = newLettre;
             }
             input.name = 'poule_nom_' + id_categorie + '_' + newId;
         }
 
-        // Met à jour les inputs équipes (name + valeur auto si besoin)
         var equipesContainer = p.querySelector('.equipes-container');
         equipesContainer.querySelectorAll('.equipe-item').forEach(function (item, idxEq) {
             var eqInput = item.querySelector('input');
@@ -361,9 +385,9 @@ function reordonnerEquipes(container) {
 }
 
 // ==========================================
-// ENVOI DU FORMULAIRE
+// ENVOI DU FORMULAIRE (CRÉATION OU ÉDITION)
 // ==========================================
-function setupFormulaireModification() {
+function setupFormulaire() {
     var form = document.getElementById('form-edit-tournoi');
     if (!form) return;
 
@@ -371,13 +395,16 @@ function setupFormulaireModification() {
         e.preventDefault();
 
         var messageEl = document.getElementById('form-message');
-        messageEl.textContent = 'Enregistrement en cours...';
+        var isCreation = window.modeCreation;
+
+        messageEl.textContent = isCreation ? 'Création en cours...' : 'Enregistrement en cours...';
         messageEl.className = 'message';
 
         var payload = collectFormData();
+        var url = isCreation ? 'api/create_tournoi.php' : 'api/update_tournoi.php';
 
         try {
-            var response = await fetch('api/update_tournoi.php', {
+            var response = await fetch(url, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(payload)
@@ -386,8 +413,17 @@ function setupFormulaireModification() {
             var data = await response.json();
 
             if (data.success) {
-                messageEl.textContent = 'Modifications enregistrées avec succès !';
-                messageEl.className = 'message success';
+                if (isCreation) {
+                    messageEl.textContent = 'Tournoi créé avec succès !';
+                    messageEl.className = 'message success';
+                    // Redirection vers le mode édition du tournoi créé
+                    setTimeout(function () {
+                        window.location.href = 'edit_tournoi.php?id_tournoi=' + data.id_tournoi;
+                    }, 800);
+                } else {
+                    messageEl.textContent = 'Modifications enregistrées avec succès !';
+                    messageEl.className = 'message success';
+                }
             } else {
                 messageEl.textContent = 'Erreur : ' + (data.error || 'Erreur inconnue');
                 messageEl.className = 'message error';
@@ -461,6 +497,7 @@ function collectFormData() {
     return {
         id_tournoi: id_tournoi,
         nom: nom,
+        nom_tournoi: nom, // compat create_tournoi.php
         nbre_terrain_poule: nbre_terrain_poule,
         nbre_terrain_phasefinal: nbre_terrain_phasefinal,
         temps_de_match: temps_de_match,

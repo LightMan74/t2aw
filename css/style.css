@@ -319,6 +319,17 @@ body {
     transition: background 0.2s ease, color 0.2s ease;
 }
 
+.section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.section-header h2 {
+    margin: 0;
+}
+
 .container {
     /* max-width: 1100px; */
     max-width: 75%;
@@ -966,6 +977,59 @@ th {
 
 .btn-suppr-match:hover {
     background: var(--btn-minus-hover);
+}
+
+.tournois-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 1rem;
+}
+
+.tournois-table th,
+.tournois-table td {
+    padding: 0.6rem 0.8rem;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+}
+
+.tournois-table th {
+    background-color: var(--btn-primary);
+    font-weight: 600;
+}
+
+.tournois-table tbody tr:hover {
+    background-color: var(--btn-primary-hover);
+}
+
+.actions-col {
+    white-space: nowrap;
+    text-align: right;
+}
+
+.btn-mini {
+    display: inline-block;
+    padding: 0.3rem 0.6rem;
+    margin-left: 0.3rem;
+    font-size: 0.85rem;
+    border-radius: 4px;
+    text-decoration: none;
+    color: #fff;
+}
+
+.btn-open {
+    background-color: #4caf50;
+}
+
+.btn-edit {
+    background-color: #2196f3;
+}
+
+.btn-delete {
+    background-color: #f44336;
+}
+
+.btn-mini:hover {
+    opacity: 0.85;
 }
 
 /* ---- Responsive ---- */

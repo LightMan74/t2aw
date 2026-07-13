@@ -1,8 +1,9 @@
 <?php
 include "api/check_connected.php";
 
-// Récupérer l'id_tournoi depuis l'URL
+// Si id_tournoi absent ou = 0 -> mode création
 $id_tournoi = isset($_GET['id_tournoi']) ? (int)$_GET['id_tournoi'] : 0;
+$mode_creation = $id_tournoi === 0;
 ?>
 <!DOCTYPE html>
 <html lang="fr">
@@ -10,25 +11,26 @@ $id_tournoi = isset($_GET['id_tournoi']) ? (int)$_GET['id_tournoi'] : 0;
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Modifier le tournoi - Gestion Tournois Badminton</title>
+    <title><?php echo $mode_creation ? 'Créer un tournoi' : 'Modifier le tournoi'; ?> - Gestion Tournois Badminton</title>
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="css/dark-mode.css">
 </head>
-<div class="container">
-    <nav>
-        <?php include 'menu.php'; ?>
-    </nav>
-</div>
 
 <body>
     <div class="container">
-        <!-- <a href="index.php" class="btn btn-back">← Retour</a> -->
+        <nav>
+            <?php include 'menu.php'; ?>
+        </nav>
 
-        <h1>Modifier le tournoi</h1>
+        <a href="dashboard.php" class="btn btn-back">← Retour</a>
 
-        <div id="loading-message">Chargement des données...</div>
+        <h1 id="page-title"><?php echo $mode_creation ? 'Créer un nouveau tournoi' : 'Modifier le tournoi'; ?></h1>
 
-        <section class="section" id="edit-section" style="display:none;">
+        <div id="loading-message" style="<?php echo $mode_creation ? 'display:none;' : ''; ?>">
+            Chargement des données...
+        </div>
+
+        <section class="section" id="edit-section" style="<?php echo $mode_creation ? '' : 'display:none;'; ?>">
             <form id="form-edit-tournoi">
                 <input type="hidden" id="id_tournoi" value="<?php echo $id_tournoi; ?>">
 
@@ -40,11 +42,11 @@ $id_tournoi = isset($_GET['id_tournoi']) ? (int)$_GET['id_tournoi'] : 0;
                 <div class="form-row">
                     <div class="form-group">
                         <label for="nbre_terrain_poule">Nombre de terrains (poules)</label>
-                        <input type="number" id="nbre_terrain_poule" name="nbre_terrain_poule" min="1" required>
+                        <input type="number" id="nbre_terrain_poule" name="nbre_terrain_poule" min="1" value="4" required>
                     </div>
                     <div class="form-group">
                         <label for="nbre_terrain_phasefinal">Nombre de terrains (phase finale)</label>
-                        <input type="number" id="nbre_terrain_phasefinal" name="nbre_terrain_phasefinal" min="1" required>
+                        <input type="number" id="nbre_terrain_phasefinal" name="nbre_terrain_phasefinal" min="1" value="2" required>
                     </div>
                 </div>
 
@@ -55,18 +57,18 @@ $id_tournoi = isset($_GET['id_tournoi']) ? (int)$_GET['id_tournoi'] : 0;
                     </div>
                     <div class="form-group">
                         <label for="temps_de_match">Temps de match (minutes)</label>
-                        <input type="number" id="temps_de_match" name="temps_de_match" min="5" required>
+                        <input type="number" id="temps_de_match" name="temps_de_match" min="5" value="15" required>
                     </div>
                 </div>
 
                 <div class="form-row">
                     <div class="form-group">
                         <label for="heure_debut_poule">Heure début poules</label>
-                        <input type="time" id="heure_debut_poule" name="heure_debut_poule" required>
+                        <input type="time" id="heure_debut_poule" name="heure_debut_poule" value="09:00" required>
                     </div>
                     <div class="form-group">
                         <label for="heure_debut_phasefinal">Heure début phase finale</label>
-                        <input type="time" id="heure_debut_phasefinal" name="heure_debut_phasefinal" required>
+                        <input type="time" id="heure_debut_phasefinal" name="heure_debut_phasefinal" value="14:00" required>
                     </div>
                 </div>
 
@@ -84,15 +86,17 @@ $id_tournoi = isset($_GET['id_tournoi']) ? (int)$_GET['id_tournoi'] : 0;
 
                 <div id="error-message" class="error-message" style="display:none;"></div>
                 <p id="form-message" class="message"></p>
-                <button type="submit" class="btn btn-primary">Enregistrer les modifications</button>
+                <button type="submit" class="btn btn-primary">
+                    <?php echo $mode_creation ? 'Créer le tournoi' : 'Enregistrer les modifications'; ?>
+                </button>
             </form>
         </section>
 
     </div>
 
     <script>
-    // Passer l'ID du tournoi en JS
-    window.idTournoi = <?php echo $id_tournoi; ?>;
+        window.idTournoi = <?php echo $id_tournoi; ?>;
+        window.modeCreation = <?php echo $mode_creation ? 'true' : 'false'; ?>;
     </script>
     <script src="js/edit.js"></script>
 </body>
