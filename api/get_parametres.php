@@ -3,7 +3,7 @@
 header('Content-Type: application/json');
 include "api/check_connected.php";
 require 'db.php';
-
+ 
 $id_tournoi = $_POST['id_tournoi'] ?? null;
 
 if (!$id_tournoi) {
