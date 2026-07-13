@@ -2,14 +2,18 @@
 /**
  * API update_tournoi.php
  * Met à jour un tournoi existant : tournoi, parametre, categories, poules, equipes
- * POST JSON : {id_tournoi, nom, nbre_terrain_poule, nbre_terrain_phasefinal, temps_de_match, heure_debut_poule, heure_debut_phasefinal, categories:[...]}
+ * POST JSON : {id_tournoi, nom, nbre_terrain_poule, nbre_terrain_phasefinal, temps_de_match, heure_debut_poule, heure_debut_phasefinal, troissets, terrain_automatique, categories:[...]}
+ *
+ * ALTER TABLE parametre ADD COLUMN terrain_automatique TINYINT(1) NOT NULL DEFAULT 1;
  */
 
-if (ob_get_level()) {
+if (ob_get_level()) { 
     ob_end_clean();
 }
 header('Content-Type: application/json; charset=utf-8');
+
 include "api/check_connected.php";
+
 $raw = file_get_contents('php://input');
 $data = json_decode($raw, true);
 
@@ -22,7 +26,7 @@ if (json_last_error() !== JSON_ERROR_NONE) {
 require_once __DIR__ . '/db.php';
 
 try {
-    // Validation des champs obligatoires
+    // Validation id_tournoi obligatoire
     if (!isset($data['id_tournoi']) || !is_numeric($data['id_tournoi'])) {
         echo json_encode(['success' => false, 'error' => 'id_tournoi manquant']);
         ob_end_clean();
@@ -36,7 +40,21 @@ try {
     $temps_de_match = (int)($data['temps_de_match'] ?? 0);
     $heure_debut_poule = trim($data['heure_debut_poule'] ?? '');
     $heure_debut_phasefinal = trim($data['heure_debut_phasefinal'] ?? '');
-    $troissets = trim($data['troissets'] ?? 0);
+
+    // Forcer troissets à 1 ou 3 uniquement
+    $troissets_raw = trim($data['troissets'] ?? '');
+    $troissets = in_array($troissets_raw, ['1', '3'], true) ? (int)$troissets_raw : 3;
+
+    // Forcer terrain_automatique à 0 ou 1 uniquement
+    $terrain_automatique_raw = $data['terrain_automatique'] ?? null;
+    if ($terrain_automatique_raw === 'true' || $terrain_automatique_raw === true || $terrain_automatique_raw === '1' || $terrain_automatique_raw === 1) {
+        $terrain_automatique = 1;
+    } elseif ($terrain_automatique_raw === 'false' || $terrain_automatique_raw === false || $terrain_automatique_raw === '0' || $terrain_automatique_raw === 0) {
+        $terrain_automatique = 0;
+    } else {
+        $terrain_automatique = 1; // défaut
+    }
+
     $categories = $data['categories'] ?? [];
 
     if (empty($nom)) {
@@ -51,29 +69,57 @@ try {
     $stmtUpdateTournoi = $pdo->prepare("UPDATE tournoi SET nom = :nom WHERE id_tournoi = :id_tournoi");
     $stmtUpdateTournoi->execute(['nom' => $nom, 'id_tournoi' => $id_tournoi]);
 
-    // Mettre à jour les paramètres
-    $stmtUpdateParam = $pdo->prepare("
-        UPDATE parametre SET 
-            nbre_terrain_poule = :nbre_terrain_poule,
-            nbre_terrain_phasefinal = :nbre_terrain_phasefinal,
-            temps_de_match = :temps_de_match,
-            heure_debut_poule = :heure_debut_poule,
-            heure_debut_phasefinal = :heure_debut_phasefinal,
-            troissets = :troissets
-        WHERE id_tournoi = :id_tournoi
-    ");
-    $stmtUpdateParam->execute([
-        'nbre_terrain_poule' => $nbre_terrain_poule,
-        'nbre_terrain_phasefinal' => $nbre_terrain_phasefinal,
-        'temps_de_match' => $temps_de_match,
-        'heure_debut_poule' => $heure_debut_poule,
-        'heure_debut_phasefinal' => $heure_debut_phasefinal,
-        'troissets' => $troissets,
-        'id_tournoi' => $id_tournoi
-    ]);
+    // Vérifier si la colonne terrain_automatique existe dans parametre
+    $stmtCheckCol = $pdo->query("SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'parametre' AND COLUMN_NAME = 'terrain_automatique'");
+    $colExists = $stmtCheckCol->fetch() !== false;
 
-    // Supprimer puis recréer les catégories, poules et équipes
-    // (stratégie simple et robuste pour gérer l'ajout/suppression dynamique)
+    if ($colExists) {
+        // Mise à jour avec terrain_automatique
+        $stmtUpdateParam = $pdo->prepare("
+            UPDATE parametre SET
+                nbre_terrain_poule = :nbre_terrain_poule,
+                nbre_terrain_phasefinal = :nbre_terrain_phasefinal,
+                temps_de_match = :temps_de_match,
+                heure_debut_poule = :heure_debut_poule,
+                heure_debut_phasefinal = :heure_debut_phasefinal,
+                troissets = :troissets,
+                terrain_automatique = :terrain_automatique
+            WHERE id_tournoi = :id_tournoi
+        ");
+        $stmtUpdateParam->execute([
+            'nbre_terrain_poule' => $nbre_terrain_poule,
+            'nbre_terrain_phasefinal' => $nbre_terrain_phasefinal,
+            'temps_de_match' => $temps_de_match,
+            'heure_debut_poule' => $heure_debut_poule,
+            'heure_debut_phasefinal' => $heure_debut_phasefinal,
+            'troissets' => $troissets,
+            'terrain_automatique' => $terrain_automatique,
+            'id_tournoi' => $id_tournoi
+        ]);
+    } else {
+        // Mise à jour sans terrain_automatique (colonne absente)
+        $stmtUpdateParam = $pdo->prepare("
+            UPDATE parametre SET
+                nbre_terrain_poule = :nbre_terrain_poule,
+                nbre_terrain_phasefinal = :nbre_terrain_phasefinal,
+                temps_de_match = :temps_de_match,
+                heure_debut_poule = :heure_debut_poule,
+                heure_debut_phasefinal = :heure_debut_phasefinal,
+                troissets = :troissets
+            WHERE id_tournoi = :id_tournoi
+        ");
+        $stmtUpdateParam->execute([
+            'nbre_terrain_poule' => $nbre_terrain_poule,
+            'nbre_terrain_phasefinal' => $nbre_terrain_phasefinal,
+            'temps_de_match' => $temps_de_match,
+            'heure_debut_poule' => $heure_debut_poule,
+            'heure_debut_phasefinal' => $heure_debut_phasefinal,
+            'troissets' => $troissets,
+            'id_tournoi' => $id_tournoi
+        ]);
+    }
+
+    // Stratégie delete/re-INSERT : supprimer dans l'ordre FK (equipes > poules > categories)
     $stmtDeleteEquipe = $pdo->prepare("DELETE FROM equipe WHERE id_tournoi = :id_tournoi");
     $stmtDeleteEquipe->execute(['id_tournoi' => $id_tournoi]);
 
@@ -83,7 +129,7 @@ try {
     $stmtDeleteCat = $pdo->prepare("DELETE FROM categorie WHERE id_tournoi = :id_tournoi");
     $stmtDeleteCat->execute(['id_tournoi' => $id_tournoi]);
 
-    // Réinsérer les catégories, poules et équipes
+    // Réinsérer dans l'ordre inverse (catégories > poules > équipes)
     $stmtInsertCat = $pdo->prepare("INSERT INTO categorie (id_tournoi, id_categorie, nom) VALUES (:id_tournoi, :id_categorie, :nom)");
     $stmtInsertPoule = $pdo->prepare("INSERT INTO poule (id_tournoi, id_categorie, id_poule, nom) VALUES (:id_tournoi, :id_categorie, :id_poule, :nom)");
     $stmtInsertEquipe = $pdo->prepare("INSERT INTO equipe (id_tournoi, id_categorie, id_poule, id_equipe, nom) VALUES (:id_tournoi, :id_categorie, :id_poule, :id_equipe, :nom)");
@@ -137,7 +183,8 @@ try {
         $pdo->rollBack();
     }
     error_log('update_tournoi PDOException: ' . $e->getMessage());
-    echo json_encode(['success' => false, 'error' => 'Erreur base de donnees'.$e->getMessage()]);
+    echo json_encode(['success' => false, 'error' => 'Erreur base de donnees']);
+
 } catch (Exception $e) {
     if ($pdo->inTransaction()) {
         $pdo->rollBack();

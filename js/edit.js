@@ -5,6 +5,8 @@
 'use strict';
 
 document.addEventListener('DOMContentLoaded', function () {
+    initSecuriteInputsNumber();
+
     if (window.modeCreation) {
         initModeCreation();
     } else {
@@ -32,7 +34,8 @@ function indexToLettre(index) {
 function initModeCreation() {
     const container = document.getElementById('categories-container');
     container.innerHTML = '';
-    document.getElementById('nbre_categories').textContent = '1';
+    var nbreCatEl = document.getElementById('nbre_categories');
+    if (nbreCatEl) nbreCatEl.textContent = '1';
 
     const block = creerBlocCategorie(1, '');
     const poulesContainer = block.querySelector('.poules-container');
@@ -77,12 +80,19 @@ async function chargerDonneesTournoi() {
         document.getElementById('temps_de_match').value = data.parametre.temps_de_match || '';
         document.getElementById('heure_debut_poule').value = data.parametre.heure_debut_poule || '';
         document.getElementById('heure_debut_phasefinal').value = data.parametre.heure_debut_phasefinal || '';
-        document.getElementById('troissets').value = data.parametre.troissets || '';
+
+        // troissets : select -> forcer 1 ou 3
+        var troissetsVal = parseInt(data.parametre.troissets, 10);
+        document.getElementById('troissets').value = (troissetsVal === 1) ? '1' : '3';
+
+        // terrain_automatique : select -> forcer 1 ou 0
+        var terrainAutoVal = parseInt(data.parametre.terrain_automatique, 10);
+        document.getElementById('terrain_automatique').value = (terrainAutoVal === 0) ? '0' : '1';
 
         document.getElementById('page-title').textContent = 'Modifier : ' + data.tournoi.nom;
 
-        loadingMsg.style.display = 'none';
-        editSection.style.display = 'block';
+        if (loadingMsg) loadingMsg.style.display = 'none';
+        if (editSection) editSection.style.display = 'block';
 
         genererCategoriesAvecDonnees(data.categories);
 
@@ -92,10 +102,13 @@ async function chargerDonneesTournoi() {
 }
 
 function afficherErreur(msg) {
-    document.getElementById('loading-message').style.display = 'none';
+    var loadingMsg = document.getElementById('loading-message');
+    if (loadingMsg) loadingMsg.style.display = 'none';
     var errorMsg = document.getElementById('error-message');
-    errorMsg.style.display = 'block';
-    errorMsg.textContent = msg;
+    if (errorMsg) {
+        errorMsg.style.display = 'block';
+        errorMsg.textContent = msg;
+    }
 }
 
 // ==========================================
@@ -103,7 +116,8 @@ function afficherErreur(msg) {
 // ==========================================
 function genererCategoriesAvecDonnees(categories) {
     var nbre = categories && categories.length > 0 ? categories.length : 1;
-    document.getElementById('nbre_categories').textContent = nbre;
+    var nbreCatEl = document.getElementById('nbre_categories');
+    if (nbreCatEl) nbreCatEl.textContent = nbre;
 
     var container = document.getElementById('categories-container');
     container.innerHTML = '';
@@ -270,7 +284,7 @@ function ajusterCategories(delta) {
         nbreActuel--;
     }
 
-    span.textContent = nbreActuel;
+    if (span) span.textContent = nbreActuel;
 }
 
 // ==========================================
@@ -397,8 +411,10 @@ function setupFormulaire() {
         var messageEl = document.getElementById('form-message');
         var isCreation = window.modeCreation;
 
-        messageEl.textContent = isCreation ? 'Création en cours...' : 'Enregistrement en cours...';
-        messageEl.className = 'message';
+        if (messageEl) {
+            messageEl.textContent = isCreation ? 'Création en cours...' : 'Enregistrement en cours...';
+            messageEl.className = 'message';
+        }
 
         var payload = collectFormData();
         var url = isCreation ? 'api/create_tournoi.php' : 'api/update_tournoi.php';
@@ -414,23 +430,30 @@ function setupFormulaire() {
 
             if (data.success) {
                 if (isCreation) {
-                    messageEl.textContent = 'Tournoi créé avec succès !';
-                    messageEl.className = 'message success';
-                    // Redirection vers le mode édition du tournoi créé
+                    if (messageEl) {
+                        messageEl.textContent = 'Tournoi créé avec succès !';
+                        messageEl.className = 'message success';
+                    }
                     setTimeout(function () {
                         window.location.href = 'edit_tournoi.php?id_tournoi=' + data.id_tournoi;
                     }, 800);
                 } else {
-                    messageEl.textContent = 'Modifications enregistrées avec succès !';
-                    messageEl.className = 'message success';
+                    if (messageEl) {
+                        messageEl.textContent = 'Modifications enregistrées avec succès !';
+                        messageEl.className = 'message success';
+                    }
                 }
             } else {
-                messageEl.textContent = 'Erreur : ' + (data.error || 'Erreur inconnue');
-                messageEl.className = 'message error';
+                if (messageEl) {
+                    messageEl.textContent = 'Erreur : ' + (data.error || 'Erreur inconnue');
+                    messageEl.className = 'message error';
+                }
             }
         } catch (err) {
-            messageEl.textContent = 'Erreur réseau : ' + err.message;
-            messageEl.className = 'message error';
+            if (messageEl) {
+                messageEl.textContent = 'Erreur réseau : ' + err.message;
+                messageEl.className = 'message error';
+            }
         }
     });
 }
@@ -441,12 +464,19 @@ function setupFormulaire() {
 function collectFormData() {
     var id_tournoi = document.getElementById('id_tournoi').value;
     var nom = document.getElementById('nom_tournoi').value;
-    var nbre_terrain_poule = parseInt(document.getElementById('nbre_terrain_poule').value) || 0;
-    var nbre_terrain_phasefinal = parseInt(document.getElementById('nbre_terrain_phasefinal').value) || 0;
-    var temps_de_match = parseInt(document.getElementById('temps_de_match').value) || 0;
+    var nbre_terrain_poule = parseInt(document.getElementById('nbre_terrain_poule').value, 10) || 0;
+    var nbre_terrain_phasefinal = parseInt(document.getElementById('nbre_terrain_phasefinal').value, 10) || 0;
+    var temps_de_match = parseInt(document.getElementById('temps_de_match').value, 10) || 0;
     var heure_debut_poule = document.getElementById('heure_debut_poule').value;
     var heure_debut_phasefinal = document.getElementById('heure_debut_phasefinal').value;
-    var troissets = document.getElementById('troissets').value;
+
+    // troissets : forcer 1 ou 3 uniquement
+    var troissetsRaw = parseInt(document.getElementById('troissets').value, 10);
+    var troissets = (troissetsRaw === 1) ? 1 : 3;
+
+    // terrain_automatique : forcer 1 ou 0 uniquement
+    var terrainAutoRaw = parseInt(document.getElementById('terrain_automatique').value, 10);
+    var terrain_automatique = (terrainAutoRaw === 0) ? 0 : 1;
 
     var categories = [];
 
@@ -504,6 +534,7 @@ function collectFormData() {
         heure_debut_poule: heure_debut_poule,
         heure_debut_phasefinal: heure_debut_phasefinal,
         troissets: troissets,
+        terrain_automatique: terrain_automatique,
         categories: categories
     };
 }
@@ -516,4 +547,104 @@ function escapeHtml(text) {
     var div = document.createElement('div');
     div.textContent = text;
     return div.innerHTML;
+}
+
+/**
+ * Empêche la saisie de caractères invalides dans les champs number
+ * Autorise : chiffres, Backspace, Delete, Tab, flèches, Entrée
+ * Bloque : e, E, +, -, . , , et toute autre lettre
+ */
+function blockInvalidNumberKeys(event) {
+    var touchesAutorisees = [
+        'Backspace', 'Delete', 'Tab', 'Escape', 'Enter',
+        'ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', 'Home', 'End'
+    ];
+
+    if (touchesAutorisees.indexOf(event.key) !== -1) {
+        return true;
+    }
+
+    // Autoriser Ctrl+A, Ctrl+C, Ctrl+V, Ctrl+X
+    if (event.ctrlKey || event.metaKey) {
+        return true;
+    }
+
+    // Bloquer tout ce qui n'est pas un chiffre (0-9)
+    if (!/^[0-9]$/.test(event.key)) {
+        event.preventDefault();
+        return false;
+    }
+
+    return true;
+}
+
+/**
+ * Bloque le collage de contenu non numérique dans les inputs number
+ */
+function blockInvalidPaste(event) {
+    var clipboardData = event.clipboardData || window.clipboardData;
+    var pastedText = clipboardData ? clipboardData.getData('text') : '';
+
+    if (!/^[0-9]+$/.test(pastedText)) {
+        event.preventDefault();
+        return false;
+    }
+
+    return true;
+}
+
+/**
+ * Sécurise un input number en supprimant tout caractère non numérique
+ * collé (paste) et en clampant min/max, sans décimales
+ */
+function securiserInputNumber(input) {
+    input.addEventListener('input', function () {
+        // Supprime tout ce qui n'est pas un chiffre (bloque aussi les décimales)
+        var valeurPropre = this.value.replace(/[^0-9]/g, '');
+        this.value = valeurPropre;
+    });
+
+    input.addEventListener('blur', function () {
+        var min = this.min !== '' ? parseInt(this.min, 10) : null;
+        var max = this.max !== '' ? parseInt(this.max, 10) : null;
+        var val = parseInt(this.value, 10);
+
+        if (isNaN(val)) return;
+
+        if (min !== null && val < min) this.value = min;
+        if (max !== null && val > max) this.value = max;
+    });
+}
+
+/**
+ * Initialise la sécurisation sur tous les inputs number du formulaire
+ * (y compris ceux ajoutés dynamiquement grâce à la délégation d'événements)
+ */
+function initSecuriteInputsNumber() {
+    // Sécurise les inputs déjà présents au chargement
+    document.querySelectorAll('input[type="number"]').forEach(function (input) {
+        securiserInputNumber(input);
+    });
+
+    // Délégation d'événements pour tout futur input[type=number] ajouté dynamiquement
+    document.addEventListener('keydown', function (event) {
+        if (event.target && event.target.type === 'number') {
+            blockInvalidNumberKeys(event);
+        }
+    });
+
+    document.addEventListener('paste', function (event) {
+        if (event.target && event.target.type === 'number') {
+            blockInvalidPaste(event);
+        }
+    });
+
+    document.addEventListener('input', function (event) {
+        if (event.target && event.target.type === 'number') {
+            var valeurPropre = event.target.value.replace(/[^0-9]/g, '');
+            if (valeurPropre !== event.target.value) {
+                event.target.value = valeurPropre;
+            }
+        }
+    });
 }

@@ -30,7 +30,19 @@ try {
     $temps_de_match = (int)($data['temps_de_match'] ?? 0);
     $heure_debut_poule = trim($data['heure_debut_poule'] ?? '');
     $heure_debut_phasefinal = trim($data['heure_debut_phasefinal'] ?? '');
-    $troissets = trim($data['troissets'] ?? '');
+
+    // troissets : forcer 1 ou 3 uniquement
+    $troissets = (int)($data['troissets'] ?? 3);
+    if (!in_array($troissets, [1, 3], true)) {
+        $troissets = 3;
+    }
+
+    // terrain_automatique : forcer 1 ou 0 uniquement
+    $terrain_automatique = (int)($data['terrain_automatique'] ?? 1);
+    if (!in_array($terrain_automatique, [0, 1], true)) {
+        $terrain_automatique = 1;
+    }
+
     $categories = $data['categories'] ?? [];
 
     if (empty($nom)) {
@@ -51,9 +63,12 @@ try {
     $stmtInsertTournoi->execute(['id_tournoi' => $id_tournoi, 'nom' => $nom, 'uid' => $_SESSION['uid']]);
 
     // Insérer les paramètres
+    // ATTENTION : si la colonne terrain_automatique n'existe pas encore dans la table `parametre`,
+    // exécuter au préalable :
+    // ALTER TABLE parametre ADD COLUMN terrain_automatique TINYINT(1) NOT NULL DEFAULT 1;
     $stmtInsertParam = $pdo->prepare("
-        INSERT INTO parametre (id_tournoi, nbre_terrain_poule, nbre_terrain_phasefinal, temps_de_match, heure_debut_poule, heure_debut_phasefinal, troissets)
-        VALUES (:id_tournoi, :nbre_terrain_poule, :nbre_terrain_phasefinal, :temps_de_match, :heure_debut_poule, :heure_debut_phasefinal, :troissets)
+        INSERT INTO parametre (id_tournoi, nbre_terrain_poule, nbre_terrain_phasefinal, temps_de_match, heure_debut_poule, heure_debut_phasefinal, troissets, terrain_automatique)
+        VALUES (:id_tournoi, :nbre_terrain_poule, :nbre_terrain_phasefinal, :temps_de_match, :heure_debut_poule, :heure_debut_phasefinal, :troissets, :terrain_automatique)
     ");
     $stmtInsertParam->execute([
         'id_tournoi' => $id_tournoi,
@@ -62,7 +77,8 @@ try {
         'temps_de_match' => $temps_de_match,
         'heure_debut_poule' => $heure_debut_poule,
         'heure_debut_phasefinal' => $heure_debut_phasefinal,
-        'troissets' => $troissets
+        'troissets' => $troissets,
+        'terrain_automatique' => $terrain_automatique
     ]);
 
     // Préparer les requêtes d'insertion
@@ -121,6 +137,12 @@ try {
     }
     error_log('create_tournoi PDOException: ' . $e->getMessage());
     echo json_encode(['success' => false, 'error' => 'Erreur base de donnees']);
+} catch (Exception $e) {
+    if (isset($pdo) && $pdo->inTransaction()) {
+        $pdo->rollBack();
+    }
+    error_log('create_tournoi Exception: ' . $e->getMessage());
+    echo json_encode(['success' => false, 'error' => $e->getMessage()]);
 }
 
 ob_end_clean();
