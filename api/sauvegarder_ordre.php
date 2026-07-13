@@ -92,14 +92,27 @@ try {
         $heuresTerrain[$t] = clone $dateDebut;
     }
 
+    $stmt = $pdo->prepare("
+            SELECT terrain_automatique
+            FROM parametre
+            WHERE id_tournoi = :id
+        ");
+        $stmt->execute(['id' => $id_tournoi]);
+        $terrain_automatique = $stmt->fetchAll(PDO::FETCH_ASSOC)[0]['terrain_automatique'];
+
     $insert = $pdo->prepare("INSERT INTO match_poule 
         (id_tournoi, id_categorie, id_poule, id_poule_2, id_match, terrain, id_equipe_1, id_equipe_2, status, heure_debut, heure_fin, ordre_affichage)
         VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'planifie', ?, ?, ?)");
-
+       
     $ordreAffichage = 1;
 
     foreach ($planningOrdonne as $item) {
-        $terrain = $item['terrain'];
+            $terrain = $item['terrain'];
+        if ($terrain_automatique){
+            $terrainbis = $item['terrain'];
+        }else{
+            $terrainbis = null;
+        }
         $m = $item['match'];
 
         $id_categorie = $m['id_categorie'];
@@ -125,7 +138,7 @@ try {
             $id_poule,
             $id_poule_2,
             $id_match,
-            $terrain,
+            $terrainbis,
             $m['id_equipe_1'],
             $m['id_equipe_2'],
             $heureDebutMatch->format('H:i:s'),
