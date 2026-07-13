@@ -181,6 +181,118 @@
     background: var(--categorie-color-10);
 }
 
+/* ---- Badges "pill" colorés (catégorie / poule) avec texte ---- */
+.badge-pill {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    padding: 4px 12px 4px 10px;
+    /* on réduit légèrement le padding bas */
+    border-radius: 6px;
+    font-size: 0.85em;
+    font-weight: 600;
+    color: #fff;
+    line-height: 1;
+    white-space: nowrap;
+    text-align: center;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
+}
+
+
+.badge-pill.categorie-1 {
+    background: var(--categorie-color-1);
+}
+
+.badge-pill.categorie-2 {
+    background: var(--categorie-color-2);
+}
+
+.badge-pill.categorie-3 {
+    background: var(--categorie-color-3);
+    color: #333;
+}
+
+.badge-pill.categorie-4 {
+    background: var(--categorie-color-4);
+}
+
+.badge-pill.categorie-5 {
+    background: var(--categorie-color-5);
+}
+
+.badge-pill.categorie-6 {
+    background: var(--categorie-color-6);
+}
+
+.badge-pill.categorie-7 {
+    background: var(--categorie-color-7);
+}
+
+.badge-pill.categorie-8 {
+    background: var(--categorie-color-8);
+}
+
+.badge-pill.categorie-9 {
+    background: var(--categorie-color-9);
+}
+
+.badge-pill.categorie-10 {
+    background: var(--categorie-color-10);
+}
+
+.badge-pill.poule-1 {
+    background: var(--poule-color-1);
+}
+
+.badge-pill.poule-2 {
+    background: var(--poule-color-2);
+}
+
+.badge-pill.poule-3 {
+    background: var(--poule-color-3);
+}
+
+.badge-pill.poule-4 {
+    background: var(--poule-color-4);
+}
+
+.badge-pill.poule-5 {
+    background: var(--poule-color-5);
+}
+
+.badge-pill.poule-6 {
+    background: var(--poule-color-6);
+}
+
+.badge-pill.poule-7 {
+    background: var(--poule-color-7);
+}
+
+.badge-pill.poule-8 {
+    background: var(--poule-color-8);
+}
+
+.badge-pill.poule-9 {
+    background: var(--poule-color-9);
+}
+
+.badge-pill.poule-10 {
+    background: var(--poule-color-10);
+}
+
+.badge-pill.poule-inter {
+    background: var(--inter-poule-color);
+}
+
+/* En-tête de bloc classement, avec les 2 badges alignés */
+.classement-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 12px;
+}
+
 
 input[type="number"]::-webkit-outer-spin-button,
 input[type="number"]::-webkit-inner-spin-button {

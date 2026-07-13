@@ -2,35 +2,44 @@
 
 function afficherMessage(texte, type) {
     const div = document.getElementById('message');
-    div.innerHTML = `<div class="msg ${type}">${texte}</div>`;
+    div.className = type;
+    div.textContent = texte;
     setTimeout(() => div.innerHTML = '', 4000);
 }
 
 function chargerClassement() {
-    const id_tournoi = document.getElementById('id_tournoi').value;
-
-    fetch(`api/get_classement.php?id_tournoi=${id_tournoi}`)
+    const idTournoi = document.body.dataset.idTournoi || new URLSearchParams(window.location.search).get('id_tournoi');
+    if (!idTournoi) {
+        afficherMessage('Aucun tournoi sélectionné.', 'error');
+        return;
+    }
+    fetch('api/get_classement.php?id_tournoi=' + idTournoi)
         .then(res => res.json())
         .then(data => {
             if (data.success) {
                 afficherClassement(data.classement);
             } else {
-                afficherMessage(data.error, 'error');
+                afficherMessage(data.error || 'Erreur lors du chargement.', 'error');
             }
         })
-        .catch(err => afficherMessage('Erreur de chargement', 'error'));
+        .catch(() => {
+            afficherMessage('Erreur de connexion.', 'error');
+        });
 }
 
 function afficherClassement(classement) {
     const zone = document.getElementById('zone-classement');
+    if (!zone) return;
     zone.innerHTML = '';
 
     // Regrouper par catégorie puis poule
     const groupes = {};
     classement.forEach(c => {
-        const key = c.id_categorie + '___' + c.id_poule;
+        const key = (c.id_categorie ?? 0) + '___' + (c.id_poule ?? 0);
         if (!groupes[key]) {
             groupes[key] = {
+                id_categorie: c.id_categorie,
+                id_poule: c.id_poule,
                 nom_categorie: c.nom_categorie,
                 nom_poule: c.nom_poule,
                 equipes: []
@@ -39,7 +48,7 @@ function afficherClassement(classement) {
         groupes[key].equipes.push(c);
     });
 
-    // Trier les groupes par id_categorie puis id_poule (ordre naturel des clés)
+    // Trier par id_categorie puis id_poule
     const clesTriees = Object.keys(groupes).sort((a, b) => {
         const [catA, pA] = a.split('___').map(Number);
         const [catB, pB] = b.split('___').map(Number);
@@ -53,21 +62,30 @@ function afficherClassement(classement) {
 
         // Tri automatique du classement :
         // 1. Nombre de victoires (desc)
-        // 2. Différence de points (desc)
+        // 2. Différence de sets (desc)
         // 3. Points marqués (desc)
         lignes.sort((a, b) => {
-            if (b.victoire !== a.victoire) return b.victoire - a.victoire;
-
-            const diffA = a.point_marquer - a.point_encaisser;
-            const diffB = b.point_marquer - b.point_encaisser;
+            if (a.victoire !== b.victoire) return b.victoire - a.victoire;
+            const diffA = (a.set_gagner ?? 0) - (a.set_perdu ?? 0);
+            const diffB = (b.set_gagner ?? 0) - (b.set_perdu ?? 0);
             if (diffB !== diffA) return diffB - diffA;
-
-            return b.point_marquer - a.point_marquer;
+            return (b.point_marquer ?? 0) - (a.point_marquer ?? 0);
         });
 
-        const h2 = document.createElement('h2');
-        h2.textContent = `${groupe.nom_categorie} - ${groupe.nom_poule}`;
-        zone.appendChild(h2);
+        // === En-têtes colorés : même balisage que afficheur.js onglet classement ===
+        const catClass = getCategorieColorClassById(groupe.id_categorie);
+        const poleClass = getPouleColorClassById(groupe.id_poule);
+
+        const badgeCat = `<span class="badge-pill categorie-${((groupe.id_categorie - 1) % 10) + 1}">${groupe.nom_categorie}</span>`;
+        const badgePoule = groupe.id_poule
+            ? `<span class="badge-pill poule-${((groupe.id_poule - 1) % 10) + 1}">${groupe.nom_poule}</span>`
+            : '';
+
+        const header = document.createElement('div');
+        header.className = 'classement-header';
+        header.innerHTML = badgeCat + badgePoule;
+        zone.appendChild(header);
+
 
         const table = document.createElement('table');
         table.innerHTML = `
@@ -89,22 +107,20 @@ function afficherClassement(classement) {
 
         const tbody = table.querySelector('tbody');
         lignes.forEach((l, index) => {
-            const diff = l.point_marquer - l.point_encaisser;
             const tr = document.createElement('tr');
+            if (index === 0) tr.classList.add('premier');
 
-            // Mise en avant du premier de la poule
-            if (index === 0) tr.classList.add('premier-poule');
-
+            const diff = (l.set_gagner ?? 0) - (l.set_perdu ?? 0);
             tr.innerHTML = `
                 <td>${index + 1}</td>
-                <td>${l.nom_equipe}</td>
-                <td>${l.matchs_joues}</td>
-                <td>${l.victoire}</td>
-                <td>${l.defaite}</td>
-                <td>${l.set_gagner}</td>
-                <td>${l.point_marquer}</td>
-                <td>${l.point_encaisser}</td>
-                <td>${diff >= 0 ? '+' + diff : diff}</td>
+                <td>${escapeHTML(l.nom_equipe || '')}</td>
+                <td>${l.matchs_joues ?? 0}</td>
+                <td>${l.victoire ?? 0}</td>
+                <td>${l.defaite ?? 0}</td>
+                <td>${l.set_gagner ?? 0}</td>
+                <td>${l.point_marquer ?? 0}</td>
+                <td>${l.point_encaisser ?? 0}</td>
+                <td>${diff >= 0 ? '+' : ''}${diff}</td>
             `;
             tbody.appendChild(tr);
         });
@@ -113,6 +129,16 @@ function afficherClassement(classement) {
     });
 
     if (clesTriees.length === 0) {
-        zone.innerHTML = '<p>Aucune donnée de classement pour ce tournoi.</p>';
+        zone.innerHTML = '<p>Aucun classement disponible.</p>';
     }
+}
+
+// ----- Utilitaire -----
+function escapeHTML(str) {
+    if (str === null || str === undefined) return '';
+    return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
 }

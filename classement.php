@@ -19,18 +19,20 @@
 
         <h1>Classement des poules</h1>
 
-        <!-- <label>ID Tournoi :</label> -->
         <input type="number" id="id_tournoi" value="<?php echo $_GET["id_tournoi"];?>" style="width:100px; margin-bottom:15px;" hidden>
-        <!-- <input type="number" id="id_tournoi" value="1" style="width:100px; margin-bottom:15px;"> -->
-        <!-- <button onclick="chargerClassement()">Charger le classement</button> -->
 
         <div id="message"></div>
         <div id="zone-classement"></div>
     </div>
 
+    <script src="js/colors.js"></script>
     <script src="js/classement.js"></script>
     <script>
-    chargerClassement();
+        (function () {
+            var input = document.getElementById('id_tournoi');
+            if (input) document.body.dataset.idTournoi = input.value;
+            chargerClassement();
+        })();
     </script>
 </body>
 
