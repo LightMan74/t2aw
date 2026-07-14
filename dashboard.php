@@ -1,6 +1,5 @@
 <?php
-session_start();
-include "api/check_connected.php";
+// include "api/check_connected.php";
 ?>
 <!DOCTYPE html>
 <html lang="fr">

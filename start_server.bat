@@ -68,13 +68,13 @@ echo Appuyez sur CTRL+C pour arreter le serveur
 echo ========================================
 echo.
 REM Ouvrir le QR code dans le navigateur pour scan facile
-start "" "https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=http://%IP%:%PORT%"
+@REM start "" "https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=http://%IP%:%PORT%"
+start "" "http://%IP%:%PORT%"
 REM ==========================================
 REM Lancement du serveur PHP
 REM ==========================================
 cd /d "%~dp0"
 "!PHP_EXE!" -S 0.0.0.0:%PORT% -t . -c "%~dp0php\php.ini"
 
-start "" "http://%IP%:%PORT%"
 
 pause
