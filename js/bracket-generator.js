@@ -43,13 +43,14 @@ const BracketGenerator = (() => {
         let matchCounter = 1;
 
         for (let r = 1; r <= totalRounds; r++) {
+            let matchCounter = 1;
             const matches = [];
             const nextSlots = [];
 
             for (let i = 0; i < currentSlots.length; i += 2) {
                 const slotA = currentSlots[i];
                 const slotB = currentSlots[i + 1];
-                const matchId = `WR${r}M${matchCounter++}`;
+                const matchId = `WR${r}_M${matchCounter++}`;
 
                 const isBye = (slotA.team === null) !== (slotB.team === null) &&
                     (slotA.team === null || slotB.team === null) &&
@@ -167,7 +168,7 @@ const BracketGenerator = (() => {
             for (let i = 0; i < currentSlots.length; i += 2) {
                 const slotA = currentSlots[i];
                 const slotB = currentSlots[i + 1];
-                const matchId = `LR${eliminationRound}S${sr}M${matchCounter++}`;
+                const matchId = `LR${eliminationRound}_S${sr}_M${matchCounter++}`;
 
                 const isBye = slotA.isByeSlot !== slotB.isByeSlot;
 
