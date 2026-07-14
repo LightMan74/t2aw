@@ -31,6 +31,7 @@
             </div>
         </section>
 
+        <script src="js/test.js"></script>
         <script src="js/main.js"></script>
         <script src="js/supprimer_tournoi.js"></script>
         <?php } else { ?>

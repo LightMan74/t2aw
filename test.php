@@ -1,50 +1,55 @@
-<?php
-function genererToursRoundRobin(int $nbEquipes): array {
-    if ($nbEquipes < 2) return [];
-    $impair = ($nbEquipes % 2 !== 0);
-    $n = $impair ? $nbEquipes + 1 : $nbEquipes;
-    $moitie = $n / 2;
-    $nbTours = $n - 1;
+<!DOCTYPE html>
+<html>
 
-    $ordreSeq = range(0, $nbEquipes - 1);
-    if ($impair) $ordreSeq[] = null;
+<head>
+    <meta charset="UTF-8">
+    <title>Test Bracket Generator</title>
+</head>
 
-    $arr = array_fill(0, $n, null);
-    $g = 0; $d = $n - 1;
-    for ($i = 0; $i < $moitie; $i++) {
-        $arr[$g++] = $ordreSeq[2*$i];
-        $arr[$d--] = $ordreSeq[2*$i+1];
-    }
+<body>
+    <pre id="output"></pre>
 
-    $tours = [];
-    for ($t = 0; $t < $nbTours; $t++) {
-        $tm = [];
-        for ($i = 0; $i < $moitie; $i++) {
-            $e1 = $arr[$i]; $e2 = $arr[$n-1-$i];
-            if ($e1 !== null && $e2 !== null) $tm[] = [$e1+1, $e2+1]; // +1 pour affichage lisible
-        }
-        $tours[] = $tm;
-        $last = array_pop($arr);
-        array_splice($arr, 1, 0, [$last]);
-    }
-    return $tours;
-}
+    <script src="js/bracket-generator.js"></script>
+    <script>
+    const teams = [1, 2, 3, 4, 5, 6, 7, 8];
+    const bracket = BracketGenerator.generateBracket(teams);
 
-$poules = ['A' => 8, 'B' => 8];
-$donnees = [];
-$maxTours = 0;
-foreach ($poules as $nom => $nb) {
-    $donnees[$nom] = genererToursRoundRobin($nb);
-    $maxTours = max($maxTours, count($donnees[$nom]));
-}
+    let log = '';
+    log += 'Total rounds: ' + bracket.totalRounds + '\n';
+    log += 'Ranking ranges: ' + JSON.stringify(bracket.rankingRanges, null, 2) + '\n\n';
 
-$numMatch = array_fill_keys(array_keys($poules), 1);
-for ($t = 0; $t < $maxTours; $t++) {
-    foreach ($donnees as $nom => $tours) {
-        if (!isset($tours[$t])) continue;
-        foreach ($tours[$t] as $paire) {
-            echo "$nom - Match {$numMatch[$nom]} (Tour ".($t+1).") : {$paire[0]}$nom vs {$paire[1]}$nom<br>";
-            $numMatch[$nom]++;
-        }
-    }
-}
+    log += 'Winner Round 1 matches:\n';
+    bracket.winnerRounds[0].matches.forEach(m => {
+        log += `  ${m.id}: T${m.team1} vs T${m.team2} (bye: ${m.isBye})\n`;
+    });
+
+    log += '\nWinner Round 2 matches:\n';
+    bracket.winnerRounds[1].matches.forEach(m => {
+        log += `  ${m.id}: team1From=${m.team1From} vs team2From=${m.team2From}\n`;
+    });
+
+    log += '\n=== LOSER BRACKETS ===\n';
+    Object.keys(bracket.loserBrackets).forEach(r => {
+        log += `\n-- Round ${r} (loser group) --\n`;
+        const lb = bracket.loserBrackets[r];
+        lb.rounds.forEach(sr => {
+            log += `  SubRound ${sr.subRound}:\n`;
+            sr.matches.forEach(m => {
+                if (m.isPlacementMatch) {
+                    log += `    [PLACEMENT] ${m.id}: loserOf(${m.team1FromSubLoser}) vs loserOf(${m.team2FromSubLoser})\n`;
+                } else {
+                    log += `    ${m.id}: from=${m.team1From || m.team1FromSub} vs from=${m.team2From || m.team2FromSub} (bye: ${m.isBye})\n`;
+                }
+            });
+        });
+        log += `  Placement matches -> ranks:\n`;
+        lb.placementMatches.forEach(pm => {
+            log += `    ${pm.matchId}: winner=rank${pm.winnerRank}, loser=rank${pm.loserRank}\n`;
+        });
+    });
+
+    document.getElementById('output').textContent = log;
+    </script>
+</body>
+
+</html>
