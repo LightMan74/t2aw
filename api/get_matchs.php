@@ -12,10 +12,15 @@ if (!$id_tournoi) {
 }
 
 try {
+
+$concatPoule = (DB_DRIVER === 'sqlite') 
+    ? "p.nom || ' / ' || p2.nom" 
+    : "CONCAT(p.nom, ' / ', p2.nom)";
+
 $sql = "SELECT mp.*, 
                c.nom AS nom_categorie, 
                CASE 
-                   WHEN mp.id_poule_2 IS NOT NULL THEN CONCAT(p.nom, ' / ', p2.nom)
+                   WHEN mp.id_poule_2 IS NOT NULL THEN $concatPoule
                    ELSE p.nom 
                END AS nom_poule,
                e1.nom AS nom_equipe_1,

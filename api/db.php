@@ -16,6 +16,7 @@ ini_set('log_errors', 1);
 // ==========================================
 // CONFIGURATION - Choisir le mode ici
 // ==========================================
+define('DB_DRIVER', 'mysql'); // 'mysql' ou 'sqlite'
 define('DB_DRIVER', 'sqlite'); // 'mysql' ou 'sqlite'
 
 try {
@@ -44,7 +45,7 @@ try {
         // Active les clés étrangères (désactivées par défaut en SQLite)
         $pdo->exec('PRAGMA foreign_keys = ON;');
 
-    } else {
+    } else {        
         // --- Mode MySQL (production) ---
         $pdo = new PDO(
             'mysql:host=192.168.3.70;dbname=t2aw;charset=utf8mb4',

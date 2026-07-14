@@ -16,6 +16,13 @@ $currentUser = $_SESSION['user'];
     <h1>Gestion des Tournois de Badminton</h1>
     <h3>Tournoi Actuel -> <?php echo ($tournoi_name_menu[0]["nom"] != "") ? $tournoi_name_menu[0]["nom"]: 'AUCUN'; ?></h3>
     <div class="user-info">
+        <?php
+            if (DB_DRIVER === 'sqlite') {
+                echo 'Base de donnée local';
+            }else{            
+                echo 'Base de donnée distant';   
+            }
+        ?>
         <button id="btn-theme-toggle" class="theme-toggle">🌙 Sombre</button>
         <span>👤 <?php echo htmlspecialchars($currentUser); ?></span>
         <button id="btn-logout" class="btn btn-logout">Déconnexion</button>
