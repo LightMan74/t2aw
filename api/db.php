@@ -9,19 +9,29 @@ ini_set('display_errors', 0);
 ini_set('log_errors', 1);
 
 // init_sqlite.php - à lancer une fois pour créer la base locale
-include 'convert_mysql_to_sqlite.php';
-echo "Base SQLite créée avec succès !";
-exit;
+// include 'convert_mysql_to_sqlite.php';
+// echo "Base SQLite créée avec succès !";
+// exit;
 
 // ==========================================
 // CONFIGURATION - Choisir le mode ici
 // ==========================================
-define('DB_DRIVER', 'mysql'); // 'mysql' ou 'sqlite'
+define('DB_DRIVER', 'sqlite'); // 'mysql' ou 'sqlite'
 
 try {
     if (DB_DRIVER === 'sqlite') {
         // --- Mode SQLite (local) ---
-        $dbPath = 'database/t2aw.sqlite';
+        $dbPath = __DIR__ . '/../database/t2aw.sqlite';
+
+
+    // Vérif que le fichier existe et est accessible
+    if (!file_exists($dbPath)) {
+        throw new PDOException("Fichier base introuvable : $dbPath");
+    }
+    if (!is_writable($dbPath)) {
+        throw new PDOException("Fichier base non accessible en écriture : $dbPath");
+    }
+
         $pdo = new PDO(
             'sqlite:' . $dbPath,
             null,
