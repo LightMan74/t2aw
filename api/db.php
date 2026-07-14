@@ -16,7 +16,7 @@ ini_set('log_errors', 1);
 // ==========================================
 // CONFIGURATION - Choisir le mode ici
 // ==========================================
-define('DB_DRIVER', 'mysql'); // 'mysql' ou 'sqlite'
+// define('DB_DRIVER', 'mysql'); // 'mysql' ou 'sqlite'
 define('DB_DRIVER', 'sqlite'); // 'mysql' ou 'sqlite'
 
 try {
