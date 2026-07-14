@@ -223,7 +223,7 @@ function afficherListeMatchs(containerId, matchs, texteVide) {
         // Tags couleur : fond coloré directement sur le texte
         const catText = escapeHTML(m.nom_categorie || '');
         const poleText = escapeHTML(m.nom_poule || '');
-        const terrain = m.terrain ? ` — Terrain ${m.terrain}` : '';
+        const terrain = m.terrain && m.status !== 'termine' ? ` — Terrain ${m.terrain}` : '';
         const matchInfos = `<div class="match-infos">
             ${catText ? `<span class="tag-couleur ${catClass}">${catText}</span>` : ''}
             ${poleText ? `<span class="tag-couleur ${poleClass}">${poleText}</span>` : ''}
