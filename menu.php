@@ -14,7 +14,7 @@ $currentUser = $_SESSION['user'];
 </script>
 <header class="top-header">
     <h1>Gestion des Tournois de Badminton</h1>
-    <h3>Tournoi Actuel -> <?php echo ($tournoi_name_menu[0]["nom"] != "") ? $tournoi_name_menu[0]["nom"]: 'AUCUN'; ?></h3>
+    <h3>Tournoi Actuel -> <?php echo (isset($tournoi_name_menu[0]["nom"]) != "") ? $tournoi_name_menu[0]["nom"]: 'AUCUN'; ?></h3>
     <div class="user-info">
         <?php
             if (DB_DRIVER === 'sqlite') {
@@ -29,7 +29,7 @@ $currentUser = $_SESSION['user'];
     </div>
 </header>
 <?php 
-    if (($tournoi_name_menu[0]["uid"] != $currentUid && isset($_GET["id_tournoi"]))){
+    if ((isset($tournoi_name_menu[0]["uid"]) != $currentUid && isset($_GET["id_tournoi"]))){
         echo "Le tournoi demandé n'existe pas ou n'est pas liée a l'identifiant actuelle !<br><br>";
 ?>
 <a href="dashboard.php">Accueil</a>

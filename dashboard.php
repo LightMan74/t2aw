@@ -19,22 +19,22 @@
             <?php include 'menu.php'; ?>
         </nav>
 
-        <?php if ($tournoi_name_menu[0]["nom"] == "") { ?>
-            <!-- Liste des tournois -->
-            <section class="section">
-                <div class="section-header">
-                    <h2>Tournois existants</h2>
-                    <a href="edit_tournoi.php" class="btn btn-primary">+ Ajouter un tournoi</a>
-                </div>
-                <div id="liste-tournois">
-                    <p class="loading">Chargement...</p>
-                </div>
-            </section>
+        <?php if (isset($tournoi_name_menu[0]["nom"]) == "") { ?>
+        <!-- Liste des tournois -->
+        <section class="section">
+            <div class="section-header">
+                <h2>Tournois existants</h2>
+                <a href="edit_tournoi.php" class="btn btn-primary">+ Ajouter un tournoi</a>
+            </div>
+            <div id="liste-tournois">
+                <p class="loading">Chargement...</p>
+            </div>
+        </section>
 
-            <script src="js/main.js"></script>
-            <script src="js/supprimer_tournoi.js"></script>
+        <script src="js/main.js"></script>
+        <script src="js/supprimer_tournoi.js"></script>
         <?php } else { ?>
-            <h1>Tournoi actuellement ouvert<br><br>&nbsp;&nbsp;&nbsp;<?php echo $tournoi_name_menu[0]["nom"]; ?></h1>
+        <h1>Tournoi actuellement ouvert<br><br>&nbsp;&nbsp;&nbsp;<?php echo $tournoi_name_menu[0]["nom"]; ?></h1>
         <?php } ?>
 
     </div>

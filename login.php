@@ -39,8 +39,6 @@ if (isset($_SESSION['logged_in']) || $_SESSION['logged_in'] == true) {
     </div>
 
     <script src="js/auth.js"></script>
-    <script src="js/theme.js"></script>
-    <button id="btn-theme-toggle" class="theme-toggle" style="position:absolute; top:15px; right:15px;">🌙 Sombre</button>
 
 </body>
 
