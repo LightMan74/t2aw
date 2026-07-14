@@ -27,7 +27,14 @@ if (empty($username) || empty($password)) {
 try {
     // $pdo = getPDO();
     
-    $stmt = $pdo->prepare("SELECT user, password, uid, if(expire_date > NOW(), 1, 0) as expire_date FROM user WHERE user = :user LIMIT 1");
+    // $stmt = $pdo->prepare("SELECT user, password, uid, if(expire_date > NOW(), 1, 0) as expire_date FROM user WHERE user = :user LIMIT 1");
+    $stmt = $pdo->prepare("
+    SELECT user, password, uid,
+        CASE WHEN expire_date > CURRENT_TIMESTAMP THEN 1 ELSE 0 END as expire_date
+    FROM user
+    WHERE user = :user
+    LIMIT 1
+");
     $stmt->execute(['user' => $username]);
     $userData = $stmt->fetch();
 
