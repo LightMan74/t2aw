@@ -7,7 +7,8 @@ let currentMatchId = null;
 let currentPhaseFinaleIdASupprimer = null;
 
 // Liste des équipes sélectionnées pour l'ordre de départ
-let equipesOrdre = []; // [{id_equipe, nom}]
+let equipesOrdre = []; // [{id_equipe, id_categorie, id_poule, id_tournoi, nom, rang_poule, victoires, diff_points}]
+let draggedIndex = null;
 
 // ---------- Utilitaires ----------
 
@@ -27,10 +28,7 @@ async function apiFetch(url, options = {}) {
     return data;
 }
 
-// Liste des équipes sélectionnées pour l'ordre de départ
-// let equipesOrdre = []; // [{id, id_equipe, id_categorie, id_poule, nom}]
-
-// ---------- Chargement des équipes réelles du tournoi ----------
+// ---------- Chargement des équipes (classement des poules) ----------
 
 document.getElementById('btn-charger-equipes').addEventListener('click', async () => {
     const idTournoi = parseInt(document.getElementById('input-tournoi-id').value, 10);
@@ -41,7 +39,6 @@ document.getElementById('btn-charger-equipes').addEventListener('click', async (
     }
 
     try {
-        // Utiliser le classement des poules pour proposer l'ordre de seeding
         const data = await apiFetch(`${API_BASE}/classement_equipes.php?id_tournoi=${idTournoi}`);
 
         equipesOrdre = data.classement.map(e => ({
@@ -66,11 +63,7 @@ document.getElementById('btn-charger-equipes').addEventListener('click', async (
     }
 });
 
-// ---------- Affichage de l'ordre avec Drag & Drop ----------
-
-let dragSrcIndex = null;
-
-let draggedIndex = null;
+// ---------- Affichage de l'ordre avec Drag & Drop (VERSION UNIQUE) ----------
 
 function afficherOrdreEquipes() {
     const container = document.getElementById('liste-ordre-equipes');
@@ -88,13 +81,13 @@ function afficherOrdreEquipes() {
             <div class="equipe-nom-ordre">
                 <strong>${equipe.nom}</strong>
                 <span class="rang-info">
-                    Poule ${equipe.id_poule ?? '-'} - Rang ${equipe.rang_poule ?? '-'} 
+                    Poule ${equipe.id_poule ?? '-'} - Rang ${equipe.rang_poule ?? '-'}
                     - V:${equipe.victoires ?? 0} - Diff:${equipe.diff_points ?? 0}
                 </span>
             </div>
             <div class="ordre-actions">
-                <button type="button" onclick="deplacerEquipe(${index}, -1)">↑</button>
-                <button type="button" onclick="deplacerEquipe(${index}, 1)">↓</button>
+                <button type="button" data-action="up" data-index="${index}">↑</button>
+                <button type="button" data-action="down" data-index="${index}">↓</button>
             </div>
         `;
 
@@ -103,7 +96,7 @@ function afficherOrdreEquipes() {
             draggedIndex = index;
             div.classList.add('dragging');
             e.dataTransfer.effectAllowed = 'move';
-            e.dataTransfer.setData('text/plain', index); // requis pour Firefox
+            e.dataTransfer.setData('text/plain', String(index));
         });
 
         div.addEventListener('dragend', () => {
@@ -111,7 +104,7 @@ function afficherOrdreEquipes() {
         });
 
         div.addEventListener('dragover', (e) => {
-            e.preventDefault(); // OBLIGATOIRE pour autoriser le drop
+            e.preventDefault();
             e.dataTransfer.dropEffect = 'move';
             div.classList.add('drag-over');
         });
@@ -127,43 +120,18 @@ function afficherOrdreEquipes() {
             const targetIndex = index;
             if (draggedIndex === null || draggedIndex === targetIndex) return;
 
-            // Réorganiser le tableau
             const [item] = equipesOrdre.splice(draggedIndex, 1);
             equipesOrdre.splice(targetIndex, 0, item);
 
             draggedIndex = null;
-            afficherOrdreEquipes(); // re-render
+            afficherOrdreEquipes();
         });
 
         container.appendChild(div);
     });
-}
 
-function deplacerEquipe(index, direction) {
-    const newIndex = index + direction;
-    if (newIndex < 0 || newIndex >= equipesOrdre.length) return;
-
-    [equipesOrdre[index], equipesOrdre[newIndex]] = [equipesOrdre[newIndex], equipesOrdre[index]];
-    afficherOrdreEquipes();
-}
-
-function afficherOrdreEquipes() {
-    const ul = document.getElementById('liste-ordre-equipes');
-    ul.innerHTML = '';
-
-    equipesOrdre.forEach((equipe, index) => {
-        const li = document.createElement('li');
-        li.innerHTML = `
-            <span><span class="seed-num">#${index + 1}</span> ${equipe.nom}</span>
-            <span class="ordre-actions">
-                <button type="button" data-action="up" data-index="${index}">↑</button>
-                <button type="button" data-action="down" data-index="${index}">↓</button>
-            </span>
-        `;
-        ul.appendChild(li);
-    });
-
-    ul.querySelectorAll('button[data-action]').forEach(btn => {
+    // Boutons flèches (fallback mobile / accessibilité)
+    container.querySelectorAll('button[data-action]').forEach(btn => {
         btn.addEventListener('click', () => {
             const index = parseInt(btn.dataset.index, 10);
             const action = btn.dataset.action;
@@ -191,7 +159,7 @@ document.getElementById('form-creation').addEventListener('submit', async (e) =>
         nom: document.getElementById('input-nom').value.trim(),
         type_bracket: document.getElementById('input-type-bracket').value,
         nb_equipes: parseInt(document.getElementById('input-nb-equipes').value, 10),
-        equipesSelectionnees: equipesOrdre // Envoyer toutes les données des équipes
+        equipesSelectionnees: equipesOrdre
     };
 
     try {
@@ -261,7 +229,6 @@ async function chargerListePhases(idTournoi) {
     }
 }
 
-// Charger la liste au démarrage
 chargerListePhases(parseInt(document.getElementById('input-tournoi-id').value, 10));
 
 // ---------- Suppression d'une phase finale ----------
@@ -290,7 +257,6 @@ document.getElementById('btn-confirmer-suppression').addEventListener('click', a
 
         document.getElementById('modal-suppression').classList.add('hidden');
 
-        // Si la phase supprimée était affichée dans le bracket, on masque la section
         if (currentPhaseFinaleId === currentPhaseFinaleIdASupprimer) {
             document.getElementById('section-bracket').classList.add('hidden');
             currentPhaseFinaleId = null;
@@ -336,8 +302,6 @@ function afficherEquipes(equipes) {
         const div = document.createElement('div');
         div.className = 'equipe-item' + (equipe.is_bye ? ' bye' : '');
 
-        // Si liée à une équipe réelle -> nom automatique (lecture seule)
-        // Si BYE ou équipe temporaire -> éditable
         const estLiee = !!equipe.id_equipe_originale;
         const disabled = equipe.is_bye || estLiee ? 'disabled' : '';
         const badge = estLiee ? '<small class="badge-auto">auto</small>' : '';
@@ -350,7 +314,6 @@ function afficherEquipes(equipes) {
         container.appendChild(div);
     });
 
-    // Sauvegarde au blur uniquement pour les équipes non liées et non-BYE
     container.querySelectorAll('input[data-equipe-id]:not([disabled])').forEach(input => {
         input.addEventListener('blur', async () => {
             const equipeId = parseInt(input.dataset.equipeId, 10);
@@ -371,7 +334,7 @@ function afficherEquipes(equipes) {
     });
 }
 
-// ---------- Affichage du bracket (matchs groupés par round/sub) ----------
+// ---------- Affichage du bracket ----------
 
 function afficherBracket(matchs, phase) {
     const container = document.getElementById('bracket-container');
@@ -500,7 +463,7 @@ document.getElementById('btn-valider-score').addEventListener('click', async () 
     }
 });
 
-// ---------- Simulation de rounds (skip 1/16, 1/8, etc.) ----------
+// ---------- Simulation de rounds ----------
 
 document.getElementById('btn-simuler-rounds').addEventListener('click', async () => {
     if (!currentPhaseFinaleId) {
@@ -536,7 +499,6 @@ document.getElementById('btn-simuler-rounds').addEventListener('click', async ()
             `${data.nb_matchs_simules} match(s) simulé(s) sur ${data.nb_rounds_simules} round(s)`,
             'success');
 
-        // Recharger le bracket pour voir le résultat
         ouvrirBracket(currentPhaseFinaleId);
 
     } catch (err) {

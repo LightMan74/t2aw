@@ -25,7 +25,7 @@
             <form id="form-creation">
                 <label>
                     Tournoi ID
-                    <input type="number" id="input-tournoi-id" value="<?php echo htmlspecialchars((isset($_GET["id_tournoi"])) ? $_GET["id_tournoi"] : '');?>" min="1" required>
+                    <input type="number" id="input-tournoi-id" value="<?php echo htmlspecialchars($_GET['id_tournoi'] ?? ''); ?>" min="1" required>
                 </label>
 
                 <label>
@@ -50,40 +50,13 @@
 
                 <div id="ordre-equipes-panel" class="hidden">
                     <h3>Ordre de départ (seeding)</h3>
-                    <p>Glissez-déposez les équipes pour réordonner le seeding</p>
-                    <ul id="liste-ordre-equipes" class="ordre-equipes-liste"></ul>
-                </div>
-
-                <div id="ordre-equipes-panel" class="hidden">
-                    <h3>Ordre de départ (seeding)</h3>
                     <p>Glissez-déposez pour réordonner, ou utilisez les flèches ↑ ↓</p>
-                    <ul id="liste-ordre-equipes" class="ordre-equipes-liste"></ul>
+                    <div id="liste-ordre-equipes" class="ordre-equipes-liste"></div>
                 </div>
 
                 <button type="submit">Créer la phase finale</button>
             </form>
             <p id="msg-creation" class="msg"></p>
-        </section>
-
-        <!-- Détail / Bracket -->
-        <section id="section-bracket" class="card">
-            <h2 id="titre-bracket">Bracket</h2>
-
-            <div id="simulation-panel" class="simulation-panel">
-                <label>
-                    Nombre de rounds à sauter (simulation automatique)
-                    <input type="number" id="input-nb-rounds-simuler" min="1" value="1">
-                </label>
-                <button type="button" id="btn-simuler-rounds">⏩ Simuler et sauter ces rounds</button>
-                <p id="msg-simulation" class="msg"></p>
-            </div>
-
-            <div id="equipes-panel">
-                <h3>Équipes</h3>
-                <div id="liste-equipes" class="equipes-grid"></div>
-            </div>
-
-            <div id="bracket-container" class="bracket-container"></div>
         </section>
 
         <!-- Liste des phases finales existantes -->
@@ -96,6 +69,15 @@
         <!-- Détail / Bracket -->
         <section id="section-bracket" class="card hidden">
             <h2 id="titre-bracket">Bracket</h2>
+
+            <div id="simulation-panel" class="simulation-panel">
+                <label>
+                    Nombre de rounds à sauter (simulation automatique)
+                    <input type="number" id="input-nb-rounds-simuler" min="1" value="1">
+                </label>
+                <button type="button" id="btn-simuler-rounds">⏩ Simuler et sauter ces rounds</button>
+                <p id="msg-simulation" class="msg"></p>
+            </div>
 
             <div id="equipes-panel">
                 <h3>Équipes</h3>
