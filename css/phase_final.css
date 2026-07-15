@@ -279,3 +279,87 @@ button:hover {
     border-radius: 3px;
     vertical-align: middle;
 }
+
+.simulation-panel {
+    margin-bottom: 15px;
+    padding: 10px;
+    background: #f0f0f0;
+    border-radius: 5px;
+}
+
+.match-box.simule {
+    opacity: 0.7;
+    border-style: dashed;
+}
+
+.simule-badge {
+    font-size: 0.75em;
+    color: #666;
+    font-style: italic;
+}
+
+.ordre-equipes-liste {
+    list-style: none;
+    padding: 0;
+    margin: 10px 0;
+}
+
+.ordre-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 10px;
+    margin-bottom: 5px;
+    background: #fff;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    cursor: grab;
+    transition: background 0.15s, transform 0.15s;
+}
+
+.ordre-item:active {
+    cursor: grabbing;
+}
+
+.ordre-item.dragging {
+    opacity: 0.4;
+}
+
+.ordre-item.drag-over {
+    border-color: #4a90d9;
+    background: #eef5ff;
+    transform: scale(1.01);
+}
+
+.drag-handle {
+    cursor: grab;
+    color: #999;
+    font-size: 1.2em;
+    user-select: none;
+}
+
+.seed-num {
+    font-weight: bold;
+    min-width: 30px;
+}
+
+.equipe-nom-ordre {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.rang-info {
+    color: #777;
+    font-size: 0.8em;
+}
+
+.ordre-actions {
+    display: flex;
+    gap: 4px;
+}
+
+.ordre-actions button {
+    padding: 2px 8px;
+    cursor: pointer;
+}
