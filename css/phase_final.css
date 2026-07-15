@@ -1,0 +1,227 @@
+/* style.css */
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    background: #f4f4f4;
+    color: #222;
+    margin: 0;
+    padding: 0;
+}
+
+header {
+    background: #2c3e50;
+    color: white;
+    padding: 15px 20px;
+}
+
+main {
+    max-width: 1400px;
+    margin: 20px auto;
+    padding: 0 15px;
+}
+
+.card {
+    background: white;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    padding: 20px;
+    margin-bottom: 20px;
+}
+
+.hidden {
+    display: none !important;
+}
+
+form label {
+    display: block;
+    margin-bottom: 10px;
+}
+
+form input,
+form select {
+    display: block;
+    width: 100%;
+    max-width: 300px;
+    padding: 6px;
+    margin-top: 4px;
+}
+
+button {
+    background: #2c3e50;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 4px;
+    cursor: pointer;
+    margin-top: 10px;
+}
+
+button:hover {
+    background: #1a252f;
+}
+
+.msg {
+    margin-top: 10px;
+    font-weight: bold;
+}
+
+.msg.success {
+    color: green;
+}
+
+.msg.error {
+    color: red;
+}
+
+#liste-phases {
+    list-style: none;
+    padding: 0;
+}
+
+#liste-phases li {
+    padding: 10px;
+    border: 1px solid #eee;
+    margin-bottom: 6px;
+    border-radius: 4px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+#liste-phases li button {
+    margin: 0;
+}
+
+/* Equipes panel */
+.equipes-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 8px;
+    margin-bottom: 20px;
+}
+
+.equipe-item {
+    border: 1px solid #ccc;
+    padding: 6px;
+    border-radius: 4px;
+    background: #fafafa;
+}
+
+.equipe-item input {
+    width: 100%;
+    padding: 4px;
+    margin-top: 4px;
+}
+
+.equipe-item.bye {
+    opacity: 0.5;
+}
+
+/* Bracket */
+.bracket-container {
+    display: flex;
+    overflow-x: auto;
+    gap: 30px;
+    padding: 10px 0;
+}
+
+.round-column {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+    min-width: 220px;
+}
+
+.round-title {
+    text-align: center;
+    font-weight: bold;
+    margin-bottom: 10px;
+    color: #2c3e50;
+}
+
+.sub-group-title {
+    font-size: 0.8em;
+    color: #888;
+    text-align: center;
+    margin: 6px 0 2px;
+}
+
+.match-box {
+    border: 1px solid #bbb;
+    border-radius: 4px;
+    background: #fff;
+    padding: 8px;
+    margin-bottom: 15px;
+    cursor: pointer;
+    transition: box-shadow 0.15s;
+}
+
+.match-box:hover {
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.2);
+}
+
+.match-box.termine {
+    border-color: #2ecc71;
+}
+
+.match-box.en_attente {
+    opacity: 0.6;
+}
+
+.match-code {
+    font-size: 0.7em;
+    color: #999;
+    margin-bottom: 4px;
+}
+
+.team-line {
+    display: flex;
+    justify-content: space-between;
+    padding: 3px 0;
+}
+
+.team-line.winner {
+    font-weight: bold;
+    color: #27ae60;
+}
+
+.team-line.loser {
+    color: #999;
+}
+
+.classement-label {
+    font-size: 0.75em;
+    color: #e67e22;
+    margin-top: 4px;
+    text-align: center;
+}
+
+/* Modal */
+.modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.modal-content {
+    background: white;
+    padding: 20px;
+    border-radius: 6px;
+    min-width: 300px;
+}
+
+.modal-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 10px;
+}

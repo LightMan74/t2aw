@@ -1,17 +1,4 @@
 <script>
-// console.log("2 -> " + Math.log2(2));
-// console.log("4 -> " + Math.log2(4));
-// console.log("8 -> " + Math.log2(8));
-// console.log("16 -> " + Math.log2(16));
-// console.log("32 -> " + Math.log2(32));
-// console.log("5 -> " + Math.log2(5));
-// console.log("5R -> " + Math.round(Math.log2(5)));
-// console.log("6 -> " + Math.log2(6));
-// console.log("6R -> " + Math.round(Math.log2(6)));
-// console.log("7 -> " + Math.log2(7));
-// console.log("7 -> " + Math.round(Math.log2(7)));
-// console.log("12 -> " + Math.log2(12));
-// console.log("12 -> " + Math.round(Math.log2(12)));
 function forcerPuissanceDe2(nbre_team) {
     return Math.pow(2, Math.ceil(Math.log2(nbre_team)));
 }
@@ -43,7 +30,7 @@ function listematchph(nbre_team) {
     console.log("ROUND: 0");
     console.log("ROUND: 0 - SUB: 1");
     for (let i = 1; i <= array_round[0][0] / 2; i++) {
-        console.log("match: R0_S1_M" + i + " - T" + i + " vs T" + (9 - i));
+        console.log("match: R0_S1_M" + i + " - T" + i + " vs T" + (nbre_team + 1 - i));
     }
     for (let j = 1; j < array_round.length; j++) {
         console.log("ROUND: " + j);
@@ -69,7 +56,5 @@ function listematchph(nbre_team) {
         }
     }
 }
-
-// console.table(subroundcalc(8));
-listematchph(8);
+listematchph(16);
 </script>
