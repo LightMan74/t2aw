@@ -4,6 +4,10 @@ const API_BASE = 'api/phase_finale';
 
 let currentPhaseFinaleId = null;
 let currentMatchId = null;
+let currentPhaseFinaleIdASupprimer = null;
+
+// Liste des équipes sélectionnées pour l'ordre de départ
+let equipesOrdre = []; // [{id_equipe, nom}]
 
 // ---------- Utilitaires ----------
 
@@ -23,6 +27,62 @@ async function apiFetch(url, options = {}) {
     return data;
 }
 
+// ---------- Chargement des équipes réelles du tournoi ----------
+
+document.getElementById('btn-charger-equipes').addEventListener('click', async () => {
+    const idTournoi = parseInt(document.getElementById('input-tournoi-id').value, 10);
+
+    if (!idTournoi) {
+        afficherMessage('msg-creation', 'Veuillez indiquer un ID de tournoi', 'error');
+        return;
+    }
+
+    try {
+        const data = await apiFetch(`${API_BASE}/equipes_tournoi.php?id_tournoi=${idTournoi}`);
+        equipesOrdre = data.equipes.map(e => ({ id_equipe: e.id, nom: e.nom }));
+
+        // Met à jour le nombre d'équipes automatiquement
+        document.getElementById('input-nb-equipes').value = equipesOrdre.length;
+
+        afficherOrdreEquipes();
+        document.getElementById('ordre-equipes-panel').classList.remove('hidden');
+    } catch (err) {
+        afficherMessage('msg-creation', err.message, 'error');
+    }
+});
+
+function afficherOrdreEquipes() {
+    const ul = document.getElementById('liste-ordre-equipes');
+    ul.innerHTML = '';
+
+    equipesOrdre.forEach((equipe, index) => {
+        const li = document.createElement('li');
+        li.innerHTML = `
+            <span><span class="seed-num">#${index + 1}</span> ${equipe.nom}</span>
+            <span class="ordre-actions">
+                <button type="button" data-action="up" data-index="${index}">↑</button>
+                <button type="button" data-action="down" data-index="${index}">↓</button>
+            </span>
+        `;
+        ul.appendChild(li);
+    });
+
+    ul.querySelectorAll('button[data-action]').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const index = parseInt(btn.dataset.index, 10);
+            const action = btn.dataset.action;
+
+            if (action === 'up' && index > 0) {
+                [equipesOrdre[index - 1], equipesOrdre[index]] = [equipesOrdre[index], equipesOrdre[index - 1]];
+            } else if (action === 'down' && index < equipesOrdre.length - 1) {
+                [equipesOrdre[index + 1], equipesOrdre[index]] = [equipesOrdre[index], equipesOrdre[index + 1]];
+            }
+
+            afficherOrdreEquipes();
+        });
+    });
+}
+
 // ---------- Création d'une phase finale ----------
 
 document.getElementById('form-creation').addEventListener('submit', async (e) => {
@@ -33,6 +93,7 @@ document.getElementById('form-creation').addEventListener('submit', async (e) =>
         nom: document.getElementById('input-nom').value.trim(),
         type_bracket: document.getElementById('input-type-bracket').value,
         nb_equipes: parseInt(document.getElementById('input-nb-equipes').value, 10),
+        equipes: equipesOrdre, // ordre choisi par l'utilisateur (peut être vide)
     };
 
     try {
@@ -46,8 +107,7 @@ document.getElementById('form-creation').addEventListener('submit', async (e) =>
             `Phase finale créée ! (${data.nb_matchs} matchs, ${data.nb_rounds} rounds)`,
             'success');
 
-        chargerListePhases(payload.tournoi_id);
-        // ouvrirBracket(data.phase_finale_id);
+        chargerListePhases(payload.id_tournoi);
         ouvrirBracket(data.id_phase_finale);
 
     } catch (err) {
@@ -84,10 +144,16 @@ async function chargerListePhases(idTournoi) {
                     — ${phase.nb_equipes} équipes (${phase.nb_equipes_arrondi} avec BYE)
                     — ${phase.statut}
                 </span>
-                <button data-id="${phase.id}" class="btn-ouvrir">Ouvrir</button>
+                <span>
+                    <button data-id="${phase.id}" class="btn-ouvrir">Ouvrir</button>
+                    <button data-id="${phase.id}" data-nom="${phase.nom}" class="btn-supprimer-phase">Supprimer</button>
+                </span>
             `;
             li.querySelector('.btn-ouvrir').addEventListener('click', () => {
                 ouvrirBracket(phase.id);
+            });
+            li.querySelector('.btn-supprimer-phase').addEventListener('click', () => {
+                demanderSuppressionPhase(phase.id, phase.nom);
             });
             listeEl.appendChild(li);
         });
@@ -99,6 +165,48 @@ async function chargerListePhases(idTournoi) {
 
 // Charger la liste au démarrage
 chargerListePhases(parseInt(document.getElementById('input-tournoi-id').value, 10));
+
+// ---------- Suppression d'une phase finale ----------
+
+function demanderSuppressionPhase(idPhaseFinale, nom) {
+    currentPhaseFinaleIdASupprimer = idPhaseFinale;
+    document.getElementById('modal-suppression-info').textContent =
+        `Êtes-vous sûr de vouloir supprimer la phase finale "${nom}" ? Cette action est irréversible.`;
+    document.getElementById('modal-suppression').classList.remove('hidden');
+}
+
+document.getElementById('btn-annuler-suppression').addEventListener('click', () => {
+    document.getElementById('modal-suppression').classList.add('hidden');
+    currentPhaseFinaleIdASupprimer = null;
+});
+
+document.getElementById('btn-confirmer-suppression').addEventListener('click', async () => {
+    if (!currentPhaseFinaleIdASupprimer) return;
+
+    try {
+        await apiFetch(`${API_BASE}/supprimer.php`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ id_phase_finale: currentPhaseFinaleIdASupprimer }),
+        });
+
+        document.getElementById('modal-suppression').classList.add('hidden');
+
+        // Si la phase supprimée était affichée dans le bracket, on masque la section
+        if (currentPhaseFinaleId === currentPhaseFinaleIdASupprimer) {
+            document.getElementById('section-bracket').classList.add('hidden');
+            currentPhaseFinaleId = null;
+        }
+
+        const idTournoi = parseInt(document.getElementById('input-tournoi-id').value, 10);
+        chargerListePhases(idTournoi);
+
+        currentPhaseFinaleIdASupprimer = null;
+
+    } catch (err) {
+        afficherMessage('msg-modal-suppression', err.message, 'error');
+    }
+});
 
 // ---------- Ouverture / affichage du bracket ----------
 
@@ -136,7 +244,6 @@ function afficherEquipes(equipes) {
         container.appendChild(div);
     });
 
-    // Sauvegarde au blur (perte de focus) - sans reload
     container.querySelectorAll('input[data-equipe-id]').forEach(input => {
         input.addEventListener('blur', async () => {
             const equipeId = parseInt(input.dataset.equipeId, 10);
@@ -149,7 +256,6 @@ function afficherEquipes(equipes) {
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ equipe_id: equipeId, nom_equipe: nomEquipe }),
                 });
-                // Rafraîchir le bracket pour mettre à jour les noms affichés
                 ouvrirBracket(currentPhaseFinaleId);
             } catch (err) {
                 alert('Erreur mise à jour équipe: ' + err.message);
@@ -164,7 +270,6 @@ function afficherBracket(matchs, phase) {
     const container = document.getElementById('bracket-container');
     container.innerHTML = '';
 
-    // Regrouper par round
     const rounds = {};
     matchs.forEach(m => {
         if (!rounds[m.round]) rounds[m.round] = {};
@@ -235,7 +340,6 @@ function creerMatchBox(match) {
         ${classementHtml}
     `;
 
-    // Ouvrir la modale de saisie de score si les 2 équipes sont prêtes
     if (match.equipe1_id && match.equipe2_id) {
         box.addEventListener('click', () => {
             ouvrirModalScore(match, nom1, nom2);
@@ -277,7 +381,6 @@ document.getElementById('btn-valider-score').addEventListener('click', async () 
         });
 
         document.getElementById('modal-score').classList.add('hidden');
-        // Rafraîchir le bracket pour voir la propagation vers les rounds suivants
         ouvrirBracket(currentPhaseFinaleId);
 
     } catch (err) {

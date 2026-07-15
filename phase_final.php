@@ -5,10 +5,14 @@
     <meta charset="UTF-8">
     <title>Phase Finale - Badminton</title>
     <link rel="stylesheet" href="css/phase_final.css">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/dark-mode.css">
 </head>
 
 <body>
-
+    <nav>
+        <?php include 'menu.php'; ?>
+    </nav>
     <header>
         <h1>🏸 Gestion des Phases Finales</h1>
     </header>
@@ -21,7 +25,7 @@
             <form id="form-creation">
                 <label>
                     Tournoi ID
-                    <input type="number" id="input-tournoi-id" value="1" min="1" required>
+                    <input type="number" id="input-tournoi-id" value="<?php echo htmlspecialchars((isset($_GET["id_tournoi"])) ? $_GET["id_tournoi"] : '');?>" min="1" required>
                 </label>
 
                 <label>
@@ -37,10 +41,18 @@
                 <label>
                     Type de bracket
                     <select id="input-type-bracket">
-                        <option value="classique">Classique (élimination directe, seeding standard)</option>
                         <option value="classement_complet">Classement complet (tous jouent tous les rounds)</option>
+                        <option value="classique">Classique (élimination directe, seeding standard)</option>
                     </select>
                 </label>
+
+                <button type="button" id="btn-charger-equipes">Charger les équipes du tournoi</button>
+
+                <div id="ordre-equipes-panel" class="hidden">
+                    <h3>Ordre de départ (seeding)</h3>
+                    <p>Glissez-déposez pour réordonner, ou utilisez les flèches ↑ ↓</p>
+                    <ul id="liste-ordre-equipes" class="ordre-equipes-liste"></ul>
+                </div>
 
                 <button type="submit">Créer la phase finale</button>
             </form>
@@ -89,12 +101,20 @@
         </div>
     </div>
 
+    <!-- Modale de confirmation de suppression -->
+    <div id="modal-suppression" class="modal hidden">
+        <div class="modal-content">
+            <h3>Supprimer la phase finale</h3>
+            <p id="modal-suppression-info">Êtes-vous sûr de vouloir supprimer cette phase finale ? Cette action est irréversible.</p>
+            <div class="modal-actions">
+                <button id="btn-confirmer-suppression">Supprimer</button>
+                <button id="btn-annuler-suppression">Annuler</button>
+            </div>
+            <p id="msg-modal-suppression" class="msg"></p>
+        </div>
+    </div>
+
     <script src="js/phase_final.js"></script>
-    <script>
-    // document.getElementById('modal-score').classList.remove('modal');
-    // document.getElementById('modal-score').classList.add('modal');
-    // document.getElementById('modal-score').classList.add('hidden');
-    </script>
 </body>
 
 </html>

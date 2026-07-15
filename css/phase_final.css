@@ -225,3 +225,46 @@ button:hover {
     gap: 10px;
     margin-top: 10px;
 }
+
+.ordre-equipes-liste {
+    list-style: none;
+    padding: 0;
+    margin: 10px 0;
+    max-width: 400px;
+}
+
+.ordre-equipes-liste li {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 10px;
+    margin-bottom: 5px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    background: #f9f9f9;
+}
+
+.ordre-equipes-liste li span.seed-num {
+    font-weight: bold;
+    margin-right: 10px;
+}
+
+.ordre-equipes-liste li .ordre-actions button {
+    margin-left: 4px;
+    padding: 2px 8px;
+    cursor: pointer;
+}
+
+.btn-supprimer-phase {
+    background: #d9534f;
+    color: white;
+    border: none;
+    padding: 4px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+    margin-left: 8px;
+}
+
+.btn-supprimer-phase:hover {
+    background: #c9302c;
+}

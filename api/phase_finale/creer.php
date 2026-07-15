@@ -11,6 +11,11 @@ $nom         = trim($input['nom'] ?? 'Phase Finale');
 $typeBracket = $input['type_bracket'] ?? 'classique';
 $nbEquipes   = (int)($input['nb_equipes'] ?? 0);
 
+// Nouveau : liste ordonnée des équipes choisies par l'utilisateur
+// Format attendu : [{id_equipe: 12, nom: "Team A"}, {id_equipe: 5, nom: "Team B"}, ...]
+// Si non fourni, on génère des équipes temporaires "Équipe X" comme avant
+$equipesSelectionnees = $input['equipes'] ?? [];
+
 if ($idTournoi <= 0 || $nbEquipes < 2) {
     http_response_code(400);
     echo json_encode(['success' => false, 'message' => 'Paramètres invalides']);
@@ -43,19 +48,33 @@ try {
     $idPhaseFinale = (int) $pdo->lastInsertId();
 
     // 2. Créer les équipes (temporaires + BYE si besoin)
+    // Si l'utilisateur a fourni un ordre personnalisé, on l'utilise (index 0 = seed 1, etc.)
     $equipeIds = []; // seed_position => id
     $stmtEq = $pdo->prepare("
-        INSERT INTO equipes_phase_finale (id_tournoi, id_phase_finale, seed_position, nom_equipe, is_bye)
-        VALUES (:id_tournoi, :id_phase_finale, :seed, :nom, :is_bye)
+        INSERT INTO equipes_phase_finale (id_tournoi, id_phase_finale, id_equipe_originale, seed_position, nom_equipe, is_bye)
+        VALUES (:id_tournoi, :id_phase_finale, :id_equipe_originale, :seed, :nom, :is_bye)
     ");
 
     for ($i = 1; $i <= $nbEquipesArrondi; $i++) {
         $isBye = $i > $nbEquipes ? 1 : 0;
-        $nomEquipe = $isBye ? 'BYE' : 'Équipe ' . $i;
+
+        $idEquipeOriginale = null;
+        $nomEquipe = 'BYE';
+
+        if (!$isBye) {
+            if (isset($equipesSelectionnees[$i - 1])) {
+                // Utilisation de l'ordre personnalisé fourni par l'utilisateur
+                $idEquipeOriginale = (int) $equipesSelectionnees[$i - 1]['id_equipe'];
+                $nomEquipe = trim($equipesSelectionnees[$i - 1]['nom']) ?: ('Équipe ' . $i);
+            } else {
+                $nomEquipe = 'Équipe ' . $i;
+            }
+        }
 
         $stmtEq->execute([
             ':id_tournoi' => $idTournoi,
             ':id_phase_finale' => $idPhaseFinale,
+            ':id_equipe_originale' => $idEquipeOriginale,
             ':seed' => $i,
             ':nom' => $nomEquipe,
             ':is_bye' => $isBye,
@@ -101,10 +120,8 @@ function genererBracketClassique(PDO $pdo, int $idTournoi, int $idPhaseFinale, i
 
     $totalMatchs = 0;
 
-    // Seeding standard : ordre des positions pour bracket équilibré
     $ordreSeed = genererOrdreSeeding($nbEquipes);
 
-    // Round 0 : les vrais matchs avec les équipes (selon seeding standard)
     $nbMatchsRound0 = $nbEquipes / 2;
     for ($m = 1; $m <= $nbMatchsRound0; $m++) {
         $seedA = $ordreSeed[($m - 1) * 2];
@@ -115,7 +132,6 @@ function genererBracketClassique(PDO $pdo, int $idTournoi, int $idPhaseFinale, i
 
         $matchCode = "R0_S1_M{$m}";
 
-        // Statut "pret" car les 2 équipes sont déjà connues
         $stmt->execute([
             ':id_tournoi' => $idTournoi,
             ':id_phase_finale' => $idPhaseFinale,
@@ -132,7 +148,6 @@ function genererBracketClassique(PDO $pdo, int $idTournoi, int $idPhaseFinale, i
         $totalMatchs++;
     }
 
-    // Rounds suivants : uniquement les vainqueurs progressent (1 seul sub_group)
     for ($round = 1; $round < $nbRounds; $round++) {
         $nbMatchsRound = $nbEquipes / pow(2, $round + 1);
         $isFinale = ($round === $nbRounds - 1);
@@ -144,9 +159,6 @@ function genererBracketClassique(PDO $pdo, int $idTournoi, int $idPhaseFinale, i
 
             $sourceTeam1 = "Win_R" . ($round - 1) . "_S1_M{$sourceM1}";
             $sourceTeam2 = "Win_R" . ($round - 1) . "_S1_M{$sourceM2}";
-
-            $classementMin = $isFinale ? 1 : null;
-            $classementMax = $isFinale ? 2 : null;
 
             $stmt->execute([
                 ':id_tournoi' => $idTournoi,
@@ -163,7 +175,6 @@ function genererBracketClassique(PDO $pdo, int $idTournoi, int $idPhaseFinale, i
             ]);
             $totalMatchs++;
 
-            // Ajout des classements sur la finale (mise à jour manuelle après insert)
             if ($isFinale) {
                 $pdo->prepare("UPDATE matchs_phase_finale SET classement_min = 1, classement_max = 2 WHERE id_tournoi = :t AND id_phase_finale = :p AND match_code = :c")
                     ->execute([':t' => $idTournoi, ':p' => $idPhaseFinale, ':c' => $matchCode]);
@@ -174,8 +185,6 @@ function genererBracketClassique(PDO $pdo, int $idTournoi, int $idPhaseFinale, i
     return $totalMatchs;
 }
 
-// Génère l'ordre de seeding standard pour bracket équilibré
-// Ex pour 8 : [1,8,4,5,2,7,3,6]
 function genererOrdreSeeding(int $nbEquipes): array {
     $ordre = [1, 2];
     while (count($ordre) < $nbEquipes) {
@@ -191,7 +200,7 @@ function genererOrdreSeeding(int $nbEquipes): array {
 }
 
 // ============================================================
-// BRACKET CLASSEMENT COMPLET (script fourni par l'utilisateur)
+// BRACKET CLASSEMENT COMPLET
 // ============================================================
 
 function genererBracketClassementComplet(PDO $pdo, int $idTournoi, int $idPhaseFinale, int $nbEquipes, int $nbRounds, array $equipeIds): int {
@@ -206,7 +215,6 @@ function genererBracketClassementComplet(PDO $pdo, int $idTournoi, int $idPhaseF
 
     $totalMatchs = 0;
 
-    // Structure des rounds (équivalent subroundcalc)
     $arrayRound = [];
     $fnr = $nbEquipes;
     $arrayRound[0] = [$fnr, $nbEquipes / $fnr];
@@ -215,7 +223,6 @@ function genererBracketClassementComplet(PDO $pdo, int $idTournoi, int $idPhaseF
         $arrayRound[$i] = [$fnr, $nbEquipes / $fnr];
     }
 
-    // Round 0 : seeding standard 1v8, 4v5, 2v7, 3v6...
     $ordreSeed = genererOrdreSeeding($nbEquipes);
     $nbMatchsRound0 = $arrayRound[0][0] / 2;
 
@@ -243,7 +250,6 @@ function genererBracketClassementComplet(PDO $pdo, int $idTournoi, int $idPhaseF
         $totalMatchs++;
     }
 
-    // Rounds suivants : logique Win_/Loss_ avec sous-groupes
     for ($j = 1; $j < count($arrayRound); $j++) {
         $isDernierRound = ($j === count($arrayRound) - 1);
         $classementPlace = 1;
