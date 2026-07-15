@@ -27,6 +27,9 @@ async function apiFetch(url, options = {}) {
     return data;
 }
 
+// Liste des équipes sélectionnées pour l'ordre de départ
+// let equipesOrdre = []; // [{id, id_equipe, id_categorie, id_poule, nom}]
+
 // ---------- Chargement des équipes réelles du tournoi ----------
 
 document.getElementById('btn-charger-equipes').addEventListener('click', async () => {
@@ -39,13 +42,23 @@ document.getElementById('btn-charger-equipes').addEventListener('click', async (
 
     try {
         const data = await apiFetch(`${API_BASE}/equipes_tournoi.php?id_tournoi=${idTournoi}`);
-        equipesOrdre = data.equipes.map(e => ({ id_equipe: e.id, nom: e.nom }));
 
-        // Met à jour le nombre d'équipes automatiquement
+        // Stocker les équipes avec TOUS leurs paramètres
+        equipesOrdre = data.equipes.map(e => ({
+            id_equipe: e.id_equipe,
+            id_categorie: e.id_categorie,
+            id_poule: e.id_poule,
+            id_tournoi: e.id_tournoi,
+            nom: e.nom
+        }));
+
+        // Mettre à jour automatiquement le nombre d'équipes
         document.getElementById('input-nb-equipes').value = equipesOrdre.length;
 
         afficherOrdreEquipes();
         document.getElementById('ordre-equipes-panel').classList.remove('hidden');
+
+        afficherMessage('msg-creation', `${equipesOrdre.length} équipes chargées`, 'success');
     } catch (err) {
         afficherMessage('msg-creation', err.message, 'error');
     }
@@ -73,9 +86,11 @@ function afficherOrdreEquipes() {
             const action = btn.dataset.action;
 
             if (action === 'up' && index > 0) {
-                [equipesOrdre[index - 1], equipesOrdre[index]] = [equipesOrdre[index], equipesOrdre[index - 1]];
+                [equipesOrdre[index - 1], equipesOrdre[index]] =
+                    [equipesOrdre[index], equipesOrdre[index - 1]];
             } else if (action === 'down' && index < equipesOrdre.length - 1) {
-                [equipesOrdre[index + 1], equipesOrdre[index]] = [equipesOrdre[index], equipesOrdre[index + 1]];
+                [equipesOrdre[index + 1], equipesOrdre[index]] =
+                    [equipesOrdre[index], equipesOrdre[index + 1]];
             }
 
             afficherOrdreEquipes();
@@ -93,7 +108,7 @@ document.getElementById('form-creation').addEventListener('submit', async (e) =>
         nom: document.getElementById('input-nom').value.trim(),
         type_bracket: document.getElementById('input-type-bracket').value,
         nb_equipes: parseInt(document.getElementById('input-nb-equipes').value, 10),
-        equipes: equipesOrdre, // ordre choisi par l'utilisateur (peut être vide)
+        equipesSelectionnees: equipesOrdre // Envoyer toutes les données des équipes
     };
 
     try {
@@ -237,14 +252,23 @@ function afficherEquipes(equipes) {
     equipes.forEach(equipe => {
         const div = document.createElement('div');
         div.className = 'equipe-item' + (equipe.is_bye ? ' bye' : '');
+
+        // Si liée à une équipe réelle -> nom automatique (lecture seule)
+        // Si BYE ou équipe temporaire -> éditable
+        const estLiee = !!equipe.id_equipe_originale;
+        const disabled = equipe.is_bye || estLiee ? 'disabled' : '';
+        const badge = estLiee ? '<small class="badge-auto">auto</small>' : '';
+
         div.innerHTML = `
             <small>Seed ${equipe.seed_position}</small>
-            <input type="text" value="${equipe.nom_equipe}" data-equipe-id="${equipe.id}" ${equipe.is_bye ? 'disabled' : ''}>
+            <input type="text" value="${equipe.nom_equipe}" data-equipe-id="${equipe.id}" ${disabled}>
+            ${badge}
         `;
         container.appendChild(div);
     });
 
-    container.querySelectorAll('input[data-equipe-id]').forEach(input => {
+    // Sauvegarde au blur uniquement pour les équipes non liées et non-BYE
+    container.querySelectorAll('input[data-equipe-id]:not([disabled])').forEach(input => {
         input.addEventListener('blur', async () => {
             const equipeId = parseInt(input.dataset.equipeId, 10);
             const nomEquipe = input.value.trim();

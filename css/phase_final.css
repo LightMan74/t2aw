@@ -268,3 +268,14 @@ button:hover {
 .btn-supprimer-phase:hover {
     background: #c9302c;
 }
+
+.badge-auto {
+    display: inline-block;
+    margin-left: 6px;
+    padding: 1px 6px;
+    font-size: 0.7em;
+    background: #5bc0de;
+    color: white;
+    border-radius: 3px;
+    vertical-align: middle;
+}

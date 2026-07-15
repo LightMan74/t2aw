@@ -23,23 +23,44 @@ try {
         exit;
     }
 
-    // Equipes
-    $stmt = $pdo->prepare("
-        SELECT id, seed_position, nom_equipe, is_bye
-        FROM equipes_phase_finale
-        WHERE id_phase_finale = :id
-        ORDER BY seed_position ASC
-    ");
+    // Equipes : jointure avec la table "equipe" pour récupérer le nom à jour
+    // COALESCE : si id_equipe_originale existe, on prend le nom actuel de la table equipe
+    // sinon on garde le nom_equipe stocké (cas des BYE ou équipes temporaires)
+$stmt = $pdo->prepare("
+    SELECT
+        epf.id,
+        epf.seed_position,
+        epf.is_bye,
+        epf.id_equipe,
+        epf.id_categorie,
+        epf.id_poule,
+        COALESCE(eq.nom, epf.nom_equipe) AS nom_equipe2,
+        eqn.nom AS nom_equipe
+    FROM equipes_phase_finale epf
+    LEFT JOIN equipe eq ON 
+        eq.id_tournoi = epf.id_tournoi
+        AND eq.id_categorie = epf.id_categorie
+        AND eq.id_poule = epf.id_poule
+        AND eq.id = epf.id_equipe
+    LEFT JOIN equipe eqn ON 
+        eqn.id_tournoi = epf.id_tournoi
+        AND eqn.id_categorie = epf.id_categorie
+        AND eqn.id_poule = epf.id_poule
+        AND eqn.id_equipe = epf.id_equipe
+    WHERE epf.id_phase_finale = :id
+    ORDER BY epf.seed_position ASC
+");
+
     $stmt->execute([':id' => $idPhaseFinale]);
     $equipes = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-    // Index équipes par id pour faire la jointure manuellement en PHP
+    // Index équipes par id pour résoudre les noms des matchs
     $equipesParId = [];
     foreach ($equipes as $e) {
         $equipesParId[$e['id']] = $e['nom_equipe'];
     }
 
-    // Matchs (sans JOIN SQL, on résout les noms en PHP)
+    // Matchs
     $stmt = $pdo->prepare("
         SELECT *
         FROM matchs_phase_finale

@@ -6,25 +6,29 @@ require_once __DIR__ . '/../db.php';
 
 $idTournoi = (int)($_GET['id_tournoi'] ?? 0);
 
-if ($idTournoi <= 0) {
+if (!$idTournoi) {
     http_response_code(400);
-    echo json_encode(['success' => false, 'message' => 'id_tournoi manquant']);
+    echo json_encode(['success' => false, 'message' => 'id_tournoi requis']);
     exit;
 }
 
-try {
-    // Adapter le nom de colonne id_tournoi selon votre structure réelle de table equipe
-    $stmt = $pdo->prepare("
-        SELECT id, nom
-        FROM equipe
-        WHERE id_tournoi = :t
-        ORDER BY nom ASC
-    ");
-    $stmt->execute([':t' => $idTournoi]);
-    $equipes = $stmt->fetchAll(PDO::FETCH_ASSOC);
+// Charger toutes les équipes du tournoi avec leurs catégories et poules
+$stmt = $pdo->prepare("
+    SELECT 
+        e.id_equipe,
+        e.nom,
+        e.id_tournoi,
+        e.id_categorie,
+        e.id_poule
+    FROM equipe e
+    WHERE e.id_tournoi = :id_tournoi
+    ORDER BY e.id_categorie, e.id_poule, e.nom
+");
 
-    echo json_encode(['success' => true, 'equipes' => $equipes]);
-} catch (Exception $e) {
-    http_response_code(500);
-    echo json_encode(['success' => false, 'message' => $e->getMessage()]);
-}
+$stmt->execute([':id_tournoi' => $idTournoi]);
+$equipes = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+echo json_encode([
+    'success' => true,
+    'equipes' => $equipes
+]);
