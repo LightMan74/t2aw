@@ -9,7 +9,7 @@ if (!$id_tournoi) {
     echo json_encode(['success' => false, 'message' => 'id_tournoi manquant']);
     exit;
 }
-
+$sqlall = "";
 try {
     // --- Phases finales du tournoi, groupées par catégorie ---
     $sql = "SELECT
@@ -22,13 +22,13 @@ try {
                 pf.nb_equipes_arrondi,
                 c.nom                     AS nom_categorie
             FROM phases_finales pf
-            JOIN categorie c ON c.id_tournoi = pf.id_categorie
+            JOIN categorie c ON c.id_tournoi = :id_tournoi1
             WHERE pf.id_tournoi = :id_tournoi
             ORDER BY c.nom, pf.nom";
     $stmt = $pdo->prepare($sql);
-    $stmt->execute(['id_tournoi' => $id_tournoi]);
+    $stmt->execute(['id_tournoi' => $id_tournoi,'id_tournoi1' => $id_tournoi]);
     $phases = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
+$sqlall = $sqlall . $sql;
     // --- Équipes par phase finale ---
     $phaseIds = array_column($phases, 'id_phase_finale');
     $equipesMap = [];
@@ -47,7 +47,7 @@ try {
                   ORDER BY epf.id_phase_finale, epf.seed_position";
         $stmtEq = $pdo->prepare($sqlEq);
         $stmtEq->execute($phaseIds);
-
+$sqlall = $sqlall . $sqlEq;
         while ($row = $stmtEq->fetch(PDO::FETCH_ASSOC)) {
             $pid = $row['id_phase_finale'];
             if (!isset($equipesMap[$pid])) $equipesMap[$pid] = [];
@@ -89,7 +89,7 @@ try {
                  ORDER BY m.id_phase_finale, m.round, m.sub_group, m.id";
         $stmtM = $pdo->prepare($sqlM);
         $stmtM->execute($phaseIds);
-
+$sqlall = $sqlall . $sqlM;
         while ($row = $stmtM->fetch(PDO::FETCH_ASSOC)) {
             $pid = $row['id_phase_finale'];
             if (!isset($matchsMap[$pid])) $matchsMap[$pid] = [];
@@ -141,8 +141,9 @@ try {
     }
 
     $categories = array_values($categoriesMap);
-
+$sqlall = str_replace("\n","***",$sqlall);
     echo json_encode([
+        'sql'         => $sqlall,
         'success'     => true,
         'categories'  => $categories,
     ]);

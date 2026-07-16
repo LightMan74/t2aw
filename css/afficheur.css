@@ -1056,6 +1056,7 @@ body.dark .pf-phase-titre {
 }
 
 .pf-phase-btn {
+    display: none;
     padding: 6px 14px;
     background: #dfe6e9;
     border: none;
