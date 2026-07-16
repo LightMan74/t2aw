@@ -7,11 +7,11 @@ require_once __DIR__ . '/../db.php';
 $input = json_decode(file_get_contents('php://input'), true);
 
 $idPhaseFinale = (int)($input['id_phase_finale'] ?? 0);
-$nbRoundsASimuler = (int)($input['nb_rounds'] ?? 0); // ex: 2 pour sauter 1/16 et 1/8
+$nbRoundsASimuler = (int)($input['nbRounds'] ?? 0); // ex: 2 pour sauter 1/16 et 1/8
 
 if ($idPhaseFinale <= 0 || $nbRoundsASimuler <= 0) {
     http_response_code(400);
-    echo json_encode(['success' => false, 'message' => 'Paramètres invalides']);
+    echo json_encode(['success' => false, 'message' => $idPhaseFinale.' Paramètres invalides '.$nbRoundsASimuler]);
     exit;
 }
 
