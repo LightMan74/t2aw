@@ -1,19 +1,4 @@
 <?php
-/**
- * API read-only : vue de toutes les phases finales d'un tournoi
- * GET: id_tournoi (required)
- * Retourne : { categories: [ { id_categorie, nom_categorie, phases_finales: [...] } ] }
- *
- * Tables détectées via phase_final.js / phase_final.php :
- *   - phases_finales   (id, id_tournoi, id_categorie, nom, type_bracket, nb_equipes, statut, nb_equipes_arrondi)
- *   - matchs           (id, id_phase_finale, equipe1_id, equipe2_id, round, sub_group, match_code,
- *                        score1, score2, winner_equipe_id, statut, source_team1, source_team2,
- *                        classement_min, classement_max)
- *   - equipes          (id, nom)
- *   - equipes_phases_finales (id_equipe, id_phase_finale, seed_position, is_bye, id_equipe_originale)
- *   - categories       (id, nom)
- */
-
 header('Content-Type: application/json; charset=utf-8');
 
 require_once __DIR__ . '/db.php';
@@ -37,7 +22,7 @@ try {
                 pf.nb_equipes_arrondi,
                 c.nom                     AS nom_categorie
             FROM phases_finales pf
-            JOIN categorie c ON c.id = pf.id_categorie
+            JOIN categorie c ON c.id_tournoi = pf.id_categorie
             WHERE pf.id_tournoi = :id_tournoi
             ORDER BY c.nom, pf.nom";
     $stmt = $pdo->prepare($sql);
@@ -55,9 +40,8 @@ try {
                       epf.id_phase_finale,
                       epf.seed_position,
                       epf.is_bye,
-                      epf.id_equipe_originale,
                       e.nom AS nom_equipe
-                  FROM equipes_phases_finale epf
+                  FROM equipes_phase_finale epf
                   JOIN equipe e ON e.id = epf.id_equipe
                   WHERE epf.id_phase_finale IN ($in)
                   ORDER BY epf.id_phase_finale, epf.seed_position";
@@ -69,9 +53,8 @@ try {
             if (!isset($equipesMap[$pid])) $equipesMap[$pid] = [];
             $equipesMap[$pid][] = [
                 'id_equipe'            => (int)$row['id_equipe'],
-                'id_equipe_originale'  => $row['id_equipe_originale'] ? (int)$row['id_equipe_originale'] : null,
                 'nom_equipe'           => $row['nom_equipe'],
-                'seed_position'       => (int)$row['seed_position'],
+                'seed_position'        => (int)$row['seed_position'],
                 'is_bye'               => (bool)$row['is_bye'],
             ];
         }
@@ -99,7 +82,7 @@ try {
                      m.classement_max,
                      e1.nom AS nom_equipe1,
                      e2.nom AS nom_equipe2
-                 FROM match m
+                 FROM matchs_phase_finale m
                  LEFT JOIN equipe e1 ON e1.id = m.equipe1_id
                  LEFT JOIN equipe e2 ON e2.id = m.equipe2_id
                  WHERE m.id_phase_finale IN ($in)
@@ -166,5 +149,6 @@ try {
 
 } catch (PDOException $e) {
     http_response_code(500);
-    echo json_encode(['success' => false, 'message' => 'Erreur base de données']);
+    echo json_encode(['success' => false, 'message' => 'Erreur base de données: ' . $e->getMessage()]);
 }
+?>
