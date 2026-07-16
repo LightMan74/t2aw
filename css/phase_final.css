@@ -1,20 +1,24 @@
-/* style.css */
+/* ========================================
+   phase_final.css — Styles Phase Finale
+   Utilise uniquement les variables CSS de style.css / dark-mode.css
+   ======================================== */
 
+/* ---- Reset & base ---- */
 * {
     box-sizing: border-box;
 }
 
 body {
     font-family: Arial, sans-serif;
-    background: #f4f4f4;
-    color: #222;
+    background: var(--bg-body);
+    color: var(--text-main);
     margin: 0;
     padding: 0;
 }
 
 header {
-    background: #2c3e50;
-    color: white;
+    background: var(--bg-header);
+    color: var(--text-main);
     padding: 15px 20px;
 }
 
@@ -24,21 +28,33 @@ main {
     padding: 0 15px;
 }
 
+/* ---- Sections (.section = alias de .card pour uniformité) ---- */
+.section,
 .card {
-    background: white;
-    border: 1px solid #ddd;
+    background: var(--bg-container);
+    border: 1px solid var(--border-color-light);
     border-radius: 6px;
     padding: 20px;
     margin-bottom: 20px;
+    box-shadow: 0 2px 8px var(--section-shadow);
 }
 
+.section h2,
+.card h2 {
+    color: var(--text-main);
+    margin-top: 0;
+}
+
+/* ---- Masquage ---- */
 .hidden {
     display: none !important;
 }
 
+/* ---- Formulaires ---- */
 form label {
     display: block;
     margin-bottom: 10px;
+    color: var(--text-main);
 }
 
 form input,
@@ -48,35 +64,63 @@ form select {
     max-width: 300px;
     padding: 6px;
     margin-top: 4px;
+    background: var(--input-bg);
+    border: 1px solid var(--input-border);
+    color: var(--text-main);
+    border-radius: 4px;
 }
 
+/* ---- Boutons ---- */
 button {
-    background: #2c3e50;
+    background: var(--btn-primary);
     color: white;
     border: none;
     padding: 8px 16px;
     border-radius: 4px;
     cursor: pointer;
     margin-top: 10px;
+    transition: background 0.2s;
 }
 
 button:hover {
-    background: #1a252f;
+    background: var(--btn-primary-hover);
 }
 
+/* Bouton secondaire (annuler) */
+button.secondary {
+    background: var(--btn-back);
+}
+button.secondary:hover {
+    background: var(--btn-back-hover);
+}
+
+/* Bouton danger (supprimer) */
+button.danger {
+    background: var(--btn-minus);
+}
+button.danger:hover {
+    background: var(--btn-minus-hover);
+}
+
+/* ---- Messages ---- */
 .msg {
     margin-top: 10px;
     font-weight: bold;
+    padding: 8px 12px;
+    border-radius: 4px;
 }
 
 .msg.success {
-    color: green;
+    background: var(--msg-success-bg);
+    color: var(--msg-success-color);
 }
 
 .msg.error {
-    color: red;
+    background: var(--msg-error-bg);
+    color: var(--msg-error-color);
 }
 
+/* ---- Liste des phases ---- */
 #liste-phases {
     list-style: none;
     padding: 0;
@@ -84,19 +128,57 @@ button:hover {
 
 #liste-phases li {
     padding: 10px;
-    border: 1px solid #eee;
+    border: 1px solid var(--border-color-light);
     margin-bottom: 6px;
     border-radius: 4px;
     display: flex;
     justify-content: space-between;
     align-items: center;
+    background: var(--bg-container);
+    color: var(--text-main);
 }
 
 #liste-phases li button {
     margin: 0;
 }
 
-/* Equipes panel */
+/* ---- Bouton supprimer phase ---- */
+.btn-supprimer-phase {
+    background: var(--btn-minus);
+    color: white;
+    border: none;
+    padding: 4px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+    margin-left: 8px;
+}
+
+.btn-supprimer-phase:hover {
+    background: var(--btn-minus-hover);
+}
+
+/* ---- Badge auto ---- */
+.badge-auto {
+    display: inline-block;
+    margin-left: 6px;
+    padding: 1px 6px;
+    font-size: 0.7em;
+    background: var(--btn-primary);
+    color: white;
+    border-radius: 3px;
+    vertical-align: middle;
+}
+
+/* ---- Panneau équipes ---- */
+#equipes-panel {
+    margin-top: 20px;
+}
+
+#equipes-panel h3 {
+    color: var(--text-main);
+    margin-bottom: 10px;
+}
+
 .equipes-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
@@ -105,23 +187,27 @@ button:hover {
 }
 
 .equipe-item {
-    border: 1px solid #ccc;
+    border: 1px solid var(--border-color);
     padding: 6px;
     border-radius: 4px;
-    background: #fafafa;
+    background: var(--equipe-bg);
 }
 
 .equipe-item input {
     width: 100%;
     padding: 4px;
     margin-top: 4px;
+    background: var(--input-bg);
+    border: 1px solid var(--input-border);
+    color: var(--text-main);
+    border-radius: 3px;
 }
 
 .equipe-item.bye {
     opacity: 0.5;
 }
 
-/* Bracket */
+/* ---- Bracket ---- */
 .bracket-container {
     display: flex;
     overflow-x: auto;
@@ -140,20 +226,21 @@ button:hover {
     text-align: center;
     font-weight: bold;
     margin-bottom: 10px;
-    color: #2c3e50;
+    color: var(--text-main);
 }
 
 .sub-group-title {
     font-size: 0.8em;
-    color: #888;
+    color: var(--text-muted);
     text-align: center;
     margin: 6px 0 2px;
 }
 
+/* ---- Match box ---- */
 .match-box {
-    border: 1px solid #bbb;
+    border: 1px solid var(--border-color);
     border-radius: 4px;
-    background: #fff;
+    background: var(--bg-container);
     padding: 8px;
     margin-bottom: 15px;
     cursor: pointer;
@@ -161,76 +248,130 @@ button:hover {
 }
 
 .match-box:hover {
-    box-shadow: 0 0 5px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 0 5px var(--section-shadow);
 }
 
 .match-box.termine {
-    border-color: #2ecc71;
+    border-color: var(--btn-plus);
 }
 
 .match-box.en_attente {
     opacity: 0.6;
 }
 
+.match-box.simule {
+    opacity: 0.7;
+    border-style: dashed;
+}
+
 .match-code {
     font-size: 0.7em;
-    color: #999;
+    color: var(--text-muted);
     margin-bottom: 4px;
 }
 
+/* ---- Ligne équipe ---- */
 .team-line {
     display: flex;
     justify-content: space-between;
     padding: 3px 0;
+    color: var(--text-main);
 }
 
 .team-line.winner {
     font-weight: bold;
-    color: #27ae60;
+    color: var(--btn-plus);
 }
 
 .team-line.loser {
-    color: #999;
+    color: var(--text-muted);
 }
 
 .classement-label {
     font-size: 0.75em;
-    color: #e67e22;
+    color: var(--btn-modifier);
     margin-top: 4px;
     text-align: center;
 }
 
-/* Modal */
+/* ---- Badge simulé ---- */
+.simule-badge {
+    font-size: 0.75em;
+    color: var(--text-muted);
+    font-style: italic;
+}
+
+/* ---- Simulation panel ---- */
+.simulation-panel {
+    margin-bottom: 15px;
+    padding: 10px;
+    background: var(--block-bg);
+    border-radius: 5px;
+    border: 1px solid var(--border-color-light);
+}
+
+.simulation-panel label {
+    color: var(--text-main);
+}
+
+/* ---- MODALE — résolution propre du conflit .hidden ---- */
 .modal {
+    display: none;
     position: fixed;
     top: 0;
     left: 0;
     right: 0;
     bottom: 0;
     background: rgba(0, 0, 0, 0.5);
-    display: flex;
     align-items: center;
     justify-content: center;
+    z-index: 1000;
+}
+
+/* Afficher le modal quand la classe .hidden n'est PAS présente */
+.modal:not(.hidden) {
+    display: flex;
 }
 
 .modal-content {
-    background: white;
+    background: var(--bg-container);
+    color: var(--text-main);
     padding: 20px;
     border-radius: 6px;
     min-width: 300px;
+    max-width: 500px;
+    width: 90%;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+    border: 1px solid var(--border-color);
+}
+
+.modal-content h3 {
+    margin-top: 0;
+    color: var(--text-main);
+}
+
+.modal-content label {
+    color: var(--text-main);
 }
 
 .modal-actions {
     display: flex;
     gap: 10px;
-    margin-top: 10px;
+    margin-top: 15px;
+    flex-wrap: wrap;
 }
 
+.modal-actions button {
+    flex: 1;
+    min-width: 100px;
+}
+
+/* ---- Liste ordre équipes (seeding) ---- */
 .ordre-equipes-liste {
     list-style: none;
     padding: 0;
     margin: 10px 0;
-    max-width: 400px;
+    max-width: 500px;
 }
 
 .ordre-equipes-liste li {
@@ -239,82 +380,38 @@ button:hover {
     justify-content: space-between;
     padding: 8px 10px;
     margin-bottom: 5px;
-    border: 1px solid #ccc;
+    border: 1px solid var(--border-color);
     border-radius: 4px;
-    background: #f9f9f9;
+    background: var(--block-bg);
+    color: var(--text-main);
 }
 
 .ordre-equipes-liste li span.seed-num {
     font-weight: bold;
     margin-right: 10px;
+    color: var(--text-main);
 }
 
 .ordre-equipes-liste li .ordre-actions button {
     margin-left: 4px;
     padding: 2px 8px;
     cursor: pointer;
+    font-size: 0.85em;
 }
 
-.btn-supprimer-phase {
-    background: #d9534f;
-    color: white;
-    border: none;
-    padding: 4px 10px;
-    border-radius: 4px;
-    cursor: pointer;
-    margin-left: 8px;
-}
-
-.btn-supprimer-phase:hover {
-    background: #c9302c;
-}
-
-.badge-auto {
-    display: inline-block;
-    margin-left: 6px;
-    padding: 1px 6px;
-    font-size: 0.7em;
-    background: #5bc0de;
-    color: white;
-    border-radius: 3px;
-    vertical-align: middle;
-}
-
-.simulation-panel {
-    margin-bottom: 15px;
-    padding: 10px;
-    background: #f0f0f0;
-    border-radius: 5px;
-}
-
-.match-box.simule {
-    opacity: 0.7;
-    border-style: dashed;
-}
-
-.simule-badge {
-    font-size: 0.75em;
-    color: #666;
-    font-style: italic;
-}
-
-.ordre-equipes-liste {
-    list-style: none;
-    padding: 0;
-    margin: 10px 0;
-}
-
+/* ---- Items ordre drag & drop ---- */
 .ordre-item {
     display: flex;
     align-items: center;
     gap: 10px;
     padding: 8px 10px;
     margin-bottom: 5px;
-    background: #fff;
-    border: 1px solid #ddd;
+    background: var(--bg-container);
+    border: 1px solid var(--border-color);
     border-radius: 4px;
     cursor: grab;
     transition: background 0.15s, transform 0.15s;
+    color: var(--text-main);
 }
 
 .ordre-item:active {
@@ -326,14 +423,14 @@ button:hover {
 }
 
 .ordre-item.drag-over {
-    border-color: #4a90d9;
-    background: #eef5ff;
+    border-color: var(--link-color);
+    background: var(--block-bg);
     transform: scale(1.01);
 }
 
 .drag-handle {
     cursor: grab;
-    color: #999;
+    color: var(--text-muted);
     font-size: 1.2em;
     user-select: none;
 }
@@ -341,6 +438,7 @@ button:hover {
 .seed-num {
     font-weight: bold;
     min-width: 30px;
+    color: var(--text-main);
 }
 
 .equipe-nom-ordre {
@@ -350,7 +448,7 @@ button:hover {
 }
 
 .rang-info {
-    color: #777;
+    color: var(--text-muted);
     font-size: 0.8em;
 }
 
@@ -362,4 +460,38 @@ button:hover {
 .ordre-actions button {
     padding: 2px 8px;
     cursor: pointer;
+    font-size: 0.85em;
+}
+
+/* ---- Responsive ---- */
+@media (max-width: 600px) {
+    main {
+        padding: 0 10px;
+    }
+
+    .section,
+    .card {
+        padding: 15px;
+    }
+
+    .bracket-container {
+        gap: 15px;
+    }
+
+    .round-column {
+        min-width: 180px;
+    }
+
+    .modal-content {
+        padding: 15px;
+        margin: 10px;
+    }
+
+    .modal-actions {
+        flex-direction: column;
+    }
+
+    .equipes-grid {
+        grid-template-columns: 1fr;
+    }
 }
