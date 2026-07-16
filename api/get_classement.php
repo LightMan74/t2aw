@@ -45,6 +45,7 @@ try {
         JOIN categorie cat ON cat.id_tournoi = e.id_tournoi AND cat.id_categorie = e.id_categorie
         JOIN poule p ON p.id_tournoi = e.id_tournoi AND p.id_categorie = e.id_categorie AND p.id_poule = e.id_poule
         WHERE e.id_tournoi = ?
+        ORDER BY e.id_equipe ASC
     ");
     $stmtEquipes->execute([$id_tournoi]);
     $equipes = $stmtEquipes->fetchAll(PDO::FETCH_ASSOC);

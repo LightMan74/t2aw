@@ -52,19 +52,11 @@ $mode_creation = $id_tournoi === 0;
                 <div class="form-row">
                     <div class="form-group">
                         <label for="nbre_terrain_poule">Nombre de terrains (poules)</label>
-                        <input type="number" id="nbre_terrain_poule" name="nbre_terrain_poule"
-                            min="1" max="50" step="1" value="4" required
-                            inputmode="numeric" pattern="[0-9]*"
-                            onkeydown="return blockInvalidNumberKeys(event)"
-                            onpaste="return blockInvalidPaste(event)">
+                        <input type="number" id="nbre_terrain_poule" name="nbre_terrain_poule" min="1" max="50" step="1" value="4" required inputmode="numeric" pattern="[0-9]*" onkeydown="return blockInvalidNumberKeys(event)" onpaste="return blockInvalidPaste(event)">
                     </div>
                     <div class="form-group">
                         <label for="nbre_terrain_phasefinal">Nombre de terrains (phase finale)</label>
-                        <input type="number" id="nbre_terrain_phasefinal" name="nbre_terrain_phasefinal"
-                            min="1" max="50" step="1" value="2" required
-                            inputmode="numeric" pattern="[0-9]*"
-                            onkeydown="return blockInvalidNumberKeys(event)"
-                            onpaste="return blockInvalidPaste(event)">
+                        <input type="number" id="nbre_terrain_phasefinal" name="nbre_terrain_phasefinal" min="1" max="50" step="1" value="2" required inputmode="numeric" pattern="[0-9]*" onkeydown="return blockInvalidNumberKeys(event)" onpaste="return blockInvalidPaste(event)">
                     </div>
                 </div>
 
@@ -78,25 +70,28 @@ $mode_creation = $id_tournoi === 0;
                     </div>
                     <div class="form-group">
                         <label for="temps_de_match">Temps de match (minutes)</label>
-                        <input type="number" id="temps_de_match" name="temps_de_match"
-                            min="5" max="120" step="1" value="15" required
-                            inputmode="numeric" pattern="[0-9]*"
-                            onkeydown="return blockInvalidNumberKeys(event)"
-                            onpaste="return blockInvalidPaste(event)">
+                        <input type="number" id="temps_de_match" name="temps_de_match" min="5" max="120" step="1" value="15" required inputmode="numeric" pattern="[0-9]*" onkeydown="return blockInvalidNumberKeys(event)" onpaste="return blockInvalidPaste(event)">
                     </div>
                 </div>
 
                 <div class="form-row">
                     <div class="form-group">
                         <label for="heure_debut_poule">Heure de début (poules)</label>
-                        <input type="time" id="heure_debut_poule" name="heure_debut_poule" required>
+                        <input type="time" id="heure_debut_poule" name="heure_debut_poule" value="00:00" required>
                     </div>
                     <div class="form-group">
                         <label for="heure_debut_phasefinal">Heure de début (phase finale)</label>
-                        <input type="time" id="heure_debut_phasefinal" name="heure_debut_phasefinal" required>
+                        <input type="time" id="heure_debut_phasefinal" name="heure_debut_phasefinal" value="00:00" required>
                     </div>
                 </div>
-
+                <div class="form-group">
+                    <label>Nombre de catégories</label>
+                    <div class="counter-control">
+                        <button type="button" class="btn-minus" onclick="ajusterCategories(-1)">−</button>
+                        <span id="nbre_categories">1</span>
+                        <button type="button" class="btn-plus" onclick="ajusterCategories(1)">+</button>
+                    </div>
+                </div>
                 <div id="categories-container"></div>
 
                 <div id="error-message" class="error-message" style="display:none;"></div>
@@ -110,8 +105,8 @@ $mode_creation = $id_tournoi === 0;
     </div>
 
     <script>
-        window.idTournoi = <?php echo (int)$id_tournoi; ?>;
-        window.modeCreation = <?php echo $mode_creation ? 'true' : 'false'; ?>;
+    window.idTournoi = <?php echo (int)$id_tournoi; ?>;
+    window.modeCreation = <?php echo $mode_creation ? 'true' : 'false'; ?>;
     </script>
     <script src="js/edit.js"></script>
 </body>
