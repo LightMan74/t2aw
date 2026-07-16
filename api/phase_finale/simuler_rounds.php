@@ -29,9 +29,9 @@ try {
 
     $idTournoi = (int)$phase['id_tournoi'];
 
-    if ($nbRoundsASimuler >= (int)$phase['nb_rounds']) {
-        throw new Exception('Impossible de simuler tous les rounds (il doit rester au moins un round à jouer)');
-    }
+    // if ($nbRoundsASimuler >= (int)$phase['nb_rounds']) {
+    //     throw new Exception('Impossible de simuler tous les rounds (il doit rester au moins un round à jouer)');
+    // }
 
     $nbMatchsSimules = 0;
 
@@ -77,18 +77,18 @@ try {
                 // Sécurité : si pas de seed dispo, on prend equipe1 par défaut
                 $winnerId = $match['equipe1_id'];
                 $loserId  = $match['equipe2_id'];
-                $score1 = 21;
+                $score1 = 15;
                 $score2 = 0;
             } elseif ($seed1 <= $seed2) {
                 $winnerId = $match['equipe1_id'];
                 $loserId  = $match['equipe2_id'];
-                $score1 = 21;
+                $score1 = 15;
                 $score2 = 0;
             } else {
                 $winnerId = $match['equipe2_id'];
                 $loserId  = $match['equipe1_id'];
                 $score1 = 0;
-                $score2 = 21;
+                $score2 = 15;
             }
 
             // Mise à jour du match : statut spécial "simule"

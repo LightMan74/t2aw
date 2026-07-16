@@ -93,13 +93,13 @@ function afficherClassement(classement) {
                 <tr>
                     <th>Rang</th>
                     <th>Equipe</th>
-                    <th>MJ</th>
-                    <th>V</th>
-                    <th>D</th>
-                    <th>Sets G</th>
-                    <th>Pts marqués</th>
-                    <th>Pts encaissés</th>
-                    <th>Diff.</th>
+                    <th>Match Joué</th>
+                    <th>Victoire</th>
+                    <th>Defaite</th>
+                    <th>Sets Gagner</th>
+                    <th>Points marqués</th>
+                    <th>Points encaissés</th>
+                    <th>Difference Points</th>
                 </tr>
             </thead>
             <tbody></tbody>
@@ -110,7 +110,7 @@ function afficherClassement(classement) {
             const tr = document.createElement('tr');
             if (index === 0) tr.classList.add('premier');
 
-            const diff = (l.set_gagner ?? 0) - (l.set_perdu ?? 0);
+            const diff = (l.point_marquer ?? 0) - (l.point_encaisser ?? 0);
             tr.innerHTML = `
                 <td>${index + 1}</td>
                 <td>${escapeHTML(l.nom_equipe || '')}</td>

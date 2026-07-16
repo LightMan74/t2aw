@@ -11,31 +11,43 @@
 
 <body>
     <nav>
-        <?php include 'menu.php'; ?>
+        <?php include 'menu.php'; 
+        $sql = "SELECT 
+            count(eq.id_tournoi) as nbre_team,
+            ph.id_tournoi as phready 
+            FROM equipe eq
+            LEFT JOIN phases_finales ph ON ph.id_tournoi = eq.id_tournoi 
+            WHERE eq.id_tournoi = :id;
+        ";
+        $stmt = $pdo->prepare($sql);
+        $stmt->execute(['id' => htmlspecialchars(($_GET["id_tournoi"]))]);
+        $r = $stmt->fetchAll(PDO::FETCH_ASSOC)[0];
+        $nbre_team = $r['nbre_team'];
+        $phready = $r['phready'];
+        ?>
     </nav>
     <header>
         <h1>🏸 Gestion des Phases Finales</h1>
     </header>
 
     <main>
-
         <!-- Création d'une nouvelle phase finale -->
-        <section id="section-creation" class="card">
+        <section id="section-creation" class="card" <?php echo (is_null($phready))? '':'hidden' ;?>>
             <h2>Créer une phase finale</h2>
             <form id="form-creation">
                 <label>
                     Tournoi ID
-                    <input type="number" id="input-tournoi-id" value="<?php echo htmlspecialchars($_GET['id_tournoi'] ?? ''); ?>" min="1" required>
+                    <input type="number" id="input-tournoi-id" value="<?php echo htmlspecialchars($_GET['id_tournoi'] ?? ''); ?>" min="1" required disabled>
                 </label>
 
                 <label>
                     Nom de la phase
-                    <input type="text" id="input-nom" value="Phase Finale" required>
+                    <input type="text" id="input-nom" value="Phase Finale" required disabled>
                 </label>
 
                 <label>
                     Nombre d'équipes
-                    <input type="number" id="input-nb-equipes" value="8" min="2" required>
+                    <input type="number" id="input-nb-equipes" value="<?php echo $nbre_team;?>" min="2" required>
                 </label>
 
                 <label>
@@ -62,13 +74,14 @@
         <!-- Liste des phases finales existantes -->
         <section id="section-liste" class="card">
             <h2>Phases finales existantes</h2>
-            <button id="btn-rafraichir-liste">Rafraîchir</button>
+            <button id="btn-rafraichir-liste" hidden>Rafraîchir</button>
             <ul id="liste-phases"></ul>
         </section>
 
         <!-- Détail / Bracket -->
         <section id="section-bracket" class="card hidden">
             <h2 id="titre-bracket">Bracket</h2>
+            <div id="bracket-container" class="bracket-container"></div>
 
             <div id="simulation-panel" class="simulation-panel">
                 <label>
@@ -84,7 +97,6 @@
                 <div id="liste-equipes" class="equipes-grid"></div>
             </div>
 
-            <div id="bracket-container" class="bracket-container"></div>
         </section>
 
     </main>

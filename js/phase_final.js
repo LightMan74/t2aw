@@ -82,7 +82,6 @@ function afficherOrdreEquipes() {
                 <strong>${equipe.nom}</strong>
                 <span class="rang-info">
                     Poule ${equipe.id_poule ?? '-'} - Rang ${equipe.rang_poule ?? '-'}
-                    - V:${equipe.victoires ?? 0} - Diff:${equipe.diff_points ?? 0}
                 </span>
             </div>
             <div class="ordre-actions">
@@ -480,7 +479,7 @@ document.getElementById('btn-simuler-rounds').addEventListener('click', async ()
 
     const confirmation = confirm(
         `Confirmer la simulation de ${nbRounds} round(s) ?\n` +
-        `Les équipes avec le meilleur seed gagneront automatiquement (21-0).\n` +
+        `Les équipes avec le meilleur seed gagneront automatiquement (15-0).\n` +
         `Cette action est irréversible.`
     );
     if (!confirmation) return;
