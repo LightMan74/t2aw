@@ -7,15 +7,14 @@ require_once __DIR__ . '/../db.php';
 $input = json_decode(file_get_contents('php://input'), true);
 
 $idTournoi   = (int)($input['id_tournoi'] ?? 0);
+$idCategorie = (int)($input['id_categorie'] ?? 0);
 $nom         = trim($input['nom'] ?? 'Phase Finale');
 $typeBracket = $input['type_bracket'] ?? 'classique';
 $nbEquipes   = (int)($input['nb_equipes'] ?? 0);
 
-// Nouveau : liste ordonnée des équipes avec tous leurs paramètres
-// Format attendu : [{id_equipe, id_categorie, id_poule, id_tournoi, nom}, ...]
 $equipesSelectionnees = $input['equipesSelectionnees'] ?? [];
 
-if ($idTournoi <= 0 || $nbEquipes < 2) {
+if ($idTournoi <= 0 || $idCategorie <= 0 || $nbEquipes < 2) {
     http_response_code(400);
     echo json_encode(['success' => false, 'message' => 'Paramètres invalides']);
     exit;
@@ -28,16 +27,43 @@ function forcerPuissanceDe2(int $n): int {
 try {
     $pdo->beginTransaction();
 
+    // ----------------------------------------------------------
+    // Vérification : une seule phase finale par catégorie/tournoi
+    // ----------------------------------------------------------
+    $stmtCheck = $pdo->prepare("
+        SELECT id, nom, statut
+        FROM phases_finales
+        WHERE id_tournoi = :id_tournoi AND id_categorie = :id_categorie
+        LIMIT 1
+    ");
+    $stmtCheck->execute([
+        ':id_tournoi' => $idTournoi,
+        ':id_categorie' => $idCategorie,
+    ]);
+    $phaseExistante = $stmtCheck->fetch(PDO::FETCH_ASSOC);
+
+    if ($phaseExistante) {
+        $pdo->rollBack();
+        http_response_code(409); // Conflict
+        echo json_encode([
+            'success' => false,
+            'message' => "Une phase finale existe déjà pour cette catégorie (« {$phaseExistante['nom']} »). Supprimez-la avant d'en créer une nouvelle.",
+            'id_phase_finale_existante' => (int)$phaseExistante['id'],
+        ]);
+        exit;
+    }
+
     $nbEquipesArrondi = forcerPuissanceDe2($nbEquipes);
     $nbRounds = (int) log($nbEquipesArrondi, 2);
 
-    // 1. Créer la phase finale
+    // 1. Créer la phase finale (avec id_categorie)
     $stmt = $pdo->prepare("
-        INSERT INTO phases_finales (id_tournoi, nom, type_bracket, nb_equipes, nb_equipes_arrondi, nb_rounds, statut)
-        VALUES (:id_tournoi, :nom, :type_bracket, :nb_equipes, :nb_equipes_arrondi, :nb_rounds, 'en_cours')
+        INSERT INTO phases_finales (id_tournoi, id_categorie, nom, type_bracket, nb_equipes, nb_equipes_arrondi, nb_rounds, statut)
+        VALUES (:id_tournoi, :id_categorie, :nom, :type_bracket, :nb_equipes, :nb_equipes_arrondi, :nb_rounds, 'en_cours')
     ");
     $stmt->execute([
         ':id_tournoi' => $idTournoi,
+        ':id_categorie' => $idCategorie,
         ':nom' => $nom,
         ':type_bracket' => $typeBracket,
         ':nb_equipes' => $nbEquipes,
@@ -47,7 +73,7 @@ try {
     $idPhaseFinale = (int) $pdo->lastInsertId();
 
     // 2. Créer les équipes avec liaison stable aux équipes du tournoi
-    $equipeIds = []; // seed_position => id (de equipes_phase_finale)
+    $equipeIds = [];
     $stmtEq = $pdo->prepare("
         INSERT INTO equipes_phase_finale 
         (id_tournoi, id_phase_finale, id_categorie, id_poule, id_equipe, seed_position, nom_equipe, is_bye)
@@ -59,26 +85,24 @@ try {
         $isBye = $i > $nbEquipes ? 1 : 0;
 
         $idEquipe = null;
-        $idCategorie = null;
+        $idCategorieEquipe = null;
         $idPoule = null;
         $nomEquipe = 'BYE';
 
         if (!$isBye && isset($equipesSelectionnees[$i - 1])) {
-            // Utilisation de l'équipe fournie par l'utilisateur (avec tous ses paramètres)
             $eq = $equipesSelectionnees[$i - 1];
             $idEquipe = (int)($eq['id_equipe'] ?? 0);
-            $idCategorie = (int)($eq['id_categorie'] ?? 0);
+            $idCategorieEquipe = (int)($eq['id_categorie'] ?? 0);
             $idPoule = (int)($eq['id_poule'] ?? 0);
             $nomEquipe = trim($eq['nom'] ?? '') ?: ('Équipe ' . $i);
         } elseif (!$isBye) {
-            // Fallback si pas d'équipe fournie
             $nomEquipe = 'Équipe ' . $i;
         }
 
         $stmtEq->execute([
             ':id_tournoi' => $idTournoi,
             ':id_phase_finale' => $idPhaseFinale,
-            ':id_categorie' => $idCategorie,
+            ':id_categorie' => $idCategorieEquipe,
             ':id_poule' => $idPoule,
             ':id_equipe' => $idEquipe,
             ':seed' => $i,
@@ -105,10 +129,14 @@ try {
     ]);
 
 } catch (Exception $e) {
-    $pdo->rollBack();
+    if ($pdo->inTransaction()) {
+        $pdo->rollBack();
+    }
     http_response_code(500);
     echo json_encode(['success' => false, 'message' => $e->getMessage()]);
 }
+
+// ... (le reste des fonctions genererBracketClassique, genererBracketClassementComplet, genererOrdreSeeding restent identiques)
 
 // ============================================================
 // BRACKET CLASSIQUE (élimination directe, seeding standard)

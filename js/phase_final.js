@@ -1,13 +1,14 @@
-// app.js
+// phase_final.js
 
 const API_BASE = 'api/phase_finale';
 
 let currentPhaseFinaleId = null;
 let currentMatchId = null;
 let currentPhaseFinaleIdASupprimer = null;
+let selectedCategorieId = null;
 
-// Liste des équipes sélectionnées pour l'ordre de départ
-let equipesOrdre = []; // [{id_equipe, id_categorie, id_poule, id_tournoi, nom, rang_poule, victoires, diff_points}]
+// Équipes pour l'ordre de départ : [{id_equipe, id_categorie, id_poule, id_tournoi, nom, rang_poule, victoires, diff_points}]
+let equipesOrdre = [];
 let draggedIndex = null;
 
 // ---------- Utilitaires ----------
@@ -28,20 +29,95 @@ async function apiFetch(url, options = {}) {
     return data;
 }
 
-// ---------- Chargement des équipes (classement des poules) ----------
+// ---------- Chargement des catégories au démarrage ----------
 
-document.getElementById('btn-charger-equipes').addEventListener('click', async () => {
-    const idTournoi = parseInt(document.getElementById('input-tournoi-id').value, 10);
+const inputTournoiId = document.getElementById('input-tournoi-id');
+const selectCategorie = document.getElementById('input-categorie');
+const inputNom = document.getElementById('input-nom');
+const inputNbEquipes = document.getElementById('input-nb-equipes');
+const ordreEquipesPanel = document.getElementById('ordre-equipes-panel');
+const msgCreation = document.getElementById('msg-creation');
 
-    if (!idTournoi) {
-        afficherMessage('msg-creation', 'Veuillez indiquer un ID de tournoi', 'error');
+async function chargerCategories() {
+    const idTournoi = parseInt(inputTournoiId.value, 10);
+    if (!idTournoi) return;
+
+    try {
+        const data = await apiFetch(`${API_BASE}/get_categories.php?id_tournoi=${idTournoi}`);
+
+        selectCategorie.innerHTML = '<option value="">— Choisir une catégorie —</option>';
+        data.categories.forEach(cat => {
+            const opt = document.createElement('option');
+            opt.value = cat.id_categorie;
+            opt.textContent = cat.nom;
+            selectCategorie.appendChild(opt);
+        });
+
+    } catch (err) {
+        console.error('Erreur chargement catégories:', err.message);
+    }
+}
+
+// ---------- Événement : sélection d'une catégorie ----------
+
+selectCategorie.addEventListener('change', async () => {
+    const idTournoi = parseInt(inputTournoiId.value, 10);
+    const idCategorie = parseInt(selectCategorie.value, 10);
+
+    selectedCategorieId = idCategorie || null;
+
+    if (!idCategorie) {
+        inputNom.value = '';
+        inputNom.placeholder = 'Choisir une catégorie d\'abord';
+        inputNbEquipes.value = '';
+        inputNbEquipes.placeholder = '—';
+        equipesOrdre = [];
+        afficherOrdreEquipes();
+        ordreEquipesPanel.classList.add('hidden');
+        document.getElementById('btn-creer').disabled = false;
         return;
     }
 
+    // ---- Vérification : phase finale déjà existante pour cette catégorie ----
     try {
-        const data = await apiFetch(`${API_BASE}/classement_equipes.php?id_tournoi=${idTournoi}`);
+        const checkData = await apiFetch(
+            `${API_BASE}/check_categorie.php?id_tournoi=${idTournoi}&id_categorie=${idCategorie}`
+        );
 
-        equipesOrdre = data.classement.map(e => ({
+        if (checkData.existe) {
+            afficherMessage(
+                'msg-creation',
+                `Une phase finale existe déjà pour cette catégorie (« ${checkData.phase.nom} »). Supprimez-la avant d'en créer une nouvelle.`,
+                'error'
+            );
+            document.getElementById('btn-creer').disabled = true;
+
+            // On vide quand même les champs pour éviter toute confusion
+            inputNom.value = '';
+            inputNbEquipes.value = '';
+            equipesOrdre = [];
+            afficherOrdreEquipes();
+            ordreEquipesPanel.classList.add('hidden');
+            return;
+        } else {
+            document.getElementById('btn-creer').disabled = false;
+        }
+    } catch (err) {
+        console.error('Erreur vérification catégorie:', err.message);
+    }
+
+    // 1) Nom de la phase auto
+    const nomCat = selectCategorie.options[selectCategorie.selectedIndex].text;
+    inputNom.value = 'Phase Finale - ' + nomCat;
+    inputNom.readOnly = true;
+
+    // 2) Charger les équipes de cette catégorie
+    try {
+        const data = await apiFetch(
+            `${API_BASE}/get_equipes_categorie.php?id_tournoi=${idTournoi}&id_categorie=${idCategorie}`
+        );
+
+        equipesOrdre = data.equipes.map(e => ({
             id_equipe: e.id_equipe,
             id_categorie: e.id_categorie,
             id_poule: e.id_poule,
@@ -52,18 +128,28 @@ document.getElementById('btn-charger-equipes').addEventListener('click', async (
             diff_points: e.diff_points
         }));
 
-        document.getElementById('input-nb-equipes').value = equipesOrdre.length;
+        inputNbEquipes.value = equipesOrdre.length;
+        inputNbEquipes.placeholder = equipesOrdre.length;
 
         afficherOrdreEquipes();
-        document.getElementById('ordre-equipes-panel').classList.remove('hidden');
+        ordreEquipesPanel.classList.remove('hidden');
 
-        afficherMessage('msg-creation', `${equipesOrdre.length} équipes chargées (classées par poule)`, 'success');
+        if (equipesOrdre.length < 2) {
+            afficherMessage('msg-creation', 'Cette catégorie n\'a pas assez d\'équipes (minimum 2)', 'error');
+        } else {
+            afficherMessage('msg-creation', `${equipesOrdre.length} équipes chargées pour la catégorie « ${nomCat} »`, 'success');
+        }
+
     } catch (err) {
+        equipesOrdre = [];
+        inputNbEquipes.value = '';
+        afficherOrdreEquipes();
+        ordreEquipesPanel.classList.add('hidden');
         afficherMessage('msg-creation', err.message, 'error');
     }
 });
 
-// ---------- Affichage de l'ordre avec Drag & Drop (VERSION UNIQUE) ----------
+// ---------- Affichage de l'ordre de départ (drag & drop + boutons ▲▼) ----------
 
 function afficherOrdreEquipes() {
     const container = document.getElementById('liste-ordre-equipes');
@@ -81,17 +167,17 @@ function afficherOrdreEquipes() {
             <div class="equipe-nom-ordre">
                 <strong>${equipe.nom}</strong>
                 <span class="rang-info">
-                    Poule ${equipe.id_poule ?? '-'} - Rang ${equipe.rang_poule ?? '-'}
+                    Poule ${equipe.id_poule ?? '-'} — Rang ${equipe.rang_poule ?? '-'}
+                    ${equipe.victoires !== undefined ? ` — ${equipe.victoires} victoire(s)` : ''}
                 </span>
             </div>
             <div class="ordre-actions">
-                <button type="button" data-action="up" data-index="${index}">↑</button>
-                <button type="button" data-action="down" data-index="${index}">↓</button>
+                <button type="button" data-action="up" data-index="${index}" title="Monter">↑</button>
+                <button type="button" data-action="down" data-index="${index}" title="Descendre">↓</button>
             </div>
         `;
 
-        // --- Drag & Drop events ---
-        div.addEventListener('dragstart', (e) => {
+        div.addEventListener('dragstart', e => {
             draggedIndex = index;
             div.classList.add('dragging');
             e.dataTransfer.effectAllowed = 'move';
@@ -100,9 +186,10 @@ function afficherOrdreEquipes() {
 
         div.addEventListener('dragend', () => {
             div.classList.remove('dragging');
+            draggedIndex = null;
         });
 
-        div.addEventListener('dragover', (e) => {
+        div.addEventListener('dragover', e => {
             e.preventDefault();
             e.dataTransfer.dropEffect = 'move';
             div.classList.add('drag-over');
@@ -112,16 +199,13 @@ function afficherOrdreEquipes() {
             div.classList.remove('drag-over');
         });
 
-        div.addEventListener('drop', (e) => {
+        div.addEventListener('drop', e => {
             e.preventDefault();
             div.classList.remove('drag-over');
-
             const targetIndex = index;
             if (draggedIndex === null || draggedIndex === targetIndex) return;
-
             const [item] = equipesOrdre.splice(draggedIndex, 1);
             equipesOrdre.splice(targetIndex, 0, item);
-
             draggedIndex = null;
             afficherOrdreEquipes();
         });
@@ -129,20 +213,16 @@ function afficherOrdreEquipes() {
         container.appendChild(div);
     });
 
-    // Boutons flèches (fallback mobile / accessibilité)
+    // Boutons flèches
     container.querySelectorAll('button[data-action]').forEach(btn => {
         btn.addEventListener('click', () => {
-            const index = parseInt(btn.dataset.index, 10);
+            const idx = parseInt(btn.dataset.index, 10);
             const action = btn.dataset.action;
-
-            if (action === 'up' && index > 0) {
-                [equipesOrdre[index - 1], equipesOrdre[index]] =
-                    [equipesOrdre[index], equipesOrdre[index - 1]];
-            } else if (action === 'down' && index < equipesOrdre.length - 1) {
-                [equipesOrdre[index + 1], equipesOrdre[index]] =
-                    [equipesOrdre[index], equipesOrdre[index + 1]];
+            if (action === 'up' && idx > 0) {
+                [equipesOrdre[idx - 1], equipesOrdre[idx]] = [equipesOrdre[idx], equipesOrdre[idx - 1]];
+            } else if (action === 'down' && idx < equipesOrdre.length - 1) {
+                [equipesOrdre[idx + 1], equipesOrdre[idx]] = [equipesOrdre[idx], equipesOrdre[idx + 1]];
             }
-
             afficherOrdreEquipes();
         });
     });
@@ -150,14 +230,28 @@ function afficherOrdreEquipes() {
 
 // ---------- Création d'une phase finale ----------
 
-document.getElementById('form-creation').addEventListener('submit', async (e) => {
+document.getElementById('form-creation').addEventListener('submit', async e => {
     e.preventDefault();
 
+    const idTournoi = parseInt(inputTournoiId.value, 10);
+    const idCategorie = parseInt(selectCategorie.value, 10);
+
+    if (!idTournoi || !idCategorie) {
+        afficherMessage('msg-creation', 'Veuillez sélectionner une catégorie', 'error');
+        return;
+    }
+
+    if (equipesOrdre.length < 2) {
+        afficherMessage('msg-creation', 'Il faut au moins 2 équipes pour créer une phase finale', 'error');
+        return;
+    }
+
     const payload = {
-        id_tournoi: parseInt(document.getElementById('input-tournoi-id').value, 10),
-        nom: document.getElementById('input-nom').value.trim(),
+        id_tournoi: idTournoi,
+        id_categorie: idCategorie,
+        nom: inputNom.value.trim(),
         type_bracket: document.getElementById('input-type-bracket').value,
-        nb_equipes: parseInt(document.getElementById('input-nb-equipes').value, 10),
+        nb_equipes: equipesOrdre.length,
         equipesSelectionnees: equipesOrdre
     };
 
@@ -169,13 +263,14 @@ document.getElementById('form-creation').addEventListener('submit', async (e) =>
         });
 
         afficherMessage('msg-creation',
-            `Phase finale créée ! (${data.nb_matchs} matchs, ${data.nb_rounds} rounds)`,
+            `Phase finale créée ! (${data.nb_matchs} matchs, ${data.nbRounds} rounds)`,
             'success');
 
-        chargerListePhases(payload.id_tournoi);
+        chargerListePhases(idTournoi);
         ouvrirBracket(data.id_phase_finale);
 
     } catch (err) {
+        // Le message d'erreur du back (ex: 409 conflit catégorie) sera affiché ici
         afficherMessage('msg-creation', err.message, 'error');
     }
 });
@@ -183,8 +278,7 @@ document.getElementById('form-creation').addEventListener('submit', async (e) =>
 // ---------- Liste des phases finales ----------
 
 document.getElementById('btn-rafraichir-liste').addEventListener('click', () => {
-    const tournoiId = parseInt(document.getElementById('input-tournoi-id').value, 10);
-    chargerListePhases(tournoiId);
+    chargerListePhases(parseInt(inputTournoiId.value, 10));
 });
 
 async function chargerListePhases(idTournoi) {
@@ -228,14 +322,12 @@ async function chargerListePhases(idTournoi) {
     }
 }
 
-chargerListePhases(parseInt(document.getElementById('input-tournoi-id').value, 10));
+// ---------- Suppression ----------
 
-// ---------- Suppression d'une phase finale ----------
-
-function demanderSuppressionPhase(idPhaseFinale, nom) {
-    currentPhaseFinaleIdASupprimer = idPhaseFinale;
+function demanderSuppressionPhase(id, nom) {
+    currentPhaseFinaleIdASupprimer = id;
     document.getElementById('modal-suppression-info').textContent =
-        `Êtes-vous sûr de vouloir supprimer la phase finale "${nom}" ? Cette action est irréversible.`;
+        `Êtes-vous sûr de vouloir supprimer la phase finale « ${nom} » ? Cette action est irréversible.`;
     document.getElementById('modal-suppression').classList.remove('hidden');
 }
 
@@ -261,9 +353,7 @@ document.getElementById('btn-confirmer-suppression').addEventListener('click', a
             currentPhaseFinaleId = null;
         }
 
-        const idTournoi = parseInt(document.getElementById('input-tournoi-id').value, 10);
-        chargerListePhases(idTournoi);
-
+        chargerListePhases(parseInt(inputTournoiId.value, 10));
         currentPhaseFinaleIdASupprimer = null;
 
     } catch (err) {
@@ -271,7 +361,7 @@ document.getElementById('btn-confirmer-suppression').addEventListener('click', a
     }
 });
 
-// ---------- Ouverture / affichage du bracket ----------
+// ---------- Bracket ----------
 
 async function ouvrirBracket(idPhaseFinale) {
     currentPhaseFinaleId = idPhaseFinale;
@@ -291,7 +381,7 @@ async function ouvrirBracket(idPhaseFinale) {
     }
 }
 
-// ---------- Affichage / édition des équipes ----------
+// ---------- Équipes ----------
 
 function afficherEquipes(equipes) {
     const container = document.getElementById('liste-equipes');
@@ -301,9 +391,8 @@ function afficherEquipes(equipes) {
         const div = document.createElement('div');
         div.className = 'equipe-item' + (equipe.is_bye ? ' bye' : '');
 
-        const estLiee = !!equipe.id_equipe_originale;
-        const disabled = equipe.is_bye || estLiee ? 'disabled' : '';
-        const badge = estLiee ? '<small class="badge-auto">auto</small>' : '';
+        const disabled = equipe.is_bye ? 'disabled' : '';
+        const badge = equipe.id_equipe_originale ? '<small class="badge-auto">auto</small>' : '';
 
         div.innerHTML = `
             <small>Seed ${equipe.seed_position}</small>
@@ -385,11 +474,9 @@ function creerMatchBox(match) {
     const nom2 = match.nom_equipe2 || (match.source_team2 || '???');
 
     const classeTeam1 = match.winner_equipe_id
-        ? (match.winner_equipe_id === match.equipe1_id ? 'winner' : 'loser')
-        : '';
+        ? (match.winner_equipe_id === match.equipe1_id ? 'winner' : 'loser') : '';
     const classeTeam2 = match.winner_equipe_id
-        ? (match.winner_equipe_id === match.equipe2_id ? 'winner' : 'loser')
-        : '';
+        ? (match.winner_equipe_id === match.equipe2_id ? 'winner' : 'loser') : '';
 
     let classementHtml = '';
     if (match.classement_min && match.classement_max) {
@@ -397,8 +484,7 @@ function creerMatchBox(match) {
     }
 
     const simuleBadge = match.statut === 'simule'
-        ? '<div class="simule-badge">⏩ Simulé</div>'
-        : '';
+        ? '<div class="simule-badge">⏩ Simulé</div>' : '';
 
     box.innerHTML = `
         <div class="match-code">${match.match_code}</div>
@@ -427,7 +513,6 @@ function creerMatchBox(match) {
 
 function ouvrirModalScore(match, nom1, nom2) {
     currentMatchId = match.id;
-
     document.getElementById('modal-match-info').textContent = `${match.match_code} : ${nom1} vs ${nom2}`;
     document.getElementById('modal-score1').value = match.score1 ?? 0;
     document.getElementById('modal-score2').value = match.score2 ?? 0;
@@ -462,7 +547,7 @@ document.getElementById('btn-valider-score').addEventListener('click', async () 
     }
 });
 
-// ---------- Simulation de rounds ----------
+// ---------- Simulation ----------
 
 document.getElementById('btn-simuler-rounds').addEventListener('click', async () => {
     if (!currentPhaseFinaleId) {
@@ -488,14 +573,11 @@ document.getElementById('btn-simuler-rounds').addEventListener('click', async ()
         const data = await apiFetch(`${API_BASE}/simuler_rounds.php`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                id_phase_finale: currentPhaseFinaleId,
-                nb_rounds: nbRounds
-            }),
+            body: JSON.stringify({ id_phase_finale: currentPhaseFinaleId, nbRounds }),
         });
 
         afficherMessage('msg-simulation',
-            `${data.nb_matchs_simules} match(s) simulé(s) sur ${data.nb_rounds_simules} round(s)`,
+            `${data.nb_matchs_simules} match(s) simulé(s) sur ${data.nbRounds_simules} round(s)`,
             'success');
 
         ouvrirBracket(currentPhaseFinaleId);
@@ -504,3 +586,10 @@ document.getElementById('btn-simuler-rounds').addEventListener('click', async ()
         afficherMessage('msg-simulation', err.message, 'error');
     }
 });
+
+// ---------- Initialisation au chargement ----------
+
+(async () => {
+    await chargerCategories();
+    chargerListePhases(parseInt(inputTournoiId.value, 10));
+})();

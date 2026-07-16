@@ -11,29 +11,7 @@
 
 <body>
     <nav>
-        <?php include 'menu.php'; 
-        // $sql = "SELECT 
-        //     count(eq.id_tournoi) as nbre_team,
-        //     count(ph.id_tournoi) as phready,
-        //     count(cat.id_categorie) as nbre_cat 
-        //     FROM equipe eq
-        //     LEFT JOIN phases_finales ph ON ph.id_tournoi = :id2
-        //     LEFT JOIN categorie cat ON cat.id_tournoi = :id1
-        //     WHERE eq.id_tournoi = :id;
-        // ";
-        $sql = "SELECT 
-            (SELECT count(eq.id_tournoi) FROM equipe eq WHERE eq.id_tournoi = :id) as nbre_team,
-            (SELECT count(ph.id_tournoi) FROM phases_finales ph WHERE ph.id_tournoi = :id1) as phready,
-            (SELECT count(cat.id_tournoi) FROM categorie cat WHERE cat.id_tournoi = :id2) as nbre_cat;
-        ";
-        
-        $stmt = $pdo->prepare($sql);
-        $stmt->execute(['id' => htmlspecialchars(($_GET["id_tournoi"])),'id1' => htmlspecialchars(($_GET["id_tournoi"])),'id2' => htmlspecialchars(($_GET["id_tournoi"]))]);
-        $r = $stmt->fetchAll(PDO::FETCH_ASSOC)[0];
-        $nbre_team = $r['nbre_team'];
-        $phready = $r['phready'];
-        $nbre_cat = $r['nbre_cat'];
-        ?>
+        <?php include 'menu.php'; ?>
     </nav>
     <header>
         <h1>🏸 Gestion des Phases Finales</h1>
@@ -41,24 +19,33 @@
 
     <main>
         <!-- Création d'une nouvelle phase finale -->
-        <section id="section-creation" class="card" <?php echo ($phready<$nbre_cat)? '':'hidden' ;?>>
+        <section id="section-creation" class="card">
             <h2>Créer une phase finale</h2>
             <form id="form-creation">
+
+                <input type="hidden" id="input-tournoi-id" value="<?php echo htmlspecialchars($_GET['id_tournoi'] ?? ''); ?>">
+
+                <!-- Catégorie (select dynamique) -->
                 <label>
-                    Tournoi ID
-                    <input type="number" id="input-tournoi-id" value="<?php echo htmlspecialchars($_GET['id_tournoi'] ?? ''); ?>" min="1" required disabled>
+                    Catégorie
+                    <select id="input-categorie" required>
+                        <option value="">— Choisir une catégorie —</option>
+                    </select>
                 </label>
 
+                <!-- Nom de la phase (auto-rempli) -->
                 <label>
                     Nom de la phase
-                    <input type="text" id="input-nom" value="Phase Finale" required disabled>
+                    <input type="text" id="input-nom" value="" required readonly placeholder="Choisir une catégorie d'abord">
                 </label>
 
+                <!-- Nombre d'équipes (auto-rempli) -->
                 <label>
                     Nombre d'équipes
-                    <input type="number" id="input-nb-equipes" value="<?php echo $nbre_team;?>" min="2" required>
+                    <input type="number" id="input-nb-equipes" value="" min="2" required readonly placeholder="—">
                 </label>
 
+                <!-- Type de bracket -->
                 <label>
                     Type de bracket
                     <select id="input-type-bracket">
@@ -67,15 +54,14 @@
                     </select>
                 </label>
 
-                <button type="button" id="btn-charger-equipes">Charger les équipes (classement des poules)</button>
-
+                <!-- Ordre de départ -->
                 <div id="ordre-equipes-panel" class="hidden">
                     <h3>Ordre de départ (seeding)</h3>
                     <p>Glissez-déposez pour réordonner, ou utilisez les flèches ↑ ↓</p>
                     <div id="liste-ordre-equipes" class="ordre-equipes-liste"></div>
                 </div>
 
-                <button type="submit">Créer la phase finale</button>
+                <button type="submit" id="btn-creer">Créer la phase finale</button>
             </form>
             <p id="msg-creation" class="msg"></p>
         </section>
