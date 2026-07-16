@@ -30,6 +30,7 @@ $id_tournoi = isset($_GET['id_tournoi']) ? (int)$_GET['id_tournoi'] : 0;
         <button class="tab-btn active" data-tab="matchs">Matchs</button>
         <button class="tab-btn" data-tab="classement">Classement</button>
         <button class="tab-btn" data-tab="joueurs">Joueurs inscrits</button>
+        <button class="tab-btn" data-tab="phase_finale">Phase Finale</button>
     </nav>
 
     <main>
@@ -59,6 +60,11 @@ $id_tournoi = isset($_GET['id_tournoi']) ? (int)$_GET['id_tournoi'] : 0;
         <!-- Onglet Joueurs : grille multi-colonnes -->
         <section id="tab-joueurs" class="tab-content">
             <div id="joueurs-content" class="grid-multicol scroll-colonne"></div>
+        </section>
+
+        <!-- Onglet Phase Finale : bracket lecture seule -->
+        <section id="tab-phase_finale" class="tab-content">
+            <div id="phase-finale-content"></div>
         </section>
     </main>
 

@@ -831,7 +831,367 @@ tr:nth-child(even) {
     background: #f9f9f9;
 }
 
-/* ---------- RESPONSIVE MOBILE ---------- */
+/* ================================================================
+   PHASE FINALE — Styles lecture seule
+   ================================================================ */
+
+/* Conteneur principal de l'onglet phase finale */
+#phase-finale-content {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    min-height: 0;
+    overflow: hidden;
+}
+
+.pf-categorie-wrapper {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    min-height: 0;
+    overflow: hidden;
+}
+
+/* ---------- Bracket ---------- */
+.bracket-container {
+    display: flex;
+    gap: 20px;
+    overflow-x: auto;
+    overflow-y: hidden;
+    padding: 10px 4px 10px 0;
+    flex: 1;
+    min-height: 0;
+    align-items: flex-start;
+}
+
+.bracket-container::-webkit-scrollbar {
+    height: 6px;
+}
+
+.bracket-container::-webkit-scrollbar-thumb {
+    background: #bbb;
+    border-radius: 4px;
+}
+
+body.dark .bracket-container::-webkit-scrollbar-thumb {
+    background: #444;
+}
+
+.round-column {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    min-width: 160px;
+}
+
+.round-title {
+    font-size: 0.82rem;
+    font-weight: bold;
+    color: #555;
+    text-align: center;
+    padding: 4px 8px;
+    background: #ecf0f1;
+    border-radius: 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+
+body.dark .round-title {
+    background: #303645;
+    color: #aaa;
+}
+
+.sub-group-title {
+    font-size: 0.75rem;
+    color: #888;
+    text-align: center;
+    padding: 2px 6px;
+    font-style: italic;
+}
+
+body.dark .sub-group-title {
+    color: #777;
+}
+
+/* ---------- Match box (lecture seule) ---------- */
+.match-box {
+    background: #fff;
+    border: 1.5px solid #ddd;
+    border-radius: 6px;
+    padding: 5px 8px;
+    min-width: 145px;
+    max-width: 180px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+}
+
+.match-box.simule {
+    border-style: dashed;
+    opacity: 0.8;
+}
+
+.match-box.poule {
+    border-left: 4px solid #e67e22;
+}
+
+.match-code {
+    font-size: 0.7rem;
+    color: #999;
+    text-align: center;
+    margin-bottom: 3px;
+}
+
+body.dark .match-code {
+    color: #777;
+}
+
+.simule-badge {
+    font-size: 0.7rem;
+    color: #e67e22;
+    text-align: center;
+    margin-bottom: 3px;
+}
+
+body.dark .simule-badge {
+    color: #f39c12;
+}
+
+.team-line {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 3px 5px;
+    font-size: 0.85rem;
+    gap: 6px;
+}
+
+.team-line:first-of-type {
+    border-bottom: 1px solid #eee;
+}
+
+.team-line span:first-child {
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-weight: 500;
+}
+
+.team-line span:last-child {
+    font-weight: bold;
+    color: #2c3e50;
+    min-width: 20px;
+    text-align: right;
+}
+
+/* États winner / loser */
+.team-line.winner span:first-child {
+    font-weight: bold;
+    color: #27ae60;
+}
+
+.team-line.loser span:first-child {
+    color: #e74c3c;
+}
+
+.team-line.loser span:last-child {
+    color: #e74c3c;
+}
+
+body.dark .match-box {
+    background: #262a33;
+    border-color: #3a3f4a;
+}
+
+body.dark .team-line span:last-child {
+    color: #ddd;
+}
+
+body.dark .team-line.winner span:first-child {
+    color: #2ecc71;
+}
+
+body.dark .team-line.loser span:first-child {
+    color: #ff6b6b;
+}
+
+body.dark .team-line.loser span:last-child {
+    color: #ff6b6b;
+}
+
+.classement-label {
+    font-size: 0.68rem;
+    color: #7f8c8d;
+    text-align: center;
+    margin-top: 3px;
+    font-style: italic;
+}
+
+body.dark .classement-label {
+    color: #888;
+}
+
+/* ---------- Phase finale : titre ---------- */
+.pf-phase-titre {
+    font-size: 1rem;
+    color: #555;
+    padding: 6px 10px;
+    margin-bottom: 8px;
+    background: #ecf0f1;
+    border-radius: 4px;
+}
+
+body.dark .pf-phase-titre {
+    background: #2a2f38;
+    color: #ccc;
+}
+
+/* ---------- Navigation inter-phases ---------- */
+.pf-phase-nav {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-bottom: 10px;
+    flex-shrink: 0;
+}
+
+.pf-phase-btn {
+    padding: 6px 14px;
+    background: #dfe6e9;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.88rem;
+    color: #333;
+    transition: background 0.2s;
+}
+
+.pf-phase-btn:hover {
+    background: #c9d1d3;
+}
+
+.pf-phase-btn.active {
+    background: #2c3e50;
+    color: #fff;
+    font-weight: bold;
+}
+
+body.dark .pf-phase-btn {
+    background: #2a2f38;
+    color: #ccc;
+}
+
+body.dark .pf-phase-btn:hover {
+    background: #343b47;
+}
+
+body.dark .pf-phase-btn.active {
+    background: #444d5c;
+    color: #fff;
+}
+
+.pf-phases-panels {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+}
+
+.pf-phase-panel {
+    display: none;
+    flex: 1;
+    min-height: 0;
+}
+
+.pf-phase-panel.active {
+    display: flex;
+    flex-direction: column;
+}
+
+/* ---------- Phase finale : section ---------- */
+.pf-phase-section {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding: 0 2px;
+}
+
+/* ---------- Équipes qualifiées ---------- */
+.pf-equipes-section {
+    background: #fff;
+    border: 1px solid #eee;
+    border-radius: 6px;
+    padding: 8px 12px;
+}
+
+.pf-equipes-section h4 {
+    font-size: 0.9rem;
+    color: #555;
+    margin-bottom: 8px;
+}
+
+body.dark .pf-equipes-section {
+    background: #262a33;
+    border-color: #3a3f4a;
+}
+
+body.dark .pf-equipes-section h4 {
+    color: #aaa;
+}
+
+.pf-equipes-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
+.pf-equipe-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 10px;
+    background: #f8f9fa;
+    border: 1px solid #ddd;
+    border-radius: 20px;
+    font-size: 0.85rem;
+}
+
+.pf-equipe-item.bye {
+    opacity: 0.5;
+    font-style: italic;
+}
+
+body.dark .pf-equipe-item {
+    background: #2a2f38;
+    border-color: #3a3f4a;
+}
+
+.pf-seed-badge {
+    background: #2c3e50;
+    color: #fff;
+    border-radius: 50%;
+    width: 20px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.65rem;
+    font-weight: bold;
+    flex-shrink: 0;
+}
+
+.pf-equipe-nom {
+    color: #222;
+}
+
+body.dark .pf-equipe-nom {
+    color: #e4e4e4;
+}
+
+/* ================================================================
+   RESPONSIVE MOBILE
+   ================================================================ */
 @media (max-width: 900px) {
     body {
         overflow: auto;
@@ -866,6 +1226,32 @@ tr:nth-child(even) {
     #joueurs-content {
         overflow: visible;
         height: auto;
+    }
+
+    /* Phase finale en mobile */
+    #phase-finale-content {
+        overflow: visible;
+        height: auto;
+    }
+
+    .bracket-container {
+        overflow-x: auto;
+        overflow-y: visible;
+        flex-direction: row;
+        height: auto;
+    }
+
+    .round-column {
+        min-width: 140px;
+    }
+
+    .pf-phases-panels {
+        overflow: visible;
+        height: auto;
+    }
+
+    .pf-equipes-grid {
+        flex-direction: column;
     }
 
     .sous-onglets-wrapper {

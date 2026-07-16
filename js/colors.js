@@ -1,27 +1,30 @@
 /**
- * Gestion des couleurs catégories / poules
- * Utilisé par : afficheur.js, matchs.js, classement.js
+ * colors.js — coloration catégories et poules
+ * Harmonisé avec afficheur.css (variables --categorie-color-N / --poule-color-N)
+ * Les classes retournées correspondent aux classes .categorie-N / .poule-N de afficheur.css
  */
 
-function getCategorieColorClassById(id_categorie) {
-    const id = parseInt(id_categorie, 10);
-    if (isNaN(id) || id <= 0) return '';
-    const num = ((id - 1) % 10) + 1;
-    return `categorie-${num}`;
+/**
+ * Retourne la classe CSS de couleur pour une catégorie donnée.
+ * @param {number|null} id - id_categorie
+ * @returns {string} classe CSS (ex: 'categorie-2') ou '' si non reconnu
+ */
+function getCategorieColorClassById(id) {
+    if (id === null || id === undefined) return '';
+    // Palette de 10 couleurs, on détermine l'index par modulo
+    const index = ((Number(id) - 1) % 10) + 1;
+    return 'categorie-' + index;
 }
 
-function getPouleColorClassById(id_poule, id_poule_2) {
-    // Inter-poule : couleur spécifique
-    if (id_poule_2 && parseInt(id_poule_2, 10) > 0) {
-        return 'poule-inter';
-    }
-    const id = parseInt(id_poule, 10);
-    if (isNaN(id) || id <= 0) return '';
-    const num = ((id - 1) % 10) + 1;
-    return `poule-${num}`;
-}
-
-function getCategorieColorClass(match) {
-}
-function getPouleColorClass(match) {
+/**
+ * Retourne la classe CSS de couleur pour une poule (ou deux poules).
+ * Si deux ids fournis, utilise le premier pour la couleur principale.
+ * @param {number|null} idPoule1
+ * @param {number|null} idPoule2  (optionnel, ignoré ici — réservé pour inter-poule)
+ * @returns {string} classe CSS (ex: 'poule-3') ou '' si non reconnu
+ */
+function getPouleColorClassById(idPoule1, idPoule2) {
+    if (idPoule1 === null || idPoule1 === undefined) return '';
+    const index = ((Number(idPoule1) - 1) % 10) + 1;
+    return 'poule-' + index;
 }

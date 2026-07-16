@@ -1,5 +1,5 @@
 /**
- * afficheur.js — Page d'affichage/publication des matchs
+ * afficheur.js — Page d'affichage/publication des matchs (lecture seule)
  * Inclut colors.js pour la coloration catégories/poules
  */
 
@@ -67,6 +67,7 @@ function chargerOngletActif() {
     if (currentTab === 'matchs') chargerMatchs();
     if (currentTab === 'classement') chargerClassement();
     if (currentTab === 'joueurs') chargerJoueurs();
+    if (currentTab === 'phase_finale') chargerPhaseFinale();
 }
 
 // ----- Horloge -----
@@ -378,7 +379,258 @@ function chargerJoueurs() {
     });
 }
 
-// ----- Construction générique des sous-onglets par catégorie -----
+// ================================================================
+// PHASE FINALE — lecture seule pour l'afficheur
+// ================================================================
+
+function chargerPhaseFinale() {
+    const container = document.getElementById('phase-finale-content');
+    container.innerHTML = '<div class="vide">Chargement des phases finales...</div>';
+
+    fetchJSON(`api/view_phase_finale.php?id_tournoi=${ID_TOURNOI}`, (data) => {
+        container.innerHTML = '';
+
+        if (!data.categories || data.categories.length === 0) {
+            container.innerHTML = '<div class="vide">Aucune phase finale pour ce tournoi</div>';
+            return;
+        }
+
+        // Structure identique à Classement/Joueurs : sous-onglets par catégorie
+        construireSousOnglets(container, data.categories, 'phase_finale', (cat) => {
+            return creerBracketPhaseFinale(cat);
+        });
+    });
+}
+
+/**
+ * Construit le bracket complet d'une catégorie (lecture seule).
+ * @param {object} cat - { nom_categorie, phases_finales: [{ nom, type_bracket, equipes, matchs }] }
+ */
+function creerBracketPhaseFinale(cat) {
+    const wrapper = document.createElement('div');
+    wrapper.className = 'pf-categorie-wrapper';
+
+    if (!cat.phases_finales || cat.phases_finales.length === 0) {
+        wrapper.innerHTML = '<div class="vide">Pas de phase finale pour cette catégorie</div>';
+        return wrapper;
+    }
+
+    // S'il n'y a qu'une phase finale, on l'affiche directement (pas de sous-sélection)
+    if (cat.phases_finales.length === 1) {
+        wrapper.appendChild(afficherUnePhaseFinale(cat.phases_finales[0], cat.id_categorie));
+        return wrapper;
+    }
+
+    // Plusieurs phases finales : mini-nav pour choisir
+    const nav = document.createElement('div');
+    nav.className = 'pf-phase-nav';
+
+    const contentPanels = document.createElement('div');
+    contentPanels.className = 'pf-phases-panels';
+
+    cat.phases_finales.forEach((phase, idx) => {
+        const btn = document.createElement('button');
+        btn.className = 'pf-phase-btn' + (idx === 0 ? ' active' : '');
+        btn.appendChild(document.createTextNode(phase.nom));
+        btn.dataset.idx = idx;
+
+        btn.addEventListener('click', () => {
+            nav.querySelectorAll('.pf-phase-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            contentPanels.querySelectorAll('.pf-phase-panel').forEach(p => p.classList.remove('active'));
+            contentPanels.children[idx].classList.add('active');
+        });
+
+        nav.appendChild(btn);
+
+        const panel = document.createElement('div');
+        panel.className = 'pf-phase-panel' + (idx === 0 ? ' active' : '');
+        panel.appendChild(afficherUnePhaseFinale(phase, cat.id_categorie));
+        contentPanels.appendChild(panel);
+    });
+
+    wrapper.appendChild(nav);
+    wrapper.appendChild(contentPanels);
+    return wrapper;
+}
+
+/**
+ * Affiche une phase finale (bracket + équipes).
+ */
+function afficherUnePhaseFinale(phase, idCategorie) {
+    const section = document.createElement('div');
+    section.className = 'pf-phase-section';
+
+    // Titre
+    const titre = document.createElement('div');
+    titre.className = 'pf-phase-titre';
+    const typeLabel = phase.type_bracket === 'classement_complet' ? 'Classement complet' : 'Bracket classique';
+    titre.innerHTML = `<strong>${escapeHTML(phase.nom)}</strong> — ${typeLabel} — ${phase.nb_equipes} équipes`;
+    section.appendChild(titre);
+
+    // --- Bracket ---
+    if (phase.matchs && phase.matchs.length > 0) {
+        const bracketWrapper = document.createElement('div');
+        bracketWrapper.className = 'bracket-container';
+
+        // Organisation par rounds et sub_groups (même logique que phase_final.js)
+        const rounds = {};
+        phase.matchs.forEach(m => {
+            const rk = m.round;
+            const sk = m.sub_group !== undefined ? m.sub_group : 0;
+            if (!rounds[rk]) rounds[rk] = {};
+            if (!rounds[rk][sk]) rounds[rk][sk] = [];
+            rounds[rk][sk].push(m);
+        });
+
+        const roundKeys = Object.keys(rounds).sort((a, b) => Number(a) - Number(b));
+        const nbRounds = roundKeys.length;
+
+        // Labels des rounds (derrière en finale)
+        const roundLabels = ['Demi', 'Finale'];
+        if (nbRounds > 2) roundLabels.unshift('Quart', '1/8', '1/16', '1/32');
+
+        roundKeys.forEach((roundKey, rIdx) => {
+            const col = document.createElement('div');
+            col.className = 'round-column';
+
+            // Titre du round (étiquette lisible, ex: "Quart", "Demi", "Finale")
+            let label = '';
+            const revIdx = nbRounds - 1 - rIdx; // 0 = finale
+            if (revIdx === 0) label = 'Finale';
+            else if (revIdx === 1) label = 'Demi-finales';
+            else {
+                // 1/4, 1/8, 1/16...
+                const den = Math.pow(2, revIdx);
+                label = revIdx === 2 ? 'Quart' : `1/${den}`;
+            }
+            const titreCol = document.createElement('div');
+            titreCol.className = 'round-title';
+            titreCol.textContent = label;
+            col.appendChild(titreCol);
+
+            const subKeys = Object.keys(rounds[roundKey]).sort((a, b) => Number(a) - Number(b));
+
+            subKeys.forEach(subKey => {
+                // Label sub_group seulement si bracket "classement complet" (plusieurs branches)
+                if (phase.type_bracket === 'classement_complet' && roundKeys.length > 1) {
+                    const subLabel = document.createElement('div');
+                    subLabel.className = 'sub-group-title';
+                    subLabel.textContent = 'Tableau ' + (Number(subKey) + 1);
+                    col.appendChild(subLabel);
+                }
+
+                rounds[roundKey][subKey].forEach(match => {
+                    col.appendChild(creerMatchBoxLectureSeule(match));
+                });
+            });
+
+            bracketWrapper.appendChild(col);
+        });
+
+        section.appendChild(bracketWrapper);
+    } else {
+        section.appendChild(Object.assign(document.createElement('div'), {
+            className: 'vide', textContent: 'Aucun match défini pour cette phase'
+        }));
+    }
+
+    // --- Équipes (seeds) ---
+    if (phase.equipes && phase.equipes.length > 0) {
+        const equipesDiv = document.createElement('div');
+        equipesDiv.className = 'pf-equipes-section';
+
+        const eqHeader = document.createElement('h4');
+        eqHeader.textContent = 'Équipes qualifiées';
+        equipesDiv.appendChild(eqHeader);
+
+        const eqGrid = document.createElement('div');
+        eqGrid.className = 'pf-equipes-grid';
+
+        phase.equipes.forEach(eq => {
+            const eqItem = document.createElement('div');
+            eqItem.className = 'pf-equipe-item' + (eq.is_bye ? ' bye' : '');
+
+            const seedBadge = document.createElement('span');
+            seedBadge.className = 'pf-seed-badge';
+            seedBadge.textContent = '#' + eq.seed_position;
+
+            const nomSpan = document.createElement('span');
+            nomSpan.className = 'pf-equipe-nom';
+            nomSpan.textContent = eq.is_bye ? '(BYE)' : eq.nom_equipe;
+
+            eqItem.appendChild(seedBadge);
+            eqItem.appendChild(nomSpan);
+            eqGrid.appendChild(eqItem);
+        });
+
+        equipesDiv.appendChild(eqGrid);
+        section.appendChild(equipesDiv);
+    }
+
+    return section;
+}
+
+/**
+ * Crée une match-box en lecture seule (aucun click, aucun formulaire).
+ * Même structure visuelle que creerMatchBox() de phase_final.js,
+ * mais sans addEventListener ni interaction.
+ */
+function creerMatchBoxLectureSeule(match) {
+    const box = document.createElement('div');
+    box.className = 'match-box ' + (match.statut || '');
+
+    // Déterminer les noms (prend nom_equipe ou source_teamX sinon "???")
+    const nom1 = match.nom_equipe1 || match.source_team1 || '???';
+    const nom2 = match.nom_equipe2 || match.source_team2 || '???';
+
+    // Classes winner/loser basées sur winner_equipe_id
+    let classeTeam1 = '';
+    let classeTeam2 = '';
+    if (match.winner_equipe_id) {
+        if (match.winner_equipe_id === match.equipe1_id) {
+            classeTeam1 = 'winner';
+            classeTeam2 = 'loser';
+        } else if (match.winner_equipe_id === match.equipe2_id) {
+            classeTeam1 = 'loser';
+            classeTeam2 = 'winner';
+        }
+    }
+
+    const score1Str = match.score1 !== null ? String(match.score1) : '';
+    const score2Str = match.score2 !== null ? String(match.score2) : '';
+
+    // Badge simulé
+    const simuleBadge = match.statut === 'simule'
+        ? '<div class="simule-badge">⏩ Simulé</div>' : '';
+
+    // Label classement (si bracket classement complet)
+    let classementHtml = '';
+    if (match.classement_min && match.classement_max) {
+        classementHtml = `<div class="classement-label">Classement ${match.classement_min}-${match.classement_max}</div>`;
+    }
+
+    box.innerHTML = `
+        <div class="match-code">${escapeHTML(match.match_code || '')}</div>
+        ${simuleBadge}
+        <div class="team-line ${classeTeam1}">
+            <span>${escapeHTML(nom1)}</span>
+            <span>${escapeHTML(score1Str)}</span>
+        </div>
+        <div class="team-line ${classeTeam2}">
+            <span>${escapeHTML(nom2)}</span>
+            <span>${escapeHTML(score2Str)}</span>
+        </div>
+        ${classementHtml}
+    `;
+
+    return box;
+}
+
+// ================================================================
+// Construction générique des sous-onglets par catégorie
+// ================================================================
+
 function construireSousOnglets(container, categories, prefixId, contenuBuilder) {
     if (categories.length <= 1) {
         const contentDiv = document.createElement('div');
@@ -440,8 +692,8 @@ function construireSousOnglets(container, categories, prefixId, contenuBuilder) 
 function escapeHTML(str) {
     if (str === null || str === undefined) return '';
     return String(str)
-        .replace(/&/g, '&')
-        .replace(/</g, '<')
-        .replace(/>/g, '>')
-        .replace(/"/g, '"');
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
 }
