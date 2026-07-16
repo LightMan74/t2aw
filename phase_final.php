@@ -12,18 +12,27 @@
 <body>
     <nav>
         <?php include 'menu.php'; 
+        // $sql = "SELECT 
+        //     count(eq.id_tournoi) as nbre_team,
+        //     count(ph.id_tournoi) as phready,
+        //     count(cat.id_categorie) as nbre_cat 
+        //     FROM equipe eq
+        //     LEFT JOIN phases_finales ph ON ph.id_tournoi = :id2
+        //     LEFT JOIN categorie cat ON cat.id_tournoi = :id1
+        //     WHERE eq.id_tournoi = :id;
+        // ";
         $sql = "SELECT 
-            count(eq.id_tournoi) as nbre_team,
-            ph.id_tournoi as phready 
-            FROM equipe eq
-            LEFT JOIN phases_finales ph ON ph.id_tournoi = eq.id_tournoi 
-            WHERE eq.id_tournoi = :id;
+            (SELECT count(eq.id_tournoi) FROM equipe eq WHERE eq.id_tournoi = :id) as nbre_team,
+            (SELECT count(ph.id_tournoi) FROM phases_finales ph WHERE ph.id_tournoi = :id1) as phready,
+            (SELECT count(cat.id_tournoi) FROM categorie cat WHERE cat.id_tournoi = :id2) as nbre_cat;
         ";
+        
         $stmt = $pdo->prepare($sql);
-        $stmt->execute(['id' => htmlspecialchars(($_GET["id_tournoi"]))]);
+        $stmt->execute(['id' => htmlspecialchars(($_GET["id_tournoi"])),'id1' => htmlspecialchars(($_GET["id_tournoi"])),'id2' => htmlspecialchars(($_GET["id_tournoi"]))]);
         $r = $stmt->fetchAll(PDO::FETCH_ASSOC)[0];
         $nbre_team = $r['nbre_team'];
         $phready = $r['phready'];
+        $nbre_cat = $r['nbre_cat'];
         ?>
     </nav>
     <header>
@@ -32,7 +41,7 @@
 
     <main>
         <!-- Création d'une nouvelle phase finale -->
-        <section id="section-creation" class="card" <?php echo (is_null($phready))? '':'hidden' ;?>>
+        <section id="section-creation" class="card" <?php echo ($phready<$nbre_cat)? '':'hidden' ;?>>
             <h2>Créer une phase finale</h2>
             <form id="form-creation">
                 <label>
