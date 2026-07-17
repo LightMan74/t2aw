@@ -913,7 +913,7 @@ body.dark .sub-group-title {
     text-align: center;
     margin-bottom: 3px;
     padding: 0px 5px;
-    text-align: center;
+    text-align: right;
 }
 
 body.dark .match-code {
@@ -1188,8 +1188,8 @@ body.dark .pf-equipe-nom {
 /* ---- Badge terrain externe (TX) ---- */
 .terrain-badge-externe {
     position: absolute;
-    top: 1px;
-    right: -8px;
+    top: 50px;
+    left: 3px;
     background: #34495e;
     color: #fff;
     font-size: 0.7rem;
@@ -1205,8 +1205,8 @@ body.dark .pf-equipe-nom {
     background: var(--bg-container);
     border: 1px solid var(--border-color);
     border-radius: 6px;
-    padding: 12px 16px;
-    margin-bottom: 20px;
+    padding: 2px 2px;
+    margin-bottom: 5px;
     display: flex;
     flex-wrap: wrap;
     gap: 20px;

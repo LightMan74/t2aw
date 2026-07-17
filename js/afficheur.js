@@ -399,18 +399,17 @@ function chargerPhaseFinale() {
         const legende = document.createElement('div');
         legende.className = 'phase-finale-legende';
         legende.innerHTML = `
-            <div class="legende-titre">Légende des statuts :</div>
             <div class="legende-items">
                 <div class="legende-item">
-                    <div class="legende-couleur" style="border-left: 5px solid #3498db;"></div>
+                    <div class="legende-couleur" style="background: #cbcbcb; border-left: 5px solid var(--status-badge-planifie-bg) !important;"></div>
                     <span>Planifié</span>
                 </div>
                 <div class="legende-item">
-                    <div class="legende-couleur" style="border-left: 5px solid #e67e22;"></div>
+                    <div class="legende-couleur" style="background: #cbcbcb; border-left: 5px solid var(--status-badge-en_cours-bg) !important;"></div>
                     <span>En cours</span>
                 </div>
                 <div class="legende-item">
-                    <div class="legende-couleur" style="border-left: 5px solid #27ae60;"></div>
+                    <div class="legende-couleur" style="background: #cbcbcb; border-left: 5px solid var(--status-badge-termine-bg) !important;"></div>
                     <span>Terminé</span>
                 </div>
                 </div>
