@@ -394,10 +394,13 @@ function chargerPhaseFinale() {
             container.innerHTML = '<div class="vide">Aucune phase finale pour ce tournoi</div>';
             return;
         }
-        console.table(data.categories);
-        // Structure identique à Classement/Joueurs : sous-onglets par catégorie
+        // console.table(data.categories);
+        // Structure identique à Classement/Joueurs : sous-onglets par catégorie           
+        // console.table(data.categories);
+        // console.log(data.categories[0].phases_finales[0].nb_equipes);
         construireSousOnglets(container, data.categories, 'phase_finale', (cat) => {
-            return creerBracketPhaseFinale(cat);
+
+            return creerBracketPhaseFinale(cat, data.categories);
         });
     });
 }
@@ -406,7 +409,7 @@ function chargerPhaseFinale() {
  * Construit le bracket complet d'une catégorie (lecture seule).
  * @param {object} cat - { nom_categorie, phases_finales: [{ nom, type_bracket, equipes, matchs }] }
  */
-function creerBracketPhaseFinale(cat) {
+function creerBracketPhaseFinale(cat, datacategories) {
     const wrapper = document.createElement('div');
     wrapper.className = 'pf-categorie-wrapper';
 
@@ -417,7 +420,7 @@ function creerBracketPhaseFinale(cat) {
 
     // S'il n'y a qu'une phase finale, on l'affiche directement (pas de sous-sélection)
     if (cat.phases_finales.length === 1) {
-        wrapper.appendChild(afficherUnePhaseFinale(cat.phases_finales[0], cat.id_categorie));
+        wrapper.appendChild(afficherUnePhaseFinale(cat.phases_finales[0], cat.id_categorie, datacategories));
         return wrapper;
     }
 
@@ -445,7 +448,7 @@ function creerBracketPhaseFinale(cat) {
 
         const panel = document.createElement('div');
         panel.className = 'pf-phase-panel' + (idx === 0 ? ' active' : '');
-        panel.appendChild(afficherUnePhaseFinale(phase, cat.id_categorie));
+        panel.appendChild(afficherUnePhaseFinale(phase, cat.id_categorie, datacategories));
         contentPanels.appendChild(panel);
     });
 
@@ -457,7 +460,7 @@ function creerBracketPhaseFinale(cat) {
 /**
  * Affiche une phase finale (bracket + équipes).
  */
-function afficherUnePhaseFinale(phase, idCategorie) {
+function afficherUnePhaseFinale(phase, idCategorie, datacategories) {
     const section = document.createElement('div');
     section.className = 'pf-phase-section';
 
@@ -508,8 +511,9 @@ function afficherUnePhaseFinale(phase, idCategorie) {
             titreCol.className = 'round-title';
             titreCol.textContent = label;
             col.appendChild(titreCol);
-
             const subKeys = Object.keys(rounds[roundKey]).sort((a, b) => Number(a) - Number(b));
+
+            let nbre_team = datacategories[0].phases_finales[0].nb_equipes;
 
             subKeys.forEach(subKey => {
                 // Label sub_group seulement si bracket "classement complet" (plusieurs branches)
@@ -517,7 +521,13 @@ function afficherUnePhaseFinale(phase, idCategorie) {
                     const subLabel = document.createElement('div');
                     subLabel.className = 'sub-group-title';
                     const skNum = Number(subKey);
-                    subLabel.textContent = (skNum % 2 === 1) ? 'Vainqueur match précédent' : 'Perdant match précédent';
+
+                    // Calcul de la plage de classement pour ce round/subKey
+                    const range = calculerPlageClassement(Number(roundKey), skNum, nbre_team);
+
+                    subLabel.innerHTML = (skNum % 2 === 1)
+                        ? 'Classement ' + range + '<br>Vainqueur match précédent'
+                        : 'Classement ' + range + '<br>Perdant match précédent';
                     if (subKeys.length > 1) {
                         col.appendChild(subLabel);
                     }
@@ -574,6 +584,22 @@ function afficherUnePhaseFinale(phase, idCategorie) {
     return section;
 }
 
+function calculerPlageClassement(round, subKey, nbreTeam) {
+    // Nombre de "branches" possibles à ce round = 2^round
+    const nbBranches = Math.pow(2, round);
+
+    // Taille de chaque plage à ce round
+    const tailleGroupe = nbreTeam / nbBranches;
+
+    // subKey commence à 1 -> index de 0 à nbBranches-1
+    const index = subKey - 1;
+
+    const debut = Math.floor(index * tailleGroupe) + 1;
+    const fin = Math.floor((index + 1) * tailleGroupe);
+
+    return debut + ' - ' + fin;
+}
+
 /**
  * Crée une match-box en lecture seule (aucun click, aucun formulaire).
  * Même structure visuelle que creerMatchBox() de phase_final.js,
@@ -606,15 +632,7 @@ function creerMatchBoxLectureSeule(match) {
     // Badge simulé
     const simuleBadge = match.statut === 'simule'
         ? '<div class="simule-badge">⏩ Simulé</div>' : '';
-
-    // Label classement (si bracket classement complet)
-    let classementHtml = '';
-    if (match.classement_min && match.classement_max) {
-        classementHtml = `<div class="classement-label">Classement ${match.classement_min}-${match.classement_max}</div>`;
-    }
-
     box.innerHTML = `
-        ${classementHtml}
         ${simuleBadge}
         <div class="team-line ${classeTeam1}">
             <span>${escapeHTML(nom1)}</span>

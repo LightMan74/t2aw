@@ -159,7 +159,7 @@ try {
     }
 
     $categories = array_values($categoriesMap);
-$sqlall = str_replace("\n","***",$sqlall);
+// $sqlall = str_replace("\n","***",$sqlall);
     echo json_encode([
         'sql'         => $sqlall,
         'success'     => true,
