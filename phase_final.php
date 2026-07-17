@@ -123,16 +123,16 @@ $tournoi_id = isset($_GET['id_tournoi']) ? (int)$_GET['id_tournoi'] : 0;
                     <input type="number" id="modal-score2" min="0">
                 </label>
 
-                <label>Statut du match :
-                    <select id="modal-statut-match">
+                <label style="display:none">Statut du match :
+                    <select id="modal-statut-match" style="display:none">
                         <option value="planifie">Planifié</option>
                         <option value="en_cours">En jeu</option>
-                        <option value="termine">Terminé</option>
+                        <option value="termine" selected>Terminé</option>
                     </select>
                 </label>
 
-                <label>Terrain :
-                    <input type="number" id="modal-terrain" min="1" placeholder="Terrain">
+                <label style="display:none">Terrain :
+                    <input type="number" id="modal-terrain" min="1" placeholder="Terrain" style="display:none">
                 </label>
 
                 <div id="msg-modal" class="msg"></div>

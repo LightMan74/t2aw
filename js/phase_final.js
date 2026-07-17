@@ -630,7 +630,8 @@ function ouvrirModalScore(match, nom1, nom2) {
     document.getElementById('modal-score2').value = match.score2 ?? 0;
 
     // Champs supplémentaires dans la modale (statut + terrain), si présents dans le DOM
-    const selectStatut = document.getElementById('modal-statut-match');
+    // const selectStatut = document.getElementById('modal-statut-match');
+    const selectStatut = "termine";
     if (selectStatut) selectStatut.value = match.statut_match ?? 'planifie';
 
     const inputTerrain = document.getElementById('modal-terrain');
