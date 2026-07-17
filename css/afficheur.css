@@ -1,30 +1,6 @@
-:root {
-    --categorie-color-1: #e74c3c;
-    --categorie-color-2: #3498db;
-    --categorie-color-3: #f1c40f;
-    --categorie-color-4: #2ecc71;
-    --categorie-color-5: #9b59b6;
-    --categorie-color-6: #1abc9c;
-    --categorie-color-7: #e67e22;
-    --categorie-color-8: #34495e;
-    --categorie-color-9: #ff6b9d;
-    --categorie-color-10: #16a085;
-
-    --poule-color-1: #3498db;
-    --poule-color-2: #9b59b6;
-    --poule-color-3: #27ae60;
-    --poule-color-4: #e67e22;
-    --poule-color-5: #e74c3c;
-    --poule-color-6: #1abc9c;
-    --poule-color-7: #f39c12;
-    --poule-color-8: #2c3e50;
-    --poule-color-9: #d35400;
-    --poule-color-10: #8e44ad;
-    --inter-poule-color: #34495e;
-
-    --tag-text-light: #ffffff;
-    --tag-text-dark: #1a1a2e;
-}
+/* :root {
+ 
+} */
 
 /* ---------- Tag couleur (fond coloré sur le texte) ---------- */
 .tag-couleur {
@@ -538,6 +514,7 @@ body.dark .scroll-colonne::-webkit-scrollbar-thumb {
     flex-direction: column;
     gap: 8px;
 }
+
 
 .match-card {
     background: #fff;
@@ -1188,6 +1165,86 @@ body.dark .pf-equipe-item {
 
 body.dark .pf-equipe-nom {
     color: #e4e4e4;
+}
+
+/* ---- Wrapper pour positionner le badge terrain à l'extérieur ---- */
+.match-box-wrapper {
+    position: relative;
+}
+
+/* ---- Bordure épaisse selon le statut du match (même logique que .match-card) ---- */
+.match-box.statut-planifie {
+    border-left: 10px solid var(--status-badge-planifie-bg) !important;
+}
+
+.match-box.statut-en_cours {
+    border-left: 10px solid var(--status-badge-en_cours-bg) !important;
+}
+
+.match-box.statut-termine {
+    border-left: 10px solid var(--status-badge-termine-bg) !important;
+}
+
+/* ---- Badge terrain externe (TX) ---- */
+.terrain-badge-externe {
+    position: absolute;
+    top: 1px;
+    right: -8px;
+    background: #34495e;
+    color: #fff;
+    font-size: 0.7rem;
+    font-weight: bold;
+    padding: 2px 6px;
+    border-radius: 10px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+    z-index: 2;
+}
+
+/* ---- Légende phase finale ---- */
+.phase-finale-legende {
+    background: var(--bg-container);
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    padding: 12px 16px;
+    margin-bottom: 20px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    align-items: center;
+}
+
+.legende-titre {
+    font-weight: bold;
+    font-size: 0.95rem;
+    color: var(--text-color);
+}
+
+.legende-items {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+}
+
+.legende-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.85rem;
+    color: var(--text-color);
+}
+
+.legende-couleur {
+    width: 20px;
+    height: 20px;
+    border-left: 5px solid #3498db;
+    background: var(--bg-container);
+    border-radius: 2px;
+}
+
+/* En dark mode */
+body.dark .phase-finale-legende {
+    background: rgba(255, 255, 255, 0.05);
+    border-color: rgba(255, 255, 255, 0.1);
 }
 
 /* ================================================================

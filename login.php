@@ -12,6 +12,7 @@ if (isset($_SESSION['logged_in']) || $_SESSION['logged_in'] == true) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Connexion - Gestion Tournois Badminton</title>
+    <link rel="stylesheet" href="css/var.css">
     <link rel="stylesheet" href="css/login.css">
     <link rel="stylesheet" href="css/dark-mode.css">
 </head>

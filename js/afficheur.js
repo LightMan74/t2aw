@@ -394,12 +394,31 @@ function chargerPhaseFinale() {
             container.innerHTML = '<div class="vide">Aucune phase finale pour ce tournoi</div>';
             return;
         }
-        // console.table(data.categories);
-        // Structure identique à Classement/Joueurs : sous-onglets par catégorie           
-        // console.table(data.categories);
-        // console.log(data.categories[0].phases_finales[0].nb_equipes);
-        construireSousOnglets(container, data.categories, 'phase_finale', (cat) => {
 
+        // Ajouter la légende des statuts
+        const legende = document.createElement('div');
+        legende.className = 'phase-finale-legende';
+        legende.innerHTML = `
+            <div class="legende-titre">Légende des statuts :</div>
+            <div class="legende-items">
+                <div class="legende-item">
+                    <div class="legende-couleur" style="border-left: 5px solid #3498db;"></div>
+                    <span>Planifié</span>
+                </div>
+                <div class="legende-item">
+                    <div class="legende-couleur" style="border-left: 5px solid #e67e22;"></div>
+                    <span>En cours</span>
+                </div>
+                <div class="legende-item">
+                    <div class="legende-couleur" style="border-left: 5px solid #27ae60;"></div>
+                    <span>Terminé</span>
+                </div>
+                </div>
+            </div>
+        `;
+        container.appendChild(legende);
+
+        construireSousOnglets(container, data.categories, 'phase_finale', (cat) => {
             return creerBracketPhaseFinale(cat, data.categories);
         });
     });
@@ -612,14 +631,14 @@ function calculerPlageClassement(round, subKey, nbreTeam) {
  * Inclut terrain et statut de match comme dans phase_final.js.
  */
 function creerMatchBoxLectureSeule(match) {
-    const box = document.createElement('div');
-    box.className = 'match-box ' + (match.statut || '');
+    const wrapper = document.createElement('div');
+    wrapper.className = 'match-box-wrapper';
 
-    // Déterminer les noms (prend nom_equipe ou source_teamX sinon "???")
+    const statutJeu = match.statut_match || 'planifie';
+
     const nom1 = match.nom_equipe1 || match.source_team1 || '???';
     const nom2 = match.nom_equipe2 || match.source_team2 || '???';
 
-    // Classes winner/loser basées sur winner_equipe_id
     let classeTeam1 = '';
     let classeTeam2 = '';
     if (match.winner_equipe_id) {
@@ -635,47 +654,31 @@ function creerMatchBoxLectureSeule(match) {
     const score1Str = match.score1 !== null ? String(match.score1) : '';
     const score2Str = match.score2 !== null ? String(match.score2) : '';
 
-    // Badge simulé
     const simuleBadge = match.statut === 'simule'
         ? '<div class="simule-badge">⏩ Simulé</div>' : '';
 
-    // Statut de jeu (planifie / en_cours / termine)
-    const statutMatch = match.statut_match ?? 'planifie';
-    const statutLabels = {
-        planifie: 'Planifié',
-        en_cours: 'En jeu',
-        termine: 'Terminé'
-    };
-    const labelStatut = statutLabels[statutMatch] ?? statutMatch;
-    const statutBadgeHtml = `<span class="status-badge status-badge-${statutMatch}">${labelStatut}</span>`;
-
-    // Terrain (affiché si valeur présente et match non terminé)
-    console.table(match);
-    const peutAfficherTerrain = match.terrain && match.statut !== 'termine';
-    const terrainHtml = peutAfficherTerrain
-        ? `<span class="terrain-badge">Terrain ${escapeHTML(String(match.terrain))}</span>`
+    // Badge terrain externe (TX) — affiché seulement si terrain défini et match pas terminé
+    const terrainBadge = (match.terrain && statutJeu !== 'termine')
+        ? `<div class="terrain-badge-externe">Terrain ${escapeHTML(String(match.terrain))}</div>`
         : '';
 
-    // Ligne infos : terrain + statut (structure identique à phase_final.js)
-    const infosLigne = (terrainHtml || statutBadgeHtml)
-        ? `<div class="match-infos-ligne">${statutBadgeHtml} ${terrainHtml}</div>`
-        : '';
-
-    box.innerHTML = `
-        ${simuleBadge}
-        <div class="team-line ${classeTeam1}">
-            <span>${escapeHTML(nom1)}</span>
-            <span>${escapeHTML(score1Str)}</span>
+    wrapper.innerHTML = `
+        ${terrainBadge}
+        <div class="match-box ${match.statut || ''} statut-${statutJeu}">
+            ${simuleBadge}
+            <div class="team-line ${classeTeam1}">
+                <span>${escapeHTML(nom1)}</span>
+                <span>${escapeHTML(score1Str)}</span>
+            </div>
+            <div class="team-line ${classeTeam2}">
+                <span>${escapeHTML(nom2)}</span>
+                <span>${escapeHTML(score2Str)}</span>
+            </div>
+            <div class="match-code">${escapeHTML(match.match_code || '')}</div>
         </div>
-        <div class="team-line ${classeTeam2}">
-            <span>${escapeHTML(nom2)}</span>
-            <span>${escapeHTML(score2Str)}</span>
-        </div>
-        <div class="match-code">${escapeHTML(match.match_code || '')}</div>
-        ${infosLigne}
     `;
 
-    return box;
+    return wrapper;
 }
 
 // ================================================================

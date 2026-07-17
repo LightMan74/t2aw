@@ -1,0 +1,101 @@
+:root {
+    --bg-body: #f5f5f5;
+    --bg-container: #fff;
+    --bg-header: #fff;
+    --text-main: #333;
+    --text-secondary: #555;
+    --text-muted: #777;
+    --border-color: #a3a3a3;
+    --border-color-light: #a3a3a3;
+    --th-bg: #2c5aa0;
+    --th-text: #fff;
+    --table-bg: #fff;
+    --input-bg: #fff;
+    --input-border: #ddd;
+    --section-shadow: rgba(0, 0, 0, 0.1);
+    --link-color: #2c5aa0;
+    --block-bg: #f9f9f9;
+    --equipe-bg: #ecf0f1;
+    --btn-primary: #3498db;
+    --btn-primary-hover: #2980b9;
+    --btn-back: #95a5a6;
+    --btn-back-hover: #7f8c8d;
+    --btn-plus: #27ae60;
+    --btn-plus-hover: #219a52;
+    --btn-minus: #e74c3c;
+    --btn-minus-hover: #c0392b;
+    --btn-modifier: #f39c12;
+    --btn-modifier-hover: #d68910;
+    --btn-logout: #d32f2f;
+    --btn-logout-hover: #b71c1c;
+    --msg-success-bg: #d4edda;
+    --msg-success-color: #155724;
+    --msg-error-bg: #f8d7da;
+    --msg-error-color: #721c24;
+    --categorie-accent: #3498db;
+    --poule-accent: #9b59b6;
+    --equipe-accent: #27ae60;
+    --save-icon-unsaved: #d9534f;
+
+    /* Status badges — badges inline (span/div) */
+    --status-badge-planifie-bg: #6c757d;
+    --status-badge-planifie-text: #fff;
+    --status-badge-en_cours-bg: #f0ad4e;
+    --status-badge-en_cours-text: #fff;
+    --status-badge-termine-bg: #5cb85c;
+    --status-badge-termine-text: #fff;
+
+    /* Status lignes (tr) — fond des rangées de tableau */
+    --status-tr-planifie-bg: transparent;
+    --status-tr-en_cours-bg: #ffeaa3;
+    --status-tr-termine-bg: #b2f3b7;
+
+    --poule-color-1: #3498db;
+    --poule-color-2: #9b59b6;
+    --poule-color-3: #27ae60;
+    --poule-color-4: #e67e22;
+    --poule-color-5: #e74c3c;
+    --poule-color-6: #1abc9c;
+    --poule-color-7: #f39c12;
+    --poule-color-8: #2c3e50;
+    --poule-color-9: #d35400;
+    --poule-color-10: #8e44ad;
+    --inter-poule-color: #34495e;
+
+    --categorie-color-1: #e74c3c;
+    --categorie-color-2: #3498db;
+    --categorie-color-3: #f1c40f;
+    --categorie-color-4: #2ecc71;
+    --categorie-color-5: #9b59b6;
+    --categorie-color-6: #1abc9c;
+    --categorie-color-7: #e67e22;
+    --categorie-color-8: #34495e;
+    --categorie-color-9: #ff6b9d;
+    --categorie-color-10: #16a085;
+
+    --categorie-color-1: #e74c3c;
+    --categorie-color-2: #3498db;
+    --categorie-color-3: #f1c40f;
+    --categorie-color-4: #2ecc71;
+    --categorie-color-5: #9b59b6;
+    --categorie-color-6: #1abc9c;
+    --categorie-color-7: #e67e22;
+    --categorie-color-8: #34495e;
+    --categorie-color-9: #ff6b9d;
+    --categorie-color-10: #16a085;
+
+    --poule-color-1: #3498db;
+    --poule-color-2: #9b59b6;
+    --poule-color-3: #27ae60;
+    --poule-color-4: #e67e22;
+    --poule-color-5: #e74c3c;
+    --poule-color-6: #1abc9c;
+    --poule-color-7: #f39c12;
+    --poule-color-8: #2c3e50;
+    --poule-color-9: #d35400;
+    --poule-color-10: #8e44ad;
+    --inter-poule-color: #34495e;
+
+    --tag-text-light: #ffffff;
+    --tag-text-dark: #1a1a2e;
+}
