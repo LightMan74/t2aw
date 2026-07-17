@@ -6,7 +6,7 @@
 let currentTab = 'matchs';
 let refreshTimer = null;
 let countdownTimer = null;
-let secondsLeft = 10;
+let secondsLeft = 600;
 
 document.addEventListener('DOMContentLoaded', () => {
     initTabs();
@@ -84,7 +84,7 @@ function initRefresh() {
     if (refreshTimer) clearInterval(refreshTimer);
     if (countdownTimer) clearInterval(countdownTimer);
 
-    const interval = parseInt(document.getElementById('refresh-interval').value) || 10;
+    const interval = parseInt(document.getElementById('refresh-interval').value) || 600;
     secondsLeft = interval;
     document.getElementById('countdown').textContent = secondsLeft;
 
@@ -536,37 +536,37 @@ function afficherUnePhaseFinale(phase, idCategorie) {
     }
 
     // --- Équipes (seeds) ---
-    if (phase.equipes && phase.equipes.length > 0) {
-        const equipesDiv = document.createElement('div');
-        equipesDiv.className = 'pf-equipes-section';
+    // if (phase.equipes && phase.equipes.length > 0) {
+    //     const equipesDiv = document.createElement('div');
+    //     equipesDiv.className = 'pf-equipes-section';
 
-        const eqHeader = document.createElement('h4');
-        eqHeader.textContent = 'Équipes qualifiées';
-        equipesDiv.appendChild(eqHeader);
+    //     const eqHeader = document.createElement('h4');
+    //     eqHeader.textContent = 'Équipes qualifiées';
+    //     equipesDiv.appendChild(eqHeader);
 
-        const eqGrid = document.createElement('div');
-        eqGrid.className = 'pf-equipes-grid';
+    //     const eqGrid = document.createElement('div');
+    //     eqGrid.className = 'pf-equipes-grid';
 
-        phase.equipes.forEach(eq => {
-            const eqItem = document.createElement('div');
-            eqItem.className = 'pf-equipe-item' + (eq.is_bye ? ' bye' : '');
+    //     phase.equipes.forEach(eq => {
+    //         const eqItem = document.createElement('div');
+    //         eqItem.className = 'pf-equipe-item' + (eq.is_bye ? ' bye' : '');
 
-            const seedBadge = document.createElement('span');
-            seedBadge.className = 'pf-seed-badge';
-            seedBadge.textContent = '#' + eq.seed_position;
+    //         const seedBadge = document.createElement('span');
+    //         seedBadge.className = 'pf-seed-badge';
+    //         seedBadge.textContent = '#' + eq.seed_position;
 
-            const nomSpan = document.createElement('span');
-            nomSpan.className = 'pf-equipe-nom';
-            nomSpan.textContent = eq.is_bye ? '(BYE)' : eq.nom_equipe;
+    //         const nomSpan = document.createElement('span');
+    //         nomSpan.className = 'pf-equipe-nom';
+    //         nomSpan.textContent = eq.is_bye ? '(BYE)' : eq.nom_equipe;
 
-            eqItem.appendChild(seedBadge);
-            eqItem.appendChild(nomSpan);
-            eqGrid.appendChild(eqItem);
-        });
+    //         eqItem.appendChild(seedBadge);
+    //         eqItem.appendChild(nomSpan);
+    //         eqGrid.appendChild(eqItem);
+    //     });
 
-        equipesDiv.appendChild(eqGrid);
-        section.appendChild(equipesDiv);
-    }
+    //     equipesDiv.appendChild(eqGrid);
+    //     section.appendChild(equipesDiv);
+    // }
 
     return section;
 }

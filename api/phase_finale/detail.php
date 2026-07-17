@@ -41,7 +41,7 @@ $stmt = $pdo->prepare("
         eq.id_tournoi = epf.id_tournoi
         AND eq.id_categorie = epf.id_categorie
         AND eq.id_poule = epf.id_poule
-        AND eq.id = epf.id_equipe
+        AND eq.id_equipe = epf.id_equipe
     LEFT JOIN equipe eqn ON 
         eqn.id_tournoi = epf.id_tournoi
         AND eqn.id_categorie = epf.id_categorie

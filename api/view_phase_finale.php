@@ -42,7 +42,7 @@ $sqlall = $sqlall . $sql;
                       epf.is_bye,
                       e.nom AS nom_equipe
                   FROM equipes_phase_finale epf
-                  JOIN equipe e ON e.id = epf.id_equipe
+                  JOIN equipe e ON e.id_equipe = epf.id_equipe
                   WHERE epf.id_phase_finale IN ($in)
                   ORDER BY epf.id_phase_finale, epf.seed_position";
         $stmtEq = $pdo->prepare($sqlEq);
@@ -80,11 +80,29 @@ $sqlall = $sqlall . $sqlEq;
                      m.source_team2,
                      m.classement_min,
                      m.classement_max,
-                     e1.nom AS nom_equipe1,
-                     e2.nom AS nom_equipe2
+                     eq1.nom AS nom_equipe1,
+                     e1.id_tournoi,
+                     e1.id_categorie,
+                     e1.id_poule,
+                     e1.id_equipe,
+                     eq2.nom AS nom_equipe2,
+                     e2.id_tournoi,
+                     e2.id_categorie,
+                     e2.id_poule,
+                     e2.id_equipe
                  FROM matchs_phase_finale m
-                 LEFT JOIN equipe e1 ON e1.id = m.equipe1_id
-                 LEFT JOIN equipe e2 ON e2.id = m.equipe2_id
+                 LEFT JOIN equipes_phase_finale e1 ON e1.id = m.equipe1_id
+                 LEFT JOIN equipes_phase_finale e2 ON e2.id = m.equipe2_id
+                LEFT JOIN equipe eq1 ON 
+                    eq1.id_tournoi = e1.id_tournoi
+                    AND eq1.id_categorie = e1.id_categorie
+                    AND eq1.id_poule = e1.id_poule
+                    AND eq1.id_equipe = e1.id_equipe
+                LEFT JOIN equipe eq2 ON 
+                    eq2.id_tournoi = e2.id_tournoi
+                    AND eq2.id_categorie = e2.id_categorie
+                    AND eq2.id_poule = e2.id_poule
+                    AND eq2.id_equipe = e2.id_equipe
                  WHERE m.id_phase_finale IN ($in)
                  ORDER BY m.id_phase_finale, m.round, m.sub_group, m.id";
         $stmtM = $pdo->prepare($sqlM);

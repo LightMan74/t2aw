@@ -19,8 +19,8 @@ $id_tournoi = isset($_GET['id_tournoi']) ? (int)$_GET['id_tournoi'] : 0;
             <span id="heure-actuelle">--:--:--</span>
             <div class="timer-control">
                 <label for="refresh-interval">Rafraîchissement (sec) :</label>
-                <input type="number" id="refresh-interval" value="10" min="3" max="120">
-                <span id="countdown">10</span>s
+                <input type="number" id="refresh-interval" value="600" min="3" max="120">
+                <span id="countdown">600</span>s
             </div>
             <button id="dark-mode-toggle" class="btn-dark" title="Basculer le mode sombre">🌙</button>
         </div>
