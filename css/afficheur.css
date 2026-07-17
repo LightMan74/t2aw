@@ -857,7 +857,7 @@ tr:nth-child(even) {
     display: flex;
     gap: 20px;
     overflow-x: auto;
-    overflow-y: hidden;
+    overflow-y: visible;
     padding: 10px 4px 10px 0;
     flex: 1;
     min-height: 0;

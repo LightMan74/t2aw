@@ -492,7 +492,7 @@ function afficherUnePhaseFinale(phase, idCategorie) {
 
         roundKeys.forEach((roundKey, rIdx) => {
             const col = document.createElement('div');
-            col.className = 'round-column';
+            col.className = 'round-column scroll-colonne';
 
             // Titre du round (étiquette lisible, ex: "Quart", "Demi", "Finale")
             let label = '';
@@ -516,7 +516,7 @@ function afficherUnePhaseFinale(phase, idCategorie) {
                 if (phase.type_bracket === 'classement_complet' && roundKeys.length > 1) {
                     const subLabel = document.createElement('div');
                     subLabel.className = 'sub-group-title';
-                    subLabel.textContent = 'Tableau ' + (Number(subKey) + 1);
+                    subLabel.textContent = 'Tableau ' + (Number(subKey));
                     col.appendChild(subLabel);
                 }
 
