@@ -12,11 +12,10 @@ let equipesOrdre = [];
 let draggedIndex = null;
 
 // Cycle des statuts (même logique que matchs.js)
-const STATUS_CYCLE = ['planifie', 'en_cours', 'termine'];
+const STATUS_CYCLE = ['planifie', 'en_cours'];
 const STATUS_LABELS = {
     planifie: 'Planifié',
-    en_cours: 'En jeu',
-    termine: 'Terminé'
+    en_cours: 'En jeu'
 };
 
 // ---------- Utilitaires ----------
@@ -514,6 +513,7 @@ function creerMatchBox(match) {
     const statutBadgeHtml = peutJouer
         ? `<span class="status-badge status-badge-${statutJeu}"
                  data-match-id="${match.id}"
+                 data-statutJeu="${statutJeu}"
                  title="Cliquer pour changer le statut">
              ${STATUS_LABELS[statutJeu] ?? statutJeu}
            </span>`
@@ -584,10 +584,12 @@ function creerMatchBox(match) {
 // ---------- Cycle rapide du statut de jeu (planifie -> en_cours -> termine) ----------
 
 async function cyclerStatutMatch(matchId, statutActuel, badgeEl) {
+    statutActuel = badgeEl.getAttribute('data-statutJeu');
     const idxCycle = STATUS_CYCLE.indexOf(statutActuel);
     const suivant = STATUS_CYCLE[(idxCycle + 1) % STATUS_CYCLE.length];
-
+    // console.log(idxCycle + " " + suivant);
     // Mise à jour optimiste de l'UI
+    badgeEl.setAttribute('data-statutJeu', suivant);
     badgeEl.textContent = STATUS_LABELS[suivant];
     badgeEl.className = `status-badge status-badge-${suivant}`;
     badgeEl.dataset.matchId = matchId;
