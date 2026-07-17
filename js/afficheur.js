@@ -516,8 +516,11 @@ function afficherUnePhaseFinale(phase, idCategorie) {
                 if (phase.type_bracket === 'classement_complet' && roundKeys.length > 1) {
                     const subLabel = document.createElement('div');
                     subLabel.className = 'sub-group-title';
-                    // subLabel.textContent = 'Tableau ' + (Number(subKey));
-                    col.appendChild(subLabel);
+                    const skNum = Number(subKey);
+                    subLabel.textContent = (skNum % 2 === 1) ? 'Vainqueur match précédent' : 'Perdant match précédent';
+                    if (subKeys.length > 1) {
+                        col.appendChild(subLabel);
+                    }
                 }
 
                 rounds[roundKey][subKey].forEach(match => {
