@@ -1,47 +1,3 @@
-/* ================================================================
-   CORRECTIONS PHASE FINALE — SCROLL & CENTRAGE (2025-07-17)
-   ================================================================
-   
-   CAUSE RACINE DU BUG DE SCROLL :
-   Les conteneurs flex de la chaîne body→main→tab-content→#phase-finale-content→.pf-categorie-wrapper→
-   .bracket-container都需要 min-height:0 pour que height:100% soit vraiment contraint.
-   Sans cela, .pf-categorie-wrapper prenait la taille minimale de son contenu
-   au lieu d'être limité par son parent, ce qui empêchait tout overflow.
-   
-   SÉLECTEURS MODIFIÉS :
-   ─────────────────────────────────────────────────────────────
-   1. #phase-finale-content  (ligne ~839)
-      AVANT : overflow: hidden;
-      APRÈS  : overflow-y: auto; overflow-x: hidden;
-      RAISON : Permet le scroll vertical sur le contenu de l'onglet phase finale.
-   
-   2. .pf-categorie-wrapper  (ligne ~848)
-      AVANT : overflow: hidden;  (absentait min-height:0)
-      APRÈS  : overflow-y: auto; + ajout min-height:0 (déjà présent après fix)
-      RAISON : Sans min-height:0 en flexbox, height:100% ne contraint pas le contenu.
-               overflow-y:auto permet au wrapper de générer lui-même une barre de scroll.
-   
-   3. .bracket-container    (ligne ~856)
-      AVANT : overflow-y: visible;
-      APRÈS  : overflow-y: auto;
-      RAISON : overflow-y:visible coupe le contenu qui dépasse sans créer de scroll.
-   
-   4. .round-column         (ligne ~880)
-      AVANT : (aucun align-items)
-      APRÈS  : align-items: center;
-      RAISON : Centre horizontalement les .match-box dans chaque colonne du bracket.
-   
-   FICHIER afficheur.js : inchangé (aucune manipulation JS de height/maxHeight détectée
-   sur les conteneurs phase finale — la classe .scroll-colonne existante reste compatible).
-   ================================================================
-
-*/
-
-/* ========================================
-   Afficheur — Page de publication/matchs
-   ======================================== */
-
-/* ---------- Variables couleurs catégories/poules (harmonisées avec style.css) ---------- */
 :root {
     --categorie-color-1: #e74c3c;
     --categorie-color-2: #3498db;
@@ -960,7 +916,7 @@ body.dark .sub-group-title {
     border: 1.5px solid #ddd;
     border-radius: 6px;
     padding: 5px 8px;
-    min-width: 145px;
+    min-width: 180px;
     max-width: 180px;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
 }
@@ -979,6 +935,8 @@ body.dark .sub-group-title {
     color: #999;
     text-align: center;
     margin-bottom: 3px;
+    padding: 0px 5px;
+    text-align: center;
 }
 
 body.dark .match-code {
@@ -1003,10 +961,11 @@ body.dark .simule-badge {
     padding: 3px 5px;
     font-size: 0.85rem;
     gap: 6px;
+    /* text-align: center; */
 }
 
 .team-line:first-of-type {
-    border-bottom: 1px solid #eee;
+    /* border-bottom: 1px solid #eee; */
 }
 
 .team-line span:first-child {

@@ -516,7 +516,7 @@ function afficherUnePhaseFinale(phase, idCategorie) {
                 if (phase.type_bracket === 'classement_complet' && roundKeys.length > 1) {
                     const subLabel = document.createElement('div');
                     subLabel.className = 'sub-group-title';
-                    subLabel.textContent = 'Tableau ' + (Number(subKey));
+                    // subLabel.textContent = 'Tableau ' + (Number(subKey));
                     col.appendChild(subLabel);
                 }
 
@@ -611,7 +611,7 @@ function creerMatchBoxLectureSeule(match) {
     }
 
     box.innerHTML = `
-        <div class="match-code">${escapeHTML(match.match_code || '')}</div>
+        ${classementHtml}
         ${simuleBadge}
         <div class="team-line ${classeTeam1}">
             <span>${escapeHTML(nom1)}</span>
@@ -621,7 +621,7 @@ function creerMatchBoxLectureSeule(match) {
             <span>${escapeHTML(nom2)}</span>
             <span>${escapeHTML(score2Str)}</span>
         </div>
-        ${classementHtml}
+        <div class="match-code">${escapeHTML(match.match_code || '')}</div>
     `;
 
     return box;
