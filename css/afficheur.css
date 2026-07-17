@@ -1,3 +1,42 @@
+/* ================================================================
+   CORRECTIONS PHASE FINALE — SCROLL & CENTRAGE (2025-07-17)
+   ================================================================
+   
+   CAUSE RACINE DU BUG DE SCROLL :
+   Les conteneurs flex de la chaîne body→main→tab-content→#phase-finale-content→.pf-categorie-wrapper→
+   .bracket-container都需要 min-height:0 pour que height:100% soit vraiment contraint.
+   Sans cela, .pf-categorie-wrapper prenait la taille minimale de son contenu
+   au lieu d'être limité par son parent, ce qui empêchait tout overflow.
+   
+   SÉLECTEURS MODIFIÉS :
+   ─────────────────────────────────────────────────────────────
+   1. #phase-finale-content  (ligne ~839)
+      AVANT : overflow: hidden;
+      APRÈS  : overflow-y: auto; overflow-x: hidden;
+      RAISON : Permet le scroll vertical sur le contenu de l'onglet phase finale.
+   
+   2. .pf-categorie-wrapper  (ligne ~848)
+      AVANT : overflow: hidden;  (absentait min-height:0)
+      APRÈS  : overflow-y: auto; + ajout min-height:0 (déjà présent après fix)
+      RAISON : Sans min-height:0 en flexbox, height:100% ne contraint pas le contenu.
+               overflow-y:auto permet au wrapper de générer lui-même une barre de scroll.
+   
+   3. .bracket-container    (ligne ~856)
+      AVANT : overflow-y: visible;
+      APRÈS  : overflow-y: auto;
+      RAISON : overflow-y:visible coupe le contenu qui dépasse sans créer de scroll.
+   
+   4. .round-column         (ligne ~880)
+      AVANT : (aucun align-items)
+      APRÈS  : align-items: center;
+      RAISON : Centre horizontalement les .match-box dans chaque colonne du bracket.
+   
+   FICHIER afficheur.js : inchangé (aucune manipulation JS de height/maxHeight détectée
+   sur les conteneurs phase finale — la classe .scroll-colonne existante reste compatible).
+   ================================================================
+
+*/
+
 /* ========================================
    Afficheur — Page de publication/matchs
    ======================================== */
@@ -841,7 +880,8 @@ tr:nth-child(even) {
     flex-direction: column;
     height: 100%;
     min-height: 0;
-    overflow: hidden;
+    overflow-y: auto;
+    overflow-x: hidden;
 }
 
 .pf-categorie-wrapper {
@@ -849,7 +889,7 @@ tr:nth-child(even) {
     flex-direction: column;
     height: 100%;
     min-height: 0;
-    overflow: hidden;
+    overflow-y: auto;
 }
 
 /* ---------- Bracket ---------- */
@@ -857,7 +897,7 @@ tr:nth-child(even) {
     display: flex;
     gap: 20px;
     overflow-x: auto;
-    overflow-y: visible;
+    overflow-y: auto;
     padding: 10px 4px 10px 0;
     flex: 1;
     min-height: 0;
@@ -880,6 +920,7 @@ body.dark .bracket-container::-webkit-scrollbar-thumb {
 .round-column {
     display: flex;
     flex-direction: column;
+    align-items: center;
     gap: 8px;
     min-width: 160px;
 }
@@ -1237,7 +1278,7 @@ body.dark .pf-equipe-nom {
 
     .bracket-container {
         overflow-x: auto;
-        overflow-y: visible;
+        overflow-y: auto;
         flex-direction: row;
         height: auto;
     }
