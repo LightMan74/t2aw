@@ -114,17 +114,31 @@ $tournoi_id = isset($_GET['id_tournoi']) ? (int)$_GET['id_tournoi'] : 0;
         <!-- Modale de saisie de score -->
         <div id="modal-score" class="modal hidden">
             <div class="modal-content">
-                <h3>Saisir le score</h3>
                 <p id="modal-match-info"></p>
-                <label for="modal-score1">Score équipe 1</label>
-                <input type="number" id="modal-score1" min="0" value="0">
-                <label for="modal-score2">Score équipe 2</label>
-                <input type="number" id="modal-score2" min="0" value="0">
-                <div class="modal-actions">
-                    <button id="btn-valider-score" type="button">Valider</button>
-                    <button id="btn-annuler-score" type="button">Annuler</button>
-                </div>
-                <p id="msg-modal" class="msg"></p>
+
+                <label>Score équipe 1 :
+                    <input type="number" id="modal-score1" min="0">
+                </label>
+                <label>Score équipe 2 :
+                    <input type="number" id="modal-score2" min="0">
+                </label>
+
+                <label>Statut du match :
+                    <select id="modal-statut-match">
+                        <option value="planifie">Planifié</option>
+                        <option value="en_cours">En jeu</option>
+                        <option value="termine">Terminé</option>
+                    </select>
+                </label>
+
+                <label>Terrain :
+                    <input type="number" id="modal-terrain" min="1" placeholder="Terrain">
+                </label>
+
+                <div id="msg-modal" class="msg"></div>
+
+                <button id="btn-valider-score">Valider</button>
+                <button id="btn-annuler-score">Annuler</button>
             </div>
         </div>
 

@@ -76,6 +76,7 @@ try {
                      m.score2,
                      m.winner_equipe_id,
                      m.statut,
+                     m.statut_match,
                      m.source_team1,
                      m.source_team2,
                      m.classement_min,
@@ -126,6 +127,7 @@ try {
                 'score2'              => $row['score2'] !== null ? (int)$row['score2'] : null,
                 'winner_equipe_id'    => $row['winner_equipe_id'] ? (int)$row['winner_equipe_id'] : null,
                 'statut'              => $row['statut'],
+                'statut_match'        => $row['statut_match'],
                 'classement_min'      => $row['classement_min'] ? (int)$row['classement_min'] : null,
                 'classement_max'      => $row['classement_max'] ? (int)$row['classement_max'] : null,
             ];

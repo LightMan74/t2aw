@@ -75,12 +75,14 @@ $input = json_decode(file_get_contents('php://input'), true);
 $matchId = (int)($input['match_id'] ?? 0);
 $score1  = (int)($input['score1'] ?? -1);
 $score2  = (int)($input['score2'] ?? -1);
+$statutMatch = $input['statut_match'] ?? null;
+$terrain = array_key_exists('terrain', $input) ? $input['terrain'] : null;
 
-if ($matchId <= 0 || $score1 < 0 || $score2 < 0 || $score1 === $score2) {
-    http_response_code(400);
-    echo json_encode(['success' => false, 'message' => 'Paramètres invalides']);
-    exit;
-}
+// if ($matchId <= 0 || $score1 < 0 || $score2 < 0 || $score1 === $score2) {
+//     http_response_code(400);
+//     echo json_encode(['success' => false, 'message' => 'Paramètres invalides']);
+//     exit;
+// }
 
 try {
     $pdo->beginTransaction();
@@ -100,15 +102,26 @@ try {
     $idTournoi     = (int) $match['id_tournoi'];
     $idPhaseFinale = (int) $match['id_phase_finale'];
 
-    $winnerId = $score1 > $score2 ? $match['equipe1_id'] : $match['equipe2_id'];
-    $loserId  = $score1 > $score2 ? $match['equipe2_id'] : $match['equipe1_id'];
+    // $winnerId = $score1 > $score2 ? $match['equipe1_id'] : $match['equipe2_id'];
+    // $loserId  = $score1 > $score2 ? $match['equipe2_id'] : $match['equipe1_id'];
+
+    if ($score1 > $score2){
+        $winnerId = $match['equipe1_id'];
+        $loserId  = $match['equipe2_id'];
+    }elseif($score1 < $score2){
+        $winnerId = $match['equipe2_id'];
+        $loserId  = $match['equipe1_id'];
+    }else{
+        $winnerId = 0;
+        $loserId  = 0;
+    }
 
     // Mettre à jour le match courant
     $stmt = $pdo->prepare("
         UPDATE matchs_phase_finale
         SET score1 = :score1, score2 = :score2,
             winner_equipe_id = :winner_id, loser_equipe_id = :loser_id,
-            statut = 'termine'
+            statut = 'termine',statut_match = :statut_match, terrain = :terrain
         WHERE id = :id
     ");
     $stmt->execute([
@@ -117,15 +130,17 @@ try {
         ':winner_id' => $winnerId,
         ':loser_id' => $loserId,
         ':id' => $matchId,
+        ':statut_match' => $statutMatch,
+        ':terrain' => $terrain,
     ]);
-
+    if ($winnerId != 0 && $loserId !=0){
     // Propager vers les matchs suivants
     $codeWin = "Win_{$match['match_code']}";
     propagerVersMatchsSuivants($pdo, $idTournoi, $idPhaseFinale, $codeWin, $winnerId);
 
     $codeLoss = "Loss_{$match['match_code']}";
     propagerVersMatchsSuivants($pdo, $idTournoi, $idPhaseFinale, $codeLoss, $loserId);
-
+    }
     $pdo->commit();
     echo json_encode([
         'success' => true,

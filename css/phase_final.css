@@ -90,6 +90,7 @@ button:hover {
 button.secondary {
     background: var(--btn-back);
 }
+
 button.secondary:hover {
     background: var(--btn-back-hover);
 }
@@ -98,6 +99,7 @@ button.secondary:hover {
 button.danger {
     background: var(--btn-minus);
 }
+
 button.danger:hover {
     background: var(--btn-minus-hover);
 }
@@ -461,6 +463,43 @@ button.danger:hover {
     padding: 2px 8px;
     cursor: pointer;
     font-size: 0.85em;
+}
+
+.match-infos-ligne {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 6px;
+    margin-top: 4px;
+    padding-top: 4px;
+    border-top: 1px dashed #ccc;
+}
+
+.terrain-input {
+    width: 55px;
+    font-size: 0.8em;
+    padding: 2px 4px;
+}
+
+.status-badge {
+    font-size: 0.75em;
+    padding: 2px 6px;
+    border-radius: 10px;
+    cursor: pointer;
+    white-space: nowrap;
+    color: #fff;
+}
+
+.status-badge-planifie {
+    background-color: #999;
+}
+
+.status-badge-en_cours {
+    background-color: #e6a817;
+}
+
+.status-badge-termine {
+    background-color: #2e8b57;
 }
 
 /* ---- Responsive ---- */

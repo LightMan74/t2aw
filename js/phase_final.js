@@ -7,9 +7,17 @@ let currentMatchId = null;
 let currentPhaseFinaleIdASupprimer = null;
 let selectedCategorieId = null;
 
-// Équipes pour l'ordre de départ : [{id_equipe, id_categorie, id_poule, id_tournoi, nom, rang_poule, victoires, diff_points}]
+// Équipes pour l'ordre de départ
 let equipesOrdre = [];
 let draggedIndex = null;
+
+// Cycle des statuts (même logique que matchs.js)
+const STATUS_CYCLE = ['planifie', 'en_cours', 'termine'];
+const STATUS_LABELS = {
+    planifie: 'Planifié',
+    en_cours: 'En jeu',
+    termine: 'Terminé'
+};
 
 // ---------- Utilitaires ----------
 
@@ -78,7 +86,6 @@ selectCategorie.addEventListener('change', async () => {
         return;
     }
 
-    // ---- Vérification : phase finale déjà existante pour cette catégorie ----
     try {
         const checkData = await apiFetch(
             `${API_BASE}/check_categorie.php?id_tournoi=${idTournoi}&id_categorie=${idCategorie}`
@@ -92,7 +99,6 @@ selectCategorie.addEventListener('change', async () => {
             );
             document.getElementById('btn-creer').disabled = true;
 
-            // On vide quand même les champs pour éviter toute confusion
             inputNom.value = '';
             inputNbEquipes.value = '';
             equipesOrdre = [];
@@ -106,12 +112,10 @@ selectCategorie.addEventListener('change', async () => {
         console.error('Erreur vérification catégorie:', err.message);
     }
 
-    // 1) Nom de la phase auto
     const nomCat = selectCategorie.options[selectCategorie.selectedIndex].text;
     inputNom.value = 'Phase Finale - ' + nomCat;
     inputNom.readOnly = true;
 
-    // 2) Charger les équipes de cette catégorie
     try {
         const data = await apiFetch(
             `${API_BASE}/get_equipes_categorie.php?id_tournoi=${idTournoi}&id_categorie=${idCategorie}`
@@ -213,7 +217,6 @@ function afficherOrdreEquipes() {
         container.appendChild(div);
     });
 
-    // Boutons flèches
     container.querySelectorAll('button[data-action]').forEach(btn => {
         btn.addEventListener('click', () => {
             const idx = parseInt(btn.dataset.index, 10);
@@ -270,7 +273,6 @@ document.getElementById('form-creation').addEventListener('submit', async e => {
         ouvrirBracket(data.id_phase_finale);
 
     } catch (err) {
-        // Le message d'erreur du back (ex: 409 conflit catégorie) sera affiché ici
         afficherMessage('msg-creation', err.message, 'error');
     }
 });
@@ -443,7 +445,6 @@ function afficherBracket(matchs, phase) {
 
         const titre = document.createElement('div');
         titre.className = 'round-title';
-        // Même logique que afficheur.js : Finale, Demi-finales, Quart, 1/8, etc.
         const nbRounds = roundKeys.length;
         const revIdx = nbRounds - 1 - roundKeys.indexOf(roundKey);
         let label = '';
@@ -462,10 +463,8 @@ function afficherBracket(matchs, phase) {
             if (phase.type_bracket === 'classement_complet') {
                 const subTitre = document.createElement('div');
                 subTitre.className = 'sub-group-title';
-                // Même logique que afficheur.js : Classement X-Y + indication Vainqueur/Perdant
                 const skNum = Number(subKey);
                 const range = calculerPlageClassement(Number(roundKey), skNum, phase.nb_equipes);
-                // reelround: round 1 = premier round (les seeds initiaux)
                 const reelround = roundKeys.indexOf(roundKey) + 1;
                 if (reelround > 1) {
                     subTitre.innerHTML = (skNum % 2 === 1)
@@ -507,6 +506,35 @@ function creerMatchBox(match) {
     const simuleBadge = match.statut === 'simule'
         ? '<div class="simule-badge">⏩ Simulé</div>' : '';
 
+    // ── Statut de jeu (planifie / en_cours / termine) : indépendant du statut structurel du bracket ──
+    const statutJeu = match.statut_match ?? 'planifie';
+    const peutJouer = match.equipe1_id && match.equipe2_id;
+
+    // Badge de statut cliquable (seulement si les 2 équipes sont connues)
+    const statutBadgeHtml = peutJouer
+        ? `<span class="status-badge status-badge-${statutJeu}"
+                 data-match-id="${match.id}"
+                 title="Cliquer pour changer le statut">
+             ${STATUS_LABELS[statutJeu] ?? statutJeu}
+           </span>`
+        : '';
+
+    // Terrain (éditable uniquement si les 2 équipes sont connues)
+    const terrainHtml = peutJouer
+        ? `<input type="number" min="1" class="terrain-input"
+                  value="${match.terrain ?? ''}"
+                  placeholder="Terrain"
+                  data-match-id="${match.id}"
+                  title="Terrain">`
+        : '';
+
+    const infosLigne = (statutBadgeHtml || terrainHtml)
+        ? `<div class="match-infos-ligne" onclick="event.stopPropagation()">
+                ${terrainHtml}
+                ${statutBadgeHtml}
+           </div>`
+        : '';
+
     box.innerHTML = `
         <div class="match-code">${match.match_code}</div>
         ${simuleBadge}
@@ -519,15 +547,76 @@ function creerMatchBox(match) {
             <span>${match.score2 !== null ? match.score2 : ''}</span>
         </div>
         ${classementHtml}
+        ${infosLigne}
     `;
 
-    if (match.equipe1_id && match.equipe2_id) {
+    // Clic sur la boîte = ouvrir modale de score (sauf sur les infos)
+    if (peutJouer) {
         box.addEventListener('click', () => {
             ouvrirModalScore(match, nom1, nom2);
         });
+
+        // Clic sur le badge de statut = cycle rapide (sans ouvrir la modale)
+        const badgeEl = box.querySelector('.status-badge');
+        if (badgeEl) {
+            badgeEl.addEventListener('click', (e) => {
+                e.stopPropagation();
+                cyclerStatutMatch(match.id, statutJeu, badgeEl);
+            });
+        }
+
+        // Changement du terrain (au blur, sans ouvrir la modale)
+        const terrainInput = box.querySelector('.terrain-input');
+        if (terrainInput) {
+            terrainInput.addEventListener('click', (e) => e.stopPropagation());
+            terrainInput.addEventListener('blur', () => {
+                sauvegarderTerrain(match.id, terrainInput.value);
+            });
+            terrainInput.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') terrainInput.blur();
+            });
+        }
     }
 
     return box;
+}
+
+// ---------- Cycle rapide du statut de jeu (planifie -> en_cours -> termine) ----------
+
+async function cyclerStatutMatch(matchId, statutActuel, badgeEl) {
+    const idxCycle = STATUS_CYCLE.indexOf(statutActuel);
+    const suivant = STATUS_CYCLE[(idxCycle + 1) % STATUS_CYCLE.length];
+
+    // Mise à jour optimiste de l'UI
+    badgeEl.textContent = STATUS_LABELS[suivant];
+    badgeEl.className = `status-badge status-badge-${suivant}`;
+    badgeEl.dataset.matchId = matchId;
+
+    try {
+        await apiFetch(`${API_BASE}/maj_statut_match.php`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ match_id: matchId, statut_match: suivant }),
+        });
+    } catch (err) {
+        alert('Erreur mise à jour du statut: ' + err.message);
+        // Rollback visuel simple : on recharge le bracket
+        ouvrirBracket(currentPhaseFinaleId);
+    }
+}
+
+// ---------- Mise à jour du terrain ----------
+
+async function sauvegarderTerrain(matchId, terrainValue) {
+    try {
+        await apiFetch(`${API_BASE}/maj_terrain_match.php`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ match_id: matchId, terrain: terrainValue || null }),
+        });
+    } catch (err) {
+        alert('Erreur mise à jour du terrain: ' + err.message);
+    }
 }
 
 // ---------- Modale de saisie de score ----------
@@ -537,6 +626,14 @@ function ouvrirModalScore(match, nom1, nom2) {
     document.getElementById('modal-match-info').textContent = `${match.match_code} : ${nom1} vs ${nom2}`;
     document.getElementById('modal-score1').value = match.score1 ?? 0;
     document.getElementById('modal-score2').value = match.score2 ?? 0;
+
+    // Champs supplémentaires dans la modale (statut + terrain), si présents dans le DOM
+    const selectStatut = document.getElementById('modal-statut-match');
+    if (selectStatut) selectStatut.value = match.statut_match ?? 'planifie';
+
+    const inputTerrain = document.getElementById('modal-terrain');
+    if (inputTerrain) inputTerrain.value = match.terrain ?? '';
+
     document.getElementById('modal-score').classList.remove('hidden');
 }
 
@@ -547,17 +644,30 @@ document.getElementById('btn-annuler-score').addEventListener('click', () => {
 document.getElementById('btn-valider-score').addEventListener('click', async () => {
     const score1 = parseInt(document.getElementById('modal-score1').value, 10);
     const score2 = parseInt(document.getElementById('modal-score2').value, 10);
+    const selectStatut = document.getElementById('modal-statut-match');
 
-    if (score1 === score2) {
+    if (score1 === score2 && selectStatut.value == 'termine') {
         afficherMessage('msg-modal', 'Les scores ne peuvent pas être égaux (pas de match nul)', 'error');
         return;
     }
+
+    // const selectStatut = document.getElementById('modal-statut-match');
+    const inputTerrain = document.getElementById('modal-terrain');
+
+    const payload = {
+        match_id: currentMatchId,
+        score1,
+        score2
+    };
+
+    if (selectStatut) payload.statut_match = selectStatut.value;
+    if (inputTerrain) payload.terrain = inputTerrain.value || null;
 
     try {
         await apiFetch(`${API_BASE}/saisir_score.php`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ match_id: currentMatchId, score1, score2 }),
+            body: JSON.stringify(payload),
         });
 
         document.getElementById('modal-score').classList.add('hidden');
@@ -608,14 +718,8 @@ document.getElementById('btn-simuler-rounds').addEventListener('click', async ()
     }
 });
 
-// ---------- Initialisation au chargement ----------
-
 /**
- * Calcule la plage de classement pour un sub_group donné (même logique que afficheur.js).
- * @param {number} round - numéro du round
- * @param {number} subKey - numéro du sub_group (commence à 1)
- * @param {number} nbreTeam - nombre total d'équipes
- * @returns {string} plage "X - Y"
+ * Calcule la plage de classement pour un sub_group donné.
  */
 function calculerPlageClassement(round, subKey, nbreTeam) {
     const nbBranches = Math.pow(2, round);
@@ -625,6 +729,8 @@ function calculerPlageClassement(round, subKey, nbreTeam) {
     const fin = Math.floor((index + 1) * tailleGroupe);
     return debut + ' - ' + fin;
 }
+
+// ---------- Initialisation au chargement ----------
 
 (async () => {
     await chargerCategories();
