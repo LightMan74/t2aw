@@ -964,9 +964,9 @@ body.dark .simule-badge {
     /* text-align: center; */
 }
 
-.team-line:first-of-type {
-    /* border-bottom: 1px solid #eee; */
-}
+/* .team-line:first-of-type { */
+/* border-bottom: 1px solid #eee; */
+/* } */
 
 .team-line span:first-child {
     flex: 1;

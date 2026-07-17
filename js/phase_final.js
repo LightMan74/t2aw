@@ -443,7 +443,17 @@ function afficherBracket(matchs, phase) {
 
         const titre = document.createElement('div');
         titre.className = 'round-title';
-        titre.textContent = 'Round ' + roundKey;
+        // Même logique que afficheur.js : Finale, Demi-finales, Quart, 1/8, etc.
+        const nbRounds = roundKeys.length;
+        const revIdx = nbRounds - 1 - roundKeys.indexOf(roundKey);
+        let label = '';
+        if (revIdx === 0) label = 'Finale';
+        else if (revIdx === 1) label = 'Demi-finales';
+        else {
+            const den = Math.pow(2, revIdx);
+            label = revIdx === 2 ? 'Quart' : `1/${den}`;
+        }
+        titre.textContent = label;
         col.appendChild(titre);
 
         const subKeys = Object.keys(rounds[roundKey]).sort((a, b) => a - b);
@@ -452,7 +462,18 @@ function afficherBracket(matchs, phase) {
             if (phase.type_bracket === 'classement_complet') {
                 const subTitre = document.createElement('div');
                 subTitre.className = 'sub-group-title';
-                subTitre.textContent = 'Sub ' + subKey;
+                // Même logique que afficheur.js : Classement X-Y + indication Vainqueur/Perdant
+                const skNum = Number(subKey);
+                const range = calculerPlageClassement(Number(roundKey), skNum, phase.nb_equipes);
+                // reelround: round 1 = premier round (les seeds initiaux)
+                const reelround = roundKeys.indexOf(roundKey) + 1;
+                if (reelround > 1) {
+                    subTitre.innerHTML = (skNum % 2 === 1)
+                        ? 'Classement ' + range + '<br>Vainqueur match précédent'
+                        : 'Classement ' + range + '<br>Perdant match précédent';
+                } else {
+                    subTitre.innerHTML = 'Classement ' + range;
+                }
                 col.appendChild(subTitre);
             }
 
@@ -588,6 +609,22 @@ document.getElementById('btn-simuler-rounds').addEventListener('click', async ()
 });
 
 // ---------- Initialisation au chargement ----------
+
+/**
+ * Calcule la plage de classement pour un sub_group donné (même logique que afficheur.js).
+ * @param {number} round - numéro du round
+ * @param {number} subKey - numéro du sub_group (commence à 1)
+ * @param {number} nbreTeam - nombre total d'équipes
+ * @returns {string} plage "X - Y"
+ */
+function calculerPlageClassement(round, subKey, nbreTeam) {
+    const nbBranches = Math.pow(2, round);
+    const tailleGroupe = nbreTeam / nbBranches;
+    const index = subKey - 1;
+    const debut = Math.floor(index * tailleGroupe) + 1;
+    const fin = Math.floor((index + 1) * tailleGroupe);
+    return debut + ' - ' + fin;
+}
 
 (async () => {
     await chargerCategories();
