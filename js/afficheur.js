@@ -394,7 +394,7 @@ function chargerPhaseFinale() {
             container.innerHTML = '<div class="vide">Aucune phase finale pour ce tournoi</div>';
             return;
         }
-
+        console.table(data.categories);
         // Structure identique à Classement/Joueurs : sous-onglets par catégorie
         construireSousOnglets(container, data.categories, 'phase_finale', (cat) => {
             return creerBracketPhaseFinale(cat);
