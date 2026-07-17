@@ -81,6 +81,7 @@ try {
                      m.source_team2,
                      m.classement_min,
                      m.classement_max,
+                     m.terrain,
                      eq1.nom AS nom_equipe1,
                      e1.id_tournoi,
                      e1.id_categorie,
@@ -130,6 +131,7 @@ try {
                 'statut_match'        => $row['statut_match'],
                 'classement_min'      => $row['classement_min'] ? (int)$row['classement_min'] : null,
                 'classement_max'      => $row['classement_max'] ? (int)$row['classement_max'] : null,
+                'terrain'             => $row['terrain'] ? (int)$row['terrain'] : null,
             ];
         }
     }

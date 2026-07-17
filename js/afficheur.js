@@ -609,6 +609,7 @@ function calculerPlageClassement(round, subKey, nbreTeam) {
  * Crée une match-box en lecture seule (aucun click, aucun formulaire).
  * Même structure visuelle que creerMatchBox() de phase_final.js,
  * mais sans addEventListener ni interaction.
+ * Inclut terrain et statut de match comme dans phase_final.js.
  */
 function creerMatchBoxLectureSeule(match) {
     const box = document.createElement('div');
@@ -637,6 +638,29 @@ function creerMatchBoxLectureSeule(match) {
     // Badge simulé
     const simuleBadge = match.statut === 'simule'
         ? '<div class="simule-badge">⏩ Simulé</div>' : '';
+
+    // Statut de jeu (planifie / en_cours / termine)
+    const statutMatch = match.statut_match ?? 'planifie';
+    const statutLabels = {
+        planifie: 'Planifié',
+        en_cours: 'En jeu',
+        termine: 'Terminé'
+    };
+    const labelStatut = statutLabels[statutMatch] ?? statutMatch;
+    const statutBadgeHtml = `<span class="status-badge status-badge-${statutMatch}">${labelStatut}</span>`;
+
+    // Terrain (affiché si valeur présente et match non terminé)
+    console.table(match);
+    const peutAfficherTerrain = match.terrain && match.statut !== 'termine';
+    const terrainHtml = peutAfficherTerrain
+        ? `<span class="terrain-badge">Terrain ${escapeHTML(String(match.terrain))}</span>`
+        : '';
+
+    // Ligne infos : terrain + statut (structure identique à phase_final.js)
+    const infosLigne = (terrainHtml || statutBadgeHtml)
+        ? `<div class="match-infos-ligne">${statutBadgeHtml} ${terrainHtml}</div>`
+        : '';
+
     box.innerHTML = `
         ${simuleBadge}
         <div class="team-line ${classeTeam1}">
@@ -648,6 +672,7 @@ function creerMatchBoxLectureSeule(match) {
             <span>${escapeHTML(score2Str)}</span>
         </div>
         <div class="match-code">${escapeHTML(match.match_code || '')}</div>
+        ${infosLigne}
     `;
 
     return box;
