@@ -1004,7 +1004,7 @@ body.dark .match-box {
 }
 
 body.dark .team-line span:last-child {
-    color: #ddd;
+    color: #2ecc71;
 }
 
 body.dark .team-line.winner span:first-child {
