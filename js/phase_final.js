@@ -623,13 +623,21 @@ async function sauvegarderTerrain(matchId, terrainValue) {
 
 // ---------- Modale de saisie de score ----------
 
+let currentMatchNoms = { nom1: '', nom2: '' };
+
 function ouvrirModalScore(match, nom1, nom2) {
     currentMatchId = match.id;
+    currentMatchNoms = { nom1, nom2 };
+
     document.getElementById('modal-match-info').textContent = `${match.match_code} : ${nom1} vs ${nom2}`;
+
+    // Mise à jour des labels avec les noms des équipes
+    document.getElementById('label-equipe1').textContent = nom1;
+    document.getElementById('label-equipe2').textContent = nom2;
+
     document.getElementById('modal-score1').value = match.score1 ?? 0;
     document.getElementById('modal-score2').value = match.score2 ?? 0;
 
-    // Champs supplémentaires dans la modale (statut + terrain), si présents dans le DOM
     // const selectStatut = document.getElementById('modal-statut-match');
     const selectStatut = "termine";
     if (selectStatut) selectStatut.value = match.statut_match ?? 'planifie';
@@ -644,17 +652,58 @@ document.getElementById('btn-annuler-score').addEventListener('click', () => {
     document.getElementById('modal-score').classList.add('hidden');
 });
 
-document.getElementById('btn-valider-score').addEventListener('click', async () => {
+document.getElementById('btn-valider-score').addEventListener('click', () => {
     const score1 = parseInt(document.getElementById('modal-score1').value, 10);
     const score2 = parseInt(document.getElementById('modal-score2').value, 10);
     const selectStatut = document.getElementById('modal-statut-match');
 
-    if (score1 === score2 && selectStatut.value == 'termine') {
+    if (isNaN(score1) || isNaN(score2)) {
+        afficherMessage('msg-modal', 'Veuillez saisir des scores valides', 'error');
+        return;
+    }
+
+    if (score1 === score2 && selectStatut.value === 'termine') {
         afficherMessage('msg-modal', 'Les scores ne peuvent pas être égaux (pas de match nul)', 'error');
         return;
     }
 
-    // const selectStatut = document.getElementById('modal-statut-match');
+    console.log(selectStatut.value);
+
+    // Si le match est marqué comme terminé, on demande confirmation du vainqueur
+    if (selectStatut.value === 'termine') {
+        const gagnant = score1 > score2 ? currentMatchNoms.nom1 : currentMatchNoms.nom2;
+        const perdant = score1 > score2 ? currentMatchNoms.nom2 : currentMatchNoms.nom1;
+
+        document.getElementById('modal-confirmation-texte').innerHTML =
+            `<strong>${currentMatchNoms.nom1}</strong> vs <strong>${currentMatchNoms.nom2}</strong><br><br>` +
+            `🏆 <strong>${gagnant}</strong> gagne (${score1} - ${score2}) contre ${perdant}`;
+
+        document.getElementById('modal-confirmation-vainqueur').classList.remove('hidden');
+    } else {
+        // Pas de confirmation nécessaire si le match n'est pas "terminé"
+        validerScoreFinal(score1, score2);
+    }
+});
+
+// ---------- Confirmation du vainqueur ----------
+
+document.getElementById('btn-annuler-vainqueur').addEventListener('click', () => {
+    document.getElementById('modal-confirmation-vainqueur').classList.add('hidden');
+});
+
+document.getElementById('btn-confirmer-vainqueur').addEventListener('click', async () => {
+    document.getElementById('modal-confirmation-vainqueur').classList.add('hidden');
+
+    const score1 = parseInt(document.getElementById('modal-score1').value, 10);
+    const score2 = parseInt(document.getElementById('modal-score2').value, 10);
+
+    await validerScoreFinal(score1, score2);
+});
+
+// ---------- Envoi effectif du score ----------
+
+async function validerScoreFinal(score1, score2) {
+    const selectStatut = document.getElementById('modal-statut-match');
     const inputTerrain = document.getElementById('modal-terrain');
 
     const payload = {
@@ -679,7 +728,44 @@ document.getElementById('btn-valider-score').addEventListener('click', async () 
     } catch (err) {
         afficherMessage('msg-modal', err.message, 'error');
     }
-});
+}
+
+// document.getElementById('btn-valider-score').addEventListener('click', async () => {
+//     const score1 = parseInt(document.getElementById('modal-score1').value, 10);
+//     const score2 = parseInt(document.getElementById('modal-score2').value, 10);
+//     const selectStatut = document.getElementById('modal-statut-match');
+
+//     if (score1 === score2 && selectStatut.value == 'termine') {
+//         afficherMessage('msg-modal', 'Les scores ne peuvent pas être égaux (pas de match nul)', 'error');
+//         return;
+//     }
+
+//     // const selectStatut = document.getElementById('modal-statut-match');
+//     const inputTerrain = document.getElementById('modal-terrain');
+
+//     const payload = {
+//         match_id: currentMatchId,
+//         score1,
+//         score2
+//     };
+
+//     if (selectStatut) payload.statut_match = selectStatut.value;
+//     if (inputTerrain) payload.terrain = inputTerrain.value || null;
+
+//     try {
+//         await apiFetch(`${API_BASE}/saisir_score.php`, {
+//             method: 'POST',
+//             headers: { 'Content-Type': 'application/json' },
+//             body: JSON.stringify(payload),
+//         });
+
+//         document.getElementById('modal-score').classList.add('hidden');
+//         ouvrirBracket(currentPhaseFinaleId);
+
+//     } catch (err) {
+//         afficherMessage('msg-modal', err.message, 'error');
+//     }
+// });
 
 // ---------- Simulation ----------
 

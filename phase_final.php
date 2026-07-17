@@ -116,13 +116,12 @@ $tournoi_id = isset($_GET['id_tournoi']) ? (int)$_GET['id_tournoi'] : 0;
             <div class="modal-content">
                 <p id="modal-match-info"></p>
 
-                <label>Score équipe 1 :
-                    <input type="number" id="modal-score1" min="0">
+                <label>
+                    <input type="number" id="modal-score1" min="0"> : <span id="label-equipe1">Équipe 1</span>
                 </label>
-                <label>Score équipe 2 :
-                    <input type="number" id="modal-score2" min="0">
+                <label>
+                    <input type="number" id="modal-score2" min="0"> : <span id="label-equipe2">Équipe 2</span>
                 </label>
-
                 <label style="display:none">Statut du match :
                     <select id="modal-statut-match" style="display:none">
                         <option value="planifie">Planifié</option>
@@ -139,6 +138,18 @@ $tournoi_id = isset($_GET['id_tournoi']) ? (int)$_GET['id_tournoi'] : 0;
 
                 <button id="btn-valider-score">Valider</button>
                 <button id="btn-annuler-score">Annuler</button>
+            </div>
+        </div>
+
+        <!-- Modale de confirmation du vainqueur -->
+        <div id="modal-confirmation-vainqueur" class="modal hidden">
+            <div class="modal-content">
+                <h3>Confirmer le résultat</h3>
+                <p id="modal-confirmation-texte"></p>
+                <div class="modal-actions">
+                    <button id="btn-confirmer-vainqueur" type="button">Confirmer</button>
+                    <button id="btn-annuler-vainqueur" type="button">Annuler</button>
+                </div>
             </div>
         </div>
 
