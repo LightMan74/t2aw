@@ -490,10 +490,11 @@ function afficherUnePhaseFinale(phase, idCategorie, datacategories) {
         const nbRounds = roundKeys.length;
 
         // Labels des rounds (derrière en finale)
+        let reelround = 0;
         const roundLabels = ['Demi', 'Finale'];
         if (nbRounds > 2) roundLabels.unshift('Quart', '1/8', '1/16', '1/32');
-
         roundKeys.forEach((roundKey, rIdx) => {
+            reelround++;
             const col = document.createElement('div');
             col.className = 'round-column scroll-colonne';
 
@@ -517,20 +518,23 @@ function afficherUnePhaseFinale(phase, idCategorie, datacategories) {
 
             subKeys.forEach(subKey => {
                 // Label sub_group seulement si bracket "classement complet" (plusieurs branches)
-                if (phase.type_bracket === 'classement_complet' && roundKeys.length > 1) {
+                if (phase.type_bracket === 'classement_complet' && roundKeys.length >= 1) {
                     const subLabel = document.createElement('div');
                     subLabel.className = 'sub-group-title';
                     const skNum = Number(subKey);
 
                     // Calcul de la plage de classement pour ce round/subKey
                     const range = calculerPlageClassement(Number(roundKey), skNum, nbre_team);
-
-                    subLabel.innerHTML = (skNum % 2 === 1)
-                        ? 'Classement ' + range + '<br>Vainqueur match précédent'
-                        : 'Classement ' + range + '<br>Perdant match précédent';
-                    if (subKeys.length > 1) {
-                        col.appendChild(subLabel);
+                    if (reelround > 1) {
+                        subLabel.innerHTML = (skNum % 2 === 1)
+                            ? 'Classement ' + range + '<br>Vainqueur match précédent'
+                            : 'Classement ' + range + '<br>Perdant match précédent';
+                    } else {
+                        subLabel.innerHTML = 'Classement ' + range;
                     }
+
+
+                    col.appendChild(subLabel);
                 }
 
                 rounds[roundKey][subKey].forEach(match => {
@@ -539,6 +543,7 @@ function afficherUnePhaseFinale(phase, idCategorie, datacategories) {
             });
 
             bracketWrapper.appendChild(col);
+
         });
 
         section.appendChild(bracketWrapper);

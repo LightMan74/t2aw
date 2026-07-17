@@ -103,7 +103,7 @@ try {
                     AND eq2.id_categorie = e2.id_categorie
                     AND eq2.id_poule = e2.id_poule
                     AND eq2.id_equipe = e2.id_equipe
-                 WHERE m.id_phase_finale IN ($in)
+                 WHERE m.id_phase_finale IN ($in) AND m.statut <> 'simule'
                  ORDER BY m.id_phase_finale, m.round, m.sub_group, m.id";
         $stmtM = $pdo->prepare($sqlM);
         $stmtM->execute($phaseIds);
