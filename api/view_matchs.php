@@ -62,9 +62,11 @@ $sqlPF = "SELECT
               m.statut_match,
               m.source_team1,
               m.source_team2,
+              m.classement_min,
+              m.classement_max,
               m.terrain,
               m.heure_debut,
-            --   m.id_categorie,
+              c.id_categorie,
               pf.nom AS nom_phase_finale,
               pf.nb_equipes,
               c.nom AS nom_categorie,
@@ -104,10 +106,11 @@ foreach ($nbRoundsParPhase as $pid => $rounds) {
     $nbRoundsParPhase[$pid] = count($rounds);
 }
 
-function labelRoundPhaseFinale($round, $nbRoundsTotal) {
+function labelRoundPhaseFinale($round, $nbRoundsTotal, $class) {
     // round est 0-indexé, dernier round = finale
     $revIdx = $nbRoundsTotal - 1 - $round;
-    if ($revIdx === 0) return 'Finale';
+    if ($revIdx === 0 && $class === 1) return ("FINAL");
+    if ($revIdx === 0) return ('Place ' . $class . " - " . $class + 1);
     if ($revIdx === 1) return 'Demi-finale';
     if ($revIdx === 2) return 'Quart de finale';
     $den = pow(2, $revIdx);
@@ -118,11 +121,11 @@ $matchsPF = [];
 foreach ($matchsPFRaw as $m) {
     $pid = $m['id_phase_finale'];
     $nbRounds = $nbRoundsParPhase[$pid] ?? 1;
-    $labelRound = labelRoundPhaseFinale((int)$m['round'], $nbRounds);
+    $labelRound = labelRoundPhaseFinale((int)$m['round'], $nbRounds, $m['classement_min']);
 
     $matchsPF[] = [
         'id_tournoi'        => $id_tournoi,
-        // 'id_categorie'      => $m['id_categorie'],
+        'id_categorie'      => $m['id_categorie'],
         'nom_categorie'     => $m['nom_categorie'],
         'nom_poule'         => $labelRound,
         'nom_phase_finale'  => $m['nom_phase_finale'],
@@ -133,6 +136,8 @@ foreach ($matchsPFRaw as $m) {
         'nom_equipe_2'      => $m['nom_equipe_2'] ?: ($m['source_team2'] ?: '?'),
         'score_equipe_1'    => $m['score1'],
         'score_equipe_2'    => $m['score2'],
+        'classement_min'    => $m['classement_min'],
+        'classement_max'    => $m['classement_max'],
         'status'            => $m['status'],
         'terrain'           => $m['terrain'],
         'heure_debut'       => $m['heure_debut'],
