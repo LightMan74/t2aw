@@ -224,11 +224,11 @@ function afficherListeMatchs(containerId, matchs, texteVide) {
 
         // Tags couleur : fond coloré directement sur le texte
         const catText = escapeHTML(m.nom_categorie || '');
-        const terrain = m.terrain && m.status !== 'termine' ? ` — Terrain ${m.terrain}` : '';
+        const terrain = m.terrain && m.status !== 'termine' ? ` Terrain ${m.terrain}` : '';
 
         let poleTagHTML = '';
         if (m.type_match === 'phase_finale') {
-            const label = 'Phase finale' + (m.label_round ? ' - ' + m.label_round : '');
+            const label = (m.label_round ? m.label_round : '');
             poleTagHTML = `<span class="tag-couleur tag-phase-finale">${escapeHTML(label)}</span>`;
         } else {
             const poleClass = getPouleColorClassById(m.id_poule, m.id_poule_2);

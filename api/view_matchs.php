@@ -111,10 +111,10 @@ function labelRoundPhaseFinale($round, $nbRoundsTotal, $class, $subKey, $nb_equi
     $revIdx = $nbRoundsTotal - 1 - $round;
     if ($revIdx === 0 && $class === 1) return ("FINAL");
     if ($revIdx === 0) return ('Place ' . $class . " - " . $class + 1);
-    if ($revIdx === 1) return 'Demi-finale' .' - ('.calculerPlageClassement($round,$subKey,$nb_equipes).')';
-    if ($revIdx === 2) return 'Quart de finale' .' - ('.calculerPlageClassement($round,$subKey,$nb_equipes).')';
+    if ($revIdx === 1) return 'Demi-finale' .' | Place '.calculerPlageClassement($round,$subKey,$nb_equipes);
+    if ($revIdx === 2) return 'Quart de finale' .' | Place '.calculerPlageClassement($round,$subKey,$nb_equipes);
     $den = pow(2, $revIdx);
-    return '1/' . $den .' - ('.calculerPlageClassement($round,$subKey,$nb_equipes).')';
+    return '1/' . $den .' de finale | Place '.calculerPlageClassement($round,$subKey,$nb_equipes);
 }
 
 function calculerPlageClassement($round, $subKey, $nbreTeam) {
@@ -123,7 +123,7 @@ function calculerPlageClassement($round, $subKey, $nbreTeam) {
     $index = $subKey - 1;
     $debut = floor($index * $tailleGroupe) + 1;
     $fin = floor(($index + 1) * $tailleGroupe);
-    return $debut . ' - ' . $fin;
+    return $debut . '-' . $fin;
 }
 
 $matchsPF = [];
