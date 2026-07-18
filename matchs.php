@@ -16,7 +16,7 @@
     <div class="container">
         <nav>
             <?php 
-            include "api/check_connected.php";
+            // include __DIR__ . "/check_connected.php";
             include 'menu.php'; 
         $stmt = $pdo->prepare("
             SELECT troissets

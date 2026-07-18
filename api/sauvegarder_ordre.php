@@ -1,7 +1,7 @@
 <?php
 // api/sauvegarder_ordre.php
 header('Content-Type: application/json');
-include "api/check_connected.php";
+include __DIR__ . "/check_connected.php";
 require 'db.php';
 
 $data = json_decode(file_get_contents('php://input'), true);

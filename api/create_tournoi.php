@@ -10,7 +10,7 @@ if (ob_get_level()) {
 }
 header('Content-Type: application/json; charset=utf-8');
 
-include "api/check_connected.php";
+include __DIR__ . "/check_connected.php";
 
 $raw = file_get_contents('php://input');
 $data = json_decode($raw, true);
@@ -82,9 +82,9 @@ try {
     ]);
 
     // Préparer les requêtes d'insertion
-    $stmtInsertCat = $pdo->prepare("INSERT INTO categorie (id_tournoi, id_categorie, nom) VALUES (:id_tournoi, :id_categorie, :nom)");
-    $stmtInsertPoule = $pdo->prepare("INSERT INTO poule (id_tournoi, id_categorie, id_poule, nom) VALUES (:id_tournoi, :id_categorie, :id_poule, :nom)");
-    $stmtInsertEquipe = $pdo->prepare("INSERT INTO equipe (id_tournoi, id_categorie, id_poule, id_equipe, nom) VALUES (:id_tournoi, :id_categorie, :id_poule, :id_equipe, :nom)");
+    $stmtInsertCat = $pdo->prepare("INSERT INTO categorie (id_tournoi, id_categorie, nom) VALUES (:id_tournoi, :id_categorie, :nom);");
+    $stmtInsertPoule = $pdo->prepare("INSERT INTO poule (id_tournoi, id_categorie, id_poule, nom) VALUES (:id_tournoi, :id_categorie, :id_poule, :nom);");
+    $stmtInsertEquipe = $pdo->prepare("INSERT INTO equipe (id_tournoi, id_categorie, id_poule, id_equipe, nom) VALUES (:id_tournoi, :id_categorie, :id_poule, :id_equipe, :nom);");
 
     // Insérer les catégories, poules et équipes
     foreach ($categories as $cat) {

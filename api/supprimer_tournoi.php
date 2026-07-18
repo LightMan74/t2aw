@@ -5,7 +5,7 @@
  */
  
 header('Content-Type: application/json');
-include "api/check_connected.php";
+include __DIR__ . "/check_connected.php";
 include "db.php";
 
 // Récupération de l'id_tournoi (via POST en JSON)

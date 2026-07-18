@@ -1,7 +1,7 @@
 <?php
 // api/get_parametres.php
 header('Content-Type: application/json');
-include "api/check_connected.php";
+include __DIR__ . "/check_connected.php";
 require 'db.php';
  
 $id_tournoi = $_POST['id_tournoi'] ?? null;

@@ -1,5 +1,5 @@
 <?php
-include "api/check_connected.php";
+// include __DIR__ . "/api/check_connected.php";
 
 // Si id_tournoi absent ou = 0 -> mode création
 $id_tournoi = isset($_GET['id_tournoi']) ? (int)$_GET['id_tournoi'] : 0;

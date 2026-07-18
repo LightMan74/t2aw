@@ -12,7 +12,7 @@ if (ob_get_level()) {
 }
 header('Content-Type: application/json; charset=utf-8');
 
-include "api/check_connected.php";
+include __DIR__ . "/check_connected.php";
 
 $raw = file_get_contents('php://input');
 $data = json_decode($raw, true);
@@ -70,9 +70,9 @@ try {
     $stmtUpdateTournoi->execute(['nom' => $nom, 'id_tournoi' => $id_tournoi]);
 
     // Vérifier si la colonne terrain_automatique existe dans parametre
-    $stmtCheckCol = $pdo->query("SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'parametre' AND COLUMN_NAME = 'terrain_automatique'");
-    $colExists = $stmtCheckCol->fetch() !== false;
-
+    // $stmtCheckCol = $pdo->query("SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'parametre' AND COLUMN_NAME = 'terrain_automatique'");
+    // $colExists = $stmtCheckCol->fetch() !== false;
+$colExists = true;
     if ($colExists) {
         // Mise à jour avec terrain_automatique
         $stmtUpdateParam = $pdo->prepare("

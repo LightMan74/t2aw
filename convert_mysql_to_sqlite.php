@@ -1,7 +1,41 @@
 <?php
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
+ini_set('log_errors', 1);
+
+$output = null;
+$retval = null;
+
+// $script = __DIR__ . '/database/mysql2sqlite';
+$script = 'mysql2sqlite';
+$sqliteFile = __DIR__ . '/database/t2aw.sqlite';
+$password = 'Azertyuiop!1';
+
+$cmd = sprintf(
+    '%s --sqlite-file %s --mysql-database %s --mysql-user %s --mysql-password %s --mysql-host %s --mysql-port %d 2>&1',
+    escapeshellarg($script),
+    escapeshellarg($sqliteFile),
+    escapeshellarg('t2aw'),
+    escapeshellarg('siteconnect'),
+    escapeshellarg($password),
+    escapeshellarg('192.168.3.70'),
+    3306
+);
+
+exec($cmd, $output, $retval);
+
+echo "Returned with status $retval and output:\n";
+print_r($output);
+var_dump($output);
+exit;
+
 // convert_mysql_to_sqlite.php
 // Usage: php convert_mysql_to_sqlite.php t2aw.sql database/t2aw.sqlite
-
+if(php_sapi_name() == 'cli') {
+    $newlinedynamique = PHP_EOL;
+} else {
+    $newlinedynamique = '<br>';
+}
 $sqlFile = $argv[1] ?? 'database/t2aw.sql';
 $sqliteFile = $argv[2] ?? 'database/t2aw.sqlite';
 
@@ -32,14 +66,24 @@ $sql = preg_replace('/COLLATE\s*=?\s*\w+/i', '', $sql);
 $sql = preg_replace('/CHARACTER\s+SET\s*=?\s*\w+/i', '', $sql);
 $sql = preg_replace('/AUTO_INCREMENT\s*=\s*\d+/i', '', $sql);
 
-$sql = preg_replace('/int\(\d+\)\s+NOT NULL AUTO_INCREMENT/i', 'INTEGER PRIMARY KEY AUTOINCREMENT', $sql);
-$sql = preg_replace('/int\s+NOT NULL AUTO_INCREMENT/i', 'INTEGER PRIMARY KEY AUTOINCREMENT', $sql);
+// Supprime les définitions PRIMARY KEY (xxx) redondantes en fin de table
+// si une colonne a déjà été transformée en INTEGER PRIMARY KEY AUTOINCREMENT
+$sql = preg_replace('/,\s*PRIMARY KEY\s*\([^)]*\)/i', '', $sql);
+
+$sql = preg_replace('/int(?:\(\d+\))?\s+NOT\s+NULL\s+AUTO_INCREMENT/i', 'INTEGER PRIMARY KEY AUTOINCREMENT', $sql);
+$sql = preg_replace('/int(?:\(\d+\))?\s+AUTO_INCREMENT\s+NOT\s+NULL/i', 'INTEGER PRIMARY KEY AUTOINCREMENT', $sql);
 $sql = preg_replace('/int\(\d+\)/i', 'INTEGER', $sql);
 $sql = preg_replace('/\bint\b/i', 'INTEGER', $sql);
 $sql = preg_replace('/varchar\(\d+\)/i', 'TEXT', $sql);
 $sql = preg_replace('/text\(\d+\)/i', 'TEXT', $sql);
+// Supprime les "ON UPDATE CURRENT_TIMESTAMP" (non supporté par SQLite) - à faire AVANT toute autre transformation
+$sql = preg_replace('/\s+ON UPDATE CURRENT_TIMESTAMP/i', '', $sql);
+
+// Gère datetime comme timestamp
+$sql = preg_replace('/datetime/i', 'TEXT', $sql);
+
 $sql = preg_replace('/timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP/i', 'TEXT DEFAULT CURRENT_TIMESTAMP', $sql);
-$sql = preg_replace('/timestamp NOT NULL ON UPDATE CURRENT_TIMESTAMP/i', 'TEXT', $sql);
+$sql = preg_replace('/timestamp NOT NULL ON UPDATE CURRENT_TIMESTAMP/i', 'TEXT', $sql); // devient inutile mais sans danger
 $sql = preg_replace('/timestamp/i', 'TEXT', $sql);
 
 // Ancienne version (à supprimer) :
@@ -112,9 +156,9 @@ $errors = 0;
 $success = 0;
 // DEBUG : afficher le premier CREATE TABLE nettoyé
 if (preg_match('/CREATE TABLE categorie.*?;/s', $sql, $m)) {
-    echo "=== DEBUG CREATE TABLE categorie ===\n";
-    echo $m[0] . "\n";
-    echo "=====================================\n\n";
+    echo "=== DEBUG CREATE TABLE categorie ===". $newlinedynamique;
+    echo $m[0] . $newlinedynamique;
+    echo "=====================================". $newlinedynamique . $newlinedynamique;
 }
 $pdo->exec('BEGIN TRANSACTION;');
 foreach ($queries as $query) {
@@ -126,12 +170,13 @@ foreach ($queries as $query) {
         $success++;
     } catch (PDOException $e) {
         $errors++;
-        echo "❌ Erreur : " . substr(str_replace(["\n", "\r"], ' ', $query), 0, 100) . "...<br>";
-        echo "   → " . $e->getMessage() . "\n\n";
+        // echo "❌ Erreur : " . substr(str_replace(["\n", "\r"], ' ', $query), 0, 100) . "...<br>";
+        echo "❌ Erreur : " . $query;
+        echo "   → " . $e->getMessage() . $newlinedynamique . $newlinedynamique;
     }
 }
 $pdo->exec('COMMIT;');
 
-echo "\n=========================================\n";
-echo "Terminé : $success requêtes OK, $errors erreurs\n";
-echo "Fichier créé : $sqliteFile\n";
+echo $newlinedynamique ."=========================================". $newlinedynamique;
+echo "Terminé : $success requêtes OK, $errors erreurs". $newlinedynamique;
+echo "Fichier créé : $sqliteFile". $newlinedynamique;

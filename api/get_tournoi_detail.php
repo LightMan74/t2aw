@@ -9,7 +9,7 @@ if (ob_get_level()) {
 }
 // ob_start();
 header('Content-Type: application/json; charset=utf-8');
-include "api/check_connected.php";
+include __DIR__ . "/check_connected.php";
 require_once __DIR__ . '/db.php';
 
 try {
@@ -22,7 +22,19 @@ try {
     $id_tournoi = (int)$_GET['id_tournoi'];
 
     // Récupérer les infos du tournoi
-    $stmtTournoi = $pdo->prepare("SELECT id, id_tournoi, nom, DATE_FORMAT(date_creation, '%Y-%m-%d %H:%i:%s') as date_creation FROM tournoi WHERE id_tournoi = :id_tournoi");
+$driver = $pdo->getAttribute(PDO::ATTR_DRIVER_NAME);
+
+if ($driver === 'sqlite') {
+    $dateExpr = "strftime('%Y-%m-%d %H:%M:%S', date_creation)";
+} else {
+    $dateExpr = "DATE_FORMAT(date_creation, '%Y-%m-%d %H:%i:%s')";
+}
+
+$stmtTournoi = $pdo->prepare("
+    SELECT id, id_tournoi, nom, $dateExpr as date_creation 
+    FROM tournoi 
+    WHERE id_tournoi = :id_tournoi
+");
     $stmtTournoi->execute(['id_tournoi' => $id_tournoi]);
     $tournoi = $stmtTournoi->fetch(PDO::FETCH_ASSOC);
 

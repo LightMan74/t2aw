@@ -1,5 +1,5 @@
 <?php
-// include "api/check_connected.php";
+// include __DIR__ . "/check_connected.php";
 ?>
 <!DOCTYPE html>
 <html lang="fr">
@@ -32,7 +32,7 @@
             </div>
         </section>
 
-        <script src="js/test.js"></script>
+        <!-- <script src="js/test.js"></script> -->
         <script src="js/main.js"></script>
         <script src="js/supprimer_tournoi.js"></script>
         <?php } else { ?>

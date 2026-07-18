@@ -1,5 +1,5 @@
 <?php 
-include "api/check_connected.php";
+include __DIR__ . "/api//check_connected.php";
 include 'api/db.php'; 
 // On récupère les infos de l'utilisateur connecté
 $currentUid = $_SESSION['uid'];

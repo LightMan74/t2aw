@@ -9,7 +9,7 @@ if (ob_get_level()) {
     ob_end_clean();
 }
 header('Content-Type: application/json');
-include "api/check_connected.php";
+include __DIR__ . "/check_connected.php";
 try {
     $stmt = $pdo->prepare("
         SELECT t.id_tournoi, t.nom, p.heure_debut_poule, p.heure_debut_phasefinal

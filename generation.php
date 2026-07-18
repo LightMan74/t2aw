@@ -19,7 +19,7 @@
     <div class="container">
         <nav>
             <?php
-include "api/check_connected.php";
+// include __DIR__ . "/check_connected.php";
 include 'menu.php'; ?>
         </nav>
         <h1>Génération de l'ordre des matchs de poule</h1>
