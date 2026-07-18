@@ -68,6 +68,7 @@ function chargerOngletActif() {
     if (currentTab === 'classement') chargerClassement();
     if (currentTab === 'joueurs') chargerJoueurs();
     if (currentTab === 'phase_finale') chargerPhaseFinale();
+    if (currentTab === 'classement_final') chargerClassementFinal();
 }
 
 // ----- Horloge -----
@@ -679,6 +680,52 @@ function creerMatchBoxLectureSeule(match) {
 
     return wrapper;
 }
+
+// ----- Classement Final -----
+function chargerClassementFinal() {
+    fetchJSON(`api/view_classement_final.php?id_tournoi=${ID_TOURNOI}`, (data) => {
+        const container = document.getElementById('classement-final-content');
+        container.innerHTML = '';
+
+        if (!data.categories || data.categories.length === 0) {
+            container.innerHTML = '<div class="vide">Aucun classement final disponible</div>';
+            return;
+        }
+
+        construireSousOnglets(container, data.categories, 'classement_final', (cat) => {
+            const wrapper = document.createElement('div');
+            wrapper.className = 'poule-block-classement';
+
+            const catClass = getCategorieColorClassById(cat.id_categorie);
+
+            let html = `<div class="poule-header">
+                <span class="tag-couleur ${catClass}">${escapeHTML(cat.nom_categorie)}</span>
+            </div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Position</th>
+                            <th>Équipe</th>
+                        </tr>
+                    </thead>
+                    <tbody>`;
+
+            cat.classement.forEach(eq => {
+                if (eq.is_bye) return; // on masque les BYE dans l'affichage final
+                html += `<tr>
+                    <td>${eq.position}</td>
+                    <td style="text-align:left;">${escapeHTML(eq.nom_equipe)}</td>
+                </tr>`;
+            });
+
+            html += `</tbody></table>`;
+            wrapper.innerHTML = html;
+
+            return wrapper;
+        });
+    });
+}
+
 
 // ================================================================
 // Construction générique des sous-onglets par catégorie

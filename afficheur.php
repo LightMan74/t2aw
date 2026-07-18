@@ -30,8 +30,9 @@ $id_tournoi = isset($_GET['id_tournoi']) ? (int)$_GET['id_tournoi'] : 0;
     <nav class="tabs">
         <button class="tab-btn active" data-tab="matchs">Matchs</button>
         <button class="tab-btn" data-tab="classement">Classement</button>
-        <button class="tab-btn" data-tab="joueurs">Joueurs inscrits</button>
+        <!-- <button class="tab-btn" data-tab="joueurs">Joueurs inscrits</button> -->
         <button class="tab-btn" data-tab="phase_finale">Phase Finale</button>
+        <button class="tab-btn" data-tab="classement_final">Classement Final</button>
     </nav>
 
     <main>
@@ -66,6 +67,10 @@ $id_tournoi = isset($_GET['id_tournoi']) ? (int)$_GET['id_tournoi'] : 0;
         <!-- Onglet Phase Finale : bracket lecture seule -->
         <section id="tab-phase_finale" class="tab-content">
             <div id="phase-finale-content"></div>
+        </section>
+
+        <section id="tab-classement_final" class="tab-content">
+            <div id="classement-final-content" class="grid-multicol scroll-colonne"></div>
         </section>
     </main>
 
