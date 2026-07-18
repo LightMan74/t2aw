@@ -106,22 +106,31 @@ foreach ($nbRoundsParPhase as $pid => $rounds) {
     $nbRoundsParPhase[$pid] = count($rounds);
 }
 
-function labelRoundPhaseFinale($round, $nbRoundsTotal, $class) {
+function labelRoundPhaseFinale($round, $nbRoundsTotal, $class, $subKey, $nb_equipes) {
     // round est 0-indexé, dernier round = finale
     $revIdx = $nbRoundsTotal - 1 - $round;
     if ($revIdx === 0 && $class === 1) return ("FINAL");
     if ($revIdx === 0) return ('Place ' . $class . " - " . $class + 1);
-    if ($revIdx === 1) return 'Demi-finale';
-    if ($revIdx === 2) return 'Quart de finale';
+    if ($revIdx === 1) return 'Demi-finale' .' - ('.calculerPlageClassement($round,$subKey,$nb_equipes).')';
+    if ($revIdx === 2) return 'Quart de finale' .' - ('.calculerPlageClassement($round,$subKey,$nb_equipes).')';
     $den = pow(2, $revIdx);
-    return '1/' . $den;
+    return '1/' . $den .' - ('.calculerPlageClassement($round,$subKey,$nb_equipes).')';
+}
+
+function calculerPlageClassement($round, $subKey, $nbreTeam) {
+    $nbBranches = pow(2, $round);
+    $tailleGroupe = $nbreTeam / $nbBranches;
+    $index = $subKey - 1;
+    $debut = floor($index * $tailleGroupe) + 1;
+    $fin = floor(($index + 1) * $tailleGroupe);
+    return $debut . ' - ' . $fin;
 }
 
 $matchsPF = [];
 foreach ($matchsPFRaw as $m) {
     $pid = $m['id_phase_finale'];
     $nbRounds = $nbRoundsParPhase[$pid] ?? 1;
-    $labelRound = labelRoundPhaseFinale((int)$m['round'], $nbRounds, $m['classement_min']);
+    $labelRound = labelRoundPhaseFinale((int)$m['round'], $nbRounds, $m['classement_min'], $m['sub_group'], $m['nb_equipes']);
 
     $matchsPF[] = [
         'id_tournoi'        => $id_tournoi,
@@ -138,11 +147,14 @@ foreach ($matchsPFRaw as $m) {
         'score_equipe_2'    => $m['score2'],
         'classement_min'    => $m['classement_min'],
         'classement_max'    => $m['classement_max'],
-        'status'            => $m['status'],
+        'status'            => $m['statut_match'],
         'terrain'           => $m['terrain'],
         'heure_debut'       => $m['heure_debut'],
         'troissets'         => $m['troissets'],
+        'statut_match'      => $m['statut_match'],
         'type_match'        => 'phase_finale',
+        'match_code'        => 'match_code',
+        'nb_equipes'        => 'nb_equipes',
     ];
 }
 
@@ -165,9 +177,9 @@ foreach ($matchsPoule as $m) {
 }
 
 foreach ($matchsPF as $m) {
-    if ($m['status'] === 'en_cours') {
+    if ($m['statut_match'] === 'en_cours') {
         $result['en_cours'][] = $m;
-    } elseif ($m['status'] === 'termine') {
+    } elseif ($m['statut_match'] === 'termine') {
         $result['termines'][] = $m;
     } else {
         $result['a_venir'][] = $m;
