@@ -1247,6 +1247,11 @@ body.dark .phase-finale-legende {
     border-color: rgba(255, 255, 255, 0.1);
 }
 
+.tag-phase-finale {
+    background-color: var(--inter-poule-color);
+    color: #fff;
+}
+
 /* ================================================================
    RESPONSIVE MOBILE
    ================================================================ */
