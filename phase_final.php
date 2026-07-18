@@ -118,10 +118,10 @@ $tournoi_id = isset($_GET['id_tournoi']) ? (int)$_GET['id_tournoi'] : 0;
                 <p id="modal-match-info"></p>
 
                 <label>
-                    <span id="label-equipe1" class="score-label-equipe">Équipe 1</span><input type="number" id="modal-score1" min="0">
+                    <span id="label-equipe1" class="score-label-equipe">Équipe 1</span><input type="number" id="modal-score1s1" min="0"> - <input type="number" id="modal-score1s2" min="0"> - <input type="number" id="modal-score1s3" min="0">
                 </label>
                 <label>
-                    <span id="label-equipe2" class="score-label-equipe">Équipe 2</span><input type="number" id="modal-score2" min="0">
+                    <span id="label-equipe2" class="score-label-equipe">Équipe 2</span><input type="number" id="modal-score2s1" min="0"> - <input type="number" id="modal-score2s2" min="0"> - <input type="number" id="modal-score2s3" min="0">
                 </label>
                 <label style="display:none">Statut du match :
                     <select id="modal-statut-match" style="display:none">

@@ -73,8 +73,10 @@ function propagerVersMatchsSuivants(PDO $pdo, int $idTournoi, int $idPhaseFinale
 $input = json_decode(file_get_contents('php://input'), true);
 
 $matchId = (int)($input['match_id'] ?? 0);
-$score1  = (int)($input['score1'] ?? -1);
-$score2  = (int)($input['score2'] ?? -1);
+// $score1  = (int)($input['score1'] ?? -1);
+// $score2  = (int)($input['score2'] ?? -1);
+$score1  = $input['score1'] ?? null;
+$score2  = $input['score2'] ?? null;
 $statutMatch = $input['statut_match'] ?? null;
 $terrain = array_key_exists('terrain', $input) ? $input['terrain'] : null;
 

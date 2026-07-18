@@ -535,16 +535,18 @@ function creerMatchBox(match) {
            </div>`
         : '';
 
+    const { score1aff, score2aff } = filtrerScores(match.score1, match.score2);
+
     box.innerHTML = `
         <div class="match-code">${match.match_code}</div>
         ${simuleBadge}
         <div class="team-line ${classeTeam1}">
             <span>${nom1}</span>
-            <span>${match.score1 !== null ? match.score1 : ''}</span>
+            <span>${score1aff}</span>
         </div>
         <div class="team-line ${classeTeam2}">
             <span>${nom2}</span>
-            <span>${match.score2 !== null ? match.score2 : ''}</span>
+            <span>${score2aff}</span>
         </div>
         ${classementHtml}
         ${infosLigne}
@@ -591,11 +593,11 @@ async function cyclerStatutMatch(matchId, statutActuel, badgeEl) {
     // Mise à jour optimiste de l'UI
     badgeEl.setAttribute('data-statutJeu', suivant);
     badgeEl.textContent = STATUS_LABELS[suivant];
-    badgeEl.className = `status-badge status-badge-${suivant}`;
+    badgeEl.className = `status - badge status - badge - ${suivant}`;
     badgeEl.dataset.matchId = matchId;
 
     try {
-        await apiFetch(`${API_BASE}/maj_statut_match.php`, {
+        await apiFetch(`${API_BASE} / maj_statut_match.php`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ match_id: matchId, statut_match: suivant }),
@@ -611,7 +613,7 @@ async function cyclerStatutMatch(matchId, statutActuel, badgeEl) {
 
 async function sauvegarderTerrain(matchId, terrainValue) {
     try {
-        await apiFetch(`${API_BASE}/maj_terrain_match.php`, {
+        await apiFetch(`${API_BASE} / maj_terrain_match.php`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ match_id: matchId, terrain: terrainValue || null }),
@@ -631,12 +633,29 @@ function ouvrirModalScore(match, nom1, nom2) {
 
     document.getElementById('modal-match-info').textContent = `${match.match_code} : ${nom1} vs ${nom2}`;
 
-    // Mise à jour des labels avec les noms des équipes
+    // Mise à jour des labels avec les noms des équipes 
     document.getElementById('label-equipe1').textContent = nom1;
     document.getElementById('label-equipe2').textContent = nom2;
 
-    document.getElementById('modal-score1').value = match.score1 ?? 0;
-    document.getElementById('modal-score2').value = match.score2 ?? 0;
+    // document.getElementById('modal-score1').value = match.score1 ?? 0;
+    // document.getElementById('modal-score2').value = match.score2 ?? 0;
+
+    const scoresEquipe1 = String(match.score1 ?? '0*0*0').split('*');
+    const scoresEquipe2 = String(match.score2 ?? '0*0*0').split('*');
+
+    const s1set1 = scoresEquipe1[0] ?? 0;
+    const s1set2 = scoresEquipe1[1] ?? 0;
+    const s1set3 = scoresEquipe1[2] ?? 0;
+    const s2set1 = scoresEquipe2[0] ?? 0;
+    const s2set2 = scoresEquipe2[1] ?? 0;
+    const s2set3 = scoresEquipe2[2] ?? 0;
+    document.getElementById('modal-score1s1').value = s1set1;
+    document.getElementById('modal-score1s2').value = s1set2;
+    document.getElementById('modal-score1s3').value = s1set3;
+    document.getElementById('modal-score2s1').value = s2set1;
+    document.getElementById('modal-score2s2').value = s2set2;
+    document.getElementById('modal-score2s3').value = s2set3;
+
 
     // const selectStatut = document.getElementById('modal-statut-match');
     const selectStatut = "termine";
@@ -653,8 +672,8 @@ document.getElementById('btn-annuler-score').addEventListener('click', () => {
 });
 
 document.getElementById('btn-valider-score').addEventListener('click', () => {
-    const score1 = parseInt(document.getElementById('modal-score1').value, 10);
-    const score2 = parseInt(document.getElementById('modal-score2').value, 10);
+    const score1 = parseInt(document.getElementById('modal-score1s1').value, 10) + parseInt(document.getElementById('modal-score1s2').value, 10) + parseInt(document.getElementById('modal-score1s3').value, 10);
+    const score2 = parseInt(document.getElementById('modal-score2s1').value, 10) + parseInt(document.getElementById('modal-score2s2').value, 10) + parseInt(document.getElementById('modal-score2s3').value, 10);
     const selectStatut = document.getElementById('modal-statut-match');
 
     if (isNaN(score1) || isNaN(score2)) {
@@ -675,7 +694,7 @@ document.getElementById('btn-valider-score').addEventListener('click', () => {
         const perdant = score1 > score2 ? currentMatchNoms.nom2 : currentMatchNoms.nom1;
 
         document.getElementById('modal-confirmation-texte').innerHTML =
-            `<strong>${currentMatchNoms.nom1}</strong> vs <strong>${currentMatchNoms.nom2}</strong><br><br>` +
+            `< strong > ${currentMatchNoms.nom1}</strong > vs < strong > ${currentMatchNoms.nom2}</strong > <br><br>` +
             `🏆 <strong>${gagnant}</strong> gagne (${score1} - ${score2}) contre ${perdant}`;
 
         document.getElementById('modal-confirmation-vainqueur').classList.remove('hidden');
@@ -694,8 +713,20 @@ document.getElementById('btn-annuler-vainqueur').addEventListener('click', () =>
 document.getElementById('btn-confirmer-vainqueur').addEventListener('click', async () => {
     document.getElementById('modal-confirmation-vainqueur').classList.add('hidden');
 
-    const score1 = parseInt(document.getElementById('modal-score1').value, 10);
-    const score2 = parseInt(document.getElementById('modal-score2').value, 10);
+    // const score1 = parseInt(document.getElementById('modal-score1').value, 10);
+    // const score2 = parseInt(document.getElementById('modal-score2').value, 10);
+
+    const score1 = [
+        document.getElementById(`modal-score1s1`)?.value ?? 0,
+        document.getElementById(`modal-score1s2`)?.value ?? 0,
+        document.getElementById(`modal-score1s3`)?.value ?? 0,
+    ].join('*');
+
+    const score2 = [
+        document.getElementById(`modal-score2s1`)?.value ?? 0,
+        document.getElementById(`modal-score2s2`)?.value ?? 0,
+        document.getElementById(`modal-score2s3`)?.value ?? 0,
+    ].join('*');
 
     await validerScoreFinal(score1, score2);
 });
@@ -705,7 +736,6 @@ document.getElementById('btn-confirmer-vainqueur').addEventListener('click', asy
 async function validerScoreFinal(score1, score2) {
     const selectStatut = document.getElementById('modal-statut-match');
     const inputTerrain = document.getElementById('modal-terrain');
-
     const payload = {
         match_id: currentMatchId,
         score1,
@@ -806,6 +836,35 @@ document.getElementById('btn-simuler-rounds').addEventListener('click', async ()
         afficherMessage('msg-simulation', err.message, 'error');
     }
 });
+
+// Fonction utilitaire pour filtrer les sets où les deux scores sont à 0
+function filtrerScores(score1, score2) {
+    if (score1 === null || score2 === null) {
+        return {
+            score1aff: score1 !== null ? score1.split('*').join(' | ') : '',
+            score2aff: score2 !== null ? score2.split('*').join(' | ') : ''
+        };
+    }
+
+    const sets1 = score1.split('*');
+    const sets2 = score2.split('*');
+
+    const filtres1 = [];
+    const filtres2 = [];
+
+    sets1.forEach((s1, i) => {
+        const s2 = sets2[i] ?? '';
+        // On ignore ce set si les deux valeurs sont 0
+        if (s1 === '0' && s2 === '0') return;
+        filtres1.push(s1);
+        filtres2.push(s2);
+    });
+
+    return {
+        score1aff: filtres1.join(' | '),
+        score2aff: filtres2.join(' | ')
+    };
+}
 
 /**
  * Calcule la plage de classement pour un sub_group donné.
