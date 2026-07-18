@@ -228,13 +228,25 @@ function genererBracketClassique(PDO $pdo, int $idTournoi, int $idPhaseFinale, i
 // ============================================================
 
 function genererBracketClassementComplet(PDO $pdo, int $idTournoi, int $idPhaseFinale, int $nbEquipes, int $nbRounds, array $equipeIds): int {
+
+$stmt = $pdo->prepare("
+            SELECT IF(`terrain_automatique` = 1, `nbre_terrain_phasefinal`, 0) as nbre_terrain_phasefinal FROM `parametre` WHERE id_tournoi = :id
+        ");
+        $stmt->execute(['id' => $idTournoi]);
+        $terrainph = $stmt->fetchAll(PDO::FETCH_ASSOC)[0]['nbre_terrain_phasefinal'];
+        if ($terrainph == 0){
+            $terraincurrent = null;
+        }else{
+            $terraincurrent = 1;
+        }
+
     $stmt = $pdo->prepare("
         INSERT INTO matchs_phase_finale
             (id_tournoi, id_phase_finale, round, sub_group, match_num, match_code,
-             source_team1, source_team2, equipe1_id, equipe2_id, classement_min, classement_max, statut)
+             source_team1, source_team2, equipe1_id, equipe2_id, classement_min, classement_max, statut, terrain)
         VALUES
             (:id_tournoi, :id_phase_finale, :round, :sub_group, :match_num, :match_code,
-             :source_team1, :source_team2, :equipe1_id, :equipe2_id, :classement_min, :classement_max, :statut)
+             :source_team1, :source_team2, :equipe1_id, :equipe2_id, :classement_min, :classement_max, :statut, :terrain)
     ");
 
     $totalMatchs = 0;
@@ -247,12 +259,13 @@ function genererBracketClassementComplet(PDO $pdo, int $idTournoi, int $idPhaseF
         $fnr = $fnr / 2;
         $arrayRound[$i] = [$fnr, $nbEquipes / $fnr];
     }
-
+    
     // Round 0 : seeding standard
     $ordreSeed = genererOrdreSeeding($nbEquipes);
     $nbMatchsRound0 = $arrayRound[0][0] / 2;
 
     for ($m = 1; $m <= $nbMatchsRound0; $m++) {
+
         $seedA = $ordreSeed[($m - 1) * 2];
         $seedB = $ordreSeed[($m - 1) * 2 + 1];
 
@@ -272,8 +285,10 @@ function genererBracketClassementComplet(PDO $pdo, int $idTournoi, int $idPhaseF
             ':classement_min' => null,
             ':classement_max' => null,
             ':statut' => 'pret',
+            ':terrain' => ($terraincurrent!=null) ? $terraincurrent++: null,
         ]);
         $totalMatchs++;
+        ($terraincurrent > $terrainph) ? $terraincurrent = 1 : '';
     }
 
     // Rounds suivants : logique Win_/Loss_ avec sous-groupes
@@ -318,8 +333,10 @@ function genererBracketClassementComplet(PDO $pdo, int $idTournoi, int $idPhaseF
                     ':classement_min' => $classementMin,
                     ':classement_max' => $classementMax,
                     ':statut' => 'en_attente',
+                    ':terrain' => ($terraincurrent!=null) ? $terraincurrent++: null,
                 ]);
                 $totalMatchs++;
+                ($terraincurrent > $terrainph) ? $terraincurrent = 1 : '';
             }
         }
     }
