@@ -589,15 +589,15 @@ async function cyclerStatutMatch(matchId, statutActuel, badgeEl) {
     statutActuel = badgeEl.getAttribute('data-statutJeu');
     const idxCycle = STATUS_CYCLE.indexOf(statutActuel);
     const suivant = STATUS_CYCLE[(idxCycle + 1) % STATUS_CYCLE.length];
-    // console.log(idxCycle + " " + suivant);
+    console.log(idxCycle + " " + suivant);
     // Mise à jour optimiste de l'UI
     badgeEl.setAttribute('data-statutJeu', suivant);
     badgeEl.textContent = STATUS_LABELS[suivant];
-    badgeEl.className = `status - badge status - badge - ${suivant}`;
+    badgeEl.className = `status-badge status-badge-${suivant}`;
     badgeEl.dataset.matchId = matchId;
 
     try {
-        await apiFetch(`${API_BASE} / maj_statut_match.php`, {
+        await apiFetch(`${API_BASE}/maj_statut_match.php`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ match_id: matchId, statut_match: suivant }),
@@ -613,7 +613,7 @@ async function cyclerStatutMatch(matchId, statutActuel, badgeEl) {
 
 async function sauvegarderTerrain(matchId, terrainValue) {
     try {
-        await apiFetch(`${API_BASE} / maj_terrain_match.php`, {
+        await apiFetch(`${API_BASE}/maj_terrain_match.php`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ match_id: matchId, terrain: terrainValue || null }),
