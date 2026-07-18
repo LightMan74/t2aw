@@ -30,15 +30,30 @@
         </nav>
 
         <h1>Gestion des matchs de poule</h1>
-        <?php if (isset($_GET["admin"])){?>
-        <button onclick="autosaveandreload()">Enregistrer</button>
-        <?php } ?>
+
         <!-- <label>ID Tournoi :</label> -->
-        <input type="number" id="id_tournoi" value="<?php echo $_GET["id_tournoi"];?>" style="width:100px; margin-bottom:15px;" hidden>
         <!-- <input type="number" id="id_tournoi" value="1" style="width:100px; margin-bottom:15px;"> -->
         <!-- <button onclick="chargerMatchs()">Charger les matchs</button> -->
+        <div class="container-heure-message">
+            <div class="option-heure-manuelle">
+                <?php if (isset($_GET["admin"])){?>
+                <?php } ?><br>
+                <label>
+                    Heure manuelle
+                    <input type="checkbox" id="heureManuelleCheckbox" onchange="toggleHeureManuelle()">
+                </label>
+                <label>
+                    Appliquer le décalage horaire à tous les terrains
+                    <input type="checkbox" id="decalageTousTerrains">
+                </label>
+                <input type="time" id="heureManuelleInput" style="display:none;">
+                <input type="number" id="id_tournoi" value="<?php echo $_GET["id_tournoi"];?>" style="width:100px; margin-bottom:15px;" hidden>
 
-        <div id="message"></div>
+                <button onclick="autosaveandreload()">Enregistrer</button>
+            </div>
+            <div id="message"></div>
+        </div>
+
         <table id="table-matchs">
             <thead>
                 <tr>

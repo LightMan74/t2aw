@@ -78,11 +78,11 @@ $mode_creation = $id_tournoi === 0;
                 <div class="form-row">
                     <div class="form-group">
                         <label for="heure_debut_poule">Heure de début (poules)</label>
-                        <input type="time" id="heure_debut_poule" name="heure_debut_poule" value="00:00" required>
+                        <input type="time" id="heure_debut_poule" name="heure_debut_poule" value="">
                     </div>
                     <div class="form-group">
                         <label for="heure_debut_phasefinal">Heure de début (phase finale)</label>
-                        <input type="time" id="heure_debut_phasefinal" name="heure_debut_phasefinal" value="00:00" required>
+                        <input type="time" id="heure_debut_phasefinal" name="heure_debut_phasefinal" value="">
                     </div>
                 </div>
                 <div class="form-group">

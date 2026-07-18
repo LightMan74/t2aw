@@ -86,6 +86,8 @@ function afficherTable() {
 
         const statusActuel = m.status ?? 'planifie';
 
+        // Dans afficherTable(), remplacer la ligne du <td> heure_debut par :
+
         tr.innerHTML = `
             <td class="categorie-badge ${catClass}">${m.nom_categorie ?? ''}</td>
             <td class="poule-badge ${poleClass}">${m.nom_poule ?? ''}</td>
@@ -98,9 +100,9 @@ function afficherTable() {
             <td>${m.nom_equipe_2 ?? ''}</td>
             <td>
                 <span class="status-badge status-badge-${statusActuel}" 
-                      id="status-badge-${index}" 
-                      onclick="cyclerStatus(${index})"
-                      title="Cliquer pour changer rapidement le statut">
+                    id="status-badge-${index}" 
+                    onclick="cyclerStatus(${index})"
+                    title="Cliquer pour changer rapidement le statut">
                     ${STATUS_LABELS[statusActuel] ?? statusActuel}
                 </span>
                 <select id="status-${index}" style="margin-left:5px;" hidden>
@@ -109,7 +111,10 @@ function afficherTable() {
                     <option value="termine" ${statusActuel === 'termine' ? 'selected' : ''}>Terminé</option>
                 </select>
             </td>
-            <td><input type="time" step="60" value="${(m.heure_debut ?? '').substring(0, 5)}" id="hdebut-${index}"></td>
+            <td>
+                <input type="time" step="60" value="${(m.heure_debut ?? '').substring(0, 5)}" id="hdebut-${index}">
+                <button type="button" class="btn-now" id="btn-now-${index}" title="Mettre à l'heure actuelle et décaler les matchs suivants sur ce terrain" onclick="mettreHeureActuelle(${index})">⏱️</button>
+            </td>
             <td>
                 <span class="save-icon" id="save-icon-${index}" title="Aucune modification en attente" onclick="sauvegarderLigne(${index})"></span>
             </td>
@@ -286,6 +291,211 @@ async function sauvegarderLigne(index) {
         afficherMessage('Erreur réseau : ' + err.message, 'error');
     }
 }
+
+// Variable globale pour stocker le temps de match du paramétrage
+let tempsDeMatch = null;
+
+async function chargerTempsDeMatch() {
+    const id_tournoi = document.getElementById('id_tournoi').value;
+    try {
+        const res = await fetch(`api/get_parametres.php?id_tournoi=${id_tournoi}`);
+        const data = await res.json();
+        console.log('time here ' + data.temps_de_match);
+        if (data.success && data.temps_de_match) {
+            tempsDeMatch = parseInt(data.temps_de_match, 10) || 20;
+            console.log('time here ' + tempsDeMatch);
+        } else {
+            console.warn('Paramètres non trouvés ou temps_de_match manquant, valeur par défaut 20 utilisée', data);
+            tempsDeMatch = 20;
+        }
+    } catch (err) {
+        console.error('Erreur chargement paramètres', err);
+        tempsDeMatch = 20;
+    }
+    console.log('tempsDeMatch chargé:', tempsDeMatch);
+}
+
+function formatHeureMinute(date) {
+    const h = String(date.getHours()).padStart(2, '0');
+    const m = String(date.getMinutes()).padStart(2, '0');
+    return `${h}:${m}`;
+}
+
+function ajouterMinutes(heureStr, minutesAAjouter) {
+    if (!heureStr || isNaN(minutesAAjouter)) {
+        console.error('Paramètres invalides ajouterMinutes', heureStr, minutesAAjouter);
+        return heureStr;
+    }
+    const [h, m] = heureStr.split(':').map(Number);
+    const date = new Date();
+    date.setHours(h, m, 0, 0);
+    date.setMinutes(date.getMinutes() + minutesAAjouter);
+    console.log(`ajouterMinutes: ${heureStr} + ${minutesAAjouter}min = ${formatHeureMinute(date)}`);
+    return formatHeureMinute(date);
+}
+
+async function mettreHeureActuelle(index) {
+    if (tempsDeMatch === null) {
+        await chargerTempsDeMatch();
+    }
+
+    const m = matchsData[index];
+    if (!m) return;
+
+    const terrainInput = document.getElementById(`terrain-${index}`);
+    const terrain = terrainInput?.value ?? m.terrain;
+
+    if (!terrain) {
+        afficherMessage('Aucun terrain défini pour ce match', 'error');
+        return;
+    }
+
+    const statusActuelSelect = document.getElementById(`status-${index}`);
+    const statutActuel = statusActuelSelect?.value ?? m.status;
+
+    if (statutActuel === 'termine') {
+        afficherMessage('Ce match est déjà terminé, heure non modifiée', 'error');
+        return;
+    }
+
+    const tousLesTerrains = document.getElementById('decalageTousTerrains')?.checked ?? false;
+
+    // 1. Mettre l'heure actuelle sur le match cliqué
+    // const maintenant = new Date();
+    // const nouvelleHeureMatch = formatHeureMinute(maintenant);
+    // 1. Déterminer l'heure à utiliser (actuelle ou manuelle)
+    const heureManuelleCheckbox = document.getElementById('heureManuelleCheckbox');
+    const heureManuelleInput = document.getElementById('heureManuelleInput');
+
+    let nouvelleHeureMatch;
+    if (heureManuelleCheckbox?.checked && heureManuelleInput?.value) {
+        nouvelleHeureMatch = heureManuelleInput.value;
+    } else {
+        nouvelleHeureMatch = formatHeureMinute(new Date());
+    }
+
+    const hdebutInput = document.getElementById(`hdebut-${index}`);
+    if (hdebutInput) {
+        hdebutInput.value = nouvelleHeureMatch;
+        marquerModifie(index);
+    }
+
+    // Ordre d'affichage du match cliqué (référence pour "après")
+    const ordreClique = m.ordre_affichage ?? 0;
+
+    let nbModifies = 0;
+
+    // 2. Construire la liste des terrains à traiter
+    const terrainsATraiter = tousLesTerrains
+        ? [...new Set(matchsData.map((mm, idx) => document.getElementById(`terrain-${idx}`)?.value ?? mm.terrain))]
+        : [terrain];
+
+    for (const terrainCourant of terrainsATraiter) {
+
+        // Matchs de ce terrain, triés par ordre_affichage
+        const matchsTerrain = matchsData
+            .map((mm, idx) => ({ mm, idx }))
+            .filter(({ mm, idx }) => {
+                const t = document.getElementById(`terrain-${idx}`)?.value ?? mm.terrain;
+                return String(t) === String(terrainCourant);
+            })
+            .sort((a, b) => (a.mm.ordre_affichage ?? 0) - (b.mm.ordre_affichage ?? 0));
+
+        // Ne garder QUE les matchs strictement après le match cliqué (par ordre_affichage)
+        const matchsApres = matchsTerrain.filter(({ mm }) => (mm.ordre_affichage ?? 0) > ordreClique);
+
+        // Heure de référence pour démarrer la chaîne :
+        // - pour le terrain du match cliqué : l'heure qu'on vient de lui donner
+        // - pour les autres terrains (option "tous les terrains") : l'heure du dernier match
+        //   du terrain dont l'ordre_affichage est <= ordreClique (ou l'heure actuelle si aucun)
+        let heurePrecedente;
+
+        if (String(terrainCourant) === String(terrain)) {
+            heurePrecedente = nouvelleHeureMatch;
+        } else {
+            const matchsAvantOuEgal = matchsTerrain.filter(({ mm }) => (mm.ordre_affichage ?? 0) <= ordreClique);
+            if (matchsAvantOuEgal.length > 0) {
+                const dernier = matchsAvantOuEgal[matchsAvantOuEgal.length - 1];
+                const hInputRef = document.getElementById(`hdebut-${dernier.idx}`);
+                heurePrecedente = hInputRef?.value || nouvelleHeureMatch;
+            } else {
+                heurePrecedente = nouvelleHeureMatch;
+            }
+        }
+
+        // 3. Décaler uniquement les matchs après, en respectant les matchs en cours/terminés
+        for (const { mm, idx } of matchsApres) {
+            const statusSelect = document.getElementById(`status-${idx}`);
+            const statutCourant = statusSelect?.value ?? mm.status;
+
+            const hInput = document.getElementById(`hdebut-${idx}`);
+
+            if (statutCourant === 'en_cours' || statutCourant === 'termine') {
+                // On garde son heure comme référence pour la suite, mais on ne la modifie pas
+                if (hInput?.value) {
+                    heurePrecedente = hInput.value;
+                }
+                continue;
+            }
+
+            const nouvelleHeure = ajouterMinutes(heurePrecedente, tempsDeMatch);
+
+            if (hInput) {
+                hInput.value = nouvelleHeure;
+                marquerModifie(idx);
+                nbModifies++;
+            }
+
+            heurePrecedente = nouvelleHeure;
+        }
+    }
+
+    const portee = tousLesTerrains ? 'tous les terrains' : `le terrain ${terrain}`;
+    afficherMessage(`Heures mises à jour ✓ (${nbModifies} match(s) décalé(s) sur ${portee})`, 'success');
+}
+
+function toggleHeureManuelle() {
+    const checkbox = document.getElementById('heureManuelleCheckbox');
+    const input = document.getElementById('heureManuelleInput');
+    input.style.display = checkbox.checked ? 'inline-block' : 'none';
+
+    if (checkbox.checked && !input.value) {
+        // Pré-remplir avec l'heure actuelle par défaut
+        input.value = formatHeureMinute(new Date());
+    }
+}
+
+function calculerDeltaMinutes(heureInitiale, heureFinale) {
+    if (!heureInitiale || !heureFinale) {
+        console.error('Heure manquante pour calcul delta', heureInitiale, heureFinale);
+        return 0;
+    }
+    const [h1, m1] = heureInitiale.split(':').map(Number);
+    const [h2, m2] = heureFinale.split(':').map(Number);
+
+    if (isNaN(h1) || isNaN(m1) || isNaN(h2) || isNaN(m2)) {
+        console.error('Format heure invalide', heureInitiale, heureFinale);
+        return 0;
+    }
+
+    const delta = (h2 * 60 + m2) - (h1 * 60 + m1);
+    console.log(`Delta calculé: ${heureInitiale} -> ${heureFinale} = ${delta} min`);
+    return delta;
+}
+
+// Compare 2 heures "HH:MM" -> retourne -1, 0 ou 1
+function comparerHeures(heure1, heure2) {
+    const [h1, m1] = heure1.split(':').map(Number);
+    const [h2, m2] = heure2.split(':').map(Number);
+    const total1 = h1 * 60 + m1;
+    const total2 = h2 * 60 + m2;
+    return total1 - total2;
+}
+
+// Charger le temps de match au démarrage de la page
+document.addEventListener('DOMContentLoaded', () => {
+    chargerTempsDeMatch();
+});
 
 document.addEventListener('focus', function (e) {
     if (e.target.tagName === 'INPUT') {

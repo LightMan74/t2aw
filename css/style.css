@@ -219,6 +219,75 @@
     margin-bottom: 12px;
 }
 
+.btn-now {
+    margin-left: 4px;
+    cursor: pointer;
+    border: none;
+    background: #919191;
+    border-radius: 4px;
+    padding: 2px 6px;
+    font-size: 14px;
+}
+
+.parent-container {
+    position: relative;
+}
+
+.option-heure-manuelle {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 6px;
+    width: 100%;
+    margin-bottom: 10px;
+}
+
+.container-heure-message {
+    position: relative;
+    min-height: 40px;
+    /* réserve de la place pour éviter le décalage */
+}
+
+#message {
+    position: absolute;
+    left: 0;
+    top: 0;
+    text-align: left;
+}
+
+/* ---- Messages ---- */
+.message,
+.msg {
+    margin-top: 10px;
+    padding: 10px;
+    border-radius: 4px;
+    text-align: center;
+}
+
+.message.success,
+.msg.success {
+    background: var(--msg-success-bg);
+    color: var(--msg-success-color);
+}
+
+.message.error,
+.msg.error {
+    background: var(--msg-error-bg);
+    color: var(--msg-error-color);
+}
+
+.error-message {
+    background: var(--msg-error-bg);
+    color: var(--msg-error-color);
+    padding: 15px;
+    border-radius: 4px;
+    margin: 20px 0;
+}
+
+.btn-now:hover {
+    background: #ddd;
+}
+
 
 input[type="number"]::-webkit-outer-spin-button,
 input[type="number"]::-webkit-inner-spin-button {
@@ -593,35 +662,6 @@ button:hover {
 .loading {
     color: var(--text-muted);
     font-style: italic;
-}
-
-/* ---- Messages ---- */
-.message,
-.msg {
-    margin-top: 10px;
-    padding: 10px;
-    border-radius: 4px;
-    text-align: center;
-}
-
-.message.success,
-.msg.success {
-    background: var(--msg-success-bg);
-    color: var(--msg-success-color);
-}
-
-.message.error,
-.msg.error {
-    background: var(--msg-error-bg);
-    color: var(--msg-error-color);
-}
-
-.error-message {
-    background: var(--msg-error-bg);
-    color: var(--msg-error-color);
-    padding: 15px;
-    border-radius: 4px;
-    margin: 20px 0;
 }
 
 /* ---- User info ---- */

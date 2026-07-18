@@ -4,7 +4,7 @@ header('Content-Type: application/json');
 include __DIR__ . "/check_connected.php";
 require 'db.php';
  
-$id_tournoi = $_POST['id_tournoi'] ?? null;
+$id_tournoi = $_GET['id_tournoi'] ?? null;
 
 if (!$id_tournoi) {
     echo json_encode(['success' => false, 'error' => 'id_tournoi manquant']);
@@ -18,7 +18,8 @@ try {
 
     echo json_encode([
         'success' => true,
-        'nbre_terrain_poule' => $param['nbre_terrain_poule'] ?? 1
+        'nbre_terrain_poule' => $param['nbre_terrain_poule'] ?? 1,
+        'temps_de_match' => $param['temps_de_match'] ?? 15
     ]);
 } catch (Exception $e) {
     echo json_encode(['success' => false, 'error' => $e->getMessage()]);
