@@ -1,7 +1,6 @@
 // phase_final.js
 
 const API_BASE = 'api/phase_finale';
-
 let currentPhaseFinaleId = null;
 let currentMatchId = null;
 let currentPhaseFinaleIdASupprimer = null;
@@ -589,7 +588,7 @@ async function cyclerStatutMatch(matchId, statutActuel, badgeEl) {
     statutActuel = badgeEl.getAttribute('data-statutJeu');
     const idxCycle = STATUS_CYCLE.indexOf(statutActuel);
     const suivant = STATUS_CYCLE[(idxCycle + 1) % STATUS_CYCLE.length];
-    console.log(idxCycle + " " + suivant);
+    // console.log(idxCycle + " " + suivant);
     // Mise à jour optimiste de l'UI
     badgeEl.setAttribute('data-statutJeu', suivant);
     badgeEl.textContent = STATUS_LABELS[suivant];
