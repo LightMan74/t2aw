@@ -21,7 +21,7 @@ const BracketLinesConfig = {
 
     // ---- Style du chemin (leader-line path) ----
     // Options: 'straight' | 'arc' | 'curve' | 'fluid' | 'magnet'
-    styleChemin: 'magnet',
+    styleChemin: 'fluid',
 
     // ---- Extrémités (embouts) des lignes ----
     // socket : côté "depuis" (source)

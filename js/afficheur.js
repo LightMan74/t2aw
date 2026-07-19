@@ -522,18 +522,18 @@ function chargerScript(url, callback) {
  * Nettoie toutes les lignes LeaderLine existantes et leurs événements hover.
  */
 function effacerLignesBracket() {
-    bracketLines.forEach(line => {
-        if (line && typeof line.remove === 'function') {
-            line.remove();
+    bracketLines.forEach(item => {
+        if (item && item.line && typeof item.line.remove === 'function') {
+            item.line.remove();
         }
     });
     bracketLines = [];
 
-    // Supprimer les event listeners hover sur tous les matchbox
     document.querySelectorAll('.match-box-wrapper').forEach(box => {
         box.classList.remove('line-hover');
         box.removeEventListener('mouseenter', onMatchboxHover);
         box.removeEventListener('mouseleave', onMatchboxLeave);
+        delete box.dataset.lineHoverInit;
     });
 }
 
@@ -621,17 +621,22 @@ function dessinerLignesBracket(data) {
 
             try {
                 const line = new LeaderLine(sourceBox, destBox, {
-                    color:        couleur,
-                    opacity:      BracketLinesConfig.opaciteNormale,
-                    size:         BracketLinesConfig.epaisseurNormale,
-                    path:         BracketLinesConfig.styleChemin,
-                    socket:       BracketLinesConfig.socket,
-                    plug:         BracketLinesConfig.plug,
-                    startSocketGravity:  15,
-                    endSocketGravity:   15
+                    color: couleur,
+                    opacity: BracketLinesConfig.opaciteNormale,
+                    size: BracketLinesConfig.epaisseurNormale,
+                    path: BracketLinesConfig.styleChemin,
+                    socket: BracketLinesConfig.socket,
+                    plug: BracketLinesConfig.plug,
+                    startSocketGravity: 15,
+                    endSocketGravity: 15
                 });
 
-                bracketLines.push(line);
+                // ✅ On stocke les références des boxes liées à cette ligne
+                bracketLines.push({
+                    line: line,
+                    sourceBox: sourceBox,
+                    destBox: destBox
+                });
 
                 // Ajouter les événements hover sur source et destination
                 [sourceBox, destBox].forEach(box => {
@@ -661,7 +666,7 @@ function parserSource(sourceValue) {
     if (!match) return null;
 
     return {
-        type:      match[1],    // 'Win' ou 'Loss'
+        type: match[1],    // 'Win' ou 'Loss'
         matchCode: match[2]      // ex: 'R1_S1_M1'
     };
 }
@@ -669,32 +674,35 @@ function parserSource(sourceValue) {
 /**
  * Gestionnaire mouseenter : augmenter opacité et épaisseur de TOUTES les lignes du bracket.
  */
-function onMatchboxHover() {
+function onMatchboxHover(event) {
     if (!BracketLinesConfig.enabled) return;
     const cfg = BracketLinesConfig;
+    const hoveredBox = event.currentTarget;
 
-    document.querySelectorAll('.match-box-wrapper').forEach(box => {
-        box.classList.add('line-hover');
-    });
+    bracketLines.forEach(item => {
+        const estConcerne = (item.sourceBox === hoveredBox) || (item.destBox === hoveredBox);
 
-    bracketLines.forEach(line => {
-        line.setOptions({ opacity: cfg.opaciteSurvol, size: cfg.epaisseurSurvol });
+        if (estConcerne) {
+            item.line.setOptions({ opacity: cfg.opaciteSurvol, size: cfg.epaisseurSurvol });
+            item.sourceBox.classList.add('line-hover');
+            item.destBox.classList.add('line-hover');
+        }
     });
 }
 
-/**
- * Gestionnaire mouseleave : revenir à l'opacité et épaisseur normales.
- */
-function onMatchboxLeave() {
+function onMatchboxLeave(event) {
     if (!BracketLinesConfig.enabled) return;
     const cfg = BracketLinesConfig;
+    const hoveredBox = event.currentTarget;
 
-    document.querySelectorAll('.match-box-wrapper').forEach(box => {
-        box.classList.remove('line-hover');
-    });
+    bracketLines.forEach(item => {
+        const estConcerne = (item.sourceBox === hoveredBox) || (item.destBox === hoveredBox);
 
-    bracketLines.forEach(line => {
-        line.setOptions({ opacity: cfg.opaciteNormale, size: cfg.epaisseurNormale });
+        if (estConcerne) {
+            item.line.setOptions({ opacity: cfg.opaciteNormale, size: cfg.epaisseurNormale });
+            item.sourceBox.classList.remove('line-hover');
+            item.destBox.classList.remove('line-hover');
+        }
     });
 }
 
