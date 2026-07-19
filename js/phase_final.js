@@ -906,6 +906,15 @@ const terrainInput = null;
 async function chargerTempsDeMatchPF() {
     const idTournoi = parseInt(inputTournoiId.value, 10);
     try {
+
+        // const formDataParam = new FormData();
+        // formDataParam.append('id_tournoi', id_tournoi);
+
+        // const res = await fetch('api/get_parametres.php', {
+        //     method: 'POST',
+        //     body: formDataParam
+        // })
+
         const res = await fetch(`api/get_parametres.php?id_tournoi=${idTournoi}`);
         const data = await res.json();
         if (data.success) {
