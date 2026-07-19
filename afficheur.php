@@ -10,45 +10,6 @@ $id_tournoi = isset($_GET['id_tournoi']) ? (int)$_GET['id_tournoi'] : 0;
     <title>Suivi Tournoi</title>
     <link rel="stylesheet" href="css/var.css">
     <link rel="stylesheet" href="css/afficheur.css">
-    <style>
-        /* ================================================================
-           CSS — Transitions d'opacité des lignes SVG leader-line
-           + highlight des matchbox au survol
-           ================================================================ */
-
-        /* Transition douce sur les lignes SVG générées par leader-line */
-        .bracket-line-svg {
-            transition: opacity 300ms ease;
-        }
-
-        /* Style des lignes via les préférences du wrapper SVG leader-line */
-        [data-bracket-line] {
-            pointer-events: none;
-        }
-
-        /* Highlight visuel des matchbox survolés (pour feedback visuel) */
-        .match-box-wrapper.line-hover .match-box {
-            outline: 2px solid rgba(100, 180, 255, 0.7);
-            outline-offset: 2px;
-        }
-
-        /* Courbe plus lisible des lignes au survol */
-        .bracket-legende-ligne {
-            display: flex;
-            gap: 16px;
-            margin-top: 4px;
-            justify-content: center;
-        }
-
-        /* Badge couleur dans la légende */
-        .legende-item-ligne .legende-couleur {
-            display: inline-block;
-            width: 30px;
-            height: 4px;
-            border-radius: 2px;
-            vertical-align: middle;
-        }
-    </style>
 </head>
 
 <body>
