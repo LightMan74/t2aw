@@ -79,6 +79,8 @@ $id_tournoi = isset($_GET['id_tournoi']) ? (int)$_GET['id_tournoi'] : 0;
     </script>
     <script src="js/colors.js"></script>
     <script src="js/afficheur.js"></script>
+
+
 </body>
 
 </html>

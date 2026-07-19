@@ -432,6 +432,22 @@ function chargerPhaseFinale() {
             return creerBracketPhaseFinale(cat, data.categories);
         });
     });
+
+    function chargerScript(url, callback) {
+        const script = document.createElement('script');
+        script.src = url;
+        script.onload = callback;
+        document.head.appendChild(script);
+    }
+
+    chargerScript('js/leader-line.min.js', function () {
+        // Ce code s'exécute seulement une fois le script chargé
+        new LeaderLine(
+            document.getElementById('matchbox_R1_S1_M1'),
+            document.getElementById('matchbox_R2_S1_M1')
+        );
+    });
+
 }
 
 /**
@@ -570,6 +586,7 @@ function afficherUnePhaseFinale(phase, idCategorie, datacategories) {
                 rounds[roundKey][subKey].forEach(match => {
                     col.appendChild(creerMatchBoxLectureSeule(match));
                 });
+
             });
 
             bracketWrapper.appendChild(col);
@@ -641,10 +658,12 @@ function calculerPlageClassement(round, subKey, nbreTeam) {
  * mais sans addEventListener ni interaction.
  * Inclut terrain et statut de match comme dans phase_final.js.
  */
+
 function creerMatchBoxLectureSeule(match) {
     const wrapper = document.createElement('div');
     wrapper.className = 'match-box-wrapper';
-
+    wrapper.className = 'match-box-wrapper';
+    wrapper.setAttribute("id", "matchbox_" + match.match_code);
     const statutJeu = match.statut_match || 'planifie';
 
     const nom1 = match.nom_equipe1 || match.source_team1 || '???';
