@@ -228,25 +228,42 @@ function genererBracketClassique(PDO $pdo, int $idTournoi, int $idPhaseFinale, i
 // ============================================================
 
 function genererBracketClassementComplet(PDO $pdo, int $idTournoi, int $idPhaseFinale, int $nbEquipes, int $nbRounds, array $equipeIds): int {
+    $stmt = $pdo->prepare("
+        SELECT 
+            IF(`terrain_automatique` = 1, `nbre_terrain_phasefinal`, 0) as nbre_terrain_phasefinal,
+            `heure_debut_phasefinal`,
+            `temps_de_match`
+        FROM `parametre` WHERE id_tournoi = :id
+    ");
+    $stmt->execute(['id' => $idTournoi]);
+    $params = $stmt->fetch(PDO::FETCH_ASSOC);
 
-$stmt = $pdo->prepare("
-            SELECT IF(`terrain_automatique` = 1, `nbre_terrain_phasefinal`, 0) as nbre_terrain_phasefinal FROM `parametre` WHERE id_tournoi = :id
-        ");
-        $stmt->execute(['id' => $idTournoi]);
-        $terrainph = $stmt->fetchAll(PDO::FETCH_ASSOC)[0]['nbre_terrain_phasefinal'];
-        if ($terrainph == 0){
-            $terraincurrent = null;
-        }else{
-            $terraincurrent = 1;
+    $terrainph = (int) ($params['nbre_terrain_phasefinal'] ?? 0);
+    $heureDebut = $params['heure_debut_phasefinal'] ?? null; // format 'HH:MM:SS' ou 'HH:MM'
+    $tempsDeMatch = (int) ($params['temps_de_match'] ?? 20);
+
+    if ($terrainph == 0) {
+        $terraincurrent = null;
+    } else {
+        $terraincurrent = 1;
+    }
+
+    // Tableau des heures courantes par terrain
+    $heureParTerrain = [];
+    if ($terrainph > 0 && $heureDebut) {
+        for ($t = 1; $t <= $terrainph; $t++) {
+            $heureParTerrain[$t] = $heureDebut;
         }
+    }
+
 
     $stmt = $pdo->prepare("
         INSERT INTO matchs_phase_finale
             (id_tournoi, id_phase_finale, round, sub_group, match_num, match_code,
-             source_team1, source_team2, equipe1_id, equipe2_id, classement_min, classement_max, statut, terrain)
+             source_team1, source_team2, equipe1_id, equipe2_id, classement_min, classement_max, statut, terrain, heure_debut)
         VALUES
             (:id_tournoi, :id_phase_finale, :round, :sub_group, :match_num, :match_code,
-             :source_team1, :source_team2, :equipe1_id, :equipe2_id, :classement_min, :classement_max, :statut, :terrain)
+             :source_team1, :source_team2, :equipe1_id, :equipe2_id, :classement_min, :classement_max, :statut, :terrain, :heure_debut)
     ");
 
     $totalMatchs = 0;
@@ -271,6 +288,14 @@ $stmt = $pdo->prepare("
 
         $matchCode = "R0_S1_M{$m}";
 
+        $terrainAssigne = $terraincurrent;
+        $heureAssignee = null;
+
+        if ($terrainAssigne !== null && isset($heureParTerrain[$terrainAssigne])) {
+            $heureAssignee = $heureParTerrain[$terrainAssigne];
+            $heureParTerrain[$terrainAssigne] = ajouterMinutesHeure($heureAssignee, $tempsDeMatch);
+        }
+
         $stmt->execute([
             ':id_tournoi' => $idTournoi,
             ':id_phase_finale' => $idPhaseFinale,
@@ -285,10 +310,15 @@ $stmt = $pdo->prepare("
             ':classement_min' => null,
             ':classement_max' => null,
             ':statut' => 'pret',
-            ':terrain' => ($terraincurrent!=null) ? $terraincurrent++: null,
+            ':terrain' => $terrainAssigne,
+            ':heure_debut' => $heureAssignee,
         ]);
         $totalMatchs++;
-        ($terraincurrent > $terrainph) ? $terraincurrent = 1 : '';
+
+        if ($terraincurrent !== null) {
+            $terraincurrent++;
+            if ($terraincurrent > $terrainph) $terraincurrent = 1;
+        }
     }
 
     // Rounds suivants : logique Win_/Loss_ avec sous-groupes
@@ -310,7 +340,7 @@ $stmt = $pdo->prepare("
 
             $nbMatchsSub = $arrayRound[$j][0] / 2;
 
-            for ($m = 1; $m <= $nbMatchsSub; $m++) {
+                        for ($m = 1; $m <= $nbMatchsSub; $m++) {
                 $matchCode = "R{$j}_S{$k}_M{$m}";
                 $sourceM1 = $m + $mplus;
                 $mplus++;
@@ -318,6 +348,14 @@ $stmt = $pdo->prepare("
 
                 $sourceTeam1 = "{$wl}R" . ($j - 1) . "_S{$splus}_M{$sourceM1}";
                 $sourceTeam2 = "{$wl}R" . ($j - 1) . "_S{$splus}_M{$sourceM2}";
+
+                $terrainAssigne = $terraincurrent;
+                $heureAssignee = null;
+
+                if ($terrainAssigne !== null && isset($heureParTerrain[$terrainAssigne])) {
+                    $heureAssignee = $heureParTerrain[$terrainAssigne];
+                    $heureParTerrain[$terrainAssigne] = ajouterMinutesHeure($heureAssignee, $tempsDeMatch);
+                }
 
                 $stmt->execute([
                     ':id_tournoi' => $idTournoi,
@@ -333,10 +371,15 @@ $stmt = $pdo->prepare("
                     ':classement_min' => $classementMin,
                     ':classement_max' => $classementMax,
                     ':statut' => 'en_attente',
-                    ':terrain' => ($terraincurrent!=null) ? $terraincurrent++: null,
+                    ':terrain' => $terrainAssigne,
+                    ':heure_debut' => $heureAssignee,
                 ]);
                 $totalMatchs++;
-                ($terraincurrent > $terrainph) ? $terraincurrent = 1 : '';
+
+                if ($terraincurrent !== null) {
+                    $terraincurrent++;
+                    if ($terraincurrent > $terrainph) $terraincurrent = 1;
+                }
             }
         }
     }
@@ -361,4 +404,13 @@ function genererOrdreSeeding(int $nbEquipes): array {
         $ordre = $nouvelOrdre;
     }
     return $ordre;
+}
+
+function ajouterMinutesHeure(string $heure, int $minutes): string {
+    $dt = DateTime::createFromFormat('H:i:s', strlen($heure) === 5 ? $heure . ':00' : $heure);
+    if (!$dt) {
+        $dt = DateTime::createFromFormat('H:i', $heure);
+    }
+    $dt->modify("+{$minutes} minutes");
+    return $dt->format('H:i');
 }
