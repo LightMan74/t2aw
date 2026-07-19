@@ -134,7 +134,7 @@ try {
                 'classement_min'      => $row['classement_min'] ? (int)$row['classement_min'] : null,
                 'classement_max'      => $row['classement_max'] ? (int)$row['classement_max'] : null,
                 'terrain'             => $row['terrain'] ? (int)$row['terrain'] : null,
-                'heure_debut'         => $row['heure_debut'] ? (int)$row['heure_debut'] : null,
+                'heure_debut'         => $row['heure_debut'] ? $row['heure_debut'] : null,
             ];
         }
     }

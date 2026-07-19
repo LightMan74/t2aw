@@ -671,9 +671,12 @@ function creerMatchBoxLectureSeule(match) {
     const terrainBadge = (match.terrain && statutJeu !== 'termine')
         ? `<div class="terrain-badge-externe">Terrain ${escapeHTML(String(match.terrain))}</div>`
         : '';
+    const heureBadge = (match.heure_debut && statutJeu !== 'termine')
+        ? `<div class="heure-badge-externe">${match.heure_debut}</div>`
+        : '';
 
     wrapper.innerHTML = `
-        ${terrainBadge}
+        ${terrainBadge} ${heureBadge}
         <div class="match-box ${match.statut || ''} statut-${statutJeu}">
             ${simuleBadge}
             <div class="team-line ${classeTeam1}">
@@ -684,7 +687,7 @@ function creerMatchBoxLectureSeule(match) {
                 <span>${escapeHTML(nom2)}</span>
                 <span>${escapeHTML(score2Str)}</span>
             </div>
-            <div class="match-code">${escapeHTML(match.match_code || '')}</div>
+            <div class="match-code" style="font-size:50%;">${escapeHTML(match.match_code || '')}</div>
         </div>
     `;
 

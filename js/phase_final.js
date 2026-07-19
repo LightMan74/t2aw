@@ -821,43 +821,6 @@ async function validerScoreFinal(score1, score2) {
     }
 }
 
-// document.getElementById('btn-valider-score').addEventListener('click', async () => {
-//     const score1 = parseInt(document.getElementById('modal-score1').value, 10);
-//     const score2 = parseInt(document.getElementById('modal-score2').value, 10);
-//     const selectStatut = document.getElementById('modal-statut-match');
-
-//     if (score1 === score2 && selectStatut.value == 'termine') {
-//         afficherMessage('msg-modal', 'Les scores ne peuvent pas être égaux (pas de match nul)', 'error');
-//         return;
-//     }
-
-//     // const selectStatut = document.getElementById('modal-statut-match');
-//     const inputTerrain = document.getElementById('modal-terrain');
-
-//     const payload = {
-//         match_id: currentMatchId,
-//         score1,
-//         score2
-//     };
-
-//     if (selectStatut) payload.statut_match = selectStatut.value;
-//     if (inputTerrain) payload.terrain = inputTerrain.value || null;
-
-//     try {
-//         await apiFetch(`${API_BASE}/saisir_score.php`, {
-//             method: 'POST',
-//             headers: { 'Content-Type': 'application/json' },
-//             body: JSON.stringify(payload),
-//         });
-
-//         document.getElementById('modal-score').classList.add('hidden');
-//         ouvrirBracket(currentPhaseFinaleId);
-
-//     } catch (err) {
-//         afficherMessage('msg-modal', err.message, 'error');
-//     }
-// });
-
 // ---------- Simulation ----------
 
 document.getElementById('btn-simuler-rounds').addEventListener('click', async () => {
