@@ -12,6 +12,8 @@ $nom         = trim($input['nom'] ?? 'Phase Finale');
 $typeBracket = $input['type_bracket'] ?? 'classique';
 $nbEquipes   = (int)($input['nb_equipes'] ?? 0);
 
+$resetTerrainRound = !empty($input['reset_terrain_round']);
+
 $equipesSelectionnees = $input['equipesSelectionnees'] ?? [];
 
 if ($idTournoi <= 0 || $idCategorie <= 0 || $nbEquipes < 2) {
@@ -113,11 +115,11 @@ try {
     }
 
     // 3. Générer les matchs selon le type de bracket
-    if ($typeBracket === 'classique') {
-        $nbMatchs = genererBracketClassique($pdo, $idTournoi, $idPhaseFinale, $nbEquipesArrondi, $nbRounds, $equipeIds);
-    } else {
-        $nbMatchs = genererBracketClassementComplet($pdo, $idTournoi, $idPhaseFinale, $nbEquipesArrondi, $nbRounds, $equipeIds);
-    }
+if ($typeBracket === 'classique') {
+    $nbMatchs = genererBracketClassique($pdo, $idTournoi, $idPhaseFinale, $nbEquipesArrondi, $nbRounds, $equipeIds, $resetTerrainRound);
+} else {
+    $nbMatchs = genererBracketClassementComplet($pdo, $idTournoi, $idPhaseFinale, $nbEquipesArrondi, $nbRounds, $equipeIds, $resetTerrainRound);
+}
 
     $pdo->commit();
 
@@ -142,7 +144,7 @@ try {
 // BRACKET CLASSIQUE (élimination directe, seeding standard)
 // ============================================================
 
-function genererBracketClassique(PDO $pdo, int $idTournoi, int $idPhaseFinale, int $nbEquipes, int $nbRounds, array $equipeIds): int {
+function genererBracketClassique(PDO $pdo, int $idTournoi, int $idPhaseFinale, int $nbEquipes, int $nbRounds, array $equipeIds, bool $resetTerrainRound = false): int {
     $stmt = $pdo->prepare("
         SELECT 
             IF(`terrain_automatique` = 1, `nbre_terrain_phasefinal`, 0) as nbre_terrain_phasefinal,
@@ -226,8 +228,12 @@ function genererBracketClassique(PDO $pdo, int $idTournoi, int $idPhaseFinale, i
         }
     }
 
-    // Rounds suivants : uniquement les vainqueurs progressent (1 seul sub_group)
     for ($round = 1; $round < $nbRounds; $round++) {
+        // Réinitialisation du terrain à chaque nouveau round si demandé
+        if ($resetTerrainRound && $terraincurrent !== null) {
+            $terraincurrent = 1;
+        }
+
         $nbMatchsRound = $nbEquipes / pow(2, $round + 1);
         $isFinale = ($round === $nbRounds - 1);
 
@@ -284,7 +290,7 @@ function genererBracketClassique(PDO $pdo, int $idTournoi, int $idPhaseFinale, i
 // BRACKET CLASSEMENT COMPLET
 // ============================================================
 
-function genererBracketClassementComplet(PDO $pdo, int $idTournoi, int $idPhaseFinale, int $nbEquipes, int $nbRounds, array $equipeIds): int {
+function genererBracketClassementComplet(PDO $pdo, int $idTournoi, int $idPhaseFinale, int $nbEquipes, int $nbRounds, array $equipeIds, bool $resetTerrainRound = false): int {
     $stmt = $pdo->prepare("
         SELECT 
             IF(`terrain_automatique` = 1, `nbre_terrain_phasefinal`, 0) as nbre_terrain_phasefinal,
@@ -380,6 +386,11 @@ function genererBracketClassementComplet(PDO $pdo, int $idTournoi, int $idPhaseF
 
     // Rounds suivants : logique Win_/Loss_ avec sous-groupes
     for ($j = 1; $j < count($arrayRound); $j++) {
+        // Réinitialisation du terrain à chaque nouveau round si demandé
+        if ($resetTerrainRound && $terraincurrent !== null) {
+            $terraincurrent = 1;
+        }
+
         $isDernierRound = ($j === count($arrayRound) - 1);
         $classementPlace = 1;
 

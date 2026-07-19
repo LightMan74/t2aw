@@ -253,7 +253,8 @@ document.getElementById('form-creation').addEventListener('submit', async e => {
         nom: inputNom.value.trim(),
         type_bracket: document.getElementById('input-type-bracket').value,
         nb_equipes: equipesOrdre.length,
-        equipesSelectionnees: equipesOrdre
+        equipesSelectionnees: equipesOrdre,
+        reset_terrain_round: document.getElementById('input-reset-terrain').checked
     };
 
     try {

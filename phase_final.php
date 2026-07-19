@@ -112,7 +112,14 @@ $tournoi_id = isset($_GET['id_tournoi']) ? (int)$_GET['id_tournoi'] : 0;
                         <label for="input-nb-equipes">Nombre d'équipes</label>
                         <input type="number" id="input-nb-equipes" min="2" required readonly placeholder="—">
                     </div>
+                    <div class="form-group">
+                        <label>
+                            <input type="checkbox" id="input-reset-terrain">
+                            Réinitialiser les terrains à 1 à chaque round
+                        </label>
+                    </div>
                 </div>
+
 
                 <!-- Ordre de départ (seeding) -->
                 <div id="ordre-equipes-panel" class="hidden">
