@@ -222,6 +222,7 @@ button.danger:hover {
     flex-direction: column;
     justify-content: space-around;
     min-width: 220px;
+    margin: 15px auto;
 }
 
 .round-title {
@@ -534,6 +535,7 @@ button.danger:hover {
         grid-template-columns: 1fr;
     }
 }
+
 /* ========================================
    Modale Confirmation Vainqueur
    ======================================== */

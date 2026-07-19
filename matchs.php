@@ -64,9 +64,6 @@
                         <nobr>Poule</nobr>
                     </th>
                     <th>
-                        <nobr>Terrain</nobr>
-                    </th>
-                    <th>
                         <nobr>Equipe 1</nobr>
                     </th>
                     <th>
@@ -74,6 +71,9 @@
                     </th>
                     <th>
                         <nobr>Equipe 2</nobr>
+                    </th>
+                    <th>
+                        <nobr>Terrain</nobr>
                     </th>
                     <th>
                         <nobr>Statut</nobr>
