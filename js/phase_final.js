@@ -320,6 +320,8 @@ async function chargerListePhases(idTournoi) {
     } catch (err) {
         listeEl.innerHTML = `<li>Erreur: ${err.message}</li>`;
     }
+
+
 }
 
 // ---------- Suppression ----------
@@ -359,6 +361,8 @@ document.getElementById('btn-confirmer-suppression').addEventListener('click', a
     } catch (err) {
         afficherMessage('msg-modal-suppression', err.message, 'error');
     }
+    selectCategorie.value = "";
+    document.getElementById('liste-ordre-equipes').innerHTML = '';
 });
 
 // ---------- Bracket ----------
@@ -379,6 +383,10 @@ async function ouvrirBracket(idPhaseFinale) {
     } catch (err) {
         alert('Erreur chargement bracket: ' + err.message);
     }
+
+    selectCategorie.value = "";
+    document.getElementById('liste-ordre-equipes').innerHTML = '';
+
 }
 
 // ---------- Équipes ----------
@@ -396,7 +404,7 @@ function afficherEquipes(equipes) {
 
         div.innerHTML = `
             <small>Seed ${equipe.seed_position}</small>
-            <input type="text" value="${equipe.nom_equipe}" data-equipe-id="${equipe.id}" ${disabled}>
+            <input type="text" value="${equipe.nom_equipe}" data-equipe-id="${equipe.id}" ${disabled} disabled>
             ${badge}
         `;
         container.appendChild(div);

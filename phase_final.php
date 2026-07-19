@@ -34,6 +34,48 @@ $tournoi_id = isset($_GET['id_tournoi']) ? (int)$_GET['id_tournoi'] : 0;
             <h1>🏸 Gestion des Phases Finales</h1>
         </header>
         <!-- <main class="container"> -->
+
+        <!-- Liste des phases finales existantes -->
+        <section id="section-liste" class="section">
+            <div class="section-header">
+                <h2>Phases finales existantes</h2>
+            </div>
+            <button id="btn-rafraichir-liste" class="btn btn-back hidden" type="button">Rafraîchir</button>
+            <ul id="liste-phases"></ul>
+        </section>
+
+        <!-- Détail / Bracket -->
+        <section id="section-bracket" class="section hidden">
+            <div class="option-heure-manuelle">
+                <label>
+                    Heure manuelle
+                    <input type="checkbox" id="heureManuelleCheckboxPF" onchange="toggleHeureManuellePF()">
+                </label>
+                <input type="time" id="heureManuelleInputPF" style="display:none;">
+            </div>
+            <div class="section-header">
+                <h2 id="titre-bracket">Bracket</h2>
+            </div>
+            <div id="bracket-container" class="bracket-container"></div>
+
+            <div id="simulation-panel" class="simulation-panel">
+                <label for="input-nb-rounds-simuler">
+                    Nombre de rounds à sauter (simulation automatique)
+                </label>
+                <div class="form-row" style="align-items: flex-end; gap: 10px;">
+                    <div class="form-group" style="margin-bottom:0">
+                        <input type="number" id="input-nb-rounds-simuler" min="1" value="1">
+                    </div>
+                    <button type="button" id="btn-simuler-rounds" class="btn btn-modifier">⏩ Simuler et sauter ces rounds</button>
+                </div>
+                <p id="msg-simulation" class="msg"></p>
+            </div>
+
+            <div id="equipes-panel">
+                <h3>Équipes</h3>
+                <div id="liste-equipes" class="equipes-grid"></div>
+            </div>
+        </section>
         <!-- Création d'une nouvelle phase finale -->
         <section id="section-creation" class="section">
             <div class="section-header">
@@ -86,47 +128,6 @@ $tournoi_id = isset($_GET['id_tournoi']) ? (int)$_GET['id_tournoi'] : 0;
             <p id="msg-creation" class="msg"></p>
         </section>
 
-        <!-- Liste des phases finales existantes -->
-        <section id="section-liste" class="section">
-            <div class="section-header">
-                <h2>Phases finales existantes</h2>
-            </div>
-            <button id="btn-rafraichir-liste" class="btn btn-back hidden" type="button">Rafraîchir</button>
-            <ul id="liste-phases"></ul>
-        </section>
-
-        <!-- Détail / Bracket -->
-        <section id="section-bracket" class="section hidden">
-            <div class="option-heure-manuelle">
-                <label>
-                    Heure manuelle
-                    <input type="checkbox" id="heureManuelleCheckboxPF" onchange="toggleHeureManuellePF()">
-                </label>
-                <input type="time" id="heureManuelleInputPF" style="display:none;">
-            </div>
-            <div class="section-header">
-                <h2 id="titre-bracket">Bracket</h2>
-            </div>
-            <div id="bracket-container" class="bracket-container"></div>
-
-            <div id="simulation-panel" class="simulation-panel">
-                <label for="input-nb-rounds-simuler">
-                    Nombre de rounds à sauter (simulation automatique)
-                </label>
-                <div class="form-row" style="align-items: flex-end; gap: 10px;">
-                    <div class="form-group" style="margin-bottom:0">
-                        <input type="number" id="input-nb-rounds-simuler" min="1" value="1">
-                    </div>
-                    <button type="button" id="btn-simuler-rounds" class="btn btn-modifier">⏩ Simuler et sauter ces rounds</button>
-                </div>
-                <p id="msg-simulation" class="msg"></p>
-            </div>
-
-            <div id="equipes-panel">
-                <h3>Équipes</h3>
-                <div id="liste-equipes" class="equipes-grid"></div>
-            </div>
-        </section>
         <!-- </main> -->
 
         <!-- Modale de saisie de score -->
