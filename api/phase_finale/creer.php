@@ -144,12 +144,39 @@ try {
 
 function genererBracketClassique(PDO $pdo, int $idTournoi, int $idPhaseFinale, int $nbEquipes, int $nbRounds, array $equipeIds): int {
     $stmt = $pdo->prepare("
+        SELECT 
+            IF(`terrain_automatique` = 1, `nbre_terrain_phasefinal`, 0) as nbre_terrain_phasefinal,
+            `heure_debut_phasefinal`,
+            `temps_de_match`
+        FROM `parametre` WHERE id_tournoi = :id
+    ");
+    $stmt->execute(['id' => $idTournoi]);
+    $params = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    $terrainph = (int) ($params['nbre_terrain_phasefinal'] ?? 0);
+    $heureDebut = $params['heure_debut_phasefinal'] ?? null;
+    $tempsDeMatch = (int) ($params['temps_de_match'] ?? 20);
+
+    if ($terrainph == 0) {
+        $terraincurrent = null;
+    } else {
+        $terraincurrent = 1;
+    }
+
+    $heureParTerrain = [];
+    if ($terrainph > 0 && $heureDebut) {
+        for ($t = 1; $t <= $terrainph; $t++) {
+            $heureParTerrain[$t] = $heureDebut;
+        }
+    }
+
+    $stmt = $pdo->prepare("
         INSERT INTO matchs_phase_finale
             (id_tournoi, id_phase_finale, round, sub_group, match_num, match_code,
-             source_team1, source_team2, equipe1_id, equipe2_id, statut)
+             source_team1, source_team2, equipe1_id, equipe2_id, statut, terrain, heure_debut)
         VALUES
             (:id_tournoi, :id_phase_finale, :round, :sub_group, :match_num, :match_code,
-             :source_team1, :source_team2, :equipe1_id, :equipe2_id, :statut)
+             :source_team1, :source_team2, :equipe1_id, :equipe2_id, :statut, :terrain, :heure_debut)
     ");
 
     $totalMatchs = 0;
@@ -168,6 +195,14 @@ function genererBracketClassique(PDO $pdo, int $idTournoi, int $idPhaseFinale, i
 
         $matchCode = "R0_S1_M{$m}";
 
+        $terrainAssigne = $terraincurrent;
+        $heureAssignee = null;
+
+        if ($terrainAssigne !== null && isset($heureParTerrain[$terrainAssigne])) {
+            $heureAssignee = $heureParTerrain[$terrainAssigne];
+            $heureParTerrain[$terrainAssigne] = ajouterMinutesHeure($heureAssignee, $tempsDeMatch);
+        }
+
         $stmt->execute([
             ':id_tournoi' => $idTournoi,
             ':id_phase_finale' => $idPhaseFinale,
@@ -180,8 +215,15 @@ function genererBracketClassique(PDO $pdo, int $idTournoi, int $idPhaseFinale, i
             ':equipe1_id' => $equipe1Id,
             ':equipe2_id' => $equipe2Id,
             ':statut' => 'pret',
+            ':terrain' => $terrainAssigne,
+            ':heure_debut' => $heureAssignee,
         ]);
         $totalMatchs++;
+
+        if ($terraincurrent !== null) {
+            $terraincurrent++;
+            if ($terraincurrent > $terrainph) $terraincurrent = 1;
+        }
     }
 
     // Rounds suivants : uniquement les vainqueurs progressent (1 seul sub_group)
@@ -197,6 +239,14 @@ function genererBracketClassique(PDO $pdo, int $idTournoi, int $idPhaseFinale, i
             $sourceTeam1 = "Win_R" . ($round - 1) . "_S1_M{$sourceM1}";
             $sourceTeam2 = "Win_R" . ($round - 1) . "_S1_M{$sourceM2}";
 
+            $terrainAssigne = $terraincurrent;
+            $heureAssignee = null;
+
+            if ($terrainAssigne !== null && isset($heureParTerrain[$terrainAssigne])) {
+                $heureAssignee = $heureParTerrain[$terrainAssigne];
+                $heureParTerrain[$terrainAssigne] = ajouterMinutesHeure($heureAssignee, $tempsDeMatch);
+            }
+
             $stmt->execute([
                 ':id_tournoi' => $idTournoi,
                 ':id_phase_finale' => $idPhaseFinale,
@@ -209,8 +259,15 @@ function genererBracketClassique(PDO $pdo, int $idTournoi, int $idPhaseFinale, i
                 ':equipe1_id' => null,
                 ':equipe2_id' => null,
                 ':statut' => 'en_attente',
+                ':terrain' => $terrainAssigne,
+                ':heure_debut' => $heureAssignee,
             ]);
             $totalMatchs++;
+
+            if ($terraincurrent !== null) {
+                $terraincurrent++;
+                if ($terraincurrent > $terrainph) $terraincurrent = 1;
+            }
 
             // Ajout des classements sur la finale
             if ($isFinale) {
