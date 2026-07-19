@@ -471,7 +471,7 @@ function afficherBracket(matchs, phase) {
                 const subTitre = document.createElement('div');
                 subTitre.className = 'sub-group-title';
                 const skNum = Number(subKey);
-                const range = calculerPlageClassement(Number(roundKey), skNum, phase.nb_equipes);
+                const range = calculerPlageClassement(Number(roundKey), skNum, phase.nb_equipes_arrondi);
                 const reelround = roundKeys.indexOf(roundKey) + 1;
                 if (reelround > 1) {
                     subTitre.innerHTML = (skNum % 2 === 1)

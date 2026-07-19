@@ -544,6 +544,7 @@ function afficherUnePhaseFinale(phase, idCategorie, datacategories) {
             const subKeys = Object.keys(rounds[roundKey]).sort((a, b) => Number(a) - Number(b));
 
             let nbre_team = datacategories[0].phases_finales[0].nb_equipes;
+            let nb_equipes_arrondi = datacategories[0].phases_finales[0].nb_equipes_arrondi;
 
             subKeys.forEach(subKey => {
                 // Label sub_group seulement si bracket "classement complet" (plusieurs branches)
@@ -553,7 +554,7 @@ function afficherUnePhaseFinale(phase, idCategorie, datacategories) {
                     const skNum = Number(subKey);
 
                     // Calcul de la plage de classement pour ce round/subKey
-                    const range = calculerPlageClassement(Number(roundKey), skNum, nbre_team);
+                    const range = calculerPlageClassement(Number(roundKey), skNum, nb_equipes_arrondi);
                     if (reelround > 1) {
                         subLabel.innerHTML = (skNum % 2 === 1)
                             ? 'Classement ' + range + '<br>Vainqueur match précédent'

@@ -69,6 +69,7 @@ $sqlPF = "SELECT
               c.id_categorie,
               pf.nom AS nom_phase_finale,
               pf.nb_equipes,
+              pf.nb_equipes_arrondi,
               c.nom AS nom_categorie,
               para.troissets AS troissets,
               eq1.nom AS nom_equipe_1,
@@ -89,7 +90,7 @@ $sqlPF = "SELECT
               AND eq2.id_poule = e2.id_poule
               AND eq2.id_equipe = e2.id_equipe
           LEFT JOIN parametre para ON para.id_tournoi = pf.id_tournoi
-          WHERE pf.id_tournoi = ? AND m.statut <> 'simule'
+          WHERE pf.id_tournoi = ?
           ORDER BY m.round ASC, m.sub_group ASC, m.id ASC";
 $stmtPF = $pdo->prepare($sqlPF);
 $stmtPF->execute([$id_tournoi]);
@@ -130,32 +131,34 @@ $matchsPF = [];
 foreach ($matchsPFRaw as $m) {
     $pid = $m['id_phase_finale'];
     $nbRounds = $nbRoundsParPhase[$pid] ?? 1;
-    $labelRound = labelRoundPhaseFinale((int)$m['round'], $nbRounds, $m['classement_min'], $m['sub_group'], $m['nb_equipes']);
-
-    $matchsPF[] = [
-        'id_tournoi'        => $id_tournoi,
-        'id_categorie'      => $m['id_categorie'],
-        'nom_categorie'     => $m['nom_categorie'],
-        'nom_poule'         => $labelRound,
-        'nom_phase_finale'  => $m['nom_phase_finale'],
-        'label_round'       => $labelRound,
-        'id_poule'          => null,
-        'id_poule_2'        => null,
-        'nom_equipe_1'      => $m['nom_equipe_1'] ?: ($m['source_team1'] ?: '?'),
-        'nom_equipe_2'      => $m['nom_equipe_2'] ?: ($m['source_team2'] ?: '?'),
-        'score_equipe_1'    => $m['score1'],
-        'score_equipe_2'    => $m['score2'],
-        'classement_min'    => $m['classement_min'],
-        'classement_max'    => $m['classement_max'],
-        'status'            => $m['statut_match'],
-        'terrain'           => $m['terrain'],
-        'heure_debut'       => $m['heure_debut'],
-        'troissets'         => $m['troissets'],
-        'statut_match'      => $m['statut_match'],
-        'type_match'        => 'phase_finale',
-        'match_code'        => 'match_code',
-        'nb_equipes'        => 'nb_equipes',
-    ];
+    $labelRound = labelRoundPhaseFinale((int)$m['round'], $nbRounds, $m['classement_min'], $m['sub_group'], $m['nb_equipes_arrondi']);
+    if ($m['status']!="simule"){
+        $matchsPF[] = [
+            'id_tournoi'        => $id_tournoi,
+            'id_categorie'      => $m['id_categorie'],
+            'nom_categorie'     => $m['nom_categorie'],
+            'nom_poule'         => $labelRound,
+            'nom_phase_finale'  => $m['nom_phase_finale'],
+            'label_round'       => $labelRound,
+            'id_poule'          => null,
+            'id_poule_2'        => null,
+            'nom_equipe_1'      => $m['nom_equipe_1'] ?: ($m['source_team1'] ?: '?'),
+            'nom_equipe_2'      => $m['nom_equipe_2'] ?: ($m['source_team2'] ?: '?'),
+            'score_equipe_1'    => $m['score1'],
+            'score_equipe_2'    => $m['score2'],
+            'classement_min'    => $m['classement_min'],
+            'classement_max'    => $m['classement_max'],
+            'status'            => $m['statut_match'],
+            'terrain'           => $m['terrain'],
+            'heure_debut'       => $m['heure_debut'],
+            'troissets'         => $m['troissets'],
+            'statut_match'      => $m['statut_match'],
+            'type_match'        => 'phase_finale',
+            'match_code'        => 'match_code',
+            'nb_equipes'        => 'nb_equipes',
+            'nb_equipes_arrondi'        => 'nb_equipes_arrondi',
+        ];
+    }
 }
 
 // --------- Fusion et regroupement par statut ---------

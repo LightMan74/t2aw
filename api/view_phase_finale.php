@@ -159,6 +159,7 @@ try {
             'nom'             => $p['nom'],
             'type_bracket'    => $p['type_bracket'],
             'nb_equipes'      => (int)$p['nb_equipes'],
+            'nb_equipes_arrondi'      => (int)$p['nb_equipes_arrondi'],
             'statut'          => $p['statut'],
             'equipes'         => $equipesMap[$pid] ?? [],
             'matchs'          => $matchsMap[$pid] ?? [],
