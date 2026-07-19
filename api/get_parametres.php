@@ -4,13 +4,13 @@ header('Content-Type: application/json');
 include __DIR__ . "/check_connected.php";
 require 'db.php';
  
-$id_tournoi = $_GET['id_tournoi'] ?? null;
+$id_tournoi = $_POST['id_tournoi'] ?? null;
 
 if (!$id_tournoi) {
     echo json_encode(['success' => false, 'error' => 'id_tournoi manquant']);
     exit;
 }
-
+ 
 try {
     $stmt = $pdo->prepare("SELECT * FROM parametre WHERE id_tournoi = ?");
     $stmt->execute([$id_tournoi]);
