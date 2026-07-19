@@ -21,7 +21,7 @@ try {
     echo json_encode([
         'success' => true,
         'nbre_terrain_poule' => $param['nbre_terrain_poule'] ?? 1,
-        'temps_de_match' => $param['temps_de_match'] ?? 15
+        'temps_de_match' => $param['temps_de_match'] ?? 20
     ]);
 } catch (Exception $e) {
     echo json_encode(['success' => false, 'error' => $e->getMessage()]);
