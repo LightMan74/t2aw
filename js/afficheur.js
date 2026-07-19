@@ -1,6 +1,7 @@
 /**
  * afficheur.js — Page d'affichage/publication des matchs (lecture seule)
  * Inclut colors.js pour la coloration catégories/poules
+ * + bracket-lines-config.js pour la configuration des liaisons du bracket
  */
 
 let currentTab = 'matchs';
@@ -8,6 +9,16 @@ let refreshTimer = null;
 let countdownTimer = null;
 let secondsLeft = 600;
 
+// ================================================================
+// VARIABLES — LIGNES DU BRACKET (leader-line)
+// ================================================================
+let bracketLines = [];         // Tableau des instances LeaderLine actives
+let resizeTimer = null;        // Timer debounce pour le resize
+let leaderLineLoaded = false;  // Indique si leader-line.min.js est chargé
+
+// ================================================================
+// INITIALISATION
+// ================================================================
 document.addEventListener('DOMContentLoaded', () => {
     initTabs();
     initDarkMode();
@@ -24,6 +35,15 @@ document.addEventListener('DOMContentLoaded', () => {
         if (isNaN(val) || val < 3) val = 3;
         e.target.value = val;
         initRefresh();
+    });
+
+    // Redimensionnement de la fenêtre → redessiner les lignes
+    window.addEventListener('resize', () => {
+        if (!BracketLinesConfig.enabled) return;
+        clearTimeout(resizeTimer);
+        resizeTimer = setTimeout(() => {
+            redessinerLignesBracket();
+        }, 150);
     });
 });
 
@@ -398,6 +418,9 @@ function chargerPhaseFinale() {
     const container = document.getElementById('phase-finale-content');
     container.innerHTML = '<div class="vide">Chargement des phases finales...</div>';
 
+    // Nettoyer les lignes du bracket précédent avant de recharger
+    effacerLignesBracket();
+
     fetchJSON(`api/view_phase_finale.php?id_tournoi=${ID_TOURNOI}`, (data) => {
         container.innerHTML = '';
 
@@ -423,31 +446,256 @@ function chargerPhaseFinale() {
                     <div class="legende-couleur" style="background: #cbcbcb; border-left: 5px solid var(--status-badge-termine-bg) !important;"></div>
                     <span>Terminé</span>
                 </div>
+                <div class="legende-item legende-item-ligne">
+                    <div class="legende-couleur" style="background: ${BracketLinesConfig.couleurGagnant}; height: 3px; border: none;"></div>
+                    <span>Gagnant</span>
+                </div>
+                <div class="legende-item legende-item-ligne">
+                    <div class="legende-couleur" style="background: ${BracketLinesConfig.couleurPerdant}; height: 3px; border: none;"></div>
+                    <span>Perdant</span>
                 </div>
             </div>
         `;
         container.appendChild(legende);
 
+        // Construire les sous-onglets par catégorie
         construireSousOnglets(container, data.categories, 'phase_finale', (cat) => {
             return creerBracketPhaseFinale(cat, data.categories);
         });
-    });
 
-    function chargerScript(url, callback) {
-        const script = document.createElement('script');
-        script.src = url;
-        script.onload = callback;
-        document.head.appendChild(script);
+        // Une fois le bracket rendu dans le DOM, dessiner les lignes
+        if (BracketLinesConfig.enabled) {
+            chargerLeaderLinePuisDessiner(data);
+        }
+    });
+}
+
+/**
+ * Charge leader-line.min.js s'il ne l'est pas encore,
+ * puis exécute le callback une fois prêt.
+ * @param {object} data - Données complètes de phase finale (pour dessiner les lignes après)
+ */
+function chargerLeaderLinePuisDessiner(data) {
+    if (typeof LeaderLine !== 'undefined') {
+        // Déjà chargé → dessiner immédiatement
+        dessinerLignesBracket(data);
+        return;
     }
 
     chargerScript('js/leader-line.min.js', function () {
-        // Ce code s'exécute seulement une fois le script chargé
-        new LeaderLine(
-            document.getElementById('matchbox_R1_S1_M1'),
-            document.getElementById('matchbox_R2_S1_M1')
-        );
+        leaderLineLoaded = true;
+        // Petit délai pour que leader-line soit pleinement initialisé
+        setTimeout(() => {
+            dessinerLignesBracket(data);
+        }, 50);
+    });
+}
+
+/**
+ * Charge un script JS dynamiquement.
+ * @param {string} url - URL du fichier JS
+ * @param {function} callback - Fonction appelée une fois le script chargé
+ */
+function chargerScript(url, callback) {
+    const existing = document.querySelector(`script[src="${url}"]`);
+    if (existing) {
+        // Script déjà en cours de chargement ou chargé
+        if (existing.dataset.loaded === 'true') {
+            callback();
+        } else {
+            existing.addEventListener('load', callback);
+        }
+        return;
+    }
+
+    const script = document.createElement('script');
+    script.src = url;
+    script.dataset.loaded = 'false';
+    script.onload = function () {
+        script.dataset.loaded = 'true';
+        callback();
+    };
+    document.head.appendChild(script);
+}
+
+/**
+ * Nettoie toutes les lignes LeaderLine existantes et leurs événements hover.
+ */
+function effacerLignesBracket() {
+    bracketLines.forEach(line => {
+        if (line && typeof line.remove === 'function') {
+            line.remove();
+        }
+    });
+    bracketLines = [];
+
+    // Supprimer les event listeners hover sur tous les matchbox
+    document.querySelectorAll('.match-box-wrapper').forEach(box => {
+        box.classList.remove('line-hover');
+        box.removeEventListener('mouseenter', onMatchboxHover);
+        box.removeEventListener('mouseleave', onMatchboxLeave);
+    });
+}
+
+/**
+ * Redessine les lignes du bracket (appelé après resize).
+ */
+function redessinerLignesBracket() {
+    if (!BracketLinesConfig.enabled) return;
+
+    // Retirer les lignes existantes (sans re-fetch, on les recrée avec les données en cache)
+    effacerLignesBracket();
+
+    // Vérifier que leader-line est chargé et qu'on a des données en cache
+    if (typeof LeaderLine === 'undefined') return;
+    if (!window._bracketDataCache) return;
+
+    dessinerLignesBracket(window._bracketDataCache);
+}
+
+/**
+ * Dessine toutes les lignes du bracket (vertes = gagnants, rouges = perdants).
+ * @param {object} data - Données complètes retournées par view_phase_finale.php
+ */
+function dessinerLignesBracket(data) {
+    if (!BracketLinesConfig.enabled) return;
+    if (typeof LeaderLine === 'undefined') return;
+
+    // Cache pour le redessin au resize
+    window._bracketDataCache = data;
+
+    // Collecter tous les matchs de toutes les catégories/phases
+    const allMatchs = [];
+    if (data.categories) {
+        data.categories.forEach(cat => {
+            if (cat.phases_finales) {
+                cat.phases_finales.forEach(phase => {
+                    if (phase.matchs) {
+                        phase.matchs.forEach(m => {
+                            allMatchs.push(m);
+                        });
+                    }
+                });
+            }
+        });
+    }
+
+    // Map match_code → match pour recherche rapide
+    const matchMap = {};
+    allMatchs.forEach(m => {
+        matchMap[m.match_code] = m;
     });
 
+    // Parcourir chaque match et créer les lignes pour source_team1 et source_team2
+    allMatchs.forEach(match => {
+        const destBoxId = 'matchbox_' + match.match_code;
+        const destBox = document.getElementById(destBoxId);
+        if (!destBox) return; // Matchbox pas encore dans le DOM (hors onglet actif)
+
+        const sources = [
+            { value: match.source_team1, slot: 1 },
+            { value: match.source_team2, slot: 2 }
+        ];
+
+        sources.forEach(src => {
+            if (!src.value) return;
+
+            const parsed = parserSource(src.value);
+            if (!parsed) return;
+
+            const sourceMatchCode = parsed.matchCode;
+            const sourceMatch = matchMap[sourceMatchCode];
+            if (!sourceMatch) return;
+
+            const sourceBoxId = 'matchbox_' + sourceMatchCode;
+            const sourceBox = document.getElementById(sourceBoxId);
+            if (!sourceBox) return;
+
+            // Ne pas créer de ligne si source et destination sont le même matchbox
+            if (sourceBoxId === destBoxId) return;
+
+            // Déterminer couleur selon Win/Loss
+            const couleur = parsed.type === 'Win'
+                ? BracketLinesConfig.couleurGagnant
+                : BracketLinesConfig.couleurPerdant;
+
+            try {
+                const line = new LeaderLine(sourceBox, destBox, {
+                    color:        couleur,
+                    opacity:      BracketLinesConfig.opaciteNormale,
+                    size:         BracketLinesConfig.epaisseurNormale,
+                    path:         BracketLinesConfig.styleChemin,
+                    socket:       BracketLinesConfig.socket,
+                    plug:         BracketLinesConfig.plug,
+                    startSocketGravity:  15,
+                    endSocketGravity:   15
+                });
+
+                bracketLines.push(line);
+
+                // Ajouter les événements hover sur source et destination
+                [sourceBox, destBox].forEach(box => {
+                    if (!box.dataset.lineHoverInit) {
+                        box.dataset.lineHoverInit = 'true';
+                        box.addEventListener('mouseenter', onMatchboxHover);
+                        box.addEventListener('mouseleave', onMatchboxLeave);
+                    }
+                });
+
+            } catch (e) {
+                console.warn('Erreur création ligne bracket:', e);
+            }
+        });
+    });
+}
+
+/**
+ * Parse une valeur source_team (ex: "Win_R1_S1_M1" ou "Loss_R2_S4_M2").
+ * @param {string} sourceValue
+ * @returns {{ type: 'Win'|'Loss', matchCode: string }|null}
+ */
+function parserSource(sourceValue) {
+    if (!sourceValue || typeof sourceValue !== 'string') return null;
+
+    const match = sourceValue.match(/^(Win|Loss)_(.+)$/);
+    if (!match) return null;
+
+    return {
+        type:      match[1],    // 'Win' ou 'Loss'
+        matchCode: match[2]      // ex: 'R1_S1_M1'
+    };
+}
+
+/**
+ * Gestionnaire mouseenter : augmenter opacité et épaisseur de TOUTES les lignes du bracket.
+ */
+function onMatchboxHover() {
+    if (!BracketLinesConfig.enabled) return;
+    const cfg = BracketLinesConfig;
+
+    document.querySelectorAll('.match-box-wrapper').forEach(box => {
+        box.classList.add('line-hover');
+    });
+
+    bracketLines.forEach(line => {
+        line.setOptions({ opacity: cfg.opaciteSurvol, size: cfg.epaisseurSurvol });
+    });
+}
+
+/**
+ * Gestionnaire mouseleave : revenir à l'opacité et épaisseur normales.
+ */
+function onMatchboxLeave() {
+    if (!BracketLinesConfig.enabled) return;
+    const cfg = BracketLinesConfig;
+
+    document.querySelectorAll('.match-box-wrapper').forEach(box => {
+        box.classList.remove('line-hover');
+    });
+
+    bracketLines.forEach(line => {
+        line.setOptions({ opacity: cfg.opaciteNormale, size: cfg.epaisseurNormale });
+    });
 }
 
 /**
@@ -487,6 +735,11 @@ function creerBracketPhaseFinale(cat, datacategories) {
             btn.classList.add('active');
             contentPanels.querySelectorAll('.pf-phase-panel').forEach(p => p.classList.remove('active'));
             contentPanels.children[idx].classList.add('active');
+
+            // Redessiner les lignes après changement de sous-onglet phase finale
+            if (BracketLinesConfig.enabled && typeof LeaderLine !== 'undefined' && window._bracketDataCache) {
+                setTimeout(() => redessinerLignesBracket(), 80);
+            }
         });
 
         nav.appendChild(btn);
@@ -807,6 +1060,11 @@ function construireSousOnglets(container, categories, prefixId, contenuBuilder) 
             contentsWrapper.children[index].classList.add('active');
 
             sessionStorage.setItem(storageKey, index);
+
+            // Redessiner les lignes du bracket après changement de catégorie
+            if (BracketLinesConfig.enabled && typeof LeaderLine !== 'undefined' && window._bracketDataCache) {
+                setTimeout(() => redessinerLignesBracket(), 80);
+            }
         });
 
         nav.appendChild(btn);
@@ -825,8 +1083,8 @@ function construireSousOnglets(container, categories, prefixId, contenuBuilder) 
 function escapeHTML(str) {
     if (str === null || str === undefined) return '';
     return String(str)
-        .replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;')
-        .replace(/"/g, '&quot;');
+        .replace(/&/g, '&')
+        .replace(/</g, '<')
+        .replace(/>/g, '>')
+        .replace(/"/g, '"');
 }

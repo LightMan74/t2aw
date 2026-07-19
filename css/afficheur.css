@@ -244,6 +244,17 @@
     opacity: 0.85;
 }
 
+/* Les lignes leader-line génèrent des SVG avec cette classe (via setOptions) */
+.bracket-line-svg {
+    transition: opacity var(--bracket-line-transition, 150ms) ease;
+}
+
+/* Surbrillance du matchbox survolé (optionnel, cohérent avec les lignes) */
+.match-box-wrapper.line-hover .match-box {
+    outline: 2px solid var(--line-hover-outline, #888);
+    outline-offset: 2px;
+}
+
 /* ======================================================= */
 /* Le reste du fichier original est conservé intact ci-dessous */
 /* ======================================================= */
