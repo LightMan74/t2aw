@@ -97,6 +97,13 @@ $tournoi_id = isset($_GET['id_tournoi']) ? (int)$_GET['id_tournoi'] : 0;
 
         <!-- Détail / Bracket -->
         <section id="section-bracket" class="section hidden">
+            <div class="option-heure-manuelle">
+                <label>
+                    Heure manuelle
+                    <input type="checkbox" id="heureManuelleCheckboxPF" onchange="toggleHeureManuellePF()">
+                </label>
+                <input type="time" id="heureManuelleInputPF" style="display:none;">
+            </div>
             <div class="section-header">
                 <h2 id="titre-bracket">Bracket</h2>
             </div>

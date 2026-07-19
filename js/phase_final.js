@@ -487,6 +487,9 @@ function creerMatchBox(match) {
     const box = document.createElement('div');
     box.className = 'match-box ' + match.statut;
     box.dataset.matchId = match.id;
+    box.dataset.round = match.round;
+    box.dataset.matchNum = match.match_num;
+    box.dataset.terrain = match.terrain ?? '';
 
     const nom1 = match.nom_equipe1 || (match.source_team1 || '???');
     const nom2 = match.nom_equipe2 || (match.source_team2 || '???');
@@ -518,21 +521,31 @@ function creerMatchBox(match) {
            </span>`
         : '';
 
-    // Terrain (éditable uniquement si les 2 équipes sont connues)
-    const terrainHtml = peutJouer
-        ? `<input type="number" min="1" class="terrain-input"
+    // Terrain (toujours éditable, même si les équipes ne sont pas encore connues)
+    const terrainHtml = `<input type="number" min="1" class="terrain-input"
                   value="${match.terrain ?? ''}"
                   placeholder="Terrain"
                   data-match-id="${match.id}"
-                  title="Terrain">`
-        : '';
+                  title="Terrain">`;
 
-    const infosLigne = (statutBadgeHtml || terrainHtml)
-        ? `<div class="match-infos-ligne" onclick="event.stopPropagation()">
-                ${terrainHtml}
-                ${statutBadgeHtml}
-           </div>`
-        : '';
+    // Heure de début + bouton "maintenant" (toujours visible)
+    const heureHtml = `<div class="heure-ligne">
+                <input type="time" class="hdebut-input"
+                       value="${match.heure_debut ?? ''}"
+                       data-match-id="${match.id}"
+                       title="Heure de début">
+                <button type="button" class="btn-heure-actuelle"
+                        data-match-id="${match.id}"
+                        title="Mettre l'heure actuelle et décaler les suivants">🕐</button>
+           </div>`;
+
+    const infosLigne = `<div class="match-infos-ligne" onclick="event.stopPropagation()">
+                <div class="ligne1">
+                    ${terrainHtml}
+                    ${statutBadgeHtml}
+                </div>
+                ${heureHtml}
+           </div>`;
 
     const { score1aff, score2aff } = filtrerScores(match.score1, match.score2);
 
@@ -551,7 +564,7 @@ function creerMatchBox(match) {
         ${infosLigne}
     `;
 
-    // Clic sur la boîte = ouvrir modale de score (sauf sur les infos)
+    // Clic sur la boîte = ouvrir modale de score (seulement si les 2 équipes sont connues)
     if (peutJouer) {
         box.addEventListener('click', () => {
             ouvrirModalScore(match, nom1, nom2);
@@ -565,22 +578,71 @@ function creerMatchBox(match) {
                 cyclerStatutMatch(match.id, statutJeu, badgeEl);
             });
         }
+    }
 
-        // Changement du terrain (au blur, sans ouvrir la modale)
-        const terrainInput = box.querySelector('.terrain-input');
-        if (terrainInput) {
-            terrainInput.addEventListener('click', (e) => e.stopPropagation());
-            terrainInput.addEventListener('blur', () => {
-                sauvegarderTerrain(match.id, terrainInput.value);
-            });
-            terrainInput.addEventListener('keydown', (e) => {
-                if (e.key === 'Enter') terrainInput.blur();
-            });
-        }
+    // Changement du terrain (au blur, sans ouvrir la modale) — toujours actif
+    const terrainInput = box.querySelector('.terrain-input');
+    if (terrainInput) {
+        terrainInput.addEventListener('click', (e) => e.stopPropagation());
+        terrainInput.addEventListener('blur', () => {
+            sauvegarderTerrain(match.id, terrainInput.value);
+        });
+        terrainInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') terrainInput.blur();
+        });
+        terrainInput.addEventListener('input', () => {
+            box.dataset.terrain = terrainInput.value;
+        });
+    }
+
+    // Heure de début (au blur, sans ouvrir la modale) — toujours actif
+    const hdebutInput = box.querySelector('.hdebut-input');
+    if (hdebutInput) {
+        hdebutInput.addEventListener('click', (e) => e.stopPropagation());
+        hdebutInput.addEventListener('blur', () => {
+            sauvegarderHeureDebutPF(match.id, hdebutInput.value);
+        });
+        hdebutInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') hdebutInput.blur();
+        });
+    }
+
+    // Bouton "heure actuelle" avec décalage des matchs suivants (même terrain) — toujours actif
+    const btnHeureActuelle = box.querySelector('.btn-heure-actuelle');
+    if (btnHeureActuelle) {
+        btnHeureActuelle.addEventListener('click', (e) => {
+            e.stopPropagation();
+            mettreHeureActuellePF(match.id, btnHeureActuelle);
+        });
     }
 
     return box;
 }
+function toggleHeureManuellePF() {
+    const checkbox = document.getElementById('heureManuelleCheckboxPF');
+    const input = document.getElementById('heureManuelleInputPF');
+    if (!checkbox || !input) return;
+
+    if (checkbox.checked) {
+        input.style.display = 'inline-block';
+        // Pré-remplir avec l'heure actuelle par défaut
+        input.value = formatHeureMinutePF(new Date());
+    } else {
+        input.style.display = 'none';
+    }
+}
+
+function getHeureReferencePF() {
+    const checkbox = document.getElementById('heureManuelleCheckboxPF');
+    const input = document.getElementById('heureManuelleInputPF');
+
+    if (checkbox && checkbox.checked && input && input.value) {
+        return input.value;
+    }
+    return formatHeureMinutePF(new Date());
+}
+
+
 
 // ---------- Cycle rapide du statut de jeu (planifie -> en_cours -> termine) ----------
 
@@ -863,6 +925,122 @@ function filtrerScores(score1, score2) {
         score1aff: filtres1.join(' | '),
         score2aff: filtres2.join(' | ')
     };
+}
+
+// Variable globale pour le temps de match
+let tempsDeMatchPF = null;
+const terrainInput = null;
+
+async function chargerTempsDeMatchPF() {
+    const idTournoi = parseInt(inputTournoiId.value, 10);
+    try {
+        const res = await fetch(`api/get_parametres.php?id_tournoi=${idTournoi}`);
+        const data = await res.json();
+        if (data.success) {
+            tempsDeMatchPF = parseInt(data.temps_de_match, 10) || 20;
+        }
+    } catch (err) {
+        console.error('Erreur chargement paramètres', err);
+        tempsDeMatchPF = 20;
+    }
+}
+
+function formatHeureMinutePF(date) {
+    const h = String(date.getHours()).padStart(2, '0');
+    const m = String(date.getMinutes()).padStart(2, '0');
+    return `${h}:${m}`;
+}
+
+function ajouterMinutesPF(heureStr, minutesAAjouter) {
+    const [h, m] = heureStr.split(':').map(Number);
+    const date = new Date();
+    date.setHours(h, m, 0, 0);
+    date.setMinutes(date.getMinutes() + minutesAAjouter);
+    return formatHeureMinutePF(date);
+}
+
+// ---------- Mise à jour de l'heure de début ----------
+
+async function sauvegarderHeureDebutPF(matchId, heureValue) {
+    try {
+        await apiFetch(`${API_BASE}/maj_heure_match.php`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ match_id: matchId, heure_debut: heureValue || null }),
+        });
+    } catch (err) {
+        alert('Erreur mise à jour de l\'heure: ' + err.message);
+    }
+}
+
+// ---------- Bouton "heure actuelle" + décalage des matchs suivants du même terrain ----------
+
+async function mettreHeureActuellePF(matchId, btnEl) {
+    if (tempsDeMatchPF === null) {
+        await chargerTempsDeMatchPF();
+    }
+
+    const box = btnEl.closest('.match-box');
+    if (!box) return;
+
+    const hdebutInput = box.querySelector('.hdebut-input');
+    const terrainInput = box.querySelector('.terrain-input');
+
+    const terrain = terrainInput?.value ?? '';
+    if (!terrain) {
+        afficherMessage('msg-simulation', 'Aucun terrain défini pour ce match', 'error');
+        return;
+    }
+
+    // 1. Mettre l'heure de référence (actuelle ou manuelle) sur le match cliqué
+    const heureActuelle = getHeureReferencePF();
+
+    if (hdebutInput) {
+        hdebutInput.value = heureActuelle;
+        sauvegarderHeureDebutPF(matchId, heureActuelle);
+    }
+
+    // 2. Récupérer tous les matchs du même terrain (lecture live du DOM)
+    const toutesLesBoxes = Array.from(document.querySelectorAll('.match-box'));
+
+    const matchsMemeTerrain = toutesLesBoxes
+        .map(b => {
+            const hInput = b.querySelector('.hdebut-input');
+            const tInput = b.querySelector('.terrain-input');
+            const statutEl = b.querySelector('.status-badge');
+            return {
+                box: b,
+                matchId: parseInt(b.dataset.matchId, 10),
+                terrain: tInput?.value ?? '',
+                hInput,
+                statut: statutEl?.getAttribute('data-statutJeu') ?? 'planifie',
+                round: parseInt(b.dataset.round, 10) || 0,
+                matchNum: parseInt(b.dataset.matchNum, 10) || 0
+            };
+        })
+        .filter(m => m.hInput && String(m.terrain) === String(terrain))
+        .sort((a, b) => (a.round - b.round) || (a.matchNum - b.matchNum));
+
+    const positionActuelle = matchsMemeTerrain.findIndex(m => m.matchId === matchId);
+    if (positionActuelle === -1) return;
+
+    let heurePrecedente = heureActuelle;
+
+    for (let i = positionActuelle + 1; i < matchsMemeTerrain.length; i++) {
+        const m = matchsMemeTerrain[i];
+
+        if (m.statut === 'en_cours' || m.statut === 'termine') {
+            if (m.hInput.value) heurePrecedente = m.hInput.value;
+            continue;
+        }
+
+        const nouvelleHeure = ajouterMinutesPF(heurePrecedente, tempsDeMatchPF);
+        m.hInput.value = nouvelleHeure;
+        sauvegarderHeureDebutPF(m.matchId, nouvelleHeure);
+        heurePrecedente = nouvelleHeure;
+    }
+
+    afficherMessage('msg-simulation', 'Heures mises à jour ✓', 'success');
 }
 
 /**
