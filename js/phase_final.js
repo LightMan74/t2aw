@@ -39,6 +39,7 @@ async function apiFetch(url, options = {}) {
 
 const inputTournoiId = document.getElementById('input-tournoi-id');
 const selectCategorie = document.getElementById('input-categorie');
+const selectdebutph = document.getElementById('input_debut_ph');
 const inputNom = document.getElementById('input-nom');
 const inputNbEquipes = document.getElementById('input-nb-equipes');
 const ordreEquipesPanel = document.getElementById('ordre-equipes-panel');
@@ -69,6 +70,7 @@ async function chargerCategories() {
 selectCategorie.addEventListener('change', async () => {
     const idTournoi = parseInt(inputTournoiId.value, 10);
     const idCategorie = parseInt(selectCategorie.value, 10);
+    const select_debutph = selectdebutph.value
 
     selectedCategorieId = idCategorie || null;
 
@@ -82,6 +84,12 @@ selectCategorie.addEventListener('change', async () => {
         ordreEquipesPanel.classList.add('hidden');
         document.getElementById('btn-creer').disabled = false;
         return;
+    }
+
+    if (!select_debutph) {
+        inputNom.value = '';
+        inputNom.placeholder = 'Choisir un debut de phase final';
+
     }
 
     try {
@@ -139,6 +147,7 @@ selectCategorie.addEventListener('change', async () => {
             afficherMessage('msg-creation', 'Cette catégorie n\'a pas assez d\'équipes (minimum 2)', 'error');
         } else {
             afficherMessage('msg-creation', `${equipesOrdre.length} équipes chargées pour la catégorie « ${nomCat} »`, 'success');
+            remplirSelectDebutPhase(equipesOrdre.length);
         }
 
     } catch (err) {
@@ -273,6 +282,8 @@ document.getElementById('form-creation').addEventListener('submit', async e => {
     } catch (err) {
         afficherMessage('msg-creation', err.message, 'error');
     }
+
+    await callsimuler(currentPhaseFinaleId, selectdebutph.value);
 });
 
 // ---------- Liste des phases finales ----------
@@ -851,8 +862,12 @@ document.getElementById('btn-simuler-rounds').addEventListener('click', async ()
     );
     if (!confirmation) return;
 
+    await callsimuler(currentPhaseFinaleId, nbRounds);
+});
+
+function callsimuler(currentPhaseFinaleId, nbRounds) {
     try {
-        const data = await apiFetch(`${API_BASE}/simuler_rounds.php`, {
+        const data = apiFetch(`${API_BASE}/simuler_rounds.php`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ id_phase_finale: currentPhaseFinaleId, nbRounds }),
@@ -867,7 +882,7 @@ document.getElementById('btn-simuler-rounds').addEventListener('click', async ()
     } catch (err) {
         afficherMessage('msg-simulation', err.message, 'error');
     }
-});
+}
 
 // Fonction utilitaire pour filtrer les sets où les deux scores sont à 0
 function filtrerScores(score1, score2) {
@@ -1021,6 +1036,48 @@ async function mettreHeureActuellePF(matchId, btnEl) {
     }
 
     afficherMessage('msg-simulation', 'Heures mises à jour ✓', 'success');
+}
+
+// ---------- Génération des rounds possibles dans input_debut_ph ----------
+
+function genererLabelRound(revIdx, nbRoundsTotal) {
+    // revIdx = 0 => Finale, 1 => Demi-finales, 2 => Quart, etc.
+    if (revIdx === 0) return 'Finale';
+    if (revIdx === 1) return 'Demi-finales';
+    if (revIdx === 2) return 'Quart de finale';
+    const den = Math.pow(2, revIdx);
+    return `1/${den} de finale`;
+}
+
+function remplirSelectDebutPhase(nbEquipes) {
+    const select = document.getElementById('input_debut_ph');
+    select.innerHTML = '';
+
+    if (!nbEquipes || nbEquipes < 2) {
+        select.innerHTML = '<option value="">—</option>';
+        return;
+    }
+
+    // Nombre d'équipes arrondi à la puissance de 2 supérieure
+    const nbEquipesArrondi = Math.pow(2, Math.ceil(Math.log2(nbEquipes)));
+    const nbRoundsTotal = Math.log2(nbEquipesArrondi); // ex: 32 équipes -> 5 rounds
+
+    // On génère les rounds du premier (le plus "large") vers la finale
+    // round 0 = premier tour (ex: 1/16), round (nbRoundsTotal-1) = finale
+    for (let round = 0; round < nbRoundsTotal; round++) {
+        const revIdx = nbRoundsTotal - 1 - round; // 0 = finale
+        const label = genererLabelRound(revIdx, nbRoundsTotal);
+        const nbEquipesRestantes = Math.pow(2, revIdx + 1); // équipes en jeu à ce round
+
+        const opt = document.createElement('option');
+        opt.value = round; // ou revIdx selon ce que le back attend
+        // opt.textContent = `${label} (${nbEquipesRestantes} équipes)`;
+        opt.textContent = `${label}`;
+        select.appendChild(opt);
+    }
+
+    // Par défaut on sélectionne le premier round (le tour complet avec toutes les équipes)
+    select.value = 0;
 }
 
 /**

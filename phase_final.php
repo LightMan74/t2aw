@@ -113,9 +113,12 @@ $tournoi_id = isset($_GET['id_tournoi']) ? (int)$_GET['id_tournoi'] : 0;
                         <input type="number" id="input-nb-equipes" min="2" required readonly placeholder="—">
                     </div>
                     <div class="form-group">
+                        <label for="input_debut_ph">Debut de phase final par :</label>
+                        <select id="input_debut_ph" required>
+                        </select>
                         <label>
-                            <input type="checkbox" id="input-reset-terrain">
-                            Réinitialiser les terrains à 1 à chaque round
+                            <span><input type="checkbox" id="input-reset-terrain">
+                                Réinitialiser les terrains à 1 à chaque round</span>
                         </label>
                     </div>
                 </div>
