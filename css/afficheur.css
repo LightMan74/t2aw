@@ -2,6 +2,17 @@
  
 } */
 
+.login-logo {
+    display: block;
+    /* width: 80%; */
+    /* Prend 80% de la largeur du conteneur */
+    max-width: 100px;
+    /* Ne dépassera pas 300px de large */
+    height: auto;
+    /* margin: 0 auto 20px auto; */
+    margin: 0px 25px;
+}
+
 /* ---------- Tag couleur (fond coloré sur le texte) ---------- */
 .tag-couleur {
     display: inline-block;
@@ -1369,5 +1380,13 @@ body.dark .phase-finale-legende {
     th,
     td {
         font-size: 0.9rem;
+    }
+}
+
+@media (max-width: 650px) {
+
+    .login-logo,
+    header h1 {
+        margin: 0px auto;
     }
 }

@@ -92,9 +92,12 @@ function afficherTable() {
             <td class="categorie-badge ${catClass}">${m.nom_categorie ?? ''}</td>
             <td class="poule-badge ${poleClass}">${m.nom_poule ?? ''}</td>
             <td>${m.nom_equipe_1 ?? ''}</td>
-            <td><input type="number" min="0" value="${s1set1}" id="score1s1-${index}"> - <input type="number" min="0" value="${s2set1}" id="score2s1-${index}"><span ${hiddenSets}>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;
+            <td>
+            <span style="display: block ruby;">
+            <input type="number" min="0" value="${s1set1}" id="score1s1-${index}"> - <input type="number" min="0" value="${s2set1}" id="score2s1-${index}"><span ${hiddenSets}>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;
             <input  type="number" min="0" value="${s1set2}" id="score1s2-${index}"> - <input type="number" min="0" value="${s2set2}" id="score2s2-${index}">&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;
             <input type="number" min="0" value="${s1set3}" id="score1s3-${index}"> - <input type="number" min="0" value="${s2set3}" id="score2s3-${index}"></span>
+            </span>
             </td>
             <td>${m.nom_equipe_2 ?? ''}</td>
             <td><input type="number" min="1" value="${m.terrain ?? ''}" id="terrain-${index}"></td>

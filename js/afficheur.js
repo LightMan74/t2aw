@@ -6,7 +6,8 @@
 let currentTab = 'matchs';
 let refreshTimer = null;
 let countdownTimer = null;
-let secondsLeft = 600;
+let secondsLeft = 60;
+let minsecondsLeft = 10;
 
 document.addEventListener('DOMContentLoaded', () => {
     initTabs();
@@ -21,7 +22,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     document.getElementById('refresh-interval').addEventListener('change', (e) => {
         let val = parseInt(e.target.value);
-        if (isNaN(val) || val < 3) val = 3;
+        if (isNaN(val) || val < minsecondsLeft) val = minsecondsLeft;
         e.target.value = val;
         initRefresh();
     });
@@ -129,7 +130,7 @@ function fetchJSON(url, callback) {
 function chargerTournoiInfo() {
     fetchJSON(`api/view_tournoi.php?id_tournoi=${ID_TOURNOI}`, (data) => {
         if (data.tournoi) {
-            document.getElementById('nom-tournoi').textContent = data.tournoi.nom;
+            document.getElementById('nom-tournoi').textContent = 'Tournoi : ' + data.tournoi.nom;
         } else {
             document.getElementById('nom-tournoi').textContent = 'Tournoi introuvable';
         }

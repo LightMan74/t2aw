@@ -21,8 +21,9 @@ $id_tournoi = isset($_GET['id_tournoi']) ? (int)$_GET['id_tournoi'] : 0;
     <?php  
     if ($id_tournoi === 0): ?>
 
-    <button onclick="location.href='login.php?login'" class="btn-lsiteafficheur">👤 Login</button>
     <!-- Sélecteur de tournoi si aucun id_tournoi fourni -->
+    <img src="logo.png" class="login-logo" alt="Logo" style="max-width: 200px;margin: 25px auto;">
+    <button onclick="location.href='login.php?login'" class="btn-lsiteafficheur">👤 Login</button><br><br>
     <div class="selecteur-tournois">
         <h1>Sélectionnez un tournoi</h1>
         <div id="liste-tournois" class="liste-tournois">
@@ -72,13 +73,17 @@ $id_tournoi = isset($_GET['id_tournoi']) ? (int)$_GET['id_tournoi'] : 0;
     <?php else: ?>
 
     <header>
+        <img src="logo.png" class="login-logo" alt="Logo">
         <h1 id="nom-tournoi">Chargement du tournoi...</h1>
         <div class="infos-refresh">
-            <span id="heure-actuelle">--:--:--</span>
             <div class="timer-control">
-                <!-- <label for="refresh-interval">Rafraîchissement (sec) :</label> -->
-                <input type="number" id="refresh-interval" value="600" min="3" max="120">
-                <span id="countdown">600</span>s
+                <center>
+                    <span id="heure-actuelle">--:--:--</span><br>
+                    <!-- <label for="refresh-interval">Rafraîchissement (sec) :</label> -->
+                    <nobr><span id="countdown">60</span>s
+                        <input type="number" id="refresh-interval" value="60" min="10" max="600">
+                    </nobr>
+                    <center>
             </div>
 
             <button onclick="location.href='afficheur.php'" class="btn-dark">↩ liste tournoi</button>
