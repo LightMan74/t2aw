@@ -2,9 +2,16 @@
 <html lang="fr">
 <?php 
 // var_dump($_SESSION);
+// var_dump($_GET);
+    // exit;
 if (isset($_SESSION['logged_in']) || $_SESSION['logged_in'] == true) {
-    header('Location: afficheur.php');
+    header('Location: dashboard.php');
     exit;
+}else{  
+    if (!isset($_GET['login'])) {  
+        header('Location: afficheur.php');
+    exit;
+    }
 }
 ?>
 

@@ -24,6 +24,7 @@ $id_tournoi = isset($_GET['id_tournoi']) ? (int)$_GET['id_tournoi'] : 0;
                 <span id="countdown">600</span>s
             </div>
             <button id="dark-mode-toggle" class="btn-dark" title="Basculer le mode sombre">🌙</button>
+            <button onclick="location.href='login.php?login'" class="btn-dark">Login</button>
         </div>
     </header>
 
