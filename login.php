@@ -3,7 +3,7 @@
 <?php 
 // var_dump($_SESSION);
 if (isset($_SESSION['logged_in']) || $_SESSION['logged_in'] == true) {
-    header('Location: dashboard.php');
+    header('Location: afficheur.php');
     exit;
 }
 ?>

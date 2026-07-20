@@ -77,9 +77,11 @@ $id_tournoi = isset($_GET['id_tournoi']) ? (int)$_GET['id_tournoi'] : 0;
     <script>
     const ID_TOURNOI = <?php echo json_encode($id_tournoi); ?>;
     </script>
+    <!-- <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script> -->
     <script src="js/colors.js"></script>
     <!-- Configuration des liaisons du bracket (couleurs, opacité, etc.) -->
     <script src="js/bracket-lines-config.js"></script>
+    <script src="js/leader-line.min.js"></script>
     <script src="js/afficheur.js"></script>
 
 </body>

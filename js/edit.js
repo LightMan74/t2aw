@@ -263,8 +263,8 @@ function ajusterCategories(delta) {
     var nbreActuel = blocsExistants.length;
 
     if (delta > 0) {
-        if (nbreActuel >= 10) {
-            alert('Maximum 10 catégories');
+        if (nbreActuel >= 30) {
+            alert('Maximum 30 catégories');
             return;
         }
         nbreActuel++;
