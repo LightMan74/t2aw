@@ -1,3 +1,4 @@
+<title>Tournoi All Auto Web</title>
 <?php 
 include __DIR__ . "/api//check_connected.php";
 include 'api/db.php'; 
