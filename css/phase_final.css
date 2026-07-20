@@ -471,7 +471,7 @@ button.danger:hover {
 }
 
 .match-infos-ligne {
-    display: flex;
+    display: block ruby;
     align-items: center;
     justify-content: space-between;
     gap: 6px;
