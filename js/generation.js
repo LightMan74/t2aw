@@ -214,6 +214,11 @@ function creerElementMatch(m, index) {
     const libelleBouton = m.terrain ? '↩' : '✕';
     const titreBouton = m.terrain ? "Renvoyer en file d'attente" : "Supprimer le match";
 
+    // Bouton d'envoi vers le terrain le moins chargé (seulement si le match n'est pas déjà affecté)
+    const boutonEnvoiTerrain = !m.terrain
+        ? `<button class="btn-envoi-terrain" title="Envoyer vers le terrain le moins chargé" onclick="onClickEnvoiTerrainMoinsCharge(event, ${index})">➡</button>`
+        : '';
+
     // Couleur de catégorie (bordure gauche)
     if (!m.terrain_libre) {
         div.style.borderLeftColor = getCouleurCategorie(m.id_categorie);
@@ -230,6 +235,7 @@ function creerElementMatch(m, index) {
     if (m.terrain_libre) {
         div.innerHTML = `
         <button class="btn-suppr-match" title="${titreBouton}" onclick="onClickBoutonAction(event, ${index})">${libelleBouton}</button>
+        ${boutonEnvoiTerrain}
         <div class="match-content">
             <div class="ligne1">LIBRE</div>
             <div class="ligne2">Terrain Libre</div>
@@ -238,6 +244,7 @@ function creerElementMatch(m, index) {
     } else {
         div.innerHTML = `
         <button class="btn-suppr-match" title="${titreBouton}" onclick="onClickBoutonAction(event, ${index})">${libelleBouton}</button>
+        ${boutonEnvoiTerrain}
         <div class="match-content">
             <div class="ligne1">${m.nom_categorie} - ${libellePoule} - Match ${m.num_match_poule}${badge}</div>
             <div class="ligne2">${m.nom_equipe_1}${m.inter_poule ? ' (' + m.nom_poule_equipe_1 + ')' : ''} vs ${m.nom_equipe_2}${m.inter_poule ? ' (' + m.nom_poule_equipe_2 + ')' : ''}</div>
@@ -250,6 +257,57 @@ function creerElementMatch(m, index) {
     div.addEventListener('drop', matchDrop);
 
     return div;
+}
+
+/* --- Action du bouton d'envoi vers le terrain le moins chargé --- */
+function onClickEnvoiTerrainMoinsCharge(event, index) {
+    event.stopPropagation();
+
+    const m = matchsActuels[index];
+
+    // Compter le nombre de matchs par terrain
+    const compteurTerrains = {};
+    for (let t = 1; t <= nbTerrains; t++) {
+        compteurTerrains[t] = 0;
+    }
+    matchsActuels.forEach(match => {
+        if (match.terrain) {
+            compteurTerrains[match.terrain] = (compteurTerrains[match.terrain] || 0) + 1;
+        }
+    });
+
+    // Trouver le terrain avec le moins de matchs (le premier en cas d'égalité)
+    let terrainMoinsCharge = 1;
+    let minCount = compteurTerrains[1];
+    for (let t = 2; t <= nbTerrains; t++) {
+        if (compteurTerrains[t] < minCount) {
+            minCount = compteurTerrains[t];
+            terrainMoinsCharge = t;
+        }
+    }
+
+    // Retirer le match de sa position actuelle dans le tableau
+    matchsActuels.splice(index, 1);
+    m.terrain = terrainMoinsCharge;
+
+    // Trouver la position d'insertion : juste après le dernier match déjà présent sur ce terrain
+    let dernierIndexTerrain = -1;
+    matchsActuels.forEach((match, i) => {
+        if (match.terrain === terrainMoinsCharge) {
+            dernierIndexTerrain = i;
+        }
+    });
+
+    if (dernierIndexTerrain !== -1) {
+        // On insère juste après le dernier match de ce terrain
+        matchsActuels.splice(dernierIndexTerrain + 1, 0, m);
+    } else {
+        // Aucun match sur ce terrain -> on l'ajoute à la fin du tableau
+        matchsActuels.push(m);
+    }
+
+    afficherListeMatchs();
+    afficherMessage(`Match envoyé sur le terrain ${terrainMoinsCharge}`, 'success');
 }
 
 /* --- Action du bouton (suppression ou renvoi file d'attente) --- */

@@ -925,9 +925,25 @@ th {
     font-style: normal;
 }
 
-.btn-suppr-match {
+.btn-envoi-terrain {
     position: absolute;
     top: 4px;
+    right: 4px;
+    width: 20px;
+    height: 20px;
+    border: none;
+    border-radius: 50%;
+    background: var(--btn-primary);
+    color: var(--th-text);
+    font-size: 12px;
+    line-height: 1;
+    cursor: pointer;
+    padding: 0;
+}
+
+.btn-suppr-match {
+    position: absolute;
+    top: 30px;
     right: 4px;
     width: 20px;
     height: 20px;
