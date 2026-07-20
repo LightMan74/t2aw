@@ -4,6 +4,16 @@
 
 /* ---- Variables CSS thème clair (défaut) ---- */
 
+.login-logo {
+    display: block;
+    /* width: 80%; */
+    /* Prend 80% de la largeur du conteneur */
+    max-width: 100px;
+    /* Ne dépassera pas 300px de large */
+    height: auto;
+    /* margin: 0 auto 20px auto; */
+    margin: 0px 25px;
+}
 
 /* Optionnel: petit badge coloré devant le nom de poule */
 .poule-badge {
@@ -1097,5 +1107,16 @@ th {
 
     .equipe-block {
         margin-left: 20px;
+    }
+
+}
+
+@media (max-width: 650px) {
+    .top-header {
+        display: table-cell;
+    }
+
+    .login-logo {
+        margin: 0px auto;
     }
 }

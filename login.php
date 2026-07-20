@@ -21,15 +21,26 @@ if (isset($_SESSION['logged_in']) || $_SESSION['logged_in'] == true) {
     <!-- <title>Connexion - Gestion Tournois Badminton</title> -->
     <title>Tournoi All Auto Web</title>
     <link rel="icon" type="image/png" sizes="64x64" href="logo.png">
-    <link rel="stylesheet" href="css/var.css">
+    <!-- <link rel="stylesheet" href="css/var.css"> -->
     <link rel="stylesheet" href="css/login.css">
-    <link rel="stylesheet" href="css/dark-mode.css">
+    <!-- <link rel="stylesheet" href="css/dark-mode.css"> -->
+    <style>
+    .login-logo {
+        display: block;
+        width: 80%;
+        /* Prend 80% de la largeur du conteneur */
+        max-width: 300px;
+        /* Ne dépassera pas 300px de large */
+        height: auto;
+        margin: 0 auto 20px auto;
+    }
+    </style>
 </head>
-
+ 
 <body>
 
-    <div class="login-container">
-        <h1><img src="logo.png"> Connexion</h1>
+    <div class="login-container"><img src="logo.png" class="login-logo" alt="Logo">
+        <h1> Connexion</h1>
 
         <form id="loginForm">
             <div class="form-group">
