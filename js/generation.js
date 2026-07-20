@@ -204,6 +204,10 @@ function creerElementMatch(m, index) {
     if (m.inter_poule) {
         libellePoule = m.libelle_match || 'Inter-poules';
     }
+    if (m.terrain_libre) {
+        libellePoule = m.libelle_match || 'Terrain Libre';
+    }
+
 
     const badge = m.ajout_manuel ? ' <span class="badge-ajout">Ajouté</span>' : '';
 
@@ -211,25 +215,35 @@ function creerElementMatch(m, index) {
     const titreBouton = m.terrain ? "Renvoyer en file d'attente" : "Supprimer le match";
 
     // Couleur de catégorie (bordure gauche)
-    div.style.borderLeftColor = getCouleurCategorie(m.id_categorie);
-
+    if (!m.terrain_libre) {
+        div.style.borderLeftColor = getCouleurCategorie(m.id_categorie);
+    }
     // Couleur de poule (bordure droite) : spécifique si inter-poule, sinon selon la poule
     if (m.inter_poule) {
         div.style.borderRightColor = 'var(--inter-poule-color)';
     } else {
-        const idPoulePourCouleur = m.id_poule || m.nom_poule;
-        div.style.borderRightColor = getCouleurPoule(idPoulePourCouleur);
+        if (!m.terrain_libre) {
+            const idPoulePourCouleur = m.id_poule || m.nom_poule;
+            div.style.borderRightColor = getCouleurPoule(idPoulePourCouleur);
+        }
     }
-
-
-    div.innerHTML = `
+    if (m.terrain_libre) {
+        div.innerHTML = `
+        <button class="btn-suppr-match" title="${titreBouton}" onclick="onClickBoutonAction(event, ${index})">${libelleBouton}</button>
+        <div class="match-content">
+            <div class="ligne1">LIBRE</div>
+            <div class="ligne2">Terrain Libre</div>
+        </div>
+        `;
+    } else {
+        div.innerHTML = `
         <button class="btn-suppr-match" title="${titreBouton}" onclick="onClickBoutonAction(event, ${index})">${libelleBouton}</button>
         <div class="match-content">
             <div class="ligne1">${m.nom_categorie} - ${libellePoule} - Match ${m.num_match_poule}${badge}</div>
             <div class="ligne2">${m.nom_equipe_1}${m.inter_poule ? ' (' + m.nom_poule_equipe_1 + ')' : ''} vs ${m.nom_equipe_2}${m.inter_poule ? ' (' + m.nom_poule_equipe_2 + ')' : ''}</div>
         </div>
-    `;
-
+        `;
+    }
     div.addEventListener('dragstart', matchDragStart);
     div.addEventListener('dragend', matchDragEnd);
     div.addEventListener('dragover', matchDragOver);
@@ -480,8 +494,15 @@ function onCategorieChange() {
 
 function onInterPouleChange() {
     const isInter = document.getElementById('check-inter-poule').checked;
+    const isterrainlibre = document.getElementById('check-terrainlibre');
     document.getElementById('bloc-poule-unique').style.display = isInter ? 'none' : 'block';
     document.getElementById('bloc-inter-poule').style.display = isInter ? 'block' : 'none';
+    isterrainlibre.checked = false;
+}
+function onterrainlibreChange() {
+    const isterrainlibre = document.getElementById('check-terrainlibre').checked;
+    document.getElementById('bloc-poule-unique').style.display = isterrainlibre ? 'none' : 'block';
+    // document.getElementById('bloc-inter-poule').style.display = isInter ? 'block' : 'none';
 }
 
 function getCategorieSelectionnee() {
@@ -589,12 +610,70 @@ function onPouleE2Change() {
 
 function ajouterMatchManuel() {
     const isInter = document.getElementById('check-inter-poule').checked;
-
-    if (isInter) {
-        ajouterMatchInterPoule();
+    const isterrainlibre = document.getElementById('check-terrainlibre').checked;
+    if (isterrainlibre) {
+        ajouterMatchTerrainLibre();
     } else {
-        ajouterMatchPouleUnique();
+        if (isInter) {
+            ajouterMatchInterPoule();
+        } else {
+            ajouterMatchPouleUnique();
+        }
     }
+}
+
+function ajouterMatchTerrainLibre() {
+    const idCategorie = parseInt(0);
+    const idPouleE1 = parseInt(0);
+    const idPouleE2 = parseInt(0);
+    const idEquipe1 = parseInt(0);
+    const idEquipe2 = parseInt(0);
+    const libelle = document.getElementById('libelle-match-inter').value.trim() || 'Terrain Libre';
+
+    // if (!idCategorie || !idPouleE1 || !idPouleE2 || !idEquipe1 || !idEquipe2) {
+    //     afficherMessage('Veuillez sélectionner toutes les valeurs', 'error');
+    //     return;
+    // }
+
+    // if (idEquipe1 === idEquipe2 && idPouleE1 === idPouleE2) {
+    //     afficherMessage('Les deux équipes doivent être différentes', 'error');
+    //     return;
+    // }
+
+    // const cat = donneesReferentiel.find(c => c.id_categorie == idCategorie);
+    // const pouleE1 = cat.poules.find(p => p.id_poule == idPouleE1);
+    // const pouleE2 = cat.poules.find(p => p.id_poule == idPouleE2);
+    // const equipe1 = pouleE1.equipes.find(e => e.id_equipe == idEquipe1);
+    // const equipe2 = pouleE2.equipes.find(e => e.id_equipe == idEquipe2);
+
+    // const nbMatchsInter = matchsActuels.filter(m => m.inter_poule).length;
+
+    const nouveauMatch = {
+        id_categorie: "0",
+        nom_categorie: "",
+        id_poule: "0",
+        id_poule_2: "0",
+        nom_poule: "",
+        id_equipe_1: "0",
+        nom_equipe_1: "",
+        id_equipe_2: "0",
+        nom_equipe_2: "",
+        id_poule_equipe_1: "0",
+        nom_poule_equipe_1: "",
+        id_poule_equipe_2: "0",
+        nom_poule_equipe_2: "",
+        num_match_poule: 0,
+        ajout_manuel: true,
+        inter_poule: false,
+        terrain_libre: true,
+        libelle_match: libelle,
+        terrain: null
+    };
+
+    matchsActuels.unshift(nouveauMatch);
+    afficherListeMatchs();
+    afficherMessage('Terrain libre ajouté à la liste', 'success');
+    document.getElementById('libelle-match-inter').value = '';
 }
 
 function ajouterMatchPouleUnique() {
@@ -632,6 +711,7 @@ function ajouterMatchPouleUnique() {
         num_match_poule: nbMatchsPoule + 1,
         ajout_manuel: true,
         inter_poule: false,
+        terrain_libre: false,
         terrain: null
     };
 
@@ -683,6 +763,7 @@ function ajouterMatchInterPoule() {
         num_match_poule: nbMatchsInter + 1,
         ajout_manuel: true,
         inter_poule: true,
+        terrain_libre: false,
         libelle_match: libelle,
         terrain: null
     };

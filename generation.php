@@ -49,8 +49,15 @@ include 'menu.php'; ?>
                         </label>
                     </div>
 
+                    <div style="margin-bottom:8px;">
+                        <label>
+                            <input type="checkbox" id="check-terrainlibre" onchange="onterrainlibreChange()" checked>
+                            Terrain libre
+                        </label>
+                    </div>
+
                     <!-- Cas normal : une seule poule pour les 2 équipes -->
-                    <div id="bloc-poule-unique">
+                    <div id="bloc-poule-unique" style="display:none;">
                         <div style="margin-bottom:8px;">
                             <label>Poule :</label><br>
                             <select id="select-poule" onchange="onPouleChange()" style="width:100%;"></select>
@@ -92,7 +99,7 @@ include 'menu.php'; ?>
                         </div>
 
                         <div style="margin-bottom:8px;">
-                            <label>Intitulé du match (ex: Barrage, 1/4 finale...) :</label><br>
+                            <label>Intitulé du match (ex: Barrage, Inter-poule) :</label><br>
                             <input type="text" id="libelle-match-inter" placeholder="Ex: Barrage" style="width:100%;">
                         </div>
                     </div>
