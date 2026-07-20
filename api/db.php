@@ -16,8 +16,11 @@ ini_set('log_errors', 1);
 // ==========================================
 // CONFIGURATION - Choisir le mode ici
 // ==========================================
+if($_SERVER['HTTP_HOST']=='t2aw.lansard.ch'){
 define('DB_DRIVER', 'mysql'); // 'mysql' ou 'sqlite'
-// define('DB_DRIVER', 'sqlite'); // 'mysql' ou 'sqlite'
+}else{
+define('DB_DRIVER', 'sqlite'); // 'mysql' ou 'sqlite'
+}
 
 try {
     if (DB_DRIVER === 'sqlite') {

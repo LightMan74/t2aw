@@ -18,7 +18,9 @@ if (isset($_SESSION['logged_in']) || $_SESSION['logged_in'] == true) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Connexion - Gestion Tournois Badminton</title>
+    <!-- <title>Connexion - Gestion Tournois Badminton</title> -->
+    <title>Tournoi All Auto Web</title>
+    <link rel="icon" type="image/png" sizes="64x64" href="logo.png">
     <link rel="stylesheet" href="css/var.css">
     <link rel="stylesheet" href="css/login.css">
     <link rel="stylesheet" href="css/dark-mode.css">
@@ -27,7 +29,7 @@ if (isset($_SESSION['logged_in']) || $_SESSION['logged_in'] == true) {
 <body>
 
     <div class="login-container">
-        <h1>🏸 Connexion</h1>
+        <h1><img src="logo.png"> Connexion</h1>
 
         <form id="loginForm">
             <div class="form-group">

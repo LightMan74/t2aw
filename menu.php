@@ -1,4 +1,6 @@
 <title>Tournoi All Auto Web</title>
+<link rel="icon" type="image/png" sizes="64x64" href="logo.png">
+
 <?php 
 include __DIR__ . "/api//check_connected.php";
 include 'api/db.php'; 
@@ -15,19 +17,20 @@ $currentUser = $_SESSION['user'];
 </script>
 <header class="top-header">
     <h1>Gestion des Tournois de Badminton</h1>
-    <h3>Tournoi Actuel -> <?php echo (isset($tournoi_name_menu[0]["nom"]) != "") ? $tournoi_name_menu[0]["nom"]: 'AUCUN'; ?></h3>
-    <div class="user-info">
-        <?php
+    <image href="">
+        <h3>Tournoi Actuel -> <?php echo (isset($tournoi_name_menu[0]["nom"]) != "") ? $tournoi_name_menu[0]["nom"]: 'AUCUN'; ?></h3>
+        <div class="user-info">
+            <?php
             if (DB_DRIVER === 'sqlite') {
                 echo 'Base de donnée local';
             }else{            
                 echo 'Base de donnée distant';   
             }
         ?>
-        <button id="btn-theme-toggle" class="theme-toggle">🌙 Sombre</button>
-        <span>👤 <?php echo htmlspecialchars($currentUser); ?></span>
-        <button id="btn-logout" class="btn btn-logout">Déconnexion</button>
-    </div>
+            <button id="btn-theme-toggle" class="theme-toggle">🌙 Sombre</button>
+            <span>👤 <?php echo htmlspecialchars($currentUser); ?></span>
+            <button id="btn-logout" class="btn btn-logout">Déconnexion</button>
+        </div>
 </header>
 <?php 
     if ((isset($tournoi_name_menu[0]["uid"]) != $currentUid && isset($_GET["id_tournoi"]))){

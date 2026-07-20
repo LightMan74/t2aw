@@ -6,7 +6,7 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>Génération des matchs - Poules</title>
+    <!-- <title>Génération des matchs - Poules</title> -->
     <link rel="stylesheet" href="css/var.css">
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="css/dark-mode.css">

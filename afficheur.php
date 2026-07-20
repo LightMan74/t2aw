@@ -8,6 +8,7 @@ $id_tournoi = isset($_GET['id_tournoi']) ? (int)$_GET['id_tournoi'] : 0;
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Tournoi All Auto Web</title>
+    <link rel="icon" type="image/png" sizes="64x64" href="logo.png">
     <link rel="stylesheet" href="css/var.css">
     <link rel="stylesheet" href="css/afficheur.css">
     <?php if ($id_tournoi === 0): ?>
@@ -17,7 +18,8 @@ $id_tournoi = isset($_GET['id_tournoi']) ? (int)$_GET['id_tournoi'] : 0;
 
 <body>
 
-    <?php if ($id_tournoi === 0): ?>
+    <?php  
+    if ($id_tournoi === 0): ?>
 
     <button onclick="location.href='login.php?login'" class="btn-lsiteafficheur">👤 Login</button>
     <!-- Sélecteur de tournoi si aucun id_tournoi fourni -->
