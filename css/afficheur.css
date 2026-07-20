@@ -541,15 +541,15 @@ body.dark .scroll-colonne::-webkit-scrollbar-thumb {
 }
 
 .match-card.en_cours {
-    border-left: 5px solid #e67e22;
+    border-left: 5px solid var(--status-tr-en_cours-bg);
 }
 
 .match-card.planifie {
-    border-left: 5px solid #3498db;
+    border-left: 5px solid var(--status-tr-planifie-bg);
 }
 
 .match-card.termine {
-    border-left: 5px solid #27ae60;
+    border-left: 5px solid var(--status-tr-termine-bg);
 }
 
 .match-infos {
