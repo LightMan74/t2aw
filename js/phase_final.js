@@ -373,6 +373,7 @@ document.getElementById('btn-confirmer-suppression').addEventListener('click', a
         afficherMessage('msg-modal-suppression', err.message, 'error');
     }
     selectCategorie.value = "";
+    selectdebutph.value = "";
     document.getElementById('liste-ordre-equipes').innerHTML = '';
 });
 
@@ -396,6 +397,7 @@ async function ouvrirBracket(idPhaseFinale) {
     }
 
     selectCategorie.value = "";
+    selectdebutph.value = "";
     document.getElementById('liste-ordre-equipes').innerHTML = '';
 
 }

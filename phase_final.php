@@ -123,6 +123,9 @@ $tournoi_id = isset($_GET['id_tournoi']) ? (int)$_GET['id_tournoi'] : 0;
                     </div>
                 </div>
 
+                <div class="form-group">
+                    <button type="submit" id="btn-creer" class="btn btn-primary">Créer la phase finale</button>
+                </div>
 
                 <!-- Ordre de départ (seeding) -->
                 <div id="ordre-equipes-panel" class="hidden">
@@ -131,9 +134,7 @@ $tournoi_id = isset($_GET['id_tournoi']) ? (int)$_GET['id_tournoi'] : 0;
                     <ul id="liste-ordre-equipes" class="ordre-equipes-liste"></ul>
                 </div>
 
-                <div class="form-group">
-                    <button type="submit" id="btn-creer" class="btn btn-primary">Créer la phase finale</button>
-                </div>
+
             </form>
             <p id="msg-creation" class="msg"></p>
         </section>
