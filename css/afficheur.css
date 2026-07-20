@@ -1289,6 +1289,7 @@ body.dark .phase-finale-legende {
     main {
         overflow: visible;
         height: auto;
+        width: 90%;
     }
 
     .tab-content.active {
