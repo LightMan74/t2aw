@@ -23,7 +23,7 @@ function afficherMessage(elementId, texte, type = 'success') {
     const el = document.getElementById(elementId);
     el.textContent = texte;
     el.className = 'msg ' + type;
-    setTimeout(() => { el.textContent = ''; el.className = 'msg'; }, 4000);
+    setTimeout(() => { el.textContent = ''; el.className = 'msg'; }, 5000);
 }
 
 async function apiFetch(url, options = {}) {
@@ -90,8 +90,7 @@ selectCategorie.addEventListener('change', async () => {
         );
 
         if (checkData.existe) {
-            afficherMessage(
-                'msg-creation',
+            afficherMessage('msg-creation',
                 `Une phase finale existe déjà pour cette catégorie (« ${checkData.phase.nom} »). Supprimez-la avant d'en créer une nouvelle.`,
                 'error'
             );

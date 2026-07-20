@@ -11,7 +11,7 @@ function afficherMessage(texte, type) {
     const div = document.getElementById('message');
     if (!div) return;
     div.innerHTML = `<div class="msg ${type}">${texte}</div>`;
-    setTimeout(() => { div.innerHTML = ''; }, 4000);
+    setTimeout(() => { div.innerHTML = ''; }, 5000);
 }
 
 async function chargerMatchs() {

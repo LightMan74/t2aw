@@ -4,7 +4,7 @@ function afficherMessage(texte, type) {
     const div = document.getElementById('message');
     div.className = type;
     div.textContent = texte;
-    setTimeout(() => div.innerHTML = '', 4000);
+    setTimeout(() => div.innerHTML = '', 5000);
 }
 
 function chargerClassement() {
