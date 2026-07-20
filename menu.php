@@ -17,7 +17,8 @@ $currentUser = $_SESSION['user'];
 </script>
 <header class="top-header">
     <!-- <h1>Gestion des Tournois de Badminton</h1> -->
-    <img src="logo.png" class="login-logo" alt="Logo">
+    <!-- <img src="logo.png" class="login-logo" alt="Logo"> -->
+    <div class="login-logo" role="img" aria-label="Logo"></div>
     <image href="">
         <h3>Tournoi Actuel : <?php echo (isset($tournoi_name_menu[0]["nom"]) != "") ? $tournoi_name_menu[0]["nom"]: 'AUCUN'; ?></h3>
         <div class="user-info">

@@ -1,4 +1,6 @@
 :root {
+
+    --logo: url(../logo.png);
     --bg-body: #f5f5f5;
     --bg-container: #fff;
     --bg-header: #fff;

@@ -4,6 +4,7 @@
 
 /* Variables mode sombre — surcharge :root de style.css */
 html[data-theme="dark"] {
+    --logo: url(../logo_dark.png);
     --bg-body: #1a1a1a;
     --bg-container: #242424;
     --bg-header: #242424;
