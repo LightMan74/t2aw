@@ -1,5 +1,5 @@
 <title>Tournoi All Auto Web</title>
-<link rel="icon" type="image/png" sizes="64x64" href="logo.png">
+<link rel="icon" type="image/png" sizes="64x64" href="icon_t2aw.png">
 
 <?php 
 include __DIR__ . "/api//check_connected.php";

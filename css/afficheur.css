@@ -4,14 +4,19 @@
 
 .login-logo {
     display: block;
-    /* width: 80%; */
-    /* Prend 80% de la largeur du conteneur */
+    width: 100px;
+    /* height: 40px; */
+    aspect-ratio: 506 / 624;
+    /* remplace par le ratio réel de ton logo */
+    /* adapte selon les proportions de ton logo */
     max-width: 100px;
-    /* Ne dépassera pas 300px de large */
-    height: auto;
-    /* margin: 0 auto 20px auto; */
     margin: 0px 25px;
+    background-image: var(--logo);
+    background-size: contain;
+    background-position: center;
+    background-repeat: no-repeat;
 }
+
 
 /* ---------- Tag couleur (fond coloré sur le texte) ---------- */
 .tag-couleur {
@@ -296,6 +301,10 @@ body {
 body.dark {
     background: #1a1c22;
     color: #e4e4e4;
+}
+
+body.dark .login-logo {
+    --logo: url(../logo_dark.png);
 }
 
 body.dark header {

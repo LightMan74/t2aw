@@ -199,7 +199,6 @@ $tournoi_id = isset($_GET['id_tournoi']) ? (int)$_GET['id_tournoi'] : 0;
     </div>
     <script>
     </script>
-    <script src="js/theme.js"></script>
     <script src="js/phase_final.js"></script>
 
 

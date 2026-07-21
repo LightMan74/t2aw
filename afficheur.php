@@ -4,16 +4,28 @@ $id_tournoi = isset($_GET['id_tournoi']) ? (int)$_GET['id_tournoi'] : 0;
 <!DOCTYPE html>
 <html lang="fr">
 
+<script>
+// Applique le thème AVANT le rendu du header pour éviter le flash
+// (function() {
+//     const saved = localStorage.getItem('theme') || 'light';
+//     document.documentElement.setAttribute('data-theme', saved);
+// })();
+// 
+</script>
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Tournoi All Auto Web</title>
-    <link rel="icon" type="image/png" sizes="64x64" href="logo.png">
+    <link rel="icon" type="image/png" sizes="64x64" href="icon_t2aw.png">
     <link rel="stylesheet" href="css/var.css">
+    <!-- <link rel="stylesheet" href="css/style.css"> -->
+    <!-- <link rel="stylesheet" href="css/dark-mode.css"> -->
     <link rel="stylesheet" href="css/afficheur.css">
     <?php if ($id_tournoi === 0): ?>
     <link rel="stylesheet" href="css/liste_afficheur.css">
     <?php endif; ?>
+
 </head>
 
 <body>
@@ -73,7 +85,7 @@ $id_tournoi = isset($_GET['id_tournoi']) ? (int)$_GET['id_tournoi'] : 0;
     <?php else: ?>
 
     <header>
-        <img src="logo.png" class="login-logo" alt="Logo">
+        <div class="login-logo" role="img" aria-label="Logo"></div>
         <h1 id="nom-tournoi">Chargement du tournoi...</h1>
         <div class="infos-refresh">
             <div class="timer-control">
@@ -141,6 +153,7 @@ $id_tournoi = isset($_GET['id_tournoi']) ? (int)$_GET['id_tournoi'] : 0;
     const ID_TOURNOI = <?php echo json_encode($id_tournoi); ?>;
     </script>
     <!-- <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script> -->
+
     <script src="js/colors.js"></script>
     <!-- Configuration des liaisons du bracket (couleurs, opacité, etc.) -->
     <script src="js/bracket-lines-config.js"></script>
@@ -148,7 +161,7 @@ $id_tournoi = isset($_GET['id_tournoi']) ? (int)$_GET['id_tournoi'] : 0;
     <script src="js/afficheur.js"></script>
 
     <?php endif; ?>
-
+    <!-- <script src="js/theme.js"></script> -->
 </body>
 
 </html>
