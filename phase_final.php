@@ -203,5 +203,8 @@ $tournoi_id = isset($_GET['id_tournoi']) ? (int)$_GET['id_tournoi'] : 0;
 
 
 </body>
+<style>
+
+</style>
 
 </html>

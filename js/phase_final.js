@@ -505,7 +505,9 @@ function afficherBracket(matchs, phase) {
 }
 
 function creerMatchBox(match) {
+    const surbox = document.createElement('div');
     const box = document.createElement('div');
+    surbox.className = 'surbox';
     box.className = 'match-box ' + match.statut;
     box.dataset.matchId = match.id;
     box.dataset.round = match.round;
@@ -520,19 +522,12 @@ function creerMatchBox(match) {
     const classeTeam2 = match.winner_equipe_id
         ? (match.winner_equipe_id === match.equipe2_id ? 'winner' : 'loser') : '';
 
-    let classementHtml = '';
-    if (match.classement_min && match.classement_max) {
-        // classementHtml = `<div class="classement-label">Classement ${match.classement_min}-${match.classement_max}</div>`;
-    }
-
     const simuleBadge = match.statut === 'simule'
         ? '<div class="simule-badge">⏩ Simulé</div>' : '';
 
-    // ── Statut de jeu (planifie / en_cours / termine) : indépendant du statut structurel du bracket ──
     const statutJeu = match.statut_match ?? 'planifie';
     const peutJouer = match.equipe1_id && match.equipe2_id;
 
-    // Badge de statut cliquable (seulement si les 2 équipes sont connues)
     const statutBadgeHtml = peutJouer
         ? `<span class="status-badge status-badge-${statutJeu}"
                  data-match-id="${match.id}"
@@ -542,15 +537,13 @@ function creerMatchBox(match) {
            </span>`
         : '';
 
-    // Terrain (toujours éditable, même si les équipes ne sont pas encore connues)
     const terrainHtml = `<input type="number" min="1" class="terrain-input"
                   value="${match.terrain ?? ''}"
                   placeholder="Terrain"
                   data-match-id="${match.id}"
                   title="Terrain">`;
 
-    // Heure de début + bouton "maintenant" (toujours visible)
-    const heureHtml = `<div class="heure-ligne">
+    const heureHtml = `
                 <input type="time" class="hdebut-input"
                        value="${match.heure_debut ?? ''}"
                        data-match-id="${match.id}"
@@ -560,13 +553,15 @@ function creerMatchBox(match) {
                         title="Mettre l'heure actuelle et décaler les suivants">🕐</button>
            </div>`;
 
-    const infosLigne = `<div class="match-infos-ligne" onclick="event.stopPropagation()">
+    // On crée infosLigne comme un vrai élément DOM
+    const infosLigne = document.createElement('div');
+    infosLigne.className = 'match-infos-ligne';
+    infosLigne.addEventListener('click', (e) => e.stopPropagation());
+    infosLigne.innerHTML = `
                 <div class="ligne1">
                     ${terrainHtml}
                     ${statutBadgeHtml}
-                </div>
-                ${heureHtml}
-           </div>`;
+                ${heureHtml}`;
 
     const { score1aff, score2aff } = filtrerScores(match.score1, match.score2);
 
@@ -581,18 +576,16 @@ function creerMatchBox(match) {
             <span>${nom2}</span>
             <span>${score2aff}</span>
         </div>
-        ${classementHtml}
-        ${infosLigne}
     `;
 
-    // Clic sur la boîte = ouvrir modale de score (seulement si les 2 équipes sont connues)
+    // Clic sur la boîte = ouvrir modale de score
     if (peutJouer) {
         box.addEventListener('click', () => {
             ouvrirModalScore(match, nom1, nom2);
         });
 
-        // Clic sur le badge de statut = cycle rapide (sans ouvrir la modale)
-        const badgeEl = box.querySelector('.status-badge');
+        // Le badge est maintenant dans infosLigne, pas dans box !
+        const badgeEl = infosLigne.querySelector('.status-badge');
         if (badgeEl) {
             badgeEl.addEventListener('click', (e) => {
                 e.stopPropagation();
@@ -601,8 +594,8 @@ function creerMatchBox(match) {
         }
     }
 
-    // Changement du terrain (au blur, sans ouvrir la modale) — toujours actif
-    const terrainInput = box.querySelector('.terrain-input');
+    // Terrain (cherché dans infosLigne maintenant)
+    const terrainInput = infosLigne.querySelector('.terrain-input');
     if (terrainInput) {
         terrainInput.addEventListener('click', (e) => e.stopPropagation());
         terrainInput.addEventListener('blur', () => {
@@ -616,8 +609,8 @@ function creerMatchBox(match) {
         });
     }
 
-    // Heure de début (au blur, sans ouvrir la modale) — toujours actif
-    const hdebutInput = box.querySelector('.hdebut-input');
+    // Heure de début
+    const hdebutInput = infosLigne.querySelector('.hdebut-input');
     if (hdebutInput) {
         hdebutInput.addEventListener('click', (e) => e.stopPropagation());
         hdebutInput.addEventListener('blur', () => {
@@ -628,8 +621,8 @@ function creerMatchBox(match) {
         });
     }
 
-    // Bouton "heure actuelle" avec décalage des matchs suivants (même terrain) — toujours actif
-    const btnHeureActuelle = box.querySelector('.btn-heure-actuelle');
+    // Bouton "heure actuelle"
+    const btnHeureActuelle = infosLigne.querySelector('.btn-heure-actuelle');
     if (btnHeureActuelle) {
         btnHeureActuelle.addEventListener('click', (e) => {
             e.stopPropagation();
@@ -637,7 +630,9 @@ function creerMatchBox(match) {
         });
     }
 
-    return box;
+    surbox.appendChild(box);
+    surbox.appendChild(infosLigne);
+    return surbox;
 }
 function toggleHeureManuellePF() {
     const checkbox = document.getElementById('heureManuelleCheckboxPF');
