@@ -11,7 +11,7 @@ try {
 
         case 'update_match':
             $id = $data['id'];
-            $terrain = $data['terrain'];
+            $terrain = $data['terrain'] ?? null;
             $status = $data['status'];
             $score1 = $data['score_equipe_1'];
             $score2 = $data['score_equipe_2'];
@@ -43,7 +43,8 @@ try {
                 $stmtBulk = $pdo->prepare("UPDATE match_poule SET terrain=?, status=?, score_equipe_1=?, score_equipe_2=?, heure_debut=?, heure_fin=? WHERE id=?");
 
                 foreach ($matchs as $match) {
-                    $terrain   = $match['terrain'] ?? null;
+                    // $terrain   = $match['terrain'] ?? null;
+                    if ($match['terrain']!=''){$terrain = $match['terrain'];}else{$terrain = null;};
                     $status    = $match['status'] ?? null;
                     $score1    = $match['score_equipe_1'] ?? null;
                     $score2    = $match['score_equipe_2'] ?? null;
@@ -53,9 +54,9 @@ try {
 
                     $stmtBulk->execute([$terrain, $status, $score1, $score2, $hDebut, $hFin, $id]);
 
-                    if ($status === 'termine') {
+                    // if ($status === 'termine') {
                         // recalculerClassementMatch($pdo, $id);
-                    }
+                    // }
                 }
 
                 $pdo->commit();

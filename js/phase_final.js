@@ -522,7 +522,7 @@ function creerMatchBox(match) {
 
     let classementHtml = '';
     if (match.classement_min && match.classement_max) {
-        classementHtml = `<div class="classement-label">Classement ${match.classement_min}-${match.classement_max}</div>`;
+        // classementHtml = `<div class="classement-label">Classement ${match.classement_min}-${match.classement_max}</div>`;
     }
 
     const simuleBadge = match.statut === 'simule'
