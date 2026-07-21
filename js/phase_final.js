@@ -756,6 +756,14 @@ document.getElementById('btn-annuler-score').addEventListener('click', () => {
 document.getElementById('btn-valider-score').addEventListener('click', () => {
     const score1 = parseInt(document.getElementById('modal-score1s1').value, 10) + parseInt(document.getElementById('modal-score1s2').value, 10) + parseInt(document.getElementById('modal-score1s3').value, 10);
     const score2 = parseInt(document.getElementById('modal-score2s1').value, 10) + parseInt(document.getElementById('modal-score2s2').value, 10) + parseInt(document.getElementById('modal-score2s3').value, 10);
+
+    let score3ss1 = parseInt(document.getElementById('modal-score1s1').value, 10) + ' - ' + parseInt(document.getElementById('modal-score2s1').value, 10);
+    let score3ss2 = ' | ' + parseInt(document.getElementById('modal-score1s2').value, 10) + ' - ' + parseInt(document.getElementById('modal-score2s2').value, 10);
+    let score3ss3 = ' | ' + parseInt(document.getElementById('modal-score1s3').value, 10) + ' - ' + parseInt(document.getElementById('modal-score2s3').value, 10);
+
+    score3ss2 = score3ss2 != ' | 0 - 0' ? score3ss2 : '';
+    score3ss3 = score3ss3 != ' | 0 - 0' ? score3ss3 : '';
+
     const selectStatut = document.getElementById('modal-statut-match');
 
     if (isNaN(score1) || isNaN(score2)) {
@@ -775,9 +783,12 @@ document.getElementById('btn-valider-score').addEventListener('click', () => {
         const gagnant = score1 > score2 ? currentMatchNoms.nom1 : currentMatchNoms.nom2;
         const perdant = score1 > score2 ? currentMatchNoms.nom2 : currentMatchNoms.nom1;
 
+        // document.getElementById('modal-confirmation-texte').innerHTML =
+        //     `<strong> ${currentMatchNoms.nom1}</strong > vs <strong> ${currentMatchNoms.nom2}</strong> <br><br>` +
+        //     `🏆 <strong>${gagnant}</strong> gagne (${score1} - ${score2}) contre ${perdant}`;
         document.getElementById('modal-confirmation-texte').innerHTML =
-            `< strong > ${currentMatchNoms.nom1}</strong > vs < strong > ${currentMatchNoms.nom2}</strong > <br><br>` +
-            `🏆 <strong>${gagnant}</strong> gagne (${score1} - ${score2}) contre ${perdant}`;
+            `<strong> ${currentMatchNoms.nom1}</strong > vs <strong> ${currentMatchNoms.nom2}</strong> <br><br>` +
+            `Vainqueur<br><strong style="color:green">${gagnant}</strong><br>${score3ss1}${score3ss2}${score3ss3}`;
 
         document.getElementById('modal-confirmation-vainqueur').classList.remove('hidden');
     } else {
