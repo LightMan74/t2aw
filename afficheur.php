@@ -87,6 +87,7 @@ $id_tournoi = isset($_GET['id_tournoi']) ? (int)$_GET['id_tournoi'] : 0;
     <header>
         <div class="login-logo" role="img" aria-label="Logo"></div>
         <h1 id="nom-tournoi">Chargement du tournoi...</h1>
+        <div class="qrcode" role="img" aria-label="qrcode"></div>
         <div class="infos-refresh">
             <div class="timer-control">
                 <center>
@@ -151,6 +152,19 @@ $id_tournoi = isset($_GET['id_tournoi']) ? (int)$_GET['id_tournoi'] : 0;
 
     <script>
     const ID_TOURNOI = <?php echo json_encode($id_tournoi); ?>;
+
+    async function loadQrCode(data) {
+        if (window.innerWidth <= 900) {
+            return; // ne rien faire sur mobile
+        }
+        const response = await fetch(`api/qrcode.php?data=${encodeURIComponent(data)}`);
+        const svgText = await response.text();
+
+        const container = document.querySelector('.qrcode');
+        container.innerHTML = svgText;
+        container.style = "background: #d2d2d2;";
+    }
+    loadQrCode("<?php echo "https://$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]";?>");
     </script>
     <script src="js/colors.js"></script>
     <!-- Configuration des liaisons du bracket (couleurs, opacité, etc.) -->
