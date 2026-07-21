@@ -39,7 +39,7 @@ if (isset($_SESSION['logged_in']) || $_SESSION['logged_in'] == true) {
 
 <body>
 
-    <div class="login-container"><img src="logo.png" class="login-logo" alt="Logo">
+    <div class="login-container"><img src="logo.png" class="login-logo" alt="">
         <h1> Connexion</h1>
 
         <form id="loginForm">
