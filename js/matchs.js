@@ -65,6 +65,11 @@ function afficherTable() {
     if (!corps) { console.error('Élément #corps-table introuvable'); return; }
     corps.innerHTML = '';
 
+
+    const tr2 = document.createElement('tr');
+    tr2.innerHTML = `<td colspan="9" id="numbermatchshidden"></td>`;
+    corps.appendChild(tr2);
+
     matchsData.forEach((m, index) => {
         const tr = document.createElement('tr');
         const poleClass = getPouleColorClassById(m.id_poule, m.id_poule_2);
@@ -230,6 +235,7 @@ async function autosaveandreload() {
             modifiedMatchs.clear();
             afficherMessage(`${matchsToSave.length} match(s) sauvegardé(s) ✓`, 'success');
             await chargerMatchs();
+            await togglematchtermine();
         } else {
             afficherMessage(data.error || 'Erreur de sauvegarde', 'error');
         }
@@ -303,10 +309,10 @@ async function chargerTempsDeMatch() {
     try {
         const res = await fetch(`api/get_parametres.php?id_tournoi=${id_tournoi}`);
         const data = await res.json();
-        console.log('time here ' + data.temps_de_match);
+        // console.log('time here ' + data.temps_de_match);
         if (data.success && data.temps_de_match) {
             tempsDeMatch = parseInt(data.temps_de_match, 10) || 20;
-            console.log('time here ' + tempsDeMatch);
+            // console.log('time here ' + tempsDeMatch);
         } else {
             console.warn('Paramètres non trouvés ou temps_de_match manquant, valeur par défaut 20 utilisée', data);
             tempsDeMatch = 20;
@@ -315,7 +321,7 @@ async function chargerTempsDeMatch() {
         console.error('Erreur chargement paramètres', err);
         tempsDeMatch = 20;
     }
-    console.log('tempsDeMatch chargé:', tempsDeMatch);
+    // console.log('tempsDeMatch chargé:', tempsDeMatch);
 }
 
 function formatHeureMinute(date) {
@@ -495,10 +501,33 @@ function comparerHeures(heure1, heure2) {
     return total1 - total2;
 }
 
+let matchTermineMasque = true;
+
+function togglematchtermine() {
+    const lignesTerminees = document.querySelectorAll('tr.status-termine');
+    const checkbox = document.getElementById('matchtermineCheckbox');
+    let countmachshide = 0;
+    if (checkbox.checked) {
+        lignesTerminees.forEach(ligne => {
+            ligne.style.display = 'none';
+            countmachshide++;
+        });
+    } else {
+        lignesTerminees.forEach(ligne => {
+            ligne.style.display = '';
+        });
+    }
+    document.getElementById('numbermatchshidden').textContent = countmachshide + " Matchs terminé caché.";
+}
+
 // Charger le temps de match au démarrage de la page
-document.addEventListener('DOMContentLoaded', () => {
-    chargerTempsDeMatch();
+document.addEventListener('DOMContentLoaded', async () => {
+    await chargerMatchs();
+    await chargerTempsDeMatch(); // si elle aussi est async
+    // document.getElementById('matchtermineCheckbox').checked = true;
+    togglematchtermine();
 });
+
 
 document.addEventListener('focus', function (e) {
     if (e.target.tagName === 'INPUT') {

@@ -43,6 +43,10 @@
                     <input type="checkbox" id="heureManuelleCheckbox" onchange="toggleHeureManuelle()">
                 </label>
                 <label>
+                    Voir Match terminé
+                    <input type="checkbox" id="matchtermineCheckbox" onchange="togglematchtermine()" checked>
+                </label>
+                <label>
                     Appliquer le décalage horaire à tous les terrains
                     <input type="checkbox" id="decalageTousTerrains">
                 </label>
@@ -81,7 +85,7 @@
                     <th>
                         <nobr>Heure début</nobr>
                     </th>
-                    <th></th> <!-- Colonne pour l'icône de sauvegarde -->
+                    <th>------</th> <!-- Colonne pour l'icône de sauvegarde -->
                 </tr>
             </thead>
             <tbody id="corps-table"></tbody>
@@ -94,7 +98,7 @@
     <script src="js/colors.js"></script>
     <script src="js/matchs.js"></script>
     <script>
-    chargerMatchs();
+    // chargerMatchs();
     </script>
 </body>
 

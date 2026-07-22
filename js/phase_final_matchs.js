@@ -32,6 +32,7 @@ async function chargerMatchsPF() {
     } catch (err) {
         afficherMessageListePF('Erreur réseau : ' + err.message, 'error');
     }
+    togglematchtermine();
 }
 
 const STATUS_CYCLE_PF = ['planifie', 'en_cours', 'termine'];
@@ -64,6 +65,11 @@ function afficherTablePF() {
     const corps = document.getElementById('corps-table-pf');
     if (!corps) { console.error('Élément #corps-table-pf introuvable'); return; }
     corps.innerHTML = '';
+
+
+    const tr2 = document.createElement('tr');
+    tr2.innerHTML = `<td colspan="9" id="numbermatchshidden"></td>`;
+    corps.appendChild(tr2);
 
     matchsPFData.forEach((m, index) => {
         const tr = document.createElement('tr');
@@ -235,6 +241,7 @@ async function sauvegarderLignePF(index) {
             majIconeSavePF(index);
             afficherMessageListePF('Match sauvegardé ✓', 'success');
             await chargerMatchsPF();
+            await togglematchtermine();
         } else {
             afficherMessageListePF(data.message || data.error || 'Erreur de sauvegarde', 'error');
         }
@@ -287,6 +294,7 @@ async function autosaveandreloadListePF() {
 
     afficherMessageListePF(`${nbOk} match(s) sauvegardé(s) ✓`, 'success');
     await chargerMatchsPF();
+    await togglematchtermine();
 }
 
 // ---------- Gestion heure manuelle / décalage ----------
@@ -455,7 +463,35 @@ function calculerPlageClassement(round, subKey, nbreTeam) {
     return debut + ' - ' + fin;
 }
 
-document.addEventListener('DOMContentLoaded', () => {
-    chargerMatchsPF();
-    chargerTempsDeMatchPFListe();
+
+function togglematchtermine() {
+    const lignesTerminees = document.querySelectorAll('tr.status-termine');
+    const checkbox = document.getElementById('matchtermineCheckbox');
+    let countmachshide = 0;
+    if (checkbox.checked) {
+        lignesTerminees.forEach(ligne => {
+            ligne.style.display = 'none';
+            countmachshide++;
+        });
+    } else {
+        lignesTerminees.forEach(ligne => {
+            ligne.style.display = '';
+        });
+    }
+    console.log(countmachshide);
+    document.getElementById('numbermatchshidden').textContent = countmachshide + " Matchs terminé caché.";
+}
+
+// document.addEventListener('DOMContentLoaded', () => {
+//     chargerMatchsPF();
+//     chargerTempsDeMatchPFListe();
+//     // document.getElementById('matchtermineCheckbox').checked = true;
+//     togglematchtermine();
+// });
+
+document.addEventListener('DOMContentLoaded', async () => {
+    await chargerMatchsPF();
+    await chargerTempsDeMatchPFListe(); // si elle aussi est async
+    // document.getElementById('matchtermineCheckbox').checked = true;
+    // togglematchtermine();
 });

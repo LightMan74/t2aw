@@ -47,6 +47,10 @@ $tournoi_id = isset($_GET['id_tournoi']) ? (int)$_GET['id_tournoi'] : 0;
                         <input type="checkbox" id="heureManuelleCheckboxListePF" onchange="toggleHeureManuelleListePF()">
                     </label>
                     <label>
+                        Voir Match terminé
+                        <input type="checkbox" id="matchtermineCheckbox" onchange="togglematchtermine()" checked>
+                    </label>
+                    <label>
                         Appliquer le décalage horaire à tous les terrains
                         <input type="checkbox" id="decalageTousTerrainsListePF">
                     </label>
