@@ -35,15 +35,6 @@ $tournoi_id = isset($_GET['id_tournoi']) ? (int)$_GET['id_tournoi'] : 0;
         </header>
         <!-- <main class="container"> -->
 
-        <!-- Liste des phases finales existantes -->
-        <section id="section-liste" class="section">
-            <div class="section-header">
-                <h2>Phases finales existantes</h2>
-            </div>
-            <button id="btn-rafraichir-liste" class="btn btn-back hidden" type="button">Rafraîchir</button>
-            <ul id="liste-phases"></ul>
-        </section>
-
         <!-- NOUVEAU : Liste de tous les matchs de phase finale (toutes phases confondues) -->
         <section id="section-liste-matchs-pf" class="section">
             <div class="section-header">
@@ -67,20 +58,47 @@ $tournoi_id = isset($_GET['id_tournoi']) ? (int)$_GET['id_tournoi'] : 0;
             <table id="table-matchs-pf">
                 <thead>
                     <tr>
-                        <th><nobr>Catégorie</nobr></th>
-                        <th><nobr>Phase</nobr></th>
-                        <th><nobr>Round</nobr></th>
-                        <th><nobr>Equipe 1</nobr></th>
-                        <th><nobr>SCORE</nobr></th>
-                        <th><nobr>Equipe 2</nobr></th>
-                        <th><nobr>Terrain</nobr></th>
-                        <th><nobr>Statut</nobr></th>
-                        <th><nobr>Heure début</nobr></th>
+                        <th>
+                            <nobr>Catégorie</nobr>
+                        </th>
+                        <th>
+                            <nobr>Phase</nobr>
+                        </th>
+                        <th>
+                            <nobr>Round</nobr>
+                        </th>
+                        <th>
+                            <nobr>Equipe 1</nobr>
+                        </th>
+                        <th>
+                            <nobr>SCORE</nobr>
+                        </th>
+                        <th>
+                            <nobr>Equipe 2</nobr>
+                        </th>
+                        <th>
+                            <nobr>Terrain</nobr>
+                        </th>
+                        <th>
+                            <nobr>Statut</nobr>
+                        </th>
+                        <th>
+                            <nobr>Heure début</nobr>
+                        </th>
                         <th></th> <!-- Colonne pour l'icône de sauvegarde -->
                     </tr>
                 </thead>
                 <tbody id="corps-table-pf"></tbody>
             </table>
+        </section>
+
+        <!-- Liste des phases finales existantes -->
+        <section id="section-liste" class="section">
+            <div class="section-header">
+                <h2>Phases finales existantes</h2>
+            </div>
+            <button id="btn-rafraichir-liste" class="btn btn-back hidden" type="button">Rafraîchir</button>
+            <ul id="liste-phases"></ul>
         </section>
 
         <!-- Détail / Bracket -->
@@ -108,7 +126,8 @@ $tournoi_id = isset($_GET['id_tournoi']) ? (int)$_GET['id_tournoi'] : 0;
                     <button type="button" id="btn-simuler-rounds" class="btn btn-modifier">⏩ Simuler et sauter ces rounds</button>
                 </div>
                 <p id="msg-simulation" class="msg"></p>
-            </div><div id="equipes-panel">
+            </div>
+            <div id="equipes-panel">
                 <h3>Équipes</h3>
                 <div id="liste-equipes" class="equipes-grid"></div>
             </div>
@@ -137,7 +156,8 @@ $tournoi_id = isset($_GET['id_tournoi']) ? (int)$_GET['id_tournoi'] : 0;
                             <option value="classique">Classique (élimination directe, seeding standard)</option>
                         </select>
                     </div>
-                </div><div class="form-row">
+                </div>
+                <div class="form-row">
                     <div class="form-group">
                         <label for="input-nom">Nom de la phase</label>
                         <input type="text" id="input-nom" required readonly placeholder="Choisir une catégorie d'abord">
@@ -227,6 +247,7 @@ $tournoi_id = isset($_GET['id_tournoi']) ? (int)$_GET['id_tournoi'] : 0;
         </div>
     </div>
     <script>
+    const tournoi_troissets_match = <?= json_encode($tournoi_troissets_match); ?>;
     </script>
     <script src="js/colors.js"></script>
     <script src="js/phase_final.js"></script>

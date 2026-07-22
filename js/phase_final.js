@@ -555,13 +555,14 @@ function creerMatchBox(match) {
 
     // On crée infosLigne comme un vrai élément DOM
     const infosLigne = document.createElement('div');
-    infosLigne.className = 'match-infos-ligne';
+    // infosLigne.className = 'match-infos-ligne';
     infosLigne.addEventListener('click', (e) => e.stopPropagation());
     infosLigne.innerHTML = `
                 <div class="ligne1">
                     ${terrainHtml}
                     ${statutBadgeHtml}
                 ${heureHtml}`;
+    infosLigne.innerHTML = ``;
 
     const { score1aff, score2aff } = filtrerScores(match.score1, match.score2);
 
