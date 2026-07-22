@@ -21,7 +21,7 @@ if (isset($_SESSION['logged_in']) || $_SESSION['logged_in'] == true) {
     <!-- <title>Connexion - Gestion Tournois Badminton</title> -->
     <title>Tournoi All Auto Web</title>
     <link rel="icon" type="image/png" sizes="64x64" href="icon_t2aw.png">
-    <!-- <link rel="stylesheet" href="css/var.css"> -->
+    <link rel="stylesheet" href="css/var.css">
     <link rel="stylesheet" href="css/login.css">
     <!-- <link rel="stylesheet" href="css/dark-mode.css"> -->
     <style>
@@ -39,7 +39,9 @@ if (isset($_SESSION['logged_in']) || $_SESSION['logged_in'] == true) {
 
 <body>
 
-    <div class="login-container"><img src="logo.png" class="login-logo" alt="">
+    <div class="login-container">
+
+        <div class="login-logo" role="img" aria-label="Logo" style="width:200px;max-width: 200px;margin: 25px auto;"></div>
         <h1> Connexion</h1>
 
         <form id="loginForm">

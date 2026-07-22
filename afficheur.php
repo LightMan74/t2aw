@@ -34,7 +34,7 @@ $id_tournoi = isset($_GET['id_tournoi']) ? (int)$_GET['id_tournoi'] : 0;
     if ($id_tournoi === 0): ?>
 
     <!-- Sélecteur de tournoi si aucun id_tournoi fourni -->
-    <img src="logo.png" class="login-logo" alt="" style="max-width: 200px;margin: 25px auto;">
+     <div class="login-logo" role="img" aria-label="Logo" style="width:200px;max-width: 200px;margin: 25px auto;"></div>
     <button onclick="location.href='login.php?login'" class="btn-lsiteafficheur">👤 Login</button><br><br>
     <div class="selecteur-tournois">
         <h1>Sélectionnez un tournoi</h1>

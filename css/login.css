@@ -13,6 +13,21 @@ body {
     min-height: 100vh;
 }
 
+.login-logo {
+    display: block;
+    width: 100px;
+    /* height: 40px; */
+    aspect-ratio: 506 / 624;
+    /* remplace par le ratio réel de ton logo */
+    /* adapte selon les proportions de ton logo */
+    max-width: 100px;
+    margin: 0px 25px;
+    background-image: var(--logo);
+    background-size: contain;
+    background-position: center;
+    background-repeat: no-repeat;
+}
+
 .login-container {
     background: white;
     padding: 2rem;
