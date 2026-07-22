@@ -35,7 +35,7 @@ async function apiFetch(url, options = {}) {
     return data;
 }
 
-// ---------- Chargement des catégories au démarrage ----------
+// ---------- Chargement des catégories au démarrage ---------- 
 
 const inputTournoiId = document.getElementById('input-tournoi-id');
 const selectCategorie = document.getElementById('input-categorie');

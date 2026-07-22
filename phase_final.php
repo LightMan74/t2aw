@@ -44,6 +44,45 @@ $tournoi_id = isset($_GET['id_tournoi']) ? (int)$_GET['id_tournoi'] : 0;
             <ul id="liste-phases"></ul>
         </section>
 
+        <!-- NOUVEAU : Liste de tous les matchs de phase finale (toutes phases confondues) -->
+        <section id="section-liste-matchs-pf" class="section">
+            <div class="section-header">
+                <h2>Tous les matchs de phase finale</h2>
+            </div>
+            <div class="container-heure-message">
+                <div class="option-heure-manuelle">
+                    <label>
+                        Heure manuelle
+                        <input type="checkbox" id="heureManuelleCheckboxListePF" onchange="toggleHeureManuelleListePF()">
+                    </label>
+                    <label>
+                        Appliquer le décalage horaire à tous les terrains
+                        <input type="checkbox" id="decalageTousTerrainsListePF">
+                    </label>
+                    <input type="time" id="heureManuelleInputListePF" style="display:none;">
+                    <button onclick="autosaveandreloadListePF()">Enregistrer</button>
+                </div>
+                <div id="message-liste-matchs-pf"></div>
+            </div>
+            <table id="table-matchs-pf">
+                <thead>
+                    <tr>
+                        <th><nobr>Catégorie</nobr></th>
+                        <th><nobr>Phase</nobr></th>
+                        <th><nobr>Round</nobr></th>
+                        <th><nobr>Equipe 1</nobr></th>
+                        <th><nobr>SCORE</nobr></th>
+                        <th><nobr>Equipe 2</nobr></th>
+                        <th><nobr>Terrain</nobr></th>
+                        <th><nobr>Statut</nobr></th>
+                        <th><nobr>Heure début</nobr></th>
+                        <th></th> <!-- Colonne pour l'icône de sauvegarde -->
+                    </tr>
+                </thead>
+                <tbody id="corps-table-pf"></tbody>
+            </table>
+        </section>
+
         <!-- Détail / Bracket -->
         <section id="section-bracket" class="section hidden">
             <div class="option-heure-manuelle">
@@ -69,9 +108,7 @@ $tournoi_id = isset($_GET['id_tournoi']) ? (int)$_GET['id_tournoi'] : 0;
                     <button type="button" id="btn-simuler-rounds" class="btn btn-modifier">⏩ Simuler et sauter ces rounds</button>
                 </div>
                 <p id="msg-simulation" class="msg"></p>
-            </div>
-
-            <div id="equipes-panel">
+            </div><div id="equipes-panel">
                 <h3>Équipes</h3>
                 <div id="liste-equipes" class="equipes-grid"></div>
             </div>
@@ -100,9 +137,7 @@ $tournoi_id = isset($_GET['id_tournoi']) ? (int)$_GET['id_tournoi'] : 0;
                             <option value="classique">Classique (élimination directe, seeding standard)</option>
                         </select>
                     </div>
-                </div>
-
-                <div class="form-row">
+                </div><div class="form-row">
                     <div class="form-group">
                         <label for="input-nom">Nom de la phase</label>
                         <input type="text" id="input-nom" required readonly placeholder="Choisir une catégorie d'abord">
@@ -125,9 +160,7 @@ $tournoi_id = isset($_GET['id_tournoi']) ? (int)$_GET['id_tournoi'] : 0;
 
                 <div class="form-group">
                     <button type="submit" id="btn-creer" class="btn btn-primary">Créer la phase finale</button>
-                </div>
-
-                <!-- Ordre de départ (seeding) -->
+                </div><!-- Ordre de départ (seeding) -->
                 <div id="ordre-equipes-panel" class="hidden">
                     <h3>Ordre de départ (seeding)</h3>
                     <p class="text-muted">Glissez-déposez pour réordonner, ou utilisez les flèches ↑ ↓</p>
@@ -144,9 +177,7 @@ $tournoi_id = isset($_GET['id_tournoi']) ? (int)$_GET['id_tournoi'] : 0;
         <!-- Modale de saisie de score -->
         <div id="modal-score" class="modal hidden">
             <div class="modal-content">
-                <p id="modal-match-info"></p>
-
-                <label>
+                <p id="modal-match-info"></p><label>
                     <span id="label-equipe1" class="score-label-equipe">Équipe 1</span><input type="number" id="modal-score1s1" min="0"><span <?php echo $hiddenSets;?>> - <input type="number" id="modal-score1s2" min="0"> - <input type="number" id="modal-score1s3" min="0"></span>
                 </label>
                 <label>
@@ -170,9 +201,7 @@ $tournoi_id = isset($_GET['id_tournoi']) ? (int)$_GET['id_tournoi'] : 0;
                 <button id="btn-valider-score">Valider</button>
                 <button id="btn-annuler-score">Annuler</button>
             </div>
-        </div>
-
-        <!-- Modale de confirmation du vainqueur -->
+        </div><!-- Modale de confirmation du vainqueur -->
         <div id="modal-confirmation-vainqueur" class="modal hidden">
             <div class="modal-content">
                 <h3>Confirmer le résultat</h3>
@@ -199,7 +228,9 @@ $tournoi_id = isset($_GET['id_tournoi']) ? (int)$_GET['id_tournoi'] : 0;
     </div>
     <script>
     </script>
+    <script src="js/colors.js"></script>
     <script src="js/phase_final.js"></script>
+    <script src="js/phase_final_matchs.js"></script>
 
 
 </body>
