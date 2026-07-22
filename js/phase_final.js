@@ -277,6 +277,7 @@ document.getElementById('form-creation').addEventListener('submit', async e => {
             'success');
 
         chargerListePhases(idTournoi);
+        chargerMatchsPF();
         ouvrirBracket(data.id_phase_finale);
 
     } catch (err) {
@@ -290,6 +291,7 @@ document.getElementById('form-creation').addEventListener('submit', async e => {
 
 document.getElementById('btn-rafraichir-liste').addEventListener('click', () => {
     chargerListePhases(parseInt(inputTournoiId.value, 10));
+    chargerMatchsPF();
 });
 
 async function chargerListePhases(idTournoi) {
@@ -331,7 +333,7 @@ async function chargerListePhases(idTournoi) {
     } catch (err) {
         listeEl.innerHTML = `<li>Erreur: ${err.message}</li>`;
     }
-
+    chargerMatchsPF();
 
 }
 
@@ -367,6 +369,7 @@ document.getElementById('btn-confirmer-suppression').addEventListener('click', a
         }
 
         chargerListePhases(parseInt(inputTournoiId.value, 10));
+        chargerMatchsPF();
         currentPhaseFinaleIdASupprimer = null;
 
     } catch (err) {
