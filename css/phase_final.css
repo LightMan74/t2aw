@@ -540,6 +540,12 @@ button.danger:hover {
     }
 }
 
+.tour-label {
+    font-size: 0.85em;
+    color: #666;
+    font-style: italic;
+}
+
 /* ========================================
    Modale Confirmation Vainqueur
    ======================================== */

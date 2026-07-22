@@ -88,10 +88,20 @@ function afficherTablePF() {
         const nom1 = m.nom_equipe1 ?? (m.source_team1 ?? '???');
         const nom2 = m.nom_equipe2 ?? (m.source_team2 ?? '???');
 
+        // --- Calcul de la plage de classement (uniquement pour les phases "classement_complet") ---
+        let ligneClassement = '';
+        if (m.type_bracket === 'classement_complet' && m.nb_equipes_arrondi) {
+            const roundIndexReel = m.round; // round tel que stocké en base (0 = premier tour)
+            const skNum = Number(m.sub_group);
+            const range = calculerPlageClassement(roundIndexReel, skNum, Number(m.nb_equipes_arrondi));
+            ligneClassement = `<br><span class="tour-label">Classement ${range}</span>`;
+        }
+
         tr.innerHTML = `
             <td class="categorie-badge ${catClass}">${m.nom_categorie ?? ''}</td>
             <td>${m.nom_phase ?? ''}</td>
-            <td>${m.match_code ?? ''}</td>
+            <td><span style="margin: auto;">${getLibelleTourPF(m.round, m.round_max_phase)}</span><br>
+            <span style="margin: auto;" class="tour-label">${ligneClassement} (${m.match_code ?? ''})</span></td>
             <td>${nom1}</td>
             <td>
             <span style="display: block ruby;">
@@ -416,6 +426,33 @@ async function mettreHeureActuellePFListe(index) {
 }
 
 // ---------- Initialisation ----------
+
+// Déduit le libellé du tour (1/8, Quart, Demi, Finale...) à partir du round
+// et du round max de la phase finale concernée.
+function getLibelleTourPF(round, roundMax) {
+    const roundsRestants = roundMax - round; // 0 = dernier round (finale)
+
+    switch (roundsRestants) {
+        case 0: return 'Finale';
+        case 1: return 'Demi';
+        case 2: return 'Quart';
+        case 3: return '1/8';
+        case 4: return '1/16';
+        case 5: return '1/32';
+        case 6: return '1/64';
+        case 7: return '1/128';
+        default: return `Tour ${round}`;
+    }
+}
+
+function calculerPlageClassement(round, subKey, nbreTeam) {
+    const nbBranches = Math.pow(2, round);
+    const tailleGroupe = nbreTeam / nbBranches;
+    const index = subKey - 1;
+    const debut = Math.floor(index * tailleGroupe) + 1;
+    const fin = Math.floor((index + 1) * tailleGroupe);
+    return debut + ' - ' + fin;
+}
 
 document.addEventListener('DOMContentLoaded', () => {
     chargerMatchsPF();

@@ -1,7 +1,5 @@
 <?php
 // api/phase_finale/get_matchs_all.php
-// Retourne TOUS les matchs de phase finale d'un tournoi, toutes phases confondues.
-
 header('Content-Type: application/json');
 include __DIR__ . "/../check_connected.php";
 require_once __DIR__ . '/../db.php';
@@ -34,6 +32,8 @@ try {
                 m.heure_debut,
                 pf.nom AS nom_phase,
                 pf.id_categorie,
+                pf.type_bracket,
+                pf.nb_equipes_arrondi,
                 c.nom AS nom_categorie,
                 eq1.nom AS nom_equipe1,
                 eq2.nom AS nom_equipe2
@@ -54,11 +54,26 @@ try {
                 AND eq2.id_equipe = e2.id_equipe
             WHERE m.id_tournoi = ?
               AND m.statut <> 'simule'
-            ORDER BY c.nom, pf.nom, m.round, m.sub_group, m.id";
+            ORDER BY m.round ASC, c.nom ASC, pf.nom ASC, m.sub_group ASC, m.id ASC";
 
     $stmt = $pdo->prepare($sql);
     $stmt->execute([$id_tournoi]);
     $matchs = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+    // --- Calcul du round max par phase finale (pour déduire le libellé du tour) ---
+    $maxRoundParPhase = [];
+    foreach ($matchs as $m) {
+        $pid = $m['id_phase_finale'];
+        $r = (int)$m['round'];
+        if (!isset($maxRoundParPhase[$pid]) || $r > $maxRoundParPhase[$pid]) {
+            $maxRoundParPhase[$pid] = $r;
+        }
+    }
+
+    foreach ($matchs as &$m) {
+        $m['round_max_phase'] = $maxRoundParPhase[$m['id_phase_finale']] ?? (int)$m['round'];
+    }
+    unset($m);
 
     echo json_encode(['success' => true, 'matchs' => $matchs]);
 
