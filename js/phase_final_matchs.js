@@ -94,14 +94,15 @@ function afficherTablePF() {
             const roundIndexReel = m.round; // round tel que stocké en base (0 = premier tour)
             const skNum = Number(m.sub_group);
             const range = calculerPlageClassement(roundIndexReel, skNum, Number(m.nb_equipes_arrondi));
-            ligneClassement = `<br><span class="tour-label">Classement ${range}</span>`;
+            ligneClassement = `${range}`;
         }
 
         tr.innerHTML = `
             <td class="categorie-badge ${catClass}">${m.nom_categorie ?? ''}</td>
             <td>${m.nom_phase ?? ''}</td>
             <td><span style="margin: auto;">${getLibelleTourPF(m.round, m.round_max_phase)}</span><br>
-            <span style="margin: auto;" class="tour-label">${ligneClassement} (${m.match_code ?? ''})</span></td>
+            <span style="margin: auto;" class="tour-label">Classement ${ligneClassement}</span><br>
+            <span style="margin: auto;" class="tour-label">(${m.match_code ?? ''})</span></td>
             <td>${nom1}</td>
             <td>
             <span style="display: block ruby;">
