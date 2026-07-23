@@ -261,6 +261,7 @@ $tournoi_id = isset($_GET['id_tournoi']) ? (int)$_GET['id_tournoi'] : 0;
     <script src="js/colors.js"></script>
     <script src="js/phase_final.js"></script>
     <script src="js/phase_final_matchs.js"></script>
+    <script src="js/maj_heure.js"></script>
 
 
 </body>

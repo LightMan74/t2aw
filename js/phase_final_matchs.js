@@ -327,7 +327,7 @@ function toggleHeureManuelleListePF() {
 }
 
 let tempsDeMatchPFListe = null;
-
+let nombreTerrainsPFListe = null;
 async function chargerTempsDeMatchPFListe() {
     const id_tournoi = document.getElementById('input-tournoi-id')?.value;
     if (!id_tournoi) return;
@@ -336,12 +336,31 @@ async function chargerTempsDeMatchPFListe() {
         const data = await res.json();
         if (data.success && data.temps_de_match) {
             tempsDeMatchPFListe = parseInt(data.temps_de_match, 10) || 20;
+            nombreTerrainsPFListe = parseInt(data.nbre_terrain_phasefinal, 10) || 1;
         } else {
             tempsDeMatchPFListe = 20;
+            nombreTerrainsPFListe = 1;
         }
     } catch (err) {
         tempsDeMatchPFListe = 20;
+        nombreTerrainsPFListe = 1;
     }
+}
+
+function getTerrainVirtuel(index) {
+    const m = matchsPFData[index];
+    const ordre = m.ordre_affichage ?? index;
+    // Répartition circulaire : terrain 1, 2, 3... puis on recommence
+    rt = (ordre % nombreTerrainsPFListe);
+    if (rt == 0) {
+        rt = nombreTerrainsPFListe;
+    }
+    return rt;
+}
+
+function getTerrainEffectif(idx, mm) {
+    const t = document.getElementById(`terrain-pf-${idx}`)?.value ?? mm.terrain;
+    return t ? t : getTerrainVirtuel(idx);
 }
 
 async function mettreHeureActuellePFListe(index) {
@@ -349,15 +368,20 @@ async function mettreHeureActuellePFListe(index) {
         await chargerTempsDeMatchPFListe();
     }
 
+    if (nombreTerrainsPFListe === null) {
+        await chargerTempsDeMatchPFListe();
+    }
+
     const m = matchsPFData[index];
     if (!m) return;
 
     const terrainInput = document.getElementById(`terrain-pf-${index}`);
-    const terrain = terrainInput?.value ?? m.terrain;
+    let terrain = terrainInput?.value ?? m.terrain;
 
     if (!terrain) {
-        afficherMessageListePF('Aucun terrain défini pour ce match', 'error');
-        return;
+        terrain = getTerrainVirtuel(index);
+        terrainEstVirtuel = true;
+        console.log(`${nombreTerrainsPFListe} Terrains - Aucun terrain défini pour le match ${index}, terrain virtuel ${terrain} attribué`);
     }
 
     const statusActuelSelect = document.getElementById(`status-pf-${index}`);
@@ -396,7 +420,7 @@ async function mettreHeureActuellePFListe(index) {
         const matchsTerrain = matchsPFData
             .map((mm, idx) => ({ mm, idx }))
             .filter(({ mm, idx }) => {
-                const t = document.getElementById(`terrain-pf-${idx}`)?.value ?? mm.terrain;
+                const t = getTerrainEffectif(idx, mm);
                 return String(t) === String(terrainCourant);
             })
             .sort((a, b) => (a.idx - b.idx));

@@ -383,7 +383,7 @@ async function mettreHeureActuelle(index) {
     if (!terrain) {
         terrain = getTerrainVirtuel(index);
         terrainEstVirtuel = true;
-        console.log(`${nombreTerrains} Aucun terrain défini pour le match ${index}, terrain virtuel ${terrain} attribué`);
+        console.log(`${nombreTerrains} Terrains - Aucun terrain défini pour le match ${index}, terrain virtuel ${terrain} attribué`);
     }
 
 
