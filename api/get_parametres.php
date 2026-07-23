@@ -22,7 +22,8 @@ try {
         'success' => true,
         'nbre_terrain_poule' => $param['nbre_terrain_poule'] ?? 1,
         'nbre_terrain_phasefinal' => $param['nbre_terrain_phasefinal'] ?? 1,
-        'temps_de_match' => $param['temps_de_match'] ?? 20
+        'temps_de_match' => $param['temps_de_match'] ?? 20,
+        'matchtermine' => $param['matchtermine'] ?? 20
     ]);
 } catch (Exception $e) {
     echo json_encode(['success' => false, 'error' => $e->getMessage()]);

@@ -69,7 +69,7 @@ function afficherTablePF() {
 
 
     const tr2 = document.createElement('tr');
-    tr2.innerHTML = `<td colspan="10" id="numbermatchshidden"></td>`;
+    tr2.innerHTML = `<td colspan="10" id="numbermatchshidden">0 Matchs terminé caché.</td>`;
     corps.appendChild(tr2);
 
     matchsPFData.forEach((m, index) => {
@@ -337,13 +337,16 @@ async function chargerTempsDeMatchPFListe() {
         if (data.success && data.temps_de_match) {
             tempsDeMatchPFListe = parseInt(data.temps_de_match, 10) || 20;
             nombreTerrainsPFListe = parseInt(data.nbre_terrain_phasefinal, 10) || 1;
+            matchtermine = data.matchtermine;
         } else {
             tempsDeMatchPFListe = 20;
             nombreTerrainsPFListe = 1;
+            matchtermine = 0;
         }
     } catch (err) {
         tempsDeMatchPFListe = 20;
         nombreTerrainsPFListe = 1;
+        matchtermine = 0;
     }
 }
 
@@ -491,34 +494,37 @@ function calculerPlageClassement(round, subKey, nbreTeam) {
 
 
 function togglematchtermine() {
+
     const lignesTerminees = document.querySelectorAll('tr.status-termine');
     const checkbox = document.getElementById('matchtermineCheckbox');
+
+    console.log("before " + checkbox.checked);
     let countmachshide = 0;
     if (checkbox.checked) {
-        lignesTerminees.forEach(ligne => {
-            ligne.style.display = '';
-            // countmachshide++;
-        });
-    } else {
         lignesTerminees.forEach(ligne => {
             ligne.style.display = 'none';
             countmachshide++;
         });
+    } else {
+        lignesTerminees.forEach(ligne => {
+            ligne.style.display = '';
+            // countmachshide++;
+        });
     }
-    // console.log(countmachshide);
+    console.log(countmachshide);
     document.getElementById('numbermatchshidden').textContent = countmachshide + " Matchs terminé caché.";
 }
 
-// document.addEventListener('DOMContentLoaded', () => {
-//     chargerMatchsPF();
-//     chargerTempsDeMatchPFListe();
-//     // document.getElementById('matchtermineCheckbox').checked = true;
-//     togglematchtermine();
-// });
-
 document.addEventListener('DOMContentLoaded', async () => {
+    await chargerTempsDeMatchPFListe();
     await chargerMatchsPF();
-    await chargerTempsDeMatchPFListe(); // si elle aussi est async
-    // document.getElementById('matchtermineCheckbox').checked = true;
-    // togglematchtermine();
+    console.log("inDOM");
+    if (matchtermine) {
+        document.getElementById('matchtermineCheckbox').checked = true;
+        requestAnimationFrame(() => {
+            requestAnimationFrame(() => {
+                togglematchtermine();
+            });
+        });
+    }
 });

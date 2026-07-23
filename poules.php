@@ -44,7 +44,7 @@
                 </div>
 
                 <div class="toggle-btn">
-                    <input type="checkbox" id="matchtermineCheckbox" onchange="togglematchtermine()" checked>
+                    <input type="checkbox" id="matchtermineCheckbox" onchange="togglematchtermine()">
                     <label for="matchtermineCheckbox" class="toggle-btn-label">Voir Match terminé</label>
                 </div>
 

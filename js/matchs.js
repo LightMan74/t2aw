@@ -68,7 +68,7 @@ function afficherTable() {
 
 
     const tr2 = document.createElement('tr');
-    tr2.innerHTML = `<td colspan="9" id="numbermatchshidden"></td>`;
+    tr2.innerHTML = `<td colspan="10" id="numbermatchshidden">0 Matchs terminé caché.</td>`;
     corps.appendChild(tr2);
 
     matchsData.forEach((m, index) => {
@@ -306,6 +306,7 @@ async function sauvegarderLigne(index) {
 // Variable globale pour stocker le temps de match du paramétrage
 let tempsDeMatch = null;
 let nombreTerrains = null;
+let matchtermine = null;
 async function chargerTempsDeMatch() {
     const id_tournoi = document.getElementById('id_tournoi').value;
     try {
@@ -315,16 +316,19 @@ async function chargerTempsDeMatch() {
         if (data.success && data.temps_de_match) {
             tempsDeMatch = parseInt(data.temps_de_match, 10) || 20;
             nombreTerrains = parseInt(data.nbre_terrain_poule, 10) || 1;
+            matchtermine = data.matchtermine;
             // console.log('time here ' + tempsDeMatch);
         } else {
             console.warn('Paramètres non trouvés ou temps_de_match manquant, valeur par défaut 20 utilisée', data);
             tempsDeMatch = 20;
             nombreTerrains = 1;
+            matchtermine = 0;
         }
     } catch (err) {
         console.error('Erreur chargement paramètres', err);
         tempsDeMatch = 20;
         nombreTerrains = 1;
+        matchtermine = 0;
     }
     // console.log('tempsDeMatch chargé:', tempsDeMatch);
 }
@@ -553,8 +557,16 @@ function togglematchtermine() {
 document.addEventListener('DOMContentLoaded', async () => {
     await chargerMatchs();
     await chargerTempsDeMatch(); // si elle aussi est async
-    // document.getElementById('matchtermineCheckbox').checked = true;
-    togglematchtermine();
+    console.log(matchtermine);
+    if (matchtermine) {
+        document.getElementById('matchtermineCheckbox').checked = true;
+        requestAnimationFrame(() => {
+            requestAnimationFrame(() => {
+                togglematchtermine();
+            });
+        });
+    }
+
 });
 
 

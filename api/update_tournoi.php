@@ -40,6 +40,7 @@ try {
     $temps_de_match = (int)($data['temps_de_match'] ?? 0);
     $heure_debut_poule = trim($data['heure_debut_poule'] ?? '');
     $heure_debut_phasefinal = trim($data['heure_debut_phasefinal'] ?? '');
+    $matchtermine = trim($data['matchtermine'] ?? '');
 
     // Forcer troissets à 1 ou 3 uniquement
     $troissets_raw = trim($data['troissets'] ?? '');
@@ -69,11 +70,6 @@ try {
     $stmtUpdateTournoi = $pdo->prepare("UPDATE tournoi SET nom = :nom WHERE id_tournoi = :id_tournoi");
     $stmtUpdateTournoi->execute(['nom' => $nom, 'id_tournoi' => $id_tournoi]);
 
-    // Vérifier si la colonne terrain_automatique existe dans parametre
-    // $stmtCheckCol = $pdo->query("SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'parametre' AND COLUMN_NAME = 'terrain_automatique'");
-    // $colExists = $stmtCheckCol->fetch() !== false;
-$colExists = true;
-    if ($colExists) {
         // Mise à jour avec terrain_automatique
         $stmtUpdateParam = $pdo->prepare("
             UPDATE parametre SET
@@ -83,7 +79,8 @@ $colExists = true;
                 heure_debut_poule = :heure_debut_poule,
                 heure_debut_phasefinal = :heure_debut_phasefinal,
                 troissets = :troissets,
-                terrain_automatique = :terrain_automatique
+                terrain_automatique = :terrain_automatique,
+                matchtermine = :matchtermine
             WHERE id_tournoi = :id_tournoi
         ");
         $stmtUpdateParam->execute([
@@ -94,30 +91,9 @@ $colExists = true;
             'heure_debut_phasefinal' => $heure_debut_phasefinal,
             'troissets' => $troissets,
             'terrain_automatique' => $terrain_automatique,
+            'matchtermine' => $matchtermine,
             'id_tournoi' => $id_tournoi
-        ]);
-    } else {
-        // Mise à jour sans terrain_automatique (colonne absente)
-        $stmtUpdateParam = $pdo->prepare("
-            UPDATE parametre SET
-                nbre_terrain_poule = :nbre_terrain_poule,
-                nbre_terrain_phasefinal = :nbre_terrain_phasefinal,
-                temps_de_match = :temps_de_match,
-                heure_debut_poule = :heure_debut_poule,
-                heure_debut_phasefinal = :heure_debut_phasefinal,
-                troissets = :troissets
-            WHERE id_tournoi = :id_tournoi
-        ");
-        $stmtUpdateParam->execute([
-            'nbre_terrain_poule' => $nbre_terrain_poule,
-            'nbre_terrain_phasefinal' => $nbre_terrain_phasefinal,
-            'temps_de_match' => $temps_de_match,
-            'heure_debut_poule' => $heure_debut_poule,
-            'heure_debut_phasefinal' => $heure_debut_phasefinal,
-            'troissets' => $troissets,
-            'id_tournoi' => $id_tournoi
-        ]);
-    }
+        ]);   
 
     // Stratégie delete/re-INSERT : supprimer dans l'ordre FK (equipes > poules > categories)
     $stmtDeleteEquipe = $pdo->prepare("DELETE FROM equipe WHERE id_tournoi = :id_tournoi");
@@ -183,7 +159,7 @@ $colExists = true;
         $pdo->rollBack();
     }
     error_log('update_tournoi PDOException: ' . $e->getMessage());
-    echo json_encode(['success' => false, 'error' => 'Erreur base de donnees']);
+    echo json_encode(['success' => false, 'error' => 'Erreur base de donnees' . $matchtermine]);
 
 } catch (Exception $e) {
     if ($pdo->inTransaction()) {

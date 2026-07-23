@@ -80,6 +80,7 @@ async function chargerDonneesTournoi() {
         document.getElementById('temps_de_match').value = data.parametre.temps_de_match || '';
         document.getElementById('heure_debut_poule').value = data.parametre.heure_debut_poule || '';
         document.getElementById('heure_debut_phasefinal').value = data.parametre.heure_debut_phasefinal || '';
+        document.getElementById('matchtermine').value = data.parametre.matchtermine || '';
 
         // troissets : select -> forcer 1 ou 3
         var troissetsVal = parseInt(data.parametre.troissets, 10);
@@ -88,6 +89,9 @@ async function chargerDonneesTournoi() {
         // terrain_automatique : select -> forcer 1 ou 0
         var terrainAutoVal = parseInt(data.parametre.terrain_automatique, 10);
         document.getElementById('terrain_automatique').value = (terrainAutoVal === 0) ? '0' : '1';
+
+        var matchtermineAutoval = parseInt(data.parametre.matchtermine, 10);
+        document.getElementById('matchtermine').value = (matchtermineAutoval === 0) ? '0' : '1';
 
         document.getElementById('page-title').textContent = 'Modifier : ' + data.tournoi.nom;
 
@@ -469,6 +473,7 @@ function collectFormData() {
     var temps_de_match = parseInt(document.getElementById('temps_de_match').value, 10) || 0;
     var heure_debut_poule = document.getElementById('heure_debut_poule').value;
     var heure_debut_phasefinal = document.getElementById('heure_debut_phasefinal').value;
+    var matchtermine = document.getElementById('matchtermine').value;
 
     // troissets : forcer 1 ou 3 uniquement
     var troissetsRaw = parseInt(document.getElementById('troissets').value, 10);
@@ -535,6 +540,7 @@ function collectFormData() {
         heure_debut_phasefinal: heure_debut_phasefinal,
         troissets: troissets,
         terrain_automatique: terrain_automatique,
+        matchtermine: matchtermine,
         categories: categories
     };
 }

@@ -85,6 +85,17 @@ $mode_creation = $id_tournoi === 0;
                         <input type="time" id="heure_debut_phasefinal" name="heure_debut_phasefinal" value="">
                     </div>
                 </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="matchtermine">Matchs terminé</label>
+                        <select id="matchtermine" name="matchtermine" required>
+                            <option value="0">Visible</option>
+                            <option value="1" selected>Caché</option>
+                        </select>
+                    </div>
+                </div>
+
                 <div class="form-group">
                     <label>Nombre de catégories</label>
                     <div class="counter-control">
