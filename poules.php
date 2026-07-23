@@ -106,7 +106,6 @@
     </script>
     <script src="js/colors.js"></script>
     <script src="js/matchs.js"></script>
-    <script src="js/maj_heure.js"></script>
     <script>
     // chargerMatchs();
     </script>

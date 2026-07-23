@@ -496,15 +496,16 @@ function togglematchtermine() {
     let countmachshide = 0;
     if (checkbox.checked) {
         lignesTerminees.forEach(ligne => {
-            ligne.style.display = 'none';
-            countmachshide++;
+            ligne.style.display = '';
+            // countmachshide++;
         });
     } else {
         lignesTerminees.forEach(ligne => {
-            ligne.style.display = '';
+            ligne.style.display = 'none';
+            countmachshide++;
         });
     }
-    console.log(countmachshide);
+    // console.log(countmachshide);
     document.getElementById('numbermatchshidden').textContent = countmachshide + " Matchs terminé caché.";
 }
 

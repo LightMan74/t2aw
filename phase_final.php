@@ -50,7 +50,7 @@ $tournoi_id = isset($_GET['id_tournoi']) ? (int)$_GET['id_tournoi'] : 0;
                     </div>
 
                     <div class="toggle-btn">
-                        <input type="checkbox" id="matchtermineCheckbox" onchange="togglematchtermine()" checked>
+                        <input type="checkbox" id="matchtermineCheckbox" onchange="togglematchtermine()">
                         <label for="matchtermineCheckbox" class="toggle-btn-label">Voir Match terminé</label>
                     </div>
 
@@ -100,8 +100,7 @@ $tournoi_id = isset($_GET['id_tournoi']) ? (int)$_GET['id_tournoi'] : 0;
                         </th>
                         <th>
                             <nobr>------</nobr>
-                        </th>
-                        <th></th> <!-- Colonne pour l'icône de sauvegarde -->
+                        </th> <!-- Colonne pour l'icône de sauvegarde -->
                     </tr>
                 </thead>
                 <tbody id="corps-table-pf"></tbody>
@@ -267,7 +266,6 @@ $tournoi_id = isset($_GET['id_tournoi']) ? (int)$_GET['id_tournoi'] : 0;
     <script src="js/colors.js"></script>
     <script src="js/phase_final.js"></script>
     <script src="js/phase_final_matchs.js"></script>
-    <script src="js/maj_heure.js"></script>
 
 
 </body>
