@@ -79,6 +79,7 @@ $score1  = $input['score1'] ?? null;
 $score2  = $input['score2'] ?? null;
 $statutMatch = $input['statut_match'] ?? null;
 $terrain = array_key_exists('terrain', $input) ? $input['terrain'] : null;
+$heure_debut = array_key_exists('heure_debut', $input) ? $input['heure_debut'] : null;
 
 // if ($matchId <= 0 || $score1 < 0 || $score2 < 0 || $score1 === $score2) {
 //     http_response_code(400);
@@ -98,7 +99,10 @@ try {
         throw new Exception('Match introuvable');
     }
     if (!$match['equipe1_id'] || !$match['equipe2_id']) {
-        throw new Exception('Les 2 équipes ne sont pas encore définies');
+
+        // throw new Exception('Les 2 équipes ne sont pas encore définies');
+        $score1 = 0;
+        $score2 = 0;
     }
 
     $idTournoi     = (int) $match['id_tournoi'];
@@ -114,8 +118,8 @@ try {
         $winnerId = $match['equipe2_id'];
         $loserId  = $match['equipe1_id'];
     }else{
-        $winnerId = 0;
-        $loserId  = 0;
+        $winnerId = null;
+        $loserId  = null;
     }
 
     // Mettre à jour le match courant
@@ -123,7 +127,7 @@ try {
         UPDATE matchs_phase_finale
         SET score1 = :score1, score2 = :score2,
             winner_equipe_id = :winner_id, loser_equipe_id = :loser_id,
-            statut = 'termine',statut_match = :statut_match, terrain = :terrain
+            statut = 'termine',statut_match = :statut_match, terrain = :terrain, heure_debut = :heure_debut
         WHERE id = :id
     ");
     $stmt->execute([
@@ -134,6 +138,7 @@ try {
         ':id' => $matchId,
         ':statut_match' => $statutMatch,
         ':terrain' => $terrain,
+        ':heure_debut' => $heure_debut,
     ]);
     if ($winnerId != 0 && $loserId !=0){
     // Propager vers les matchs suivants

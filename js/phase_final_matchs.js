@@ -69,7 +69,7 @@ function afficherTablePF() {
 
 
     const tr2 = document.createElement('tr');
-    tr2.innerHTML = `<td colspan="9" id="numbermatchshidden"></td>`;
+    tr2.innerHTML = `<td colspan="10" id="numbermatchshidden"></td>`;
     corps.appendChild(tr2);
 
     matchsPFData.forEach((m, index) => {

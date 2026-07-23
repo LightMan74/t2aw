@@ -78,6 +78,9 @@ $tournoi_id = isset($_GET['id_tournoi']) ? (int)$_GET['id_tournoi'] : 0;
                             <nobr>Round</nobr>
                         </th>
                         <th>
+                            <nobr>Match N°</nobr>
+                        </th>
+                        <th>
                             <nobr>Equipe 1</nobr>
                         </th>
                         <th>
@@ -94,6 +97,9 @@ $tournoi_id = isset($_GET['id_tournoi']) ? (int)$_GET['id_tournoi'] : 0;
                         </th>
                         <th>
                             <nobr>Heure début</nobr>
+                        </th>
+                        <th>
+                            <nobr>------</nobr>
                         </th>
                         <th></th> <!-- Colonne pour l'icône de sauvegarde -->
                     </tr>
