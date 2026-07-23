@@ -6,14 +6,14 @@ class TabRotator {
         this.subContentSelector = options.subContentSelector || '.sous-onglet-content';
         this.activeClass = options.activeClass || 'active';
 
-        this.mainInterval = options.mainInterval || 8000;
-        this.subInterval = options.subInterval || 4000;
+        this.mainInterval = options.mainInterval || 80000;
+        this.subInterval = options.subInterval || 40000;
 
         this.pauseOnHover = options.pauseOnHover !== false;
 
         this.allMainTabs = [];
         this.mainTabsToRotate = [];
-        this.currentTab = null; // <-- référence DOM, plus un index
+        this.currentTab = null;
 
         this.mainTimer = null;
         this.subTimer = null;
@@ -45,13 +45,18 @@ class TabRotator {
             });
         });
 
-        // Onglet de départ = celui actuellement actif dans le DOM, ou le premier
         this.currentTab = this.allMainTabs.find(t => t.classList.contains(this.activeClass))
             || this.mainTabsToRotate[0];
 
         this.start();
     }
 
+    /**
+     * Met à jour la liste des onglets principaux qui doivent tourner.
+     * Si l'onglet actuellement affiché n'est plus dans la liste,
+     * on passe au suivant valide. Sinon le cycle en cours continue.
+     * @param {string[]} dataTabValues - liste des data-tab values cochées
+     */
     setMainRotationList(dataTabValues) {
         if (!dataTabValues || dataTabValues.length === 0) {
             this.mainTabsToRotate = [...this.allMainTabs];
@@ -61,18 +66,14 @@ class TabRotator {
             );
         }
 
-        // Si l'onglet actuellement affiché a été désélectionné,
-        // on continue le cycle avec le suivant valide plutôt que de tout reset
         if (!this.mainTabsToRotate.includes(this.currentTab)) {
             if (this.mainTabsToRotate.length > 0) {
                 this.currentTab = this.mainTabsToRotate[0];
-                this.start(); // on doit relancer car l'onglet actif n'existe plus dans la liste
+                this.start();
             } else {
-                this.stop(); // plus aucun onglet sélectionné
+                this.stop();
             }
         }
-        // Sinon : on NE TOUCHE À RIEN, le cycle en cours continue normalement
-        // et le prochain calcul d'index se basera sur la nouvelle liste
     }
 
     start() {
@@ -141,10 +142,9 @@ class TabRotator {
             return;
         }
 
-        // Calcule le prochain onglet à partir de la liste ACTUELLE (toujours à jour)
         const currentIndex = this.mainTabsToRotate.indexOf(this.currentTab);
         const nextIndex = currentIndex === -1
-            ? 0 // l'onglet courant n'est plus dans la liste -> repart du début
+            ? 0
             : (currentIndex + 1) % this.mainTabsToRotate.length;
 
         this.goToMainTab(this.mainTabsToRotate[nextIndex]);
@@ -163,29 +163,38 @@ class TabRotator {
     }
 }
 
-// generate-rotation-config.js
 
-function generateRotationConfig(rotator, containerSelector = '#config-rotation') {
+/**
+ * Génère le menu de configuration des onglets (checkboxes masquable au survol).
+ * @param {TabRotator} rotator - instance de TabRotator
+ * @param {string} containerSelector - sélecteur du conteneur déjà présent dans le HTML
+ */
+function generateRotationConfig(rotator, containerSelector) {
     const container = document.querySelector(containerSelector);
     if (!container) return;
 
     const mainTabs = document.querySelectorAll('.tab-btn');
 
-    container.innerHTML = ''; // reset
+    container.innerHTML = '';
 
     mainTabs.forEach(tab => {
         const value = tab.dataset.tab;
         const label = tab.textContent.trim();
 
         const wrapper = document.createElement('label');
+        wrapper.className = 'rotation-menu-item';
+
         const checkbox = document.createElement('input');
         checkbox.type = 'checkbox';
         checkbox.value = value;
-        checkbox.checked = true; // coché par défaut
+        checkbox.checked = true;
+
+        const text = document.createTextNode(' - ' + label);
 
         wrapper.appendChild(checkbox);
-        wrapper.appendChild(document.createTextNode(' ' + label));
+        wrapper.appendChild(text);
         container.appendChild(wrapper);
+        container.appendChild(document.createElement('br'));
 
         checkbox.addEventListener('change', () => {
             const selected = Array.from(
@@ -196,3 +205,24 @@ function generateRotationConfig(rotator, containerSelector = '#config-rotation')
         });
     });
 }
+
+document.addEventListener('DOMContentLoaded', () => {
+    const container = document.querySelector('.rotation-menu-container');
+    const toggleBtn = document.querySelector('.rotation-menu-toggle');
+    const panel = document.querySelector('.rotation-menu-panel');
+
+    toggleBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        container.classList.toggle('open');
+    });
+
+    panel.addEventListener('click', (e) => {
+        e.stopPropagation();
+    });
+
+    document.addEventListener('click', (e) => {
+        if (!container.contains(e.target)) {
+            container.classList.remove('open');
+        }
+    });
+});

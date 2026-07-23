@@ -1,0 +1,34 @@
+.rotation-menu-container {
+    position: relative;
+    display: inline-block;
+}
+
+.rotation-menu-toggle {
+    cursor: pointer;
+    background: none;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    padding: 4px 8px;
+}
+
+.rotation-menu-panel {
+    display: none;
+    /* position: absolute; */
+    top: 100%;
+    right: 0;
+    background: #1a1c22;
+    border: 1px solid #ccc;
+    padding: 10px;
+    z-index: 100;
+    min-width: 180px;
+}
+
+.rotation-menu-container.open .rotation-menu-panel {
+    display: block;
+}
+
+.rotation-menu-panel label {
+    display: contents;
+    margin-bottom: 6px;
+    font-size: 14px;
+}

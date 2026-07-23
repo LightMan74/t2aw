@@ -138,7 +138,8 @@ $id_tournoi = isset($_GET['id_tournoi']) ? (int)$_GET['id_tournoi'] : 0;
             <div id="classement-final-content" class="grid-multicol scroll-colonne"></div>
         </section>
     </main>
-    <div id="config-rotation"></div>
+
+
     <script>
     const ID_TOURNOI = <?php echo json_encode($id_tournoi); ?>;
 
@@ -176,18 +177,18 @@ $id_tournoi = isset($_GET['id_tournoi']) ? (int)$_GET['id_tournoi'] : 0;
 
     <?php
     if (isset($_GET["admin"])){ ?>
+    <link rel="stylesheet" href="css/rotation-menu.css">
+    <div class="rotation-menu-container">
+        <button class="rotation-menu-toggle" type="button">⚙️</button>
+        <div class="rotation-menu-panel" id="rotation-menu-panel">
+        </div>
+    </div>
+
     <script src="js/tab-rotator.js"></script>
-    <!-- <script src="js/generate-rotation-config.js"></script> -->
     <script>
-    const rotator = new TabRotator({
-        mainInterval: 10000, // temps entre chaque onglet principal
-        subInterval: 5000, // temps entre chaque sous-onglet (cat1/cat2...)
-        pauseOnHover: true
-    });
-    generateRotationConfig(rotator, '#config-rotation');
+    const rotator = new TabRotator();
+    generateRotationConfig(rotator, '#rotation-menu-panel');
     </script>
-
-
     <?php } 
 endif; ?>
 </body>
