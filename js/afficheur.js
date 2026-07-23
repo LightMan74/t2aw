@@ -18,14 +18,14 @@ document.addEventListener('DOMContentLoaded', () => {
     chargerTournoiInfo();
     chargerOngletActif();
 
-    initRefresh();
+    // initRefresh();
 
-    document.getElementById('refresh-interval').addEventListener('change', (e) => {
-        let val = parseInt(e.target.value);
-        if (isNaN(val) || val < minsecondsLeft) val = minsecondsLeft;
-        e.target.value = val;
-        initRefresh();
-    });
+    // document.getElementById('refresh-interval').addEventListener('change', (e) => {
+    //     let val = parseInt(e.target.value);
+    //     if (isNaN(val) || val < minsecondsLeft) val = minsecondsLeft;
+    //     e.target.value = val;
+    //     initRefresh();
+    // });
 });
 
 // ----- Dark mode -----

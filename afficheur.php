@@ -4,23 +4,12 @@ $id_tournoi = isset($_GET['id_tournoi']) ? (int)$_GET['id_tournoi'] : 0;
 <!DOCTYPE html>
 <html lang="fr">
 
-<script>
-// Applique le thème AVANT le rendu du header pour éviter le flash
-// (function() {
-//     const saved = localStorage.getItem('theme') || 'light';
-//     document.documentElement.setAttribute('data-theme', saved);
-// })();
-// 
-</script>
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Tournoi All Auto Web</title>
     <link rel="icon" type="image/png" sizes="64x64" href="icon_t2aw.png">
     <link rel="stylesheet" href="css/var.css">
-    <!-- <link rel="stylesheet" href="css/style.css"> -->
-    <!-- <link rel="stylesheet" href="css/dark-mode.css"> -->
     <link rel="stylesheet" href="css/afficheur.css">
     <?php if ($id_tournoi === 0): ?>
     <link rel="stylesheet" href="css/liste_afficheur.css">
@@ -93,8 +82,8 @@ $id_tournoi = isset($_GET['id_tournoi']) ? (int)$_GET['id_tournoi'] : 0;
                 <center>
                     <span id="heure-actuelle">--:--:--</span><br>
                     <!-- <label for="refresh-interval">Rafraîchissement (sec) :</label> -->
-                    <nobr><span id="countdown">60</span>s
-                        <input type="number" id="refresh-interval" value="60" min="10" max="600">
+                    <!-- <nobr><span id="countdown">60</span>s -->
+                    <!-- <input type="number" id="refresh-interval" value="60" min="10" max="600"> -->
                     </nobr>
                     <center>
             </div>
