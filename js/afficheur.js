@@ -243,7 +243,7 @@ function afficherListeMatchs(containerId, matchs, texteVide) {
 
         // Tags couleur : fond coloré directement sur le texte
         const catText = escapeHTML(m.nom_categorie || '');
-        const terrain = m.terrain && m.status !== 'termine' ? ` Terrain ${m.terrain}` : '';
+        const terrain = m.terrain && m.status !== 'termine' ? ` - Terrain ${m.terrain}` : '';
 
         let poleTagHTML = '';
         if (m.type_match === 'phase_finale') {
@@ -257,7 +257,7 @@ function afficherListeMatchs(containerId, matchs, texteVide) {
 
         const matchInfos = `<div class="match-infos">
             ${catText ? `<span class="tag-couleur ${catClass}">${catText}</span>` : ''}
-            ${poleTagHTML}
+            ${poleTagHTML} Match ${m.matchnum}
             ${terrain}
         </div>`;
 

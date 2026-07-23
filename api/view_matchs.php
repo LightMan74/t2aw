@@ -44,8 +44,14 @@ $sql = "SELECT
         ORDER BY m.ordre_affichage ASC, m.heure_debut ASC";
 $stmt = $pdo->prepare($sql);
 $stmt->execute([$id_tournoi]);
-$matchsPoule = $stmt->fetchAll();
+$matchsPouleRaw = $stmt->fetchAll();
 
+$matchsPoule = [];
+$matchnum = 0;
+foreach ($matchsPouleRaw as $m) {
+    $m['matchnum'] = "P_" . ++$matchnum;
+    $matchsPoule[] = $m;
+}
 // --------- Matchs de phase finale ---------
 $sqlPF = "SELECT
               m.id,
@@ -128,6 +134,7 @@ function calculerPlageClassement($round, $subKey, $nbreTeam) {
 }
 
 $matchsPF = [];
+$matchfnum=0;
 foreach ($matchsPFRaw as $m) {
     $pid = $m['id_phase_finale'];
     $nbRounds = $nbRoundsParPhase[$pid] ?? 1;
@@ -156,7 +163,8 @@ foreach ($matchsPFRaw as $m) {
             'type_match'        => 'phase_finale',
             'match_code'        => 'match_code',
             'nb_equipes'        => 'nb_equipes',
-            'nb_equipes_arrondi'        => 'nb_equipes_arrondi',
+            'nb_equipes_arrondi'=> 'nb_equipes_arrondi',
+            'matchnum'          => "F_" . ++$matchfnum,
         ];
     }
 }
