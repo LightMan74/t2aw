@@ -106,7 +106,7 @@ function afficherTablePF() {
 
         tr.innerHTML = ` 
             <td class="categorie-badge ${catClass}">${m.nom_categorie ?? ''}</td>
-            <td>${++matchcount ?? ''}</td>
+            <td>F_${++matchcount ?? ''}</td>
             <td>
             <span style="margin: auto;" class="tour-label">Classement ${ligneClassement}</span><br>
             <span style="margin: auto;">${getLibelleTourPF(m.round, m.round_max_phase)}</span></br>

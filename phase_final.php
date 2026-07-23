@@ -214,16 +214,15 @@ $tournoi_id = isset($_GET['id_tournoi']) ? (int)$_GET['id_tournoi'] : 0;
                     <input type="number" id="modal-score2s1" min="0"><span <?php echo $hiddenSets;?>> - <input type="number" id="modal-score2s2" min="0"> - <input type="number" id="modal-score2s3" min="0"></span>
                     <span id="label-equipe2" class="score-label-equipe">Équipe 2</span>
                 </label>
-                <label style="display:none">Statut du match :
-                    <select id="modal-statut-match" style="display:none">
+                <label style="">Terrain :
+                    <input type="number" id="modal-terrain" min="1" placeholder="Terrain" style="display:">
+                </label>
+                <label style="display:">Statut du match :
+                    <select id="modal-statut-match" style="display:">
                         <option value="planifie">Planifié</option>
                         <option value="en_cours">En jeu</option>
                         <option value="termine" selected>Terminé</option>
                     </select>
-                </label>
-
-                <label style="display:none">Terrain :
-                    <input type="number" id="modal-terrain" min="1" placeholder="Terrain" style="display:none">
                 </label>
 
                 <div id="msg-modal" class="msg"></div>

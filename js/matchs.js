@@ -97,7 +97,7 @@ function afficherTable() {
         tr.innerHTML = `
             <td class="categorie-badge ${catClass}">${m.nom_categorie ?? ''}</td>
             <td class="poule-badge ${poleClass}">${m.nom_poule ?? ''}</td>
-            <td>${++matchcount ?? ''}</td>
+            <td>P_${++matchcount ?? ''}</td>
             <td>${m.nom_equipe_1 ?? ''}</td>
             <td>
             <span style="display: block ruby;">
