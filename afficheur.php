@@ -186,7 +186,17 @@ $id_tournoi = isset($_GET['id_tournoi']) ? (int)$_GET['id_tournoi'] : 0;
 
     <script src="js/tab-rotator.js"></script>
     <script>
-    const rotator = new TabRotator();
+    const rotator = new TabRotator({
+        // mainInterval = 10000,
+        // subInterval = 10000,
+        // scrollSpeed = 40,
+        // scrollPauseAtStart = 2000,
+        // scrollPauseAtEnd = 2000,
+        noScrollTabs: ['Matchs'], // si data-tab="match"
+        // noScrollSelectors: ['.match-tab', '#tab-matchs'] // ou par classe/id du bouton onglet
+        // noScrollSelectors: ['#matchs-a-venir', '#tab-matchs', '#grid-matchs', '#colonne'] // ou par classe/id du bouton onglet
+    });
+
     generateRotationConfig(rotator, '#rotation-menu-panel');
     </script>
     <?php } 

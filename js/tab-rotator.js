@@ -11,6 +11,10 @@ class TabRotator {
 
         this.pauseOnHover = options.pauseOnHover !== false;
 
+        // Onglets à exclure du scroll auto : data-tab values, classes CSS, ou ids
+        this.noScrollTabs = options.noScrollTabs || [];       // ex: ['match']
+        this.noScrollSelectors = options.noScrollSelectors || []; // ex: ['.match-tab', '#tab-match']
+
         this.allMainTabs = [];
         this.mainTabsToRotate = [];
         this.currentTab = null;
@@ -18,6 +22,12 @@ class TabRotator {
         this.mainTimer = null;
         this.subTimer = null;
         this.isPaused = false;
+
+        this.scroller = new AutoScroller({
+            scrollSpeed: options.scrollSpeed || 40,
+            scrollPauseAtStart: options.scrollPauseAtStart || 2000,
+            scrollPauseAtEnd: options.scrollPauseAtEnd || 2000
+        });
 
         this.init();
     }
@@ -84,7 +94,34 @@ class TabRotator {
     stop() {
         clearTimeout(this.mainTimer);
         clearTimeout(this.subTimer);
+        this.scroller.stop();
     }
+
+    /**
+     * Vérifie si un onglet (main ou sous-onglet) doit être exclu du scroll auto.
+     * Se base sur data-tab/data-sous-tab, sur des classes, ou un id.
+     * @param {Element} tabEl
+     * @returns {boolean}
+     */
+    _isNoScrollTab(tabEl) {
+        if (!tabEl) return false;
+
+        // 1. Vérification via data-tab / data-sous-tab
+        const value = tabEl.dataset.tab || tabEl.dataset.sousTab;
+        if (value && this.noScrollTabs.includes(value)) {
+            return true;
+        }
+
+        // 2. Vérification via sélecteur CSS (classe ou id)
+        return this.noScrollSelectors.some(selector => {
+            try {
+                return tabEl.matches(selector);
+            } catch (e) {
+                return false;
+            }
+        });
+    }
+
 
     goToMainTab(tab) {
         if (!tab) return;
@@ -106,7 +143,13 @@ class TabRotator {
                     this.scheduleNextMainTab();
                 });
             } else {
-                this.mainTimer = setTimeout(() => this.scheduleNextMainTab(), this.mainInterval);
+                if (this._isNoScrollTab(tab)) {
+                    this.mainTimer = setTimeout(() => this.scheduleNextMainTab(), this.mainInterval);
+                } else {
+                    this.scroller.startFor(activeMainContent || document.body, () => {
+                        this.mainTimer = setTimeout(() => this.scheduleNextMainTab(), this.mainInterval);
+                    });
+                }
             }
         }, 100);
     }
@@ -125,10 +168,21 @@ class TabRotator {
                 return;
             }
 
-            subTabs[subIndex].click();
+            const currentSubTab = subTabs[subIndex];
+            currentSubTab.click();
             subIndex++;
 
-            this.subTimer = setTimeout(showNextSub, this.subInterval);
+            const activeSubContent = document.querySelector(
+                this.subContentSelector + '.' + this.activeClass
+            );
+
+            if (this._isNoScrollTab(currentSubTab)) {
+                this.subTimer = setTimeout(showNextSub, this.subInterval);
+            } else {
+                this.scroller.startFor(activeSubContent || mainContent, () => {
+                    this.subTimer = setTimeout(showNextSub, this.subInterval);
+                });
+            }
         };
 
         showNextSub();
@@ -161,12 +215,147 @@ class TabRotator {
     resume() {
         this.isPaused = false;
     }
+
     setMainInterval(ms) {
         this.mainInterval = ms;
     }
 
     setSubInterval(ms) {
         this.subInterval = ms;
+    }
+}
+
+
+/**
+ * AutoScroller — fait défiler tous les éléments scrollables d'un container
+ * vers le bas de manière linéaire, puis appelle un callback à la fin.
+ */
+class AutoScroller {
+    constructor(options = {}) {
+        this.scrollSpeed = options.scrollSpeed || 40;     // px / sec
+        this.pauseAtStart = options.scrollPauseAtStart || 500;
+        this.pauseAtEnd = options.scrollPauseAtEnd || 2000;
+        this.rafId = null;
+        this.timeoutId = null;
+        this.running = false;
+    }
+
+    /**
+     * Trouve tous les éléments scrollables (overflow-y auto/scroll + scrollHeight > clientHeight)
+     * descendant de `root`.
+     * @param {Element} root
+     * @returns {Element[]}
+     */
+    _findScrollables(root) {
+        const elements = root.querySelectorAll('*');
+        return Array.from(elements).filter(el => {
+            const style = window.getComputedStyle(el);
+            const isScrollable = style.overflowY === 'auto' || style.overflowY === 'scroll';
+            const hasContent = el.scrollHeight > el.clientHeight;
+            return isScrollable && hasContent;
+        });
+    }
+
+    /**
+     * Démarre le scroll dans `root`.
+     * Remet chaque élément scrollable en haut avant de commencer.
+     * Si aucun élément scrollable n'est trouvé, appelle onFinished immédiatement.
+     * Sinon scroll linéaire vers le bas puis appelle onFinished() après pauseAtEnd.
+     * @param {Element} root
+     * @param {function} onFinished
+     */
+    startFor(root, onFinished) {
+        this.stop();
+
+        const scrollables = this._findScrollables(root);
+
+        if (scrollables.length === 0) {
+            if (onFinished) onFinished();
+            return;
+        }
+
+        // Reset en haut avant de démarrer
+        scrollables.forEach(el => { el.scrollTop = 0; });
+
+        // Pause initiale avant de commencer
+        this.timeoutId = setTimeout(() => {
+            this._scrollAll(scrollables, onFinished);
+        }, this.pauseAtStart);
+    }
+
+    /**
+     * Scroll chaque élément un par un (séquentiel) vers le bas.
+     * Une fois tous terminés, appelle onFinished après pauseAtEnd.
+     * @param {Element[]} scrollables
+     * @param {function} onFinished
+     */
+    _scrollAll(scrollables, onFinished) {
+        this.running = true;
+        let index = 0;
+
+        const scrollOne = () => {
+            if (!this.running) return;
+
+            if (index >= scrollables.length) {
+                // Tous terminés : pause de fin puis callback
+                this.timeoutId = setTimeout(() => {
+                    this.running = false;
+                    if (onFinished) onFinished();
+                }, this.pauseAtEnd);
+                return;
+            }
+
+            this._scrollDown(scrollables[index], scrollOne);
+            index++;
+        };
+
+        scrollOne();
+    }
+
+    /**
+     * Scroll un élément vers le bas de manière fluide via requestAnimationFrame,
+     * puis appelle `next` quand il est en bas.
+     * @param {Element} el
+     * @param {function} next
+     */
+    _scrollDown(el, next) {
+        const total = el.scrollHeight - el.clientHeight;
+        if (total <= 0) {
+            next();
+            return;
+        }
+
+        let last = 0;
+        const step = (timestamp) => {
+            if (!this.running) return;
+
+            if (!last) last = timestamp;
+            const delta = (timestamp - last) / 1000;
+            last = timestamp;
+
+            el.scrollTop += this.scrollSpeed * delta;
+
+            if (el.scrollTop >= total) {
+                el.scrollTop = total;
+                next();
+            } else {
+                this.rafId = requestAnimationFrame(step);
+            }
+        };
+
+        this.rafId = requestAnimationFrame(step);
+    }
+
+    stop() {
+        if (this.rafId) {
+            cancelAnimationFrame(this.rafId);
+            this.rafId = null;
+        }
+        if (this.timeoutId) {
+            clearTimeout(this.timeoutId);
+            this.timeoutId = null;
+        }
+        this.running = false;
     }
 }
 
