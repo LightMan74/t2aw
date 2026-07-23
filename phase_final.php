@@ -42,21 +42,30 @@ $tournoi_id = isset($_GET['id_tournoi']) ? (int)$_GET['id_tournoi'] : 0;
             </div>
             <div class="container-heure-message">
                 <div class="option-heure-manuelle">
-                    <label>
-                        Heure manuelle
-                        <input type="checkbox" id="heureManuelleCheckboxListePF" onchange="toggleHeureManuelleListePF()">
-                    </label>
-                    <label>
-                        Voir Match terminé
-                        <input type="checkbox" id="matchtermineCheckbox" onchange="togglematchtermine()" checked>
-                    </label>
-                    <label>
-                        Appliquer le décalage horaire à tous les terrains
-                        <input type="checkbox" id="decalageTousTerrainsListePF">
-                    </label>
+
                     <input type="time" id="heureManuelleInputListePF" style="display:none;">
-                    <button onclick="autosaveandreloadListePF()">Enregistrer</button>
+                    <div class="toggle-btn">
+                        <input type="checkbox" id="heureManuelleCheckboxListePF" onchange="toggleHeureManuelleListePF()">
+                        <label for="heureManuelleCheckboxListePF" class="toggle-btn-label">Heure manuelle</label>
+                    </div>
+
+                    <div class="toggle-btn">
+                        <input type="checkbox" id="matchtermineCheckbox" onchange="togglematchtermine()" checked>
+                        <label for="matchtermineCheckbox" class="toggle-btn-label">Voir Match terminé</label>
+                    </div>
+
+                    <!-- <div class="toggle-btn">
+                        <input type="checkbox" id="decalageTousTerrainsListePF">
+                        <label for="decalageTousTerrainsListePF" class="toggle-btn-label">Appliquer le décalage horaire à tous les terrains</label>
+                    </div> -->
+
+                    <div class="toggle-btn">
+                        <!-- <button onclick="autosaveandreloadListePF()" class="toggle-btn-label">Enregistrer</button> -->
+                        <label for="decalageTousTerrainsListePF" onclick="autosaveandreloadListePF()" class="toggle-btn-label">Enregistrer</label>
+                    </div>
+
                 </div>
+
                 <div id="message-liste-matchs-pf"></div>
             </div>
             <table id="table-matchs-pf">

@@ -10,6 +10,7 @@ html[data-theme="dark"] {
     --bg-container: #242424;
     --bg-header: #242424;
     --text-main: #e0e0e0;
+    --text-label: #ffffff;
     --text-secondary: #c0c0c0;
     --text-muted: #999;
     --border-color: #919191;

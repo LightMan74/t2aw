@@ -36,27 +36,33 @@
         <!-- <button onclick="chargerMatchs()">Charger les matchs</button> -->
         <div class="container-heure-message">
             <div class="option-heure-manuelle">
-                <?php if (isset($_GET["admin"])){?>
-                <?php } ?><br>
-                <label>
-                    Heure manuelle
-                    <input type="checkbox" id="heureManuelleCheckbox" onchange="toggleHeureManuelle()">
-                </label>
-                <label>
-                    Voir Match terminé
-                    <input type="checkbox" id="matchtermineCheckbox" onchange="togglematchtermine()" checked>
-                </label>
-                <label>
-                    Appliquer le décalage horaire à tous les terrains
-                    <input type="checkbox" id="decalageTousTerrains">
-                </label>
-                <input type="time" id="heureManuelleInput" style="display:none;">
-                <input type="number" id="id_tournoi" value="<?php echo $_GET["id_tournoi"];?>" style="width:100px; margin-bottom:15px;" hidden>
 
-                <button onclick="autosaveandreload()">Enregistrer</button>
+                <input type="time" id="heureManuelleInput" style="display:none;">
+                <div class="toggle-btn">
+                    <input type="checkbox" id="heureManuelleCheckbox" onchange="toggleHeureManuelle()">
+                    <label for="heureManuelleCheckbox" class="toggle-btn-label">Heure manuelle</label>
+                </div>
+
+                <div class="toggle-btn">
+                    <input type="checkbox" id="matchtermineCheckbox" onchange="togglematchtermine()" checked>
+                    <label for="matchtermineCheckbox" class="toggle-btn-label">Voir Match terminé</label>
+                </div>
+
+                <!-- <div class="toggle-btn">
+                        <input type="checkbox" id="decalageTousTerrainsListePF">
+                        <label for="decalageTousTerrainsListePF" class="toggle-btn-label">Appliquer le décalage horaire à tous les terrains</label>
+                    </div> -->
+
+                <div class="toggle-btn">
+                    <!-- <button onclick="autosaveandreloadListePF()" class="toggle-btn-label">Enregistrer</button> -->
+                    <label for="decalageTousTerrainsListePF" onclick="autosaveandreloadListePF()" class="toggle-btn-label">Enregistrer</label>
+                </div>
+
             </div>
-            <div id="message"></div>
+
+            <div id="message-liste-matchs-pf"></div>
         </div>
+        <input type="number" id="id_tournoi" value="<?php echo $_GET["id_tournoi"];?>" style="width:100px; margin-bottom:15px;" hidden>
 
         <table id="table-matchs">
             <thead>
