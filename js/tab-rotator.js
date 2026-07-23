@@ -6,8 +6,8 @@ class TabRotator {
         this.subContentSelector = options.subContentSelector || '.sous-onglet-content';
         this.activeClass = options.activeClass || 'active';
 
-        this.mainInterval = options.mainInterval || 80000;
-        this.subInterval = options.subInterval || 40000;
+        this.mainInterval = options.mainInterval || 10000;
+        this.subInterval = options.subInterval || 10000;
 
         this.pauseOnHover = options.pauseOnHover !== false;
 
