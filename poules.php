@@ -74,6 +74,9 @@
                         <nobr>Poule</nobr>
                     </th>
                     <th>
+                        <nobr>Match N°</nobr>
+                    </th>
+                    <th>
                         <nobr>Equipe 1</nobr>
                     </th>
                     <th>

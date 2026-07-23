@@ -62,6 +62,7 @@ function majIconeSavePF(index) {
 }
 
 function afficherTablePF() {
+    matchcount = 0;
     const corps = document.getElementById('corps-table-pf');
     if (!corps) { console.error('Élément #corps-table-pf introuvable'); return; }
     corps.innerHTML = '';
@@ -105,6 +106,7 @@ function afficherTablePF() {
 
         tr.innerHTML = ` 
             <td class="categorie-badge ${catClass}">${m.nom_categorie ?? ''}</td>
+            <td>${++matchcount ?? ''}</td>
             <td>
             <span style="margin: auto;" class="tour-label">Classement ${ligneClassement}</span><br>
             <span style="margin: auto;">${getLibelleTourPF(m.round, m.round_max_phase)}</span></br>

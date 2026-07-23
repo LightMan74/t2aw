@@ -61,6 +61,7 @@ function majIconeSave(index) {
 }
 
 function afficherTable() {
+    matchcount = 0;
     const corps = document.getElementById('corps-table');
     if (!corps) { console.error('Élément #corps-table introuvable'); return; }
     corps.innerHTML = '';
@@ -96,6 +97,7 @@ function afficherTable() {
         tr.innerHTML = `
             <td class="categorie-badge ${catClass}">${m.nom_categorie ?? ''}</td>
             <td class="poule-badge ${poleClass}">${m.nom_poule ?? ''}</td>
+            <td>${++matchcount ?? ''}</td>
             <td>${m.nom_equipe_1 ?? ''}</td>
             <td>
             <span style="display: block ruby;">
