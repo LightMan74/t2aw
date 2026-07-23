@@ -66,9 +66,6 @@ $tournoi_id = isset($_GET['id_tournoi']) ? (int)$_GET['id_tournoi'] : 0;
                             <nobr>Catégorie</nobr>
                         </th>
                         <th>
-                            <nobr>Phase</nobr>
-                        </th>
-                        <th>
                             <nobr>Round</nobr>
                         </th>
                         <th>

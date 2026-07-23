@@ -103,11 +103,11 @@ function afficherTablePF() {
             ligneClassement = `${range}`;
         }
 
-        tr.innerHTML = `
+        tr.innerHTML = ` 
             <td class="categorie-badge ${catClass}">${m.nom_categorie ?? ''}</td>
-            <td>${m.nom_phase ?? ''}<br>
-            <span style="margin: auto;" class="tour-label">(${m.match_code ?? ''})</span></td>
-            <td><span style="margin: auto;">${getLibelleTourPF(m.round, m.round_max_phase)}</span><br>
+            <td>
+            <span style="margin: auto;" class="tour-label">(${m.match_code ?? ''})</span></br>
+            <span style="margin: auto;">${getLibelleTourPF(m.round, m.round_max_phase)}</span><br>
             <span style="margin: auto;" class="tour-label">Classement ${ligneClassement}</span></td>
             <td>${nom1}</td>
             <td>
