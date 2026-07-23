@@ -34,7 +34,7 @@ $id_tournoi = isset($_GET['id_tournoi']) ? (int)$_GET['id_tournoi'] : 0;
     if ($id_tournoi === 0): ?>
 
     <!-- Sélecteur de tournoi si aucun id_tournoi fourni -->
-     <div class="login-logo" role="img" aria-label="Logo" style="width:200px;max-width: 200px;margin: 25px auto;"></div>
+    <div class="login-logo" role="img" aria-label="Logo" style="width:200px;max-width: 200px;margin: 25px auto;"></div>
     <button onclick="location.href='login.php?login'" class="btn-lsiteafficheur">👤 Login</button><br><br>
     <div class="selecteur-tournois">
         <h1>Sélectionnez un tournoi</h1>
@@ -149,7 +149,7 @@ $id_tournoi = isset($_GET['id_tournoi']) ? (int)$_GET['id_tournoi'] : 0;
             <div id="classement-final-content" class="grid-multicol scroll-colonne"></div>
         </section>
     </main>
-
+    <div id="config-rotation"></div>
     <script>
     const ID_TOURNOI = <?php echo json_encode($id_tournoi); ?>;
 
@@ -165,12 +165,38 @@ $id_tournoi = isset($_GET['id_tournoi']) ? (int)$_GET['id_tournoi'] : 0;
         container.style = "background: #d2d2d2;";
     }
     loadQrCode("<?php echo "https://$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]";?>");
+
+    document.querySelectorAll('#config-rotation input').forEach(checkbox => {
+        checkbox.addEventListener('change', () => {
+            const selected = Array.from(
+                document.querySelectorAll('#config-rotation input:checked')
+            ).map(cb => cb.value);
+
+            rotator.setRotationList(selected);
+        });
+    });
     </script>
+
     <script src="js/colors.js"></script>
     <!-- Configuration des liaisons du bracket (couleurs, opacité, etc.) -->
     <script src="js/bracket-lines-config.js"></script>
     <script src="js/leader-line.min.js"></script>
     <script src="js/afficheur.js"></script>
+
+
+
+    <script src="js/tab-rotator.js"></script>
+    <!-- <script src="js/generate-rotation-config.js"></script> -->
+    <script>
+    const rotator = new TabRotator({
+        mainInterval: 10000, // temps entre chaque onglet principal
+        subInterval: 5000, // temps entre chaque sous-onglet (cat1/cat2...)
+        pauseOnHover: true
+    });
+
+    generateRotationConfig(rotator, '#config-rotation');
+    </script>
+
 
     <?php endif; ?>
 </body>
