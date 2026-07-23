@@ -55,12 +55,12 @@
 
                 <div class="toggle-btn">
                     <!-- <button onclick="autosaveandreloadListePF()" class="toggle-btn-label">Enregistrer</button> -->
-                    <label for="decalageTousTerrainsListePF" onclick="autosaveandreloadListePF()" class="toggle-btn-label">Enregistrer</label>
+                    <label for="decalageTousTerrains" onclick="autosaveandreload()" class="toggle-btn-label">Enregistrer</label>
                 </div>
 
             </div>
 
-            <div id="message-liste-matchs-pf"></div>
+            <div id="message"></div>
         </div>
         <input type="number" id="id_tournoi" value="<?php echo $_GET["id_tournoi"];?>" style="width:100px; margin-bottom:15px;" hidden>
 

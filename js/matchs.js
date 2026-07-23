@@ -305,7 +305,7 @@ async function sauvegarderLigne(index) {
 
 // Variable globale pour stocker le temps de match du paramétrage
 let tempsDeMatch = null;
-
+let nombreTerrains = null;
 async function chargerTempsDeMatch() {
     const id_tournoi = document.getElementById('id_tournoi').value;
     try {
@@ -314,14 +314,17 @@ async function chargerTempsDeMatch() {
         // console.log('time here ' + data.temps_de_match);
         if (data.success && data.temps_de_match) {
             tempsDeMatch = parseInt(data.temps_de_match, 10) || 20;
+            nombreTerrains = parseInt(data.nbre_terrain_poule, 10) || 1;
             // console.log('time here ' + tempsDeMatch);
         } else {
             console.warn('Paramètres non trouvés ou temps_de_match manquant, valeur par défaut 20 utilisée', data);
             tempsDeMatch = 20;
+            nombreTerrains = 1;
         }
     } catch (err) {
         console.error('Erreur chargement paramètres', err);
         tempsDeMatch = 20;
+        nombreTerrains = 1;
     }
     // console.log('tempsDeMatch chargé:', tempsDeMatch);
 }
@@ -345,21 +348,45 @@ function ajouterMinutes(heureStr, minutesAAjouter) {
     return formatHeureMinute(date);
 }
 
+function getTerrainVirtuel(index) {
+    const m = matchsData[index];
+    const ordre = m.ordre_affichage ?? index;
+    // Répartition circulaire : terrain 1, 2, 3... puis on recommence
+    rt = (ordre % nombreTerrains);
+    if (rt == 0) {
+        rt = nombreTerrains;
+    }
+    return rt;
+}
+
+function getTerrainEffectif(idx, mm) {
+    const t = document.getElementById(`terrain-${idx}`)?.value ?? mm.terrain;
+    return t ? t : getTerrainVirtuel(idx);
+}
+
 async function mettreHeureActuelle(index) {
     if (tempsDeMatch === null) {
         await chargerTempsDeMatch();
+    }
+    if (nombreTerrains === null) {
+        await chargerParametres();
     }
 
     const m = matchsData[index];
     if (!m) return;
 
+
     const terrainInput = document.getElementById(`terrain-${index}`);
-    const terrain = terrainInput?.value ?? m.terrain;
+    let terrain = terrainInput?.value ?? m.terrain;
+    let terrainEstVirtuel = false;
 
     if (!terrain) {
-        afficherMessage('Aucun terrain défini pour ce match', 'error');
-        return;
+        terrain = getTerrainVirtuel(index);
+        terrainEstVirtuel = true;
+        console.log(`${nombreTerrains} Aucun terrain défini pour le match ${index}, terrain virtuel ${terrain} attribué`);
     }
+
+
 
     const statusActuelSelect = document.getElementById(`status-${index}`);
     const statutActuel = statusActuelSelect?.value ?? m.status;
@@ -407,7 +434,7 @@ async function mettreHeureActuelle(index) {
         const matchsTerrain = matchsData
             .map((mm, idx) => ({ mm, idx }))
             .filter(({ mm, idx }) => {
-                const t = document.getElementById(`terrain-${idx}`)?.value ?? mm.terrain;
+                const t = getTerrainEffectif(idx, mm);
                 return String(t) === String(terrainCourant);
             })
             .sort((a, b) => (a.mm.ordre_affichage ?? 0) - (b.mm.ordre_affichage ?? 0));
