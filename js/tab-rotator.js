@@ -161,6 +161,13 @@ class TabRotator {
     resume() {
         this.isPaused = false;
     }
+    setMainInterval(ms) {
+        this.mainInterval = ms;
+    }
+
+    setSubInterval(ms) {
+        this.subInterval = ms;
+    }
 }
 
 
@@ -177,6 +184,53 @@ function generateRotationConfig(rotator, containerSelector) {
 
     container.innerHTML = '';
 
+    // --- Champs pour les timers ---
+    const timerWrapper = document.createElement('div');
+    timerWrapper.className = 'rotation-menu-timers';
+
+    const mainLabel = document.createElement('label');
+    mainLabel.textContent = 'Temps onglet principal (s) : ';
+    const mainInput = document.createElement('input');
+    mainInput.type = 'number';
+    mainInput.min = '1';
+    mainInput.value = rotator.mainInterval / 1000;
+    mainInput.className = 'rotation-menu-input';
+
+    mainInput.addEventListener('change', () => {
+        const seconds = parseFloat(mainInput.value);
+        if (!isNaN(seconds) && seconds > 0) {
+            rotator.setMainInterval(seconds * 1000);
+        }
+    });
+
+    mainLabel.appendChild(mainInput);
+
+    const subLabel = document.createElement('label');
+    subLabel.textContent = 'Temps sous-onglet (s) : ';
+    const subInput = document.createElement('input');
+    subInput.type = 'number';
+    subInput.min = '1';
+    subInput.value = rotator.subInterval / 1000;
+    subInput.className = 'rotation-menu-input';
+
+    subInput.addEventListener('change', () => {
+        const seconds = parseFloat(subInput.value);
+        if (!isNaN(seconds) && seconds > 0) {
+            rotator.setSubInterval(seconds * 1000);
+        }
+    });
+
+    subLabel.appendChild(subInput);
+
+    timerWrapper.appendChild(mainLabel);
+    timerWrapper.appendChild(document.createElement('br'));
+    timerWrapper.appendChild(subLabel);
+    timerWrapper.appendChild(document.createElement('br'));
+    timerWrapper.appendChild(document.createElement('hr'));
+
+    container.appendChild(timerWrapper);
+
+    // --- Liste des onglets (inchangé) ---
     mainTabs.forEach(tab => {
         const value = tab.dataset.tab;
         const label = tab.textContent.trim();
