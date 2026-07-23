@@ -41,13 +41,13 @@ $currentUser = $_SESSION['user'];
 <?php
         exit;
     }
-    if (str_contains($_SERVER['REQUEST_URI'],"dashboard.php")){
+    if (str_contains($_SERVER['REQUEST_URI'],"dashboard.php") || str_contains($_SERVER['REQUEST_URI'],"edit_tournoi.php")){
 ?>
 <a href="dashboard.php">Accueil</a>
 <?php
     }else{    
 ?>
-<a href="dashboard.php<?php echo htmlspecialchars((isset($_GET["id_tournoi"])) ? '?id_tournoi='.$_GET["id_tournoi"] : '');?>">Accueil</a>
+<a href="edit_tournoi.php<?php echo htmlspecialchars((isset($_GET["id_tournoi"])) ? '?id_tournoi='.$_GET["id_tournoi"] : '');?>">Accueil</a>
 <?php
 }
 ?>
