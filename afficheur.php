@@ -153,7 +153,8 @@ $id_tournoi = isset($_GET['id_tournoi']) ? (int)$_GET['id_tournoi'] : 0;
         container.innerHTML = svgText;
         container.style = "background: #d2d2d2;";
     }
-    loadQrCode("<?php echo "https://$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]";?>");
+    <?php $urlcode =  str_replace("admin&","","https://$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]");?>
+    loadQrCode("<?php echo $urlcode;?>");
 
     document.querySelectorAll('#config-rotation input').forEach(checkbox => {
         checkbox.addEventListener('change', () => {
@@ -173,7 +174,8 @@ $id_tournoi = isset($_GET['id_tournoi']) ? (int)$_GET['id_tournoi'] : 0;
     <script src="js/afficheur.js"></script>
 
 
-
+    <?php
+    if (isset($_GET["admin"])){ ?>
     <script src="js/tab-rotator.js"></script>
     <!-- <script src="js/generate-rotation-config.js"></script> -->
     <script>
@@ -182,12 +184,12 @@ $id_tournoi = isset($_GET['id_tournoi']) ? (int)$_GET['id_tournoi'] : 0;
         subInterval: 5000, // temps entre chaque sous-onglet (cat1/cat2...)
         pauseOnHover: true
     });
-
     generateRotationConfig(rotator, '#config-rotation');
     </script>
 
 
-    <?php endif; ?>
+    <?php } 
+endif; ?>
 </body>
 
 </html>
