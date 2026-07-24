@@ -5,6 +5,7 @@ class TabRotator {
         this.subTabSelector = options.subTabSelector || '.sous-tab-btn';
         this.subContentSelector = options.subContentSelector || '.sous-onglet-content';
         this.activeClass = options.activeClass || 'active';
+        this.scrollDisabled = options.scrollDisabled || false;
 
         this.mainInterval = options.mainInterval || 10000;
         this.subInterval = options.subInterval || 10000;
@@ -138,7 +139,7 @@ class TabRotator {
                     this.scheduleNextMainTab();
                 });
             } else {
-                if (this._isNoScrollTab(tab) || this._isNoScrollTab(activeMainContent)) {
+                if (this.scrollDisabled || this._isNoScrollTab(tab) || this._isNoScrollTab(activeMainContent)) {
                     this.mainTimer = setTimeout(() => this.scheduleNextMainTab(), this.mainInterval);
                 } else {
                     this.scroller.startFor(activeMainContent || document.body, () => {
@@ -146,6 +147,7 @@ class TabRotator {
                     });
                 }
             }
+
         }, 100);
     }
 
@@ -171,7 +173,7 @@ class TabRotator {
                 this.subContentSelector + '.' + this.activeClass
             );
 
-            if (this._isNoScrollTab(currentSubTab) || this._isNoScrollTab(activeSubContent)) {
+            if (this.scrollDisabled || this._isNoScrollTab(currentSubTab) || this._isNoScrollTab(activeSubContent)) {
                 this.subTimer = setTimeout(showNextSub, this.subInterval);
             } else {
                 this.scroller.startFor(activeSubContent || mainContent, () => {
@@ -197,6 +199,13 @@ class TabRotator {
             : (currentIndex + 1) % this.mainTabsToRotate.length;
 
         this.goToMainTab(this.mainTabsToRotate[nextIndex]);
+    }
+
+    setScrollDisabled(disabled) {
+        this.scrollDisabled = disabled;
+        if (disabled) {
+            this.scroller.stop();
+        }
     }
 
     resetMainTimer() {
@@ -386,10 +395,31 @@ function generateRotationConfig(rotator, containerSelector) {
     timerWrapper.appendChild(mainLabel);
     timerWrapper.appendChild(document.createElement('br'));
     timerWrapper.appendChild(subLabel);
-    timerWrapper.appendChild(document.createElement('br'));
-    timerWrapper.appendChild(document.createElement('hr'));
+    // timerWrapper.appendChild(document.createElement('br'));
+    // timerWrapper.appendChild(document.createElement('hr'));
 
     container.appendChild(timerWrapper);
+
+    // --- Checkbox pour désactiver le scroll auto ---
+    const scrollWrapper = document.createElement('label');
+    scrollWrapper.className = 'rotation-menu-item';
+
+    const scrollCheckbox = document.createElement('input');
+    scrollCheckbox.type = 'checkbox';
+    scrollCheckbox.checked = rotator.scrollDisabled;
+
+    const scrollText = document.createTextNode(' - Bloquer le scroll auto');
+
+    scrollWrapper.appendChild(scrollCheckbox);
+    scrollWrapper.appendChild(scrollText);
+    container.appendChild(scrollWrapper);
+    container.appendChild(document.createElement('br'));
+    container.appendChild(document.createElement('hr'));
+    container.appendChild(document.createElement('br'));
+
+    scrollCheckbox.addEventListener('change', () => {
+        rotator.setScrollDisabled(scrollCheckbox.checked);
+    });
 
     // --- Liste des onglets ---
     mainTabs.forEach(tab => {
