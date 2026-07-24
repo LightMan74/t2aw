@@ -58,8 +58,11 @@ $id_tournoi = isset($_GET['id_tournoi']) ? (int)$_GET['id_tournoi'] : 0;
                 if (t.heure_debut_poule) {
                     dateInfo = 'Début poules : ' + t.heure_debut_poule;
                 }
-
-                a.innerHTML = '<strong>' + (t.nom || ('Tournoi #' + t.id_tournoi)) + '</strong>' +
+                let havepass = "";
+                if (t.tournoi_password) {
+                    havepass = " 🔒";
+                }
+                a.innerHTML = '<strong>' + (t.nom || ('Tournoi #' + t.id_tournoi)) + havepass + '</strong>' +
                     (dateInfo ? '<span class="date-tournoi">' + dateInfo + '</span>' : '');
 
                 container.appendChild(a);

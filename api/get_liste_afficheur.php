@@ -11,10 +11,10 @@ if (ob_get_level()) {
 header('Content-Type: application/json');
 try {
     $stmt = $pdo->prepare("
-        SELECT t.id_tournoi, t.nom
-        FROM tournoi t
-        WHERE 1
-        ORDER BY t.id DESC
+        SELECT t.id_tournoi, t.nom, IF(CHAR_LENGTH(p.tournoi_password)>0,1,0) as tournoi_password
+        FROM tournoi t, parametre p
+        WHERE t.id_tournoi = p.id_tournoi and p.tournoi_cacher = 0
+        ORDER BY t.id_tournoi DESC
     ");
     $stmt->execute();
     $tournois = $stmt->fetchAll(PDO::FETCH_ASSOC);
