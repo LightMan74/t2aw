@@ -31,6 +31,8 @@ try {
     $heure_debut_poule = trim($data['heure_debut_poule'] ?? '');
     $heure_debut_phasefinal = trim($data['heure_debut_phasefinal'] ?? '');
     $matchtermine = trim($data['matchtermine'] ?? '');
+    $tournoi_password = trim($data['tournoi_password'] ?? '');
+    $tournoi_cacher = trim($data['tournoi_cacher'] ?? '');
 
     // troissets : forcer 1 ou 3 uniquement
     $troissets = (int)($data['troissets'] ?? 3);
@@ -68,8 +70,8 @@ try {
     // exécuter au préalable :
     // ALTER TABLE parametre ADD COLUMN terrain_automatique TINYINT(1) NOT NULL DEFAULT 1;
     $stmtInsertParam = $pdo->prepare("
-        INSERT INTO parametre (id_tournoi, nbre_terrain_poule, nbre_terrain_phasefinal, temps_de_match, heure_debut_poule, heure_debut_phasefinal, troissets, terrain_automatique, matchtermine)
-        VALUES (:id_tournoi, :nbre_terrain_poule, :nbre_terrain_phasefinal, :temps_de_match, :heure_debut_poule, :heure_debut_phasefinal, :troissets, :terrain_automatique, :matchtermine)
+        INSERT INTO parametre (id_tournoi, nbre_terrain_poule, nbre_terrain_phasefinal, temps_de_match, heure_debut_poule, heure_debut_phasefinal, troissets, terrain_automatique, matchtermine, tournoi_password, tournoi_cacher)
+        VALUES (:id_tournoi, :nbre_terrain_poule, :nbre_terrain_phasefinal, :temps_de_match, :heure_debut_poule, :heure_debut_phasefinal, :troissets, :terrain_automatique, :matchtermine, :tournoi_password, :tournoi_cacher)
     ");
     $stmtInsertParam->execute([
         'id_tournoi' => $id_tournoi,
@@ -80,7 +82,9 @@ try {
         'heure_debut_phasefinal' => $heure_debut_phasefinal,
         'troissets' => $troissets,
         'terrain_automatique' => $terrain_automatique,
-        'matchtermine' => $matchtermine
+        'matchtermine' => $matchtermine,
+        'tournoi_cacher' => $tournoi_cacher,
+        'tournoi_password' => $tournoi_password
     ]);
 
     // Préparer les requêtes d'insertion

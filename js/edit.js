@@ -68,7 +68,7 @@ async function chargerDonneesTournoi() {
     try {
         var response = await fetch('api/get_tournoi_detail.php?id_tournoi=' + id_tournoi);
         var data = await response.json();
-
+        console.table(data);
         if (!data.success) {
             afficherErreur(data.error || 'Tournoi introuvable.');
             return;
@@ -81,6 +81,8 @@ async function chargerDonneesTournoi() {
         document.getElementById('heure_debut_poule').value = data.parametre.heure_debut_poule || '';
         document.getElementById('heure_debut_phasefinal').value = data.parametre.heure_debut_phasefinal || '';
         document.getElementById('matchtermine').value = data.parametre.matchtermine || '';
+        document.getElementById('tournoi_password').value = data.parametre.tournoi_password || '';
+        document.getElementById('tournoi_cacher').value = data.parametre.tournoi_cacher || '';
 
         // troissets : select -> forcer 1 ou 3
         var troissetsVal = parseInt(data.parametre.troissets, 10);
@@ -92,6 +94,9 @@ async function chargerDonneesTournoi() {
 
         var matchtermineAutoval = parseInt(data.parametre.matchtermine, 10);
         document.getElementById('matchtermine').value = (matchtermineAutoval === 0) ? '0' : '1';
+
+        var tournoi_cacherAutoval = parseInt(data.parametre.tournoi_cacher, 10);
+        document.getElementById('tournoi_cacher').value = (tournoi_cacherAutoval === 0) ? '0' : '1';
 
         document.getElementById('page-title').textContent = 'Modifier : ' + data.tournoi.nom;
 
@@ -474,6 +479,8 @@ function collectFormData() {
     var heure_debut_poule = document.getElementById('heure_debut_poule').value;
     var heure_debut_phasefinal = document.getElementById('heure_debut_phasefinal').value;
     var matchtermine = document.getElementById('matchtermine').value;
+    var tournoi_cacher = document.getElementById('tournoi_cacher').value;
+    var tournoi_password = document.getElementById('tournoi_password').value;
 
     // troissets : forcer 1 ou 3 uniquement
     var troissetsRaw = parseInt(document.getElementById('troissets').value, 10);
@@ -541,6 +548,8 @@ function collectFormData() {
         troissets: troissets,
         terrain_automatique: terrain_automatique,
         matchtermine: matchtermine,
+        tournoi_password: tournoi_password,
+        tournoi_cacher: tournoi_cacher,
         categories: categories
     };
 }

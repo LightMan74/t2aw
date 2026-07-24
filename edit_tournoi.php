@@ -41,13 +41,7 @@ $mode_creation = $id_tournoi === 0;
                 </div>
 
                 <div class="form-row">
-                    <div class="form-group">
-                        <label for="terrain_automatique">Attribution automatique des terrains</label>
-                        <select id="terrain_automatique" name="terrain_automatique" required>
-                            <option value="1" selected>Vrai</option>
-                            <option value="0">Faux</option>
-                        </select>
-                    </div>
+
                 </div>
 
                 <div class="form-row">
@@ -63,19 +57,27 @@ $mode_creation = $id_tournoi === 0;
 
                 <div class="form-row">
                     <div class="form-group">
+                        <label for="terrain_automatique">Attribution automatique des terrains</label>
+                        <select id="terrain_automatique" name="terrain_automatique" required>
+                            <option value="1" selected>Vrai</option>
+                            <option value="0">Faux</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
                         <label for="troissets">Nombre de sets</label>
                         <select id="troissets" name="troissets" required>
                             <option value="1">1 set</option>
                             <option value="3" selected>3 sets</option>
                         </select>
                     </div>
+
+                </div>
+
+                <div class="form-row">
                     <div class="form-group">
                         <label for="temps_de_match">Temps de match (minutes)</label>
                         <input type="number" id="temps_de_match" name="temps_de_match" min="5" max="120" step="1" value="15" required inputmode="numeric" pattern="[0-9]*" onkeydown="return blockInvalidNumberKeys(event)" onpaste="return blockInvalidPaste(event)">
                     </div>
-                </div>
-
-                <div class="form-row">
                     <div class="form-group">
                         <label for="heure_debut_poule">Heure de début (poules)</label>
                         <input type="time" id="heure_debut_poule" name="heure_debut_poule" value="">
@@ -88,7 +90,18 @@ $mode_creation = $id_tournoi === 0;
 
                 <div class="form-row">
                     <div class="form-group">
-                        <label for="matchtermine">Matchs terminé</label>
+                        <label for="tournoi_cacher">Tournoi caché (Liste afficheur)</label>
+                        <select id="tournoi_cacher" name="tournoi_cacher" required>
+                            <option value="0" selected>Visible</option>
+                            <option value="1">Caché</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="tournoi_password">Mot de passe du tournoi (Afficheur)</label>
+                        <input type="text" id="tournoi_password" name="tournoi_password" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="matchtermine">Matchs terminé (interface admin)</label>
                         <select id="matchtermine" name="matchtermine" required>
                             <option value="0">Visible</option>
                             <option value="1" selected>Caché</option>
