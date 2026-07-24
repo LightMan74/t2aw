@@ -72,60 +72,59 @@ function afficherClassement(classement) {
             return (b.point_marquer ?? 0) - (a.point_marquer ?? 0);
         });
 
-        // === En-têtes colorés : même balisage que afficheur.js onglet classement ===
-        const catClass = getCategorieColorClassById(groupe.id_categorie);
-        const poleClass = getPouleColorClassById(groupe.id_poule);
-
         const badgeCat = `<span class="badge-pill categorie-${((groupe.id_categorie - 1) % 10) + 1}">${groupe.nom_categorie}</span>`;
         const badgePoule = groupe.id_poule
             ? `<span class="badge-pill poule-${((groupe.id_poule - 1) % 10) + 1}">${groupe.nom_poule}</span>`
             : '';
 
+        // === Conteneur unique pour le bloc (en-tête + tableau) ===
+        const bloc = document.createElement('div');
+        bloc.className = 'classement-bloc';
+
         const header = document.createElement('div');
         header.className = 'classement-header';
         header.innerHTML = badgeCat + badgePoule;
-        zone.appendChild(header);
-
+        bloc.appendChild(header);
 
         const table = document.createElement('table');
         table.innerHTML = `
-            <thead>
-                <tr>
-                    <th>Rang</th>
-                    <th>Equipe</th>
-                    <th>Match Joué</th>
-                    <th>Victoire</th>
-                    <th>Defaite</th>
-                    <th>Sets Gagner</th>
-                    <th>Points marqués</th>
-                    <th>Points encaissés</th>
-                    <th>Difference Points</th>
-                </tr>
-            </thead>
-            <tbody></tbody>
-        `;
+        <thead>
+            <tr>
+                <th>Rang</th>
+                <th>Equipe</th>
+                <th>Match Joué</th>
+                <th>Victoire</th>
+                <th>Defaite</th>
+                <th>Sets Gagner</th>
+                <th>Points marqués</th>
+                <th>Points encaissés</th>
+                <th>Difference Points</th>
+            </tr>
+        </thead>
+        <tbody></tbody>
+    `;
 
         const tbody = table.querySelector('tbody');
         lignes.forEach((l, index) => {
             const tr = document.createElement('tr');
             if (index === 0) tr.classList.add('premier');
-
             const diff = (l.point_marquer ?? 0) - (l.point_encaisser ?? 0);
             tr.innerHTML = `
-                <td>${index + 1}</td>
-                <td>${escapeHTML(l.nom_equipe || '')}</td>
-                <td>${l.matchs_joues ?? 0}</td>
-                <td>${l.victoire ?? 0}</td>
-                <td>${l.defaite ?? 0}</td>
-                <td>${l.set_gagner ?? 0}</td>
-                <td>${l.point_marquer ?? 0}</td>
-                <td>${l.point_encaisser ?? 0}</td>
-                <td>${diff >= 0 ? '+' : ''}${diff}</td>
-            `;
+            <td>${index + 1}</td>
+            <td>${escapeHTML(l.nom_equipe || '')}</td>
+            <td>${l.matchs_joues ?? 0}</td>
+            <td>${l.victoire ?? 0}</td>
+            <td>${l.defaite ?? 0}</td>
+            <td>${l.set_gagner ?? 0}</td>
+            <td>${l.point_marquer ?? 0}</td>
+            <td>${l.point_encaisser ?? 0}</td>
+            <td>${diff >= 0 ? '+' : ''}${diff}</td>
+        `;
             tbody.appendChild(tr);
         });
 
-        zone.appendChild(table);
+        bloc.appendChild(table);
+        zone.appendChild(bloc);
     });
 
     if (clesTriees.length === 0) {
