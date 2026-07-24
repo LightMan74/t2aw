@@ -101,8 +101,8 @@ try {
     if (!$match['equipe1_id'] || !$match['equipe2_id']) {
 
         // throw new Exception('Les 2 équipes ne sont pas encore définies');
-        $score1 = 0;
-        $score2 = 0;
+        $score1 = null;
+        $score2 = null;
     }
 
     $idTournoi     = (int) $match['id_tournoi'];

@@ -193,17 +193,22 @@ function cyclerStatusPF(index) {
 }
 
 function construireScoresDepuisInputsPF(index) {
-    const score1 = [
+    let score1 = [
         document.getElementById(`scorepf1s1-${index}`)?.value ?? 0,
         document.getElementById(`scorepf1s2-${index}`)?.value ?? 0,
         document.getElementById(`scorepf1s3-${index}`)?.value ?? 0,
     ].join('*');
 
-    const score2 = [
+    let score2 = [
         document.getElementById(`scorepf2s1-${index}`)?.value ?? 0,
         document.getElementById(`scorepf2s2-${index}`)?.value ?? 0,
         document.getElementById(`scorepf2s3-${index}`)?.value ?? 0,
     ].join('*');
+
+    if (score1 == "0*0*0" && score2 == "0*0*0") {
+        score1 = null;
+        score2 = null;
+    }
 
     return { score1, score2 };
 }
@@ -498,7 +503,7 @@ function togglematchtermine() {
     const lignesTerminees = document.querySelectorAll('tr.status-termine');
     const checkbox = document.getElementById('matchtermineCheckbox');
 
-    console.log("before " + checkbox.checked);
+    // console.log("before " + checkbox.checked);
     let countmachshide = 0;
     if (checkbox.checked) {
         lignesTerminees.forEach(ligne => {
@@ -518,7 +523,7 @@ function togglematchtermine() {
 document.addEventListener('DOMContentLoaded', async () => {
     await chargerTempsDeMatchPFListe();
     await chargerMatchsPF();
-    console.log("inDOM");
+    // console.log("inDOM");
     if (matchtermine) {
         document.getElementById('matchtermineCheckbox').checked = true;
         requestAnimationFrame(() => {
