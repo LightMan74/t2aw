@@ -117,14 +117,15 @@ if ($id_tournoi === 0): ?>
                 a.innerHTML = '<strong>' + (t.nom || ('Tournoi #' + t.id_tournoi)) + havepass + '</strong>' +
                     (dateInfo ? '<span class="date-tournoi">' + dateInfo + '</span>' : '');
 
+                a.href = 'afficheur.php?id_tournoi=' + encodeURIComponent(t.id_tournoi);
                 if (t.tournoi_password) {
-                    a.href = '#';
+                    // a.href = '#';
                     a.addEventListener('click', (e) => {
                         e.preventDefault();
                         ouvrirModalPassword(t.id_tournoi);
                     });
                 } else {
-                    a.href = 'afficheur.php?id_tournoi=' + encodeURIComponent(t.id_tournoi);
+                    // a.href = 'afficheur.php?id_tournoi=' + encodeURIComponent(t.id_tournoi);
                 }
 
                 container.appendChild(a);
