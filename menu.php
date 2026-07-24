@@ -64,8 +64,8 @@ $currentUser = $_SESSION['user'];
 <a href="poules.php?<?php echo htmlspecialchars((isset($_GET["id_tournoi"])) ? 'id_tournoi='.$_GET["id_tournoi"] : '');?>">Poules</a>
 <a href="classement.php?<?php echo htmlspecialchars((isset($_GET["id_tournoi"])) ? 'id_tournoi='.$_GET["id_tournoi"] : '');?>">Classement</a>
 <a href="phase_final.php?<?php echo htmlspecialchars((isset($_GET["id_tournoi"])) ? 'id_tournoi='.$_GET["id_tournoi"] : '');?>">Phase Final</a>
-<a href="classement_final.php?<?php echo htmlspecialchars((isset($_GET["id_tournoi"])) ? 'id_tournoi='.$_GET["id_tournoi"] : '');?>">classement final</a>
-<a target="_blank" href="afficheur.php?admin<?php echo htmlspecialchars((isset($_GET["id_tournoi"])) ? '&id_tournoi='.$_GET["id_tournoi"] : '');?>">Afficheur(options)</a>
+<a href="classement_final.php?<?php echo htmlspecialchars((isset($_GET["id_tournoi"])) ? 'id_tournoi='.$_GET["id_tournoi"] : '');?>">Classement Final</a>
+<a target="_blank" href="afficheur.php?option<?php echo htmlspecialchars((isset($_GET["id_tournoi"])) ? '&id_tournoi='.$_GET["id_tournoi"] : '');?>">Afficheur(options)</a>
 <a target="_blank" href="afficheur.php?<?php echo htmlspecialchars((isset($_GET["id_tournoi"])) ? 'id_tournoi='.$_GET["id_tournoi"] : '');?>">Afficheur</a>
 <?php
     }

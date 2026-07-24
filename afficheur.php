@@ -221,7 +221,7 @@ if ($id_tournoi === 0): ?>
         container.innerHTML = svgText;
         container.style = "background: #d2d2d2;";
     }
-    <?php $urlcode =  str_replace("admin&","","https://$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]");?>
+    <?php $urlcode =  str_replace("option&","","https://$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]");?>
     loadQrCode("<?php echo $urlcode;?>");
 
     document.querySelectorAll('#config-rotation input').forEach(checkbox => {
@@ -244,7 +244,7 @@ if ($id_tournoi === 0): ?>
 
 
     <?php
-    if (isset($_GET["admin"])){ ?>
+    if (isset($_GET["option"])){ ?>
     <link rel="stylesheet" href="css/rotation-menu.css">
     <div class="rotation-menu-container">
         <button class="rotation-menu-toggle" type="button">⚙️</button>

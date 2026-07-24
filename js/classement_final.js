@@ -40,21 +40,25 @@ function afficherClassementFinal(categories) {
     categories.forEach(cat => {
         const catClass = getCategorieColorClassById(cat.id_categorie);
 
+        // === Conteneur unique pour le bloc (en-tête + tableau) ===
+        const bloc = document.createElement('div');
+        bloc.className = 'classement-bloc';
+
         const header = document.createElement('div');
         header.className = 'classement-header';
         header.innerHTML = `<span class="badge-pill ${catClass}">${escapeHTML(cat.nom_categorie)}</span>`;
-        zone.appendChild(header);
+        bloc.appendChild(header);
 
         const table = document.createElement('table');
         table.innerHTML = `
-            <thead>
-                <tr>
-                    <th>Position</th>
-                    <th>Équipe</th>
-                </tr>
-            </thead>
-            <tbody></tbody>
-        `;
+        <thead>
+            <tr>
+                <th>Position</th>
+                <th>Équipe</th>
+            </tr>
+        </thead>
+        <tbody></tbody>
+    `;
 
         const tbody = table.querySelector('tbody');
 
@@ -68,14 +72,15 @@ function afficherClassementFinal(categories) {
                 if (index === 0) tr.classList.add('premier');
 
                 tr.innerHTML = `
-                    <td>${eq.position}</td>
-                    <td>${escapeHTML(eq.nom_equipe || '')}</td>
-                `;
+                <td>${eq.position}</td>
+                <td>${escapeHTML(eq.nom_equipe || '')}</td>
+            `;
                 tbody.appendChild(tr);
             });
         }
 
-        zone.appendChild(table);
+        bloc.appendChild(table);
+        zone.appendChild(bloc);
     });
 }
 
