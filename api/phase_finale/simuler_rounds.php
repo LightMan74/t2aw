@@ -14,7 +14,7 @@ if ($idPhaseFinale <= 0 || $nbRoundsASimuler <= 0) {
     echo json_encode(['success' => false, 'message' => $idPhaseFinale.' Paramètres invalides '.$nbRoundsASimuler]);
     exit;
 }
-
+ 
 try {
     $pdo->beginTransaction();
 

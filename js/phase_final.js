@@ -878,6 +878,7 @@ document.getElementById('btn-simuler-rounds').addEventListener('click', async ()
 });
 
 function callsimuler(currentPhaseFinaleId, nbRounds) {
+    console.log(currentPhaseFinaleId + " - " + nbRounds);
     try {
         const data = apiFetch(`${API_BASE}/simuler_rounds.php`, {
             method: 'POST',

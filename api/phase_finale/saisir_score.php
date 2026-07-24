@@ -127,7 +127,7 @@ try {
         UPDATE matchs_phase_finale
         SET score1 = :score1, score2 = :score2,
             winner_equipe_id = :winner_id, loser_equipe_id = :loser_id,
-            statut = 'termine',statut_match = :statut_match, terrain = :terrain, heure_debut = :heure_debut
+            statut = 'pret',statut_match = :statut_match, terrain = :terrain, heure_debut = :heure_debut
         WHERE id = :id
     ");
     $stmt->execute([

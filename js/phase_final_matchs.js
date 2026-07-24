@@ -516,7 +516,7 @@ function togglematchtermine() {
             // countmachshide++;
         });
     }
-    console.log(countmachshide);
+    // console.log(countmachshide);
     document.getElementById('numbermatchshidden').textContent = countmachshide + " Matchs terminé caché.";
 }
 
