@@ -98,7 +98,7 @@ $mode_creation = $id_tournoi === 0;
                     </div>
                     <div class="form-group">
                         <label for="tournoi_password">Mot de passe du tournoi (Afficheur)</label>
-                        <input type="text" id="tournoi_password" name="tournoi_password" required>
+                        <input type="text" id="tournoi_password" name="tournoi_password">
                     </div>
                     <div class="form-group">
                         <label for="matchtermine">Matchs terminé (interface admin)</label>
