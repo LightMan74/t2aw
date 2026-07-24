@@ -20,7 +20,7 @@ $id_tournoi = isset($_GET['id_tournoi']) ? (int)$_GET['id_tournoi'] : 0;
 <body>
 
     <?php  
-    if ($id_tournoi === 0): ?>
+if ($id_tournoi === 0): ?>
 
     <!-- Sélecteur de tournoi si aucun id_tournoi fourni -->
     <div class="login-logo" role="img" aria-label="Logo" style="width:200px;max-width: 200px;margin: 25px auto;"></div>
@@ -32,7 +32,60 @@ $id_tournoi = isset($_GET['id_tournoi']) ? (int)$_GET['id_tournoi'] : 0;
         </div>
     </div>
 
+    <!-- Modal mot de passe -->
+    <div id="modal-password" class="modal-overlay" style="display:none;">
+        <div class="modal-box">
+            <h2>Tournoi protégé</h2>
+            <p>Ce tournoi nécessite un mot de passe pour y accéder.</p>
+            <input type="password" id="modal-password-input" placeholder="Mot de passe" autocomplete="off">
+            <p id="modal-password-error" class="message-erreur" style="display:none;">Mot de passe requis</p>
+            <div class="modal-actions">
+                <button id="modal-password-cancel" class="btn-dark">Annuler</button>
+                <button id="modal-password-valider" class="btn-dark">Valider</button>
+            </div>
+        </div>
+    </div>
     <script>
+    let tournoiIdSelectionne = null;
+
+    function ouvrirModalPassword(idTournoi) {
+        tournoiIdSelectionne = idTournoi;
+        document.getElementById('modal-password-input').value = '';
+        document.getElementById('modal-password-error').style.display = 'none';
+        document.getElementById('modal-password').style.display = 'flex';
+        document.getElementById('modal-password-input').focus();
+    }
+
+    function fermerModalPassword() {
+        document.getElementById('modal-password').style.display = 'none';
+        tournoiIdSelectionne = null;
+    }
+
+    document.getElementById('modal-password-cancel').addEventListener('click', fermerModalPassword);
+
+    document.getElementById('modal-password-valider').addEventListener('click', () => {
+        const pass = document.getElementById('modal-password-input').value;
+        if (!pass) {
+            document.getElementById('modal-password-error').style.display = 'block';
+            return;
+        }
+        if (tournoiIdSelectionne !== null) {
+            window.location.href = 'afficheur.php?id_tournoi=' + encodeURIComponent(tournoiIdSelectionne) + '&password=' + encodeURIComponent(pass);
+        }
+    });
+
+    document.getElementById('modal-password-input').addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+            document.getElementById('modal-password-valider').click();
+        }
+    });
+
+    document.getElementById('modal-password').addEventListener('click', (e) => {
+        if (e.target.id === 'modal-password') {
+            fermerModalPassword();
+        }
+    });
+
     fetch('api/get_liste_afficheur.php')
         .then(res => res.json())
         .then(data => {
@@ -51,7 +104,6 @@ $id_tournoi = isset($_GET['id_tournoi']) ? (int)$_GET['id_tournoi'] : 0;
 
             data.tournois.forEach(t => {
                 const a = document.createElement('a');
-                a.href = 'afficheur.php?id_tournoi=' + encodeURIComponent(t.id_tournoi);
                 a.className = 'lien-tournoi';
 
                 let dateInfo = '';
@@ -65,6 +117,16 @@ $id_tournoi = isset($_GET['id_tournoi']) ? (int)$_GET['id_tournoi'] : 0;
                 a.innerHTML = '<strong>' + (t.nom || ('Tournoi #' + t.id_tournoi)) + havepass + '</strong>' +
                     (dateInfo ? '<span class="date-tournoi">' + dateInfo + '</span>' : '');
 
+                if (t.tournoi_password) {
+                    a.href = '#';
+                    a.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        ouvrirModalPassword(t.id_tournoi);
+                    });
+                } else {
+                    a.href = 'afficheur.php?id_tournoi=' + encodeURIComponent(t.id_tournoi);
+                }
+
                 container.appendChild(a);
             });
         })
@@ -74,7 +136,10 @@ $id_tournoi = isset($_GET['id_tournoi']) ? (int)$_GET['id_tournoi'] : 0;
         });
     </script>
 
-    <?php else: ?>
+    <?php else: 
+        include 'api/verify_password.php';
+        ?>
+
 
     <header>
         <div class="login-logo" role="img" aria-label="Logo"></div>
@@ -142,7 +207,6 @@ $id_tournoi = isset($_GET['id_tournoi']) ? (int)$_GET['id_tournoi'] : 0;
         </section>
     </main>
 
-
     <script>
     const ID_TOURNOI = <?php echo json_encode($id_tournoi); ?>;
 
@@ -170,6 +234,7 @@ $id_tournoi = isset($_GET['id_tournoi']) ? (int)$_GET['id_tournoi'] : 0;
         });
     });
     </script>
+
 
     <script src="js/colors.js"></script>
     <!-- Configuration des liaisons du bracket (couleurs, opacité, etc.) -->
