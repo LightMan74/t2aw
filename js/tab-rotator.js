@@ -11,8 +11,8 @@ class TabRotator {
 
         this.pauseOnHover = options.pauseOnHover !== false;
 
-        // Onglets à exclure du scroll auto : data-tab values, classes CSS, ou ids
-        this.noScrollTabs = options.noScrollTabs || [];       // ex: ['match']
+        // Onglets à exclure du scroll auto : data-tab / data-sous-tab values, classes CSS, ou ids
+        this.noScrollTabs = options.noScrollTabs || [];           // ex: ['match']
         this.noScrollSelectors = options.noScrollSelectors || []; // ex: ['.match-tab', '#tab-match']
 
         this.allMainTabs = [];
@@ -63,8 +63,6 @@ class TabRotator {
 
     /**
      * Met à jour la liste des onglets principaux qui doivent tourner.
-     * Si l'onglet actuellement affiché n'est plus dans la liste,
-     * on passe au suivant valide. Sinon le cycle en cours continue.
      * @param {string[]} dataTabValues - liste des data-tab values cochées
      */
     setMainRotationList(dataTabValues) {
@@ -106,13 +104,11 @@ class TabRotator {
     _isNoScrollTab(tabEl) {
         if (!tabEl) return false;
 
-        // 1. Vérification via data-tab / data-sous-tab
         const value = tabEl.dataset.tab || tabEl.dataset.sousTab;
         if (value && this.noScrollTabs.includes(value)) {
             return true;
         }
 
-        // 2. Vérification via sélecteur CSS (classe ou id)
         return this.noScrollSelectors.some(selector => {
             try {
                 return tabEl.matches(selector);
@@ -121,7 +117,6 @@ class TabRotator {
             }
         });
     }
-
 
     goToMainTab(tab) {
         if (!tab) return;
@@ -143,7 +138,7 @@ class TabRotator {
                     this.scheduleNextMainTab();
                 });
             } else {
-                if (this._isNoScrollTab(tab)) {
+                if (this._isNoScrollTab(tab) || this._isNoScrollTab(activeMainContent)) {
                     this.mainTimer = setTimeout(() => this.scheduleNextMainTab(), this.mainInterval);
                 } else {
                     this.scroller.startFor(activeMainContent || document.body, () => {
@@ -176,7 +171,7 @@ class TabRotator {
                 this.subContentSelector + '.' + this.activeClass
             );
 
-            if (this._isNoScrollTab(currentSubTab)) {
+            if (this._isNoScrollTab(currentSubTab) || this._isNoScrollTab(activeSubContent)) {
                 this.subTimer = setTimeout(showNextSub, this.subInterval);
             } else {
                 this.scroller.startFor(activeSubContent || mainContent, () => {
@@ -240,12 +235,6 @@ class AutoScroller {
         this.running = false;
     }
 
-    /**
-     * Trouve tous les éléments scrollables (overflow-y auto/scroll + scrollHeight > clientHeight)
-     * descendant de `root`.
-     * @param {Element} root
-     * @returns {Element[]}
-     */
     _findScrollables(root) {
         const elements = root.querySelectorAll('*');
         return Array.from(elements).filter(el => {
@@ -259,8 +248,6 @@ class AutoScroller {
     /**
      * Démarre le scroll dans `root`.
      * Remet chaque élément scrollable en haut avant de commencer.
-     * Si aucun élément scrollable n'est trouvé, appelle onFinished immédiatement.
-     * Sinon scroll linéaire vers le bas puis appelle onFinished() après pauseAtEnd.
      * @param {Element} root
      * @param {function} onFinished
      */
@@ -274,21 +261,13 @@ class AutoScroller {
             return;
         }
 
-        // Reset en haut avant de démarrer
         scrollables.forEach(el => { el.scrollTop = 0; });
 
-        // Pause initiale avant de commencer
         this.timeoutId = setTimeout(() => {
             this._scrollAll(scrollables, onFinished);
         }, this.pauseAtStart);
     }
 
-    /**
-     * Scroll chaque élément un par un (séquentiel) vers le bas.
-     * Une fois tous terminés, appelle onFinished après pauseAtEnd.
-     * @param {Element[]} scrollables
-     * @param {function} onFinished
-     */
     _scrollAll(scrollables, onFinished) {
         this.running = true;
         let index = 0;
@@ -297,7 +276,6 @@ class AutoScroller {
             if (!this.running) return;
 
             if (index >= scrollables.length) {
-                // Tous terminés : pause de fin puis callback
                 this.timeoutId = setTimeout(() => {
                     this.running = false;
                     if (onFinished) onFinished();
@@ -312,12 +290,6 @@ class AutoScroller {
         scrollOne();
     }
 
-    /**
-     * Scroll un élément vers le bas de manière fluide via requestAnimationFrame,
-     * puis appelle `next` quand il est en bas.
-     * @param {Element} el
-     * @param {function} next
-     */
     _scrollDown(el, next) {
         const total = el.scrollHeight - el.clientHeight;
         if (total <= 0) {
@@ -419,7 +391,7 @@ function generateRotationConfig(rotator, containerSelector) {
 
     container.appendChild(timerWrapper);
 
-    // --- Liste des onglets (inchangé) ---
+    // --- Liste des onglets ---
     mainTabs.forEach(tab => {
         const value = tab.dataset.tab;
         const label = tab.textContent.trim();
