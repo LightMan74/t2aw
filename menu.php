@@ -65,10 +65,23 @@ $currentUser = $_SESSION['user'];
 <a href="classement.php?<?php echo htmlspecialchars((isset($_GET["id_tournoi"])) ? 'id_tournoi='.$_GET["id_tournoi"] : '');?>">Classement</a>
 <a href="phase_final.php?<?php echo htmlspecialchars((isset($_GET["id_tournoi"])) ? 'id_tournoi='.$_GET["id_tournoi"] : '');?>">Phase Final</a>
 <a href="classement_final.php?<?php echo htmlspecialchars((isset($_GET["id_tournoi"])) ? 'id_tournoi='.$_GET["id_tournoi"] : '');?>">Classement Final</a>
-<a target="_blank" href="afficheur.php?option<?php echo htmlspecialchars((isset($_GET["id_tournoi"])) ? '&id_tournoi='.$_GET["id_tournoi"] : '');?>">Afficheur(options)</a>
-<a target="_blank" href="afficheur.php?<?php echo htmlspecialchars((isset($_GET["id_tournoi"])) ? 'id_tournoi='.$_GET["id_tournoi"] : '');?>">Afficheur</a>
+<!-- <a target="_blank" href="afficheur.php?option<?php echo htmlspecialchars((isset($_GET["id_tournoi"])) ? '&id_tournoi='.$_GET["id_tournoi"] : '');?>">Afficheur(options)</a> -->
+<!-- <a target="_blank" href="afficheur.php?<?php echo htmlspecialchars((isset($_GET["id_tournoi"])) ? 'id_tournoi='.$_GET["id_tournoi"] : '');?>">Afficheur</a> -->
+<a target="_blank" id="afficheurhref" href="afficheur.php?<?php echo htmlspecialchars((isset($_GET["id_tournoi"])) ? 'id_tournoi='.$_GET["id_tournoi"] : '');?>">Afficheur, Option -><input type="checkbox" name="checkboxafficheuroption" onchange="afficheurhrefchange();">?</a>
 <?php
     }
 ?>
+<script>
+function afficheurhrefchange() {
+    let affhref = document.getElementById('afficheurhref');
+    console.table(affhref);
+    if (affhref.href.includes("option&")) {
+        affhref.href = affhref.href.replace("afficheur.php?option&", "afficheur.php?")
+    } else {
+        affhref.href = affhref.href.replace("afficheur.php?", "afficheur.php?option&")
+    }
+    console.table(affhref);
+}
+</script>
 <script src="js/logout.js"></script>
 <script src="js/theme.js"></script>
