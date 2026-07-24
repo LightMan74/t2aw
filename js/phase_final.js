@@ -284,7 +284,7 @@ document.getElementById('form-creation').addEventListener('submit', async e => {
         afficherMessage('msg-creation', err.message, 'error');
     }
 
-    await callsimuler(currentPhaseFinaleId, selectdebutph.value);
+    await callsimuler(currentPhaseFinaleId, selectdebutph.value); await chargerMatchsPF();
 });
 
 // ---------- Liste des phases finales ----------
@@ -875,6 +875,7 @@ document.getElementById('btn-simuler-rounds').addEventListener('click', async ()
     if (!confirmation) return;
 
     await callsimuler(currentPhaseFinaleId, nbRounds);
+    await chargerMatchsPF();
 });
 
 function callsimuler(currentPhaseFinaleId, nbRounds) {
@@ -891,7 +892,6 @@ function callsimuler(currentPhaseFinaleId, nbRounds) {
             'success');
 
         ouvrirBracket(currentPhaseFinaleId);
-
     } catch (err) {
         afficherMessage('msg-simulation', err.message, 'error');
     }
