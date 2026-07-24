@@ -64,9 +64,9 @@ try {
 
     // --- Requête commune (fonctionne sur les 2 moteurs) ---
     $stmt = $pdo->prepare("
-        SELECT nom, uid
-        FROM tournoi
-        WHERE id_tournoi = :id
+        SELECT t.nom, t.uid, p.tournoi_password
+        FROM tournoi t, parametre p
+        WHERE t.id_tournoi = :id and p.id_tournoi = t.id_tournoi
     ");
     $stmt->execute(['id' => htmlspecialchars($_GET["id_tournoi"] ?? '')]);
     $tournoi_name_menu = $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -74,7 +74,7 @@ try {
     if (isset($_SESSION['user']) && $_SESSION['user'] == "admin") {
         $tournoi_name_menu[0]["uid"] = "%";
     }
-
+    $tournoi_password =  ($tournoi_name_menu[0]["tournoi_password"] ?  "&password=".$tournoi_name_menu[0]["tournoi_password"]:"");
 } catch (PDOException $e) {
     error_log('Connexion BDD echouee: ' . $e->getMessage());
     if (ob_get_level()) {

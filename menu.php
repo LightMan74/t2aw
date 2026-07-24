@@ -2,7 +2,7 @@
 <link rel="icon" type="image/png" sizes="64x64" href="icon_t2aw.png">
 
 <?php 
-include __DIR__ . "/api//check_connected.php";
+include __DIR__ . "/api/check_connected.php";
 include 'api/db.php'; 
 // On récupère les infos de l'utilisateur connecté
 $currentUid = $_SESSION['uid'];
@@ -67,8 +67,8 @@ $currentUser = $_SESSION['user'];
 <a href="classement_final.php?<?php echo htmlspecialchars((isset($_GET["id_tournoi"])) ? 'id_tournoi='.$_GET["id_tournoi"] : '');?>">Classement Final</a>
 <!-- <a target="_blank" href="afficheur.php?option<?php echo htmlspecialchars((isset($_GET["id_tournoi"])) ? '&id_tournoi='.$_GET["id_tournoi"] : '');?>">Afficheur(options)</a> -->
 <!-- <a target="_blank" href="afficheur.php?<?php echo htmlspecialchars((isset($_GET["id_tournoi"])) ? 'id_tournoi='.$_GET["id_tournoi"] : '');?>">Afficheur</a> -->
-<a target="_blank" id="afficheurhref" href="afficheur.php?<?php echo htmlspecialchars((isset($_GET["id_tournoi"])) ? 'id_tournoi='.$_GET["id_tournoi"] : '');?>">Afficheur, Option -><input type="checkbox" name="checkboxafficheuroption" onchange="afficheurhrefchange();">?</a>
-<?php
+<a target="_blank" id="afficheurhref" href="afficheur.php?<?php echo htmlspecialchars((isset($_GET["id_tournoi"])) ? 'id_tournoi='.$_GET["id_tournoi"] : '');echo $tournoi_password;?>">Afficheur, Option -><input type="checkbox" name="checkboxafficheuroption" onchange="afficheurhrefchange();">?</a>
+<?php $tournoi_password;
     }
 ?>
 <script>
