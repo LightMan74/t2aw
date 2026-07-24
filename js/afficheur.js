@@ -547,7 +547,7 @@ function afficherUnePhaseFinale(phase, idCategorie, datacategories) {
         roundKeys.forEach((roundKey, rIdx) => {
             reelround++;
             const col = document.createElement('div');
-            col.className = 'round-column scroll-colonne';
+            col.className = 'round-column scroll-colonne2';
 
             // Titre du round (étiquette lisible, ex: "Quart", "Demi", "Finale")
             let label = '';

@@ -51,7 +51,7 @@ $mode_creation = $id_tournoi === 0;
                     </div>
                     <div class="form-group">
                         <label for="nbre_terrain_phasefinal">Nombre de terrains (phase finale)</label>
-                        <input type="number" id="nbre_terrain_phasefinal" name="nbre_terrain_phasefinal" min="1" max="50" step="1" value="2" required inputmode="numeric" pattern="[0-9]*" onkeydown="return blockInvalidNumberKeys(event)" onpaste="return blockInvalidPaste(event)">
+                        <input type="number" id="nbre_terrain_phasefinal" name="nbre_terrain_phasefinal" min="1" max="50" step="1" value="4" required inputmode="numeric" pattern="[0-9]*" onkeydown="return blockInvalidNumberKeys(event)" onpaste="return blockInvalidPaste(event)">
                     </div>
                 </div>
 
