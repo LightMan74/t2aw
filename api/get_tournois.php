@@ -15,10 +15,10 @@ try {
         SELECT t.id_tournoi, t.nom, p.heure_debut_poule, p.heure_debut_phasefinal
         FROM tournoi t
         LEFT JOIN parametre p ON t.id_tournoi = p.id_tournoi
-        WHERE t.uid like :uid
+        WHERE t.user_uid like :user_uid
         ORDER BY t.id DESC
     ");
-    $stmt->execute(['uid' => $_SESSION['uid']]);
+    $stmt->execute(['user_uid' => $_SESSION['user_uid']]);
     $tournois = $stmt->fetchAll(PDO::FETCH_ASSOC);
     echo json_encode(['success' => true, 'tournois' => $tournois]);
 } catch (PDOException $e) {

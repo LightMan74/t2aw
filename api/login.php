@@ -29,7 +29,7 @@ try {
     
     // $stmt = $pdo->prepare("SELECT user, password, uid, if(expire_date > NOW(), 1, 0) as expire_date FROM user WHERE user = :user LIMIT 1");
     $stmt = $pdo->prepare("
-    SELECT user, password, uid,
+    SELECT user, password, user_uid,
         CASE WHEN expire_date > CURRENT_TIMESTAMP THEN 1 ELSE 0 END as expire_date
     FROM user
     WHERE user = :user
@@ -41,11 +41,11 @@ try {
     if ($userData && password_verify($password, $userData['password'])) {
         if ($userData['expire_date']){
         // Connexion réussie
-        $_SESSION['uid'] = $userData['uid'];
+        $_SESSION['user_uid'] = $userData['user_uid'];
         $_SESSION['user'] = $userData['user'];
         $_SESSION['logged_in'] = true;
         $_SESSION['expire'] = "";
-        if ($userData['user'] == "admin"){$_SESSION['uid'] = "%";}
+        if ($userData['user'] == "admin"){$_SESSION['user_uid'] = "%";}
         
         $response['success'] = true;
         $response['message'] = 'Connexion réussie';

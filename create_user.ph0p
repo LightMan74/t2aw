@@ -17,13 +17,13 @@ include 'api/db.php';
 
 $username = '___';
 $password = '___';
-$uid = generateUUIDv4();
+$user_uid = generateUUIDv4();
 $hash = password_hash($password, PASSWORD_DEFAULT);
 
 
 try {
-$stmt = $pdo->prepare("INSERT INTO user (user, password, uid) VALUES (:user, :password, :uid)");
-$stmt->execute(['user' => $username, 'password' => $hash, 'uid' => $uid]);
+$stmt = $pdo->prepare("INSERT INTO user (user, password, user_uid) VALUES (:user, :password, :user_uid)");
+$stmt->execute(['user' => $username, 'password' => $hash, 'user_uid' => $user_uid]);
 } catch (PDOException $e) {
     echo json_encode(['success' => false, 'error' => $e->getMessage()]);
 }

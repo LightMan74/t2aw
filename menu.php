@@ -5,7 +5,7 @@
 include __DIR__ . "/api/check_connected.php";
 include 'api/db.php'; 
 // On récupère les infos de l'utilisateur connecté
-$currentUid = $_SESSION['uid'];
+$currentuser_uid = $_SESSION['user_uid'];
 $currentUser = $_SESSION['user'];
 ?>
 <script>
@@ -34,7 +34,7 @@ $currentUser = $_SESSION['user'];
     </div>
 </header>
 <?php 
-    if ((isset($tournoi_name_menu[0]["uid"]) != $currentUid && isset($_GET["id_tournoi"]))){
+    if ((isset($tournoi_name_menu[0]["user_uid"]) != $currentuser_uid && isset($_GET["id_tournoi"]))){
         echo "Le tournoi demandé n'existe pas ou n'est pas liée a l'identifiant actuelle !<br><br>";
 ?>
 <a href="dashboard.php">Accueil</a>

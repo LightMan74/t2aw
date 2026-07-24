@@ -22,7 +22,15 @@ if (json_last_error() !== JSON_ERROR_NONE) {
 }
 
 require_once __DIR__ . '/db.php';
+function generateUUIDv4() {
+    $data = random_bytes(16);
+    
+    // Définir la version (0100) et les bits de variant (10)
+    $data[6] = chr(ord($data[6]) & 0x0f | 0x40); // version 4
+    $data[8] = chr(ord($data[8]) & 0x3f | 0x80); // variant
 
+    return vsprintf('%s%s-%s-%s-%s-%s%s%s', str_split(bin2hex($data), 4));
+}
 try {
     $nom = trim($data['nom_tournoi'] ?? '');
     $nbre_terrain_poule = (int)($data['nbre_terrain_poule'] ?? 0);
@@ -62,8 +70,8 @@ try {
     $id_tournoi = $stmtMaxId->fetch(PDO::FETCH_ASSOC)['next_id'];
 
     // Insérer le tournoi
-    $stmtInsertTournoi = $pdo->prepare("INSERT INTO tournoi (id_tournoi, nom, uid) VALUES (:id_tournoi, :nom, :uid)");
-    $stmtInsertTournoi->execute(['id_tournoi' => $id_tournoi, 'nom' => $nom, 'uid' => $_SESSION['uid']]);
+    $stmtInsertTournoi = $pdo->prepare("INSERT INTO tournoi (id_tournoi, nom, user_uid) VALUES (:id_tournoi, :nom, :user_uid)");
+    $stmtInsertTournoi->execute(['id_tournoi' => $id_tournoi, 'nom' => $nom, 'user_uid' => $_SESSION['user_uid']]);
 
     // Insérer les paramètres
     // ATTENTION : si la colonne terrain_automatique n'existe pas encore dans la table `parametre`,
