@@ -1,3 +1,4 @@
+const STORAGE_KEY = 'tabRotatorSettings';
 class TabRotator {
     constructor(options = {}) {
         this.mainTabSelector = options.mainTabSelector || '.tab-btn';
@@ -30,7 +31,40 @@ class TabRotator {
             scrollPauseAtEnd: options.scrollPauseAtEnd || 2000
         });
 
+        // Charge les réglages sauvegardés (écrase les valeurs par défaut si présentes)
+        this._loadSettings();
+
         this.init();
+    }
+
+    _loadSettings() {
+        try {
+            const raw = localStorage.getItem(STORAGE_KEY);
+            if (!raw) return;
+            const saved = JSON.parse(raw);
+
+            if (typeof saved.mainInterval === 'number') this.mainInterval = saved.mainInterval;
+            if (typeof saved.subInterval === 'number') this.subInterval = saved.subInterval;
+            if (typeof saved.scrollDisabled === 'boolean') this.scrollDisabled = saved.scrollDisabled;
+
+            this._savedSelectedTabs = Array.isArray(saved.selectedTabs) ? saved.selectedTabs : null;
+        } catch (e) {
+            console.warn('TabRotator: impossible de charger les réglages', e);
+        }
+    }
+
+    _saveSettings(selectedTabs) {
+        const data = {
+            mainInterval: this.mainInterval,
+            subInterval: this.subInterval,
+            scrollDisabled: this.scrollDisabled,
+            selectedTabs: selectedTabs || this.mainTabsToRotate.map(t => t.dataset.tab)
+        };
+        try {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+        } catch (e) {
+            console.warn('TabRotator: impossible de sauvegarder les réglages', e);
+        }
     }
 
     init() {
@@ -42,6 +76,16 @@ class TabRotator {
         }
 
         this.mainTabsToRotate = [...this.allMainTabs];
+
+        // Applique la sélection sauvegardée si elle existe
+        if (this._savedSelectedTabs && this._savedSelectedTabs.length > 0) {
+            this.mainTabsToRotate = this.allMainTabs.filter(tab =>
+                this._savedSelectedTabs.includes(tab.dataset.tab)
+            );
+            if (this.mainTabsToRotate.length === 0) {
+                this.mainTabsToRotate = [...this.allMainTabs];
+            }
+        }
 
         if (this.pauseOnHover) {
             const container = document.querySelector('.tabs-container') || document.body;
@@ -83,6 +127,8 @@ class TabRotator {
                 this.stop();
             }
         }
+
+        this._saveSettings(dataTabValues);
     }
 
     start() {
@@ -222,10 +268,19 @@ class TabRotator {
 
     setMainInterval(ms) {
         this.mainInterval = ms;
+        this._saveSettings();
     }
 
     setSubInterval(ms) {
         this.subInterval = ms;
+        this._saveSettings();
+    }
+    setScrollDisabled(disabled) {
+        this.scrollDisabled = disabled;
+        if (disabled) {
+            this.scroller.stop();
+        }
+        this._saveSettings();
     }
 }
 
@@ -432,7 +487,7 @@ function generateRotationConfig(rotator, containerSelector) {
         const checkbox = document.createElement('input');
         checkbox.type = 'checkbox';
         checkbox.value = value;
-        checkbox.checked = true;
+        checkbox.checked = rotator.mainTabsToRotate.some(t => t.dataset.tab === value);
 
         const text = document.createTextNode(' - ' + label);
 
@@ -443,8 +498,8 @@ function generateRotationConfig(rotator, containerSelector) {
 
         checkbox.addEventListener('change', () => {
             const selected = Array.from(
-                container.querySelectorAll('input:checked')
-            ).map(cb => cb.value);
+                container.querySelectorAll('.rotation-menu-item input[type="checkbox"][value]')
+            ).filter(cb => cb.checked).map(cb => cb.value);
 
             rotator.setMainRotationList(selected);
         });
