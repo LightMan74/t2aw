@@ -114,9 +114,9 @@ function afficherTablePF() {
             <td>${nom1}</td>
             <td>
             <span style="display: block ruby;">
-            <input type="number" min="0" value="${s1set1}" id="scorepf1s1-${index}"> - <input type="number" min="0" value="${s2set1}" id="scorepf2s1-${index}"><span ${hiddenSets}>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;
-            <input  type="number" min="0" value="${s1set2}" id="scorepf1s2-${index}"> - <input type="number" min="0" value="${s2set2}" id="scorepf2s2-${index}">&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;
-            <input type="number" min="0" value="${s1set3}" id="scorepf1s3-${index}"> - <input type="number" min="0" value="${s2set3}" id="scorepf2s3-${index}"></span>
+            <input type="number" min="0" value="${s1set1}" id="scorepf1s1-${index}" disabled> - <input type="number" min="0" value="${s2set1}" id="scorepf2s1-${index}" disabled><span ${hiddenSets}>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;
+            <input  type="number" min="0" value="${s1set2}" id="scorepf1s2-${index}" disabled> - <input type="number" min="0" value="${s2set2}" id="scorepf2s2-${index}" disabled>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;
+            <input type="number" min="0" value="${s1set3}" id="scorepf1s3-${index}" disabled> - <input type="number" min="0" value="${s2set3}" id="scorepf2s3-${index}" disabled></span>
             </span>
             </td>
             <td>${nom2}</td>
@@ -188,6 +188,22 @@ function cyclerStatusPF(index) {
     const idxCycle = STATUS_CYCLE_PF.indexOf(actuel);
     const suivant = STATUS_CYCLE_PF[(idxCycle + 1) % STATUS_CYCLE_PF.length];
 
+    if (suivant == 'termine') {
+        document.getElementById(`scorepf1s1-${index}`).disabled = false;
+        document.getElementById(`scorepf1s2-${index}`).disabled = false;
+        document.getElementById(`scorepf1s3-${index}`).disabled = false;
+        document.getElementById(`scorepf2s1-${index}`).disabled = false;
+        document.getElementById(`scorepf2s2-${index}`).disabled = false;
+        document.getElementById(`scorepf2s3-${index}`).disabled = false;
+    } else {
+        document.getElementById(`scorepf1s1-${index}`).disabled = true;
+        document.getElementById(`scorepf1s2-${index}`).disabled = true;
+        document.getElementById(`scorepf1s3-${index}`).disabled = true;
+        document.getElementById(`scorepf2s1-${index}`).disabled = true;
+        document.getElementById(`scorepf2s2-${index}`).disabled = true;
+        document.getElementById(`scorepf2s3-${index}`).disabled = true;
+    }
+
     majBadgeStatusPF(index, suivant);
     marquerModifiePF(index);
 }
@@ -209,6 +225,12 @@ function construireScoresDepuisInputsPF(index) {
         score1 = null;
         score2 = null;
     }
+
+    if (document.getElementById(`status-badge-pf-${index}`).textContent != 'Terminé') {
+        score1 = null;
+        score2 = null;
+    }
+
 
     return { score1, score2 };
 }
