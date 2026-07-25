@@ -12,7 +12,22 @@ REM ==========================================
 REM Detection de PHP : priorite au PHP portable
 REM ==========================================
 set PHP_EXE=
+if not exist "%~dp0php\php.exe" (
+    echo Premiere utilisation - extraction de PHP en cours...
+    powershell -Command "Expand-Archive -Path 'php-8.4.23-nts-Win32-vs17-x64.zip' -DestinationPath 'php' -Force"
+    echo Extraction terminee !
+    if exist "php.ini" (
+        echo Copie de php.ini vers php\ ...
+        copy /Y "php.ini" "php\php.ini"
+        echo Copie terminee !
+    ) else (
+        echo ATTENTION : php.ini introuvable a la racine !
+    )
+)
 
+echo Demarrage du serveur...
+start "" http://localhost:8000
+php-win\php.exe -S localhost:8000 -t www
 if exist "%~dp0php\php.exe" (
     set PHP_EXE=%~dp0php\php.exe
     echo [OK] PHP portable detecte dans .\php\
