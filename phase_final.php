@@ -180,7 +180,7 @@ $tournoi_id = isset($_GET['id_tournoi']) ? (int)$_GET['id_tournoi'] : 0;
                         <select id="input_debut_ph" required>
                         </select>
                         <label>
-                            <span><input type="checkbox" id="input-reset-terrain">
+                            <span><input type="checkbox" id="input-reset-terrain" checked>
                                 Réinitialiser les terrains à 1 à chaque round</span>
                         </label>
                     </div>
