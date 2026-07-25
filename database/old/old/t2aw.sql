@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Hôte : 192.168.3.70
--- Généré le : lun. 20 juil. 2026 à 18:49
+-- Généré le : sam. 18 juil. 2026 à 09:56
 -- Version du serveur : 9.7.0
 -- Version de PHP : 8.4.22
 
@@ -85,8 +85,8 @@ CREATE TABLE `matchs_phase_finale` (
   `source_team2` varchar(100) DEFAULT NULL,
   `equipe1_id` int DEFAULT NULL,
   `equipe2_id` int DEFAULT NULL,
-  `score1` varchar(50) DEFAULT NULL,
-  `score2` varchar(50) DEFAULT NULL,
+  `score1` int DEFAULT NULL,
+  `score2` int DEFAULT NULL,
   `winner_equipe_id` int DEFAULT NULL,
   `loser_equipe_id` int DEFAULT NULL,
   `classement_min` int DEFAULT NULL,
@@ -94,7 +94,6 @@ CREATE TABLE `matchs_phase_finale` (
   `statut` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
   `statut_match` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL DEFAULT 'planifie',
   `terrain` varchar(50) DEFAULT NULL,
-  `heure_debut` varchar(500) DEFAULT NULL,
   `date_maj` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
@@ -117,21 +116,9 @@ CREATE TABLE `match_poule` (
   `status` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL DEFAULT 'planifie',
   `score_equipe_1` varchar(50) NOT NULL DEFAULT '0*0*0',
   `score_equipe_2` varchar(50) NOT NULL DEFAULT '0*0*0',
-  `heure_debut` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
+  `heure_debut` varchar(500) NOT NULL,
   `heure_fin` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
   `ordre_affichage` int NOT NULL DEFAULT '0'
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-
--- --------------------------------------------------------
-
---
--- Structure de la table `ompn.old`
---
-
-CREATE TABLE `ompn.old` (
-  `id` int NOT NULL,
-  `quoi` varchar(50) NOT NULL DEFAULT '',
-  `data` text
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 -- --------------------------------------------------------
@@ -159,7 +146,7 @@ CREATE TABLE `parametre` (
   `nbre_terrain_phasefinal` int NOT NULL,
   `temps_de_match` varchar(50) NOT NULL,
   `heure_debut_poule` varchar(50) NOT NULL,
-  `heure_debut_phasefinal` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
+  `heure_debut_phasefinal` varchar(50) NOT NULL,
   `troissets` int NOT NULL DEFAULT '3',
   `terrain_automatique` varchar(10) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
@@ -222,7 +209,7 @@ CREATE TABLE `user` (
   `user` varchar(500) NOT NULL,
   `password` varchar(500) NOT NULL,
   `uid` varchar(500) NOT NULL,
-  `expire_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+  `expire_date` timestamp NOT NULL ON UPDATE CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 --
@@ -231,8 +218,7 @@ CREATE TABLE `user` (
 
 INSERT INTO `user` (`id`, `user`, `password`, `uid`, `expire_date`) VALUES
 (2, 'william', '$2y$12$NrLmJnMfCnSL3U8W8YRZiu5yGLS1.k56wzp8hIWIiuFzylbemN.76', '611f0860-4ea6-4fd2-8691-6000c78b8571', '2030-07-09 08:45:50'),
-(3, 'admin', '$2y$12$XGjXCwzOPSZrZsAzZH4yD.XJaHC4qWicCOs3Jdw0W89uHYXjlV4vW', '87e756b7-1d6a-42c3-94ec-9ccc55f8d318', '2030-07-09 08:45:52'),
-(4, 'kiki', '$2y$12$Tx8pKfe3bIHTo5uITKaLo.m5/xJmPzdymf8yw7NVJOnoV2a.6XMva', 'bb9d2203-daa6-46eb-b3b5-57510960457d', '2027-07-20 11:18:11');
+(3, 'admin', '$2y$12$XGjXCwzOPSZrZsAzZH4yD.XJaHC4qWicCOs3Jdw0W89uHYXjlV4vW', '87e756b7-1d6a-42c3-94ec-9ccc55f8d318', '2030-07-09 08:45:52');
 
 --
 -- Index pour les tables déchargées
@@ -266,12 +252,6 @@ ALTER TABLE `matchs_phase_finale`
 -- Index pour la table `match_poule`
 --
 ALTER TABLE `match_poule`
-  ADD PRIMARY KEY (`id`);
-
---
--- Index pour la table `ompn.old`
---
-ALTER TABLE `ompn.old`
   ADD PRIMARY KEY (`id`);
 
 --
@@ -345,12 +325,6 @@ ALTER TABLE `match_poule`
   MODIFY `id` int NOT NULL AUTO_INCREMENT;
 
 --
--- AUTO_INCREMENT pour la table `ompn.old`
---
-ALTER TABLE `ompn.old`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT;
-
---
 -- AUTO_INCREMENT pour la table `ordre_match_poule`
 --
 ALTER TABLE `ordre_match_poule`
@@ -384,7 +358,7 @@ ALTER TABLE `tournoi`
 -- AUTO_INCREMENT pour la table `user`
 --
 ALTER TABLE `user`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
