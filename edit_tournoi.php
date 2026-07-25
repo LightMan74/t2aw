@@ -15,7 +15,9 @@ $mode_creation = $id_tournoi === 0;
     <link rel="stylesheet" href="css/var.css">
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="css/dark-mode.css">
+
 </head>
+
 
 <body>
     <div class="container">
@@ -24,6 +26,14 @@ $mode_creation = $id_tournoi === 0;
         </nav>
 
         <a href="dashboard.php" class="btn btn-back">← Retour</a>
+        <button onclick="telechargerExport()" class="btn-dark" title="Exporter le tournoi Text">📥 Export TEXT</button>
+        <button onclick="exporterPDF()" class="btn-dark" title="Exporter le tournoi PDF">📥 Export PDF</button>
+
+        <?php
+            $id_tournoi = isset($_GET['id_tournoi']) ? (int)$_GET['id_tournoi'] : 0;
+        ?>
+
+
 
         <h1 id="page-title"><?php echo $mode_creation ? 'Créer un nouveau tournoi' : 'Modifier le tournoi'; ?></h1>
 
@@ -128,10 +138,27 @@ $mode_creation = $id_tournoi === 0;
         </section>
 
     </div>
+    <script>
+    const ID_TOURNOI = <?php echo $id_tournoi; ?>;
 
+    function telechargerExport() {
+        const url = `api/export_tournoi.php?id_tournoi=${encodeURIComponent(ID_TOURNOI)}`;
+        const link = document.createElement('a');
+        link.href = url;
+        link.click();
+    }
+
+    function exporterPDF() {
+        const url = `api/export_tournoi_pdf.php?id_tournoi=${encodeURIComponent(ID_TOURNOI)}`;
+        const link = document.createElement('a');
+        link.href = url;
+        link.click();
+    }
+    </script>
     <script>
     window.idTournoi = <?php echo (int)$id_tournoi; ?>;
     window.modeCreation = <?php echo $mode_creation ? 'true' : 'false'; ?>;
+    // exporterPDF();
     </script>
     <script src="js/edit.js"></script>
 </body>

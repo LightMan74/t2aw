@@ -68,7 +68,7 @@ async function chargerDonneesTournoi() {
     try {
         var response = await fetch('api/get_tournoi_detail.php?id_tournoi=' + id_tournoi);
         var data = await response.json();
-        console.table(data);
+        // console.table(data);
         if (!data.success) {
             afficherErreur(data.error || 'Tournoi introuvable.');
             return;

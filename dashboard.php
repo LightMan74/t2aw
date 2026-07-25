@@ -37,7 +37,7 @@
         <script src="js/supprimer_tournoi.js"></script>
         <?php } else { ?>
         <h1>Tournoi actuellement ouvert<br><br>&nbsp;&nbsp;&nbsp;<?php echo $tournoi_name_menu[0]["nom"]; ?></h1>
-        <button onclick="telechargerExport()" class="btn-dark" title="Exporter le tournoi">📥 Export</button>
+
         <?php } ?>
 
     </div>
@@ -46,16 +46,3 @@
 
 
 </html>
-<?php
-$id_tournoi = isset($_GET['id_tournoi']) ? (int)$_GET['id_tournoi'] : 0;
-?>
-<script>
-const ID_TOURNOI = <?php echo json_encode($id_tournoi); ?>;
-
-function telechargerExport() {
-    const url = `api/export_tournoi.php?id_tournoi=${encodeURIComponent(ID_TOURNOI)}`;
-    const link = document.createElement('a');
-    link.href = url;
-    link.click();
-}
-</script>
