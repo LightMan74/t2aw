@@ -262,7 +262,7 @@ if ($id_tournoi === 0): ?>
         // scrollPauseAtStart = 2000,
         // scrollPauseAtEnd = 2000,
         noScrollTabs: ['Matchs'], // si data-tab="match"
-        noScrollSelectors: ['#tab-matchs']
+        noScrollSelectors: ['#tab-matchs'] 
         // noScrollSelectors: ['.match-tab', '#tab-matchs'] // ou par classe/id du bouton onglet
         // noScrollSelectors: ['#matchs-a-venir'] // ou par classe/id du bouton onglet
     });

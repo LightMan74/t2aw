@@ -414,7 +414,7 @@ function generateRotationConfig(rotator, containerSelector) {
     timerWrapper.className = 'rotation-menu-timers';
 
     const mainLabel = document.createElement('label');
-    mainLabel.textContent = 'Temps onglet principal (s) : ';
+    mainLabel.textContent = 'Temps onglet principal (sec) : ';
     const mainInput = document.createElement('input');
     mainInput.type = 'number';
     mainInput.min = '1';
@@ -431,7 +431,7 @@ function generateRotationConfig(rotator, containerSelector) {
     mainLabel.appendChild(mainInput);
 
     const subLabel = document.createElement('label');
-    subLabel.textContent = 'Temps sous-onglet (s) : ';
+    subLabel.textContent = 'Temps sous-onglet (sec) : ';
     const subInput = document.createElement('input');
     subInput.type = 'number';
     subInput.min = '1';
@@ -447,9 +447,66 @@ function generateRotationConfig(rotator, containerSelector) {
 
     subLabel.appendChild(subInput);
 
+    const subLabel1 = document.createElement('label');
+    subLabel1.textContent = 'Temps debut de scroll (sec) : ';
+    const subInput1 = document.createElement('input');
+    subInput1.type = 'number';
+    subInput1.min = '1';
+    subInput1.value = rotator.subInterval / 1000;
+    subInput1.className = 'rotation-menu-input';
+
+    subInput1.addEventListener('change', () => {
+        const seconds = parseFloat(subInput1.value);
+        if (!isNaN(seconds) && seconds > 0) {
+            rotator.setSubInterval(seconds * 1000);
+        }
+    });
+
+    subLabel1.appendChild(subInput1);
+
+    const subLabel2 = document.createElement('label');
+    subLabel2.textContent = 'Temps fin de scroll (sec) : ';
+    const subInput2 = document.createElement('input');
+    subInput2.type = 'number';
+    subInput2.min = '1';
+    subInput2.value = rotator.subInterval / 1000;
+    subInput2.className = 'rotation-menu-input';
+
+    subInput2.addEventListener('change', () => {
+        const seconds = parseFloat(subInput2.value);
+        if (!isNaN(seconds) && seconds > 0) {
+            rotator.setSubInterval(seconds * 1000);
+        }
+    });
+
+    subLabel2.appendChild(subInput2);
+
+    const subLabel3 = document.createElement('label');
+    subLabel3.textContent = 'Vitesse de scroll (sec) : ';
+    const subInput3 = document.createElement('input');
+    subInput3.type = 'number';
+    subInput3.min = '1';
+    subInput3.value = rotator.subInterval / 1000;
+    subInput3.className = 'rotation-menu-input';
+
+    subInput3.addEventListener('change', () => {
+        const seconds = parseFloat(subInput3.value);
+        if (!isNaN(seconds) && seconds > 0) {
+            rotator.setSubInterval(seconds * 1000);
+        }
+    });
+
+    subLabel3.appendChild(subInput3);
+
     timerWrapper.appendChild(mainLabel);
     timerWrapper.appendChild(document.createElement('br'));
     timerWrapper.appendChild(subLabel);
+    timerWrapper.appendChild(document.createElement('br'));
+    timerWrapper.appendChild(subLabel1);
+    timerWrapper.appendChild(document.createElement('br'));
+    timerWrapper.appendChild(subLabel2);
+    timerWrapper.appendChild(document.createElement('br'));
+    timerWrapper.appendChild(subLabel3);
     // timerWrapper.appendChild(document.createElement('br'));
     // timerWrapper.appendChild(document.createElement('hr'));
 

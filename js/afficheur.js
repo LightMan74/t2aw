@@ -746,7 +746,7 @@ function chargerClassementFinal() {
                             <th>Position</th>
                             <th>Équipe</th>
                         </tr>
-                    </thead>
+                    </thead> 
                     <tbody>`;
 
             cat.classement.forEach(eq => {
