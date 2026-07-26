@@ -11,11 +11,15 @@ class TabRotator {
         this.mainInterval = options.mainInterval || 10000;
         this.subInterval = options.subInterval || 10000;
 
+        // Paramètres du scroll automatique (valeurs par défaut AVANT _loadSettings)
+        this.scrollSpeed = options.scrollSpeed || 30;
+        this.scrollPauseAtStart = options.scrollPauseAtStart || 6000;
+        this.scrollPauseAtEnd = options.scrollPauseAtEnd || 1000;
+
         this.pauseOnHover = options.pauseOnHover !== false;
 
-        // Onglets à exclure du scroll auto : data-tab / data-sous-tab values, classes CSS, ou ids
-        this.noScrollTabs = options.noScrollTabs || [];           // ex: ['match']
-        this.noScrollSelectors = options.noScrollSelectors || []; // ex: ['.match-tab', '#tab-match']
+        this.noScrollTabs = options.noScrollTabs || [];
+        this.noScrollSelectors = options.noScrollSelectors || [];
 
         this.allMainTabs = [];
         this.mainTabsToRotate = [];
@@ -25,14 +29,14 @@ class TabRotator {
         this.subTimer = null;
         this.isPaused = false;
 
-        this.scroller = new AutoScroller({
-            scrollSpeed: options.scrollSpeed || 40,
-            scrollPauseAtStart: options.scrollPauseAtStart || 2000,
-            scrollPauseAtEnd: options.scrollPauseAtEnd || 2000
-        });
-
-        // Charge les réglages sauvegardés (écrase les valeurs par défaut si présentes)
+        // Charge les réglages sauvegardés AVANT de créer le scroller
         this._loadSettings();
+
+        this.scroller = new AutoScroller({
+            scrollSpeed: this.scrollSpeed,
+            scrollPauseAtStart: this.scrollPauseAtStart,
+            scrollPauseAtEnd: this.scrollPauseAtEnd
+        });
 
         this.init();
     }
@@ -46,6 +50,9 @@ class TabRotator {
             if (typeof saved.mainInterval === 'number') this.mainInterval = saved.mainInterval;
             if (typeof saved.subInterval === 'number') this.subInterval = saved.subInterval;
             if (typeof saved.scrollDisabled === 'boolean') this.scrollDisabled = saved.scrollDisabled;
+            if (typeof saved.scrollSpeed === 'number') this.scrollSpeed = saved.scrollSpeed;
+            if (typeof saved.scrollPauseAtStart === 'number') this.scrollPauseAtStart = saved.scrollPauseAtStart;
+            if (typeof saved.scrollPauseAtEnd === 'number') this.scrollPauseAtEnd = saved.scrollPauseAtEnd;
 
             this._savedSelectedTabs = Array.isArray(saved.selectedTabs) ? saved.selectedTabs : null;
         } catch (e) {
@@ -58,6 +65,9 @@ class TabRotator {
             mainInterval: this.mainInterval,
             subInterval: this.subInterval,
             scrollDisabled: this.scrollDisabled,
+            scrollSpeed: this.scrollSpeed,
+            scrollPauseAtStart: this.scrollPauseAtStart,
+            scrollPauseAtEnd: this.scrollPauseAtEnd,
             selectedTabs: selectedTabs || this.mainTabsToRotate.map(t => t.dataset.tab)
         };
         try {
@@ -77,7 +87,6 @@ class TabRotator {
 
         this.mainTabsToRotate = [...this.allMainTabs];
 
-        // Applique la sélection sauvegardée si elle existe
         if (this._savedSelectedTabs && this._savedSelectedTabs.length > 0) {
             this.mainTabsToRotate = this.allMainTabs.filter(tab =>
                 this._savedSelectedTabs.includes(tab.dataset.tab)
@@ -89,8 +98,8 @@ class TabRotator {
 
         if (this.pauseOnHover) {
             const container = document.querySelector('.tabs-container') || document.body;
-            container.addEventListener('mouseenter', () => this.pause());
-            container.addEventListener('mouseleave', () => this.resume());
+            // container.addEventListener('mouseenter', () => this.pause());
+            // container.addEventListener('mouseleave', () => this.resume());
         }
 
         this.allMainTabs.forEach(tab => {
@@ -106,10 +115,6 @@ class TabRotator {
         this.start();
     }
 
-    /**
-     * Met à jour la liste des onglets principaux qui doivent tourner.
-     * @param {string[]} dataTabValues - liste des data-tab values cochées
-     */
     setMainRotationList(dataTabValues) {
         if (!dataTabValues || dataTabValues.length === 0) {
             this.mainTabsToRotate = [...this.allMainTabs];
@@ -142,12 +147,6 @@ class TabRotator {
         this.scroller.stop();
     }
 
-    /**
-     * Vérifie si un onglet (main ou sous-onglet) doit être exclu du scroll auto.
-     * Se base sur data-tab/data-sous-tab, sur des classes, ou un id.
-     * @param {Element} tabEl
-     * @returns {boolean}
-     */
     _isNoScrollTab(tabEl) {
         if (!tabEl) return false;
 
@@ -193,7 +192,6 @@ class TabRotator {
                     });
                 }
             }
-
         }, 100);
     }
 
@@ -247,13 +245,6 @@ class TabRotator {
         this.goToMainTab(this.mainTabsToRotate[nextIndex]);
     }
 
-    setScrollDisabled(disabled) {
-        this.scrollDisabled = disabled;
-        if (disabled) {
-            this.scroller.stop();
-        }
-    }
-
     resetMainTimer() {
         this.start();
     }
@@ -275,6 +266,7 @@ class TabRotator {
         this.subInterval = ms;
         this._saveSettings();
     }
+
     setScrollDisabled(disabled) {
         this.scrollDisabled = disabled;
         if (disabled) {
@@ -282,16 +274,43 @@ class TabRotator {
         }
         this._saveSettings();
     }
+
+    // --- Setters pour les paramètres du scroll automatique ---
+    setScrollPauseAtStart(ms) {
+        this.scrollPauseAtStart = ms;
+        if (this.scroller) {
+            this.scroller.pauseAtStart = ms;
+        }
+        console.log('scrollPauseAtStart mis à jour:', ms);
+        this._saveSettings();
+    }
+
+    setScrollPauseAtEnd(ms) {
+        this.scrollPauseAtEnd = ms;
+        if (this.scroller) {
+            this.scroller.pauseAtEnd = ms;
+        }
+        console.log('scrollPauseAtEnd mis à jour:', ms);
+        this._saveSettings();
+    }
+
+    setScrollSpeed(pxPerSec) {
+        this.scrollSpeed = pxPerSec;
+        if (this.scroller) {
+            this.scroller.scrollSpeed = pxPerSec;
+        }
+        console.log('scrollSpeed mis à jour:', pxPerSec);
+        this._saveSettings();
+    }
 }
 
 
 /**
- * AutoScroller — fait défiler tous les éléments scrollables d'un container
- * vers le bas de manière linéaire, puis appelle un callback à la fin.
+ * AutoScroller
  */
 class AutoScroller {
     constructor(options = {}) {
-        this.scrollSpeed = options.scrollSpeed || 40;     // px / sec
+        this.scrollSpeed = options.scrollSpeed || 40;
         this.pauseAtStart = options.scrollPauseAtStart || 500;
         this.pauseAtEnd = options.scrollPauseAtEnd || 2000;
         this.rafId = null;
@@ -309,12 +328,6 @@ class AutoScroller {
         });
     }
 
-    /**
-     * Démarre le scroll dans `root`.
-     * Remet chaque élément scrollable en haut avant de commencer.
-     * @param {Element} root
-     * @param {function} onFinished
-     */
     startFor(root, onFinished) {
         this.stop();
 
@@ -397,9 +410,7 @@ class AutoScroller {
 
 
 /**
- * Génère le menu de configuration des onglets (checkboxes masquable au survol).
- * @param {TabRotator} rotator - instance de TabRotator
- * @param {string} containerSelector - sélecteur du conteneur déjà présent dans le HTML
+ * Génère le menu de configuration
  */
 function generateRotationConfig(rotator, containerSelector) {
     const container = document.querySelector(containerSelector);
@@ -409,7 +420,6 @@ function generateRotationConfig(rotator, containerSelector) {
 
     container.innerHTML = '';
 
-    // --- Champs pour les timers ---
     const timerWrapper = document.createElement('div');
     timerWrapper.className = 'rotation-menu-timers';
 
@@ -447,52 +457,57 @@ function generateRotationConfig(rotator, containerSelector) {
 
     subLabel.appendChild(subInput);
 
+    // --- Temps de pause au début du scroll ---
     const subLabel1 = document.createElement('label');
     subLabel1.textContent = 'Temps debut de scroll (sec) : ';
     const subInput1 = document.createElement('input');
     subInput1.type = 'number';
-    subInput1.min = '1';
-    subInput1.value = rotator.subInterval / 1000;
+    subInput1.min = '0';
+    subInput1.step = '1.0';
+    subInput1.value = rotator.scrollPauseAtStart / 1000;
     subInput1.className = 'rotation-menu-input';
 
     subInput1.addEventListener('change', () => {
         const seconds = parseFloat(subInput1.value);
-        if (!isNaN(seconds) && seconds > 0) {
-            rotator.setSubInterval(seconds * 1000);
+        if (!isNaN(seconds) && seconds >= 0) {
+            rotator.setScrollPauseAtStart(seconds * 1000);
         }
     });
 
     subLabel1.appendChild(subInput1);
 
+    // --- Temps de pause à la fin du scroll ---
     const subLabel2 = document.createElement('label');
     subLabel2.textContent = 'Temps fin de scroll (sec) : ';
     const subInput2 = document.createElement('input');
     subInput2.type = 'number';
-    subInput2.min = '1';
-    subInput2.value = rotator.subInterval / 1000;
+    subInput2.min = '0';
+    subInput2.step = '1.0';
+    subInput2.value = rotator.scrollPauseAtEnd / 1000;
     subInput2.className = 'rotation-menu-input';
 
     subInput2.addEventListener('change', () => {
         const seconds = parseFloat(subInput2.value);
-        if (!isNaN(seconds) && seconds > 0) {
-            rotator.setSubInterval(seconds * 1000);
+        if (!isNaN(seconds) && seconds >= 0) {
+            rotator.setScrollPauseAtEnd(seconds * 1000);
         }
     });
 
     subLabel2.appendChild(subInput2);
 
+    // --- Vitesse de scroll (px/sec) ---
     const subLabel3 = document.createElement('label');
-    subLabel3.textContent = 'Vitesse de scroll (sec) : ';
+    subLabel3.textContent = 'Vitesse de scroll (px/sec) : ';
     const subInput3 = document.createElement('input');
     subInput3.type = 'number';
     subInput3.min = '1';
-    subInput3.value = rotator.subInterval / 1000;
+    subInput3.value = rotator.scrollSpeed;
     subInput3.className = 'rotation-menu-input';
 
     subInput3.addEventListener('change', () => {
-        const seconds = parseFloat(subInput3.value);
-        if (!isNaN(seconds) && seconds > 0) {
-            rotator.setSubInterval(seconds * 1000);
+        const speed = parseFloat(subInput3.value);
+        if (!isNaN(speed) && speed > 0) {
+            rotator.setScrollSpeed(speed);
         }
     });
 
@@ -507,8 +522,6 @@ function generateRotationConfig(rotator, containerSelector) {
     timerWrapper.appendChild(subLabel2);
     timerWrapper.appendChild(document.createElement('br'));
     timerWrapper.appendChild(subLabel3);
-    // timerWrapper.appendChild(document.createElement('br'));
-    // timerWrapper.appendChild(document.createElement('hr'));
 
     container.appendChild(timerWrapper);
 

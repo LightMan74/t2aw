@@ -239,8 +239,8 @@ if ($id_tournoi === 0): ?>
 
     <script src="js/colors.js"></script>
     <!-- Configuration des liaisons du bracket (couleurs, opacité, etc.) -->
-    <script src="js/bracket-lines-config.js"></script>
-    <script src="js/leader-line.min.js"></script>
+    <!-- <script src="js/bracket-lines-config.js"></script> -->
+    <!-- <script src="js/leader-line.min.js"></script> -->
     <script src="js/afficheur.js"></script>
 
 
@@ -256,13 +256,13 @@ if ($id_tournoi === 0): ?>
     <script src="js/tab-rotator.js"></script>
     <script>
     const rotator = new TabRotator({
-        // mainInterval = 10000,
-        // subInterval = 10000,
-        // scrollSpeed = 40,
-        // scrollPauseAtStart = 2000,
-        // scrollPauseAtEnd = 2000,
+        // mainInterval = 3000,
+        // subInterval = 3000,
+        // scrollSpeed = 30,
+        // scrollPauseAtStart = 3000,
+        // scrollPauseAtEnd = 3000,
         noScrollTabs: ['Matchs'], // si data-tab="match"
-        noScrollSelectors: ['#tab-matchs'] 
+        noScrollSelectors: ['#tab-matchs']
         // noScrollSelectors: ['.match-tab', '#tab-matchs'] // ou par classe/id du bouton onglet
         // noScrollSelectors: ['#matchs-a-venir'] // ou par classe/id du bouton onglet
     });
