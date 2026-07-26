@@ -18,6 +18,8 @@ ini_set('log_errors', 1);
 // ==========================================
 if($_SERVER['HTTP_HOST']=='t2aw.lansard.ch'){
 define('DB_DRIVER', 'mysql'); // 'mysql' ou 'sqlite'
+include '../configuserlogin.php';
+var_dump($env);
 }else{
 define('DB_DRIVER', 'sqlite'); // 'mysql' ou 'sqlite'
 }
@@ -51,9 +53,9 @@ try {
     } else {        
         // --- Mode MySQL (production) ---
         $pdo = new PDO(
-            'mysql:host=192.168.3.70;dbname=t2aw;charset=utf8mb4',
-            'siteconnect',
-            'Azertyuiop!1',
+            "mysql:host=".bdserver.";dbname=".bdbase.";charset=utf8mb4",
+            bduser,
+            bdpassword,
             [
                 PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
                 PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
