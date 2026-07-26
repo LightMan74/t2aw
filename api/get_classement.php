@@ -62,7 +62,7 @@ try {
             'nom_poule'      => $eq['nom_poule'],
             'nom_equipe'     => $eq['nom'],
             'victoire'       => 0,
-            'defaite'        => 0,
+            'defaite'        => 0, 
             'set_gagner'     => 0,
             'set_perdu'      => 0,
             'point_marquer'  => 0,

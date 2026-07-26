@@ -6,6 +6,7 @@ require_once __DIR__ . '/../db.php';
 
 $idTournoi   = (int)($_GET['id_tournoi'] ?? 0);
 $idCategorie = (int)($_GET['id_categorie'] ?? 0);
+// $crossPoule  = ($_GET['cross_poule'] ?? '1') === '1'; // true = cross-poule (défaut), false = simple
 
 if (!$idTournoi || !$idCategorie) {
     http_response_code(400);
@@ -119,36 +120,69 @@ try {
     }
     unset($listeEquipes);
 
-    // 5. Classement cross-poules : tous les 1ers, puis tous les 2èmes...
-    $clesPoulesTriees = array_keys($poules);
-    sort($clesPoulesTriees);
-
-    $maxRang = 0;
-    foreach ($poules as $lp) $maxRang = max($maxRang, count($lp));
-
-    $classement = [];
-    for ($rang = 1; $rang <= $maxRang; $rang++) {
-        $duRang = [];
-        foreach ($clesPoulesTriees as $cp) {
-            foreach ($poules[$cp] as $eq) {
-                if ($eq['rang_poule'] === $rang) $duRang[] = $eq;
-            }
-        }
-        usort($duRang, function ($a, $b) {
-            if ($a['victoires'] !== $b['victoires']) return $b['victoires'] <=> $a['victoires'];
-            if ($a['diff_points'] !== $b['diff_points']) return $b['diff_points'] <=> $a['diff_points'];
-            return $b['points_marques'] <=> $a['points_marques'];
-        });
-        foreach ($duRang as $eq) $classement[] = $eq;
+    $nombreEquipes = 0;
+    $crosspoulevar = "";
+    foreach ($poules as $poule) {
+        $nombreEquipes += count($poule);
     }
+    if (estPuissanceDe2($nombreEquipes)){
+        $crosspoulevar = "Pas de tri de rang";
+        // 5. Classement non cross-poules
+        $clesPoulesTriees = array_keys($poules);
+        sort($clesPoulesTriees);
 
+        $maxRang = 0;
+        foreach ($poules as $lp) $maxRang = max($maxRang, count($lp));
+
+        $classement = [];
+        for ($rang = 1; $rang <= $maxRang; $rang++) {
+            foreach ($clesPoulesTriees as $cp) {
+                foreach ($poules[$cp] as $eq) {
+                    if ($eq['rang_poule'] === $rang) {
+                        $classement[] = $eq;
+                    }
+                }
+            }
+        }        
+    }else{
+        // 5. Classement cross-poules : tous les 1ers, puis tous les 2èmes...        
+        $crosspoulevar = "Tri par rang";
+        $clesPoulesTriees = array_keys($poules);
+        sort($clesPoulesTriees);
+
+        $maxRang = 0;
+        foreach ($poules as $lp) $maxRang = max($maxRang, count($lp));
+
+        $classement = [];
+        for ($rang = 1; $rang <= $maxRang; $rang++) {
+            $duRang = [];
+            foreach ($clesPoulesTriees as $cp) {
+                foreach ($poules[$cp] as $eq) {
+                    if ($eq['rang_poule'] === $rang) $duRang[] = $eq;
+                }
+            }
+            usort($duRang, function ($a, $b) {
+                if ($a['victoires'] !== $b['victoires']) return $b['victoires'] <=> $a['victoires'];
+                if ($a['diff_points'] !== $b['diff_points']) return $b['diff_points'] <=> $a['diff_points'];
+                return $b['points_marques'] <=> $a['points_marques'];
+            });
+            foreach ($duRang as $eq) $classement[] = $eq;
+        }
+    }
     echo json_encode([
         'success' => true,
         'equipes' => $classement,
         'nb_equipes' => count($classement),
+        'nb_poules' => $nombreEquipes,
+        'modulo' => (estPuissanceDe2($nombreEquipes)),
+        'croospoule' => ($crosspoulevar),
+
     ]);
 
 } catch (Exception $e) {
     http_response_code(500);
     echo json_encode(['success' => false, 'message' => $e->getMessage()]);
+}
+function estPuissanceDe2($n) {
+    return ($n > 0) && (($n & ($n - 1)) == 0);
 }
