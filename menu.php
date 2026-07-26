@@ -5,6 +5,7 @@
 <?php 
 include __DIR__ . "/api/check_connected.php";
 include 'api/db.php'; 
+include "version.php";
 // On récupère les infos de l'utilisateur connecté
 $currentuser_uid = $_SESSION['user_uid'];
 $currentUser = $_SESSION['user'];
@@ -22,13 +23,16 @@ $currentUser = $_SESSION['user'];
     <div class="login-logo" role="img" aria-label=""></div>
     <h3>Tournoi Actuel : <?php echo (isset($tournoi_name_menu[0]["nom"]) != "") ? $tournoi_name_menu[0]["nom"]: 'AUCUN'; ?></h3>
     <div class="user-info">
-        <?php
+        <center>
+            <?php
             if (DB_DRIVER === 'sqlite') {
                 echo 'Base de donnée local';
             }else{            
                 echo 'Base de donnée distant';   
             }
+            echo "<br>Version : " . version_t2aw;
         ?>
+        </center>
         <button id="btn-theme-toggle" class="theme-toggle">🌙 Sombre</button>
         <span>👤 <?php echo htmlspecialchars($currentUser); ?></span>
         <button id="btn-logout" class="btn btn-logout">Déconnexion</button>
