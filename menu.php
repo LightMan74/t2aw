@@ -1,5 +1,6 @@
 <title>Tournoi All Auto Web</title>
 <link rel="icon" type="image/png" sizes="64x64" href="icon_t2aw.png">
+<link rel="stylesheet" href="css/menu.css">
 
 <?php 
 include __DIR__ . "/api/check_connected.php";
@@ -74,13 +75,13 @@ $currentUser = $_SESSION['user'];
 <script>
 function afficheurhrefchange() {
     let affhref = document.getElementById('afficheurhref');
-    console.table(affhref);
+    // console.table(affhref);
     if (affhref.href.includes("option&")) {
         affhref.href = affhref.href.replace("afficheur.php?option&", "afficheur.php?")
     } else {
         affhref.href = affhref.href.replace("afficheur.php?", "afficheur.php?option&")
     }
-    console.table(affhref);
+    // console.table(affhref);
 }
 </script>
 <script src="js/logout.js"></script>

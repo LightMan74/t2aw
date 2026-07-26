@@ -1,0 +1,142 @@
+/* ===== Variables de thème (clair/sombre) ===== */
+:root {
+    --header-bg: #2c3e50;
+    --header-text: #ffffff;
+    --menu-bg: #34495e;
+    --menu-link-bg: #3d566e;
+    --menu-link-hover: #1abc9c;
+    --menu-link-active: #16a085;
+    --btn-logout-bg: #e74c3c;
+    --btn-logout-hover: #c0392b;
+}
+
+[data-theme="dark"] {
+    --header-bg: #1a1a1a;
+    --header-text: #f1f1f1;
+    --menu-bg: #222222;
+    --menu-link-bg: #2e2e2e;
+    --menu-link-hover: #1abc9c;
+    --menu-link-active: #16a085;
+    --btn-logout-bg: #c0392b;
+    --btn-logout-hover: #922b21;
+}
+
+/* ===== Header ===== */
+.top-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background-color: var(--header-bg);
+    color: var(--header-text);
+    padding: 10px 20px;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+/* .top-header h3 {
+    margin: 0;
+    font-size: 1.1em;
+    font-weight: 500;
+} */
+
+/* .login-logo {
+    width: 40px;
+    height: 40px;
+    background-color: rgba(255, 255, 255, 0.15);
+    border-radius: 50%;
+} */
+
+.user-info {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 0.9em;
+}
+
+.user-info span {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+/* ===== Boutons génériques ===== */
+.btn {
+    border: none;
+    border-radius: 6px;
+    padding: 6px 14px;
+    cursor: pointer;
+    font-size: 0.9em;
+    transition: background-color 0.2s ease, transform 0.1s ease;
+}
+
+.btn:hover {
+    transform: translateY(-1px);
+}
+
+.btn-logout {
+    background-color: var(--btn-logout-bg);
+    color: #fff;
+}
+
+.btn-logout:hover {
+    background-color: var(--btn-logout-hover);
+}
+
+.theme-toggle {
+    background-color: transparent;
+    border: 1px solid var(--header-text);
+    color: var(--header-text);
+    border-radius: 20px;
+    padding: 5px 12px;
+    cursor: pointer;
+    font-size: 0.85em;
+    transition: background-color 0.2s ease;
+}
+
+.theme-toggle:hover {
+    background-color: rgba(255, 255, 255, 0.15);
+}
+
+/* ===== Conteneur nav (menu.php est inclus dedans) ===== */
+nav {
+    background-color: var(--menu-bg);
+    padding: 8px 15px;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+}
+
+/* Le header prend toute la largeur dans la nav */
+nav .top-header {
+    width: 100%;
+}
+
+/* ===== Liens de navigation (les <a> à l'intérieur de <nav>) ===== */
+nav>a,
+nav>a:visited {
+    display: inline-block;
+    background-color: var(--menu-link-bg);
+    color: var(--header-text);
+    text-decoration: none;
+    padding: 8px 16px;
+    border-radius: 6px;
+    font-size: 0.9em;
+    transition: background-color 0.2s ease, transform 0.1s ease;
+}
+
+nav>a:hover {
+    background-color: var(--menu-link-hover);
+    transform: translateY(-1px);
+}
+
+nav>a:active {
+    background-color: var(--menu-link-active);
+}
+
+/* Checkbox dans le lien "Afficheur" */
+nav>a input[type="checkbox"] {
+    margin-left: 6px;
+    vertical-align: middle;
+    cursor: pointer;
+}
