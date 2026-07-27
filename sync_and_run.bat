@@ -4,4 +4,4 @@ robocopy "U:\Apache\t2aw" "C:\Users\Bureau\Desktop\t2aw" /E /XO /NFL /NDL /NJH /
 
 echo Lancement du serveur local...
 cd /d "C:\Users\Bureau\Desktop\t2aw"
-start_server.bat 
+start_server.bat  
