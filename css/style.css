@@ -84,6 +84,7 @@
     /* margin-right: 3px; */
     vertical-align: middle;
     /* border-bottom: 6px solid var(--inter-poule-color); */
+    color: var(--badge-cat-color);
 }
 
 .poule-badge.poule-1 {
@@ -135,6 +136,7 @@
     height: 10px;
     border-radius: 50%;
     vertical-align: middle;
+    color: var(--badge-cat-color);
 }
 
 .categorie-badge.categorie-1 {
