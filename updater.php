@@ -166,7 +166,7 @@ try {
         $installer = new GitHubZipInstaller(
             owner: 'LightMan74',
             repo: 't2aw',
-            installDir: __DIR__ . '/t2aw',
+            installDir: __DIR__ ,
             branch: 'main'
         );
 
