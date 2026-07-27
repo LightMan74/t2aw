@@ -1,3 +1,14 @@
+<?php
+$dbPath = __DIR__ . '/../database/t2aw.sqlite';
+echo "Chemin résolu : " . realpath(__DIR__) . "<br>";
+echo "Chemin DB attendu : " . $dbPath . "<br>";
+echo "Existe : " . (file_exists($dbPath) ? "OUI" : "NON") . "<br>";
+echo "Lisible : " . (is_readable($dbPath) ? "OUI" : "NON") . "<br>";
+echo "Writable : " . (is_writable($dbPath) ? "OUI" : "NON") . "<br>";
+echo "Extension PDO SQLite : " . (extension_loaded('pdo_sqlite') ? "OUI" : "NON") . "<br>";
+exit;
+?>
+
 <script>
 function forcerPuissanceDe2(nbre_team) {
     return Math.pow(2, Math.ceil(Math.log2(nbre_team)));
