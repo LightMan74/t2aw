@@ -17,6 +17,8 @@ class GitHubZipInstaller
 
     public function run(): void
     {
+        $this->checkRequirements();
+
         $currentVersion = $this->getLocalVersion();
         $remoteVersion = $this->getRemoteVersion();
 
@@ -27,18 +29,28 @@ class GitHubZipInstaller
 
         echo "Mise à jour disponible : $currentVersion -> $remoteVersion\n";
 
-        $zipPath = $this->downloadZip();
-        $this->extractZip($zipPath);
+        $tarGzPath = $this->downloadTarball();
+        $this->extractTarball($tarGzPath);
         $this->saveVersion($remoteVersion);
 
-        unlink($zipPath);
+        unlink($tarGzPath);
 
         echo "Installation terminée avec succès.\n";
     }
 
     /**
-     * Récupère le dernier commit SHA via l'API GitHub
+     * Vérifie que les extensions nécessaires sont présentes
      */
+    private function checkRequirements(): void
+    {
+        if (!extension_loaded('zlib')) {
+            throw new RuntimeException("L'extension 'zlib' n'est pas installée.");
+        }
+        if (!class_exists('PharData')) {
+            throw new RuntimeException("La classe 'PharData' (extension Phar) n'est pas disponible.");
+        }
+    }
+
     private function getRemoteVersion(): string
     {
         $url = "https://api.github.com/repos/{$this->owner}/{$this->repo}/commits/{$this->branch}";
@@ -72,49 +84,67 @@ class GitHubZipInstaller
     }
 
     /**
-     * Télécharge l'archive ZIP de la branche
+     * Télécharge le tarball .tar.gz de la branche (au lieu du .zip)
      */
-    private function downloadZip(): string
+    private function downloadTarball(): string
     {
-        $url = "https://github.com/{$this->owner}/{$this->repo}/archive/refs/heads/{$this->branch}.zip";
-        $zipPath = sys_get_temp_dir() . '/' . uniqid('gh_') . '.zip';
+        $url = "https://github.com/{$this->owner}/{$this->repo}/archive/refs/heads/{$this->branch}.tar.gz";
+        $tarGzPath = sys_get_temp_dir() . '/' . uniqid('gh_') . '.tar.gz';
 
         echo "Téléchargement depuis : $url\n";
 
         $opts = [
             'http' => [
-                'header' => "User-Agent: PHP-Installer\r\n"
+                'header' => "User-Agent: PHP-Installer\r\n",
+                'follow_location' => 1
             ]
         ];
         $context = stream_context_create($opts);
 
-        $content = file_get_contents($url, false, $context);
-        if ($content === false) {
-            throw new RuntimeException("Échec du téléchargement du ZIP.");
+        // Utilisation de flux pour éviter de charger tout le fichier en mémoire
+        $in = fopen($url, 'rb', false, $context);
+        if ($in === false) {
+            throw new RuntimeException("Échec du téléchargement du tarball.");
         }
 
-        file_put_contents($zipPath, $content);
-        return $zipPath;
+        $out = fopen($tarGzPath, 'wb');
+        stream_copy_to_stream($in, $out);
+        fclose($in);
+        fclose($out);
+
+        return $tarGzPath;
     }
 
     /**
-     * Extrait le ZIP en préservant certains fichiers
+     * Extrait le .tar.gz avec PharData (zlib en interne, pas besoin de ext-zip)
      */
-    private function extractZip(string $zipPath): void
+    private function extractTarball(string $tarGzPath): void
     {
-        $zip = new ZipArchive();
-
-        if ($zip->open($zipPath) !== true) {
-            throw new RuntimeException("Impossible d'ouvrir le fichier ZIP.");
-        }
-
         $tempExtractDir = sys_get_temp_dir() . '/' . uniqid('extract_');
         mkdir($tempExtractDir, 0755, true);
 
-        $zip->extractTo($tempExtractDir);
-        $zip->close();
+        try {
+            // PharData décompresse le .gz puis lit le .tar
+            $phar = new PharData($tarGzPath);
 
-        // Le zip GitHub crée un sous-dossier du type "repo-branch"
+            // Décompression du .tar.gz -> génère un fichier .tar temporaire
+            $tarPath = $tempExtractDir . '/archive.tar';
+            $phar->decompress(); // crée un fichier .tar à côté du .tar.gz original
+
+            // Le fichier .tar généré porte le même nom sans .gz
+            $generatedTar = substr($tarGzPath, 0, -3); // enlève ".gz"
+
+            $tarPhar = new PharData($generatedTar);
+            $tarPhar->extractTo($tempExtractDir, null, true);
+
+            unlink($generatedTar);
+
+        } catch (Exception $e) {
+            $this->removeDirectory($tempExtractDir);
+            throw new RuntimeException("Erreur lors de l'extraction : " . $e->getMessage());
+        }
+
+        // GitHub crée un sous-dossier du type "repo-branch" ou "repo-sha"
         $extractedFolders = glob($tempExtractDir . '/*', GLOB_ONLYDIR);
         $sourceDir = $extractedFolders[0] ?? $tempExtractDir;
 
@@ -127,7 +157,7 @@ class GitHubZipInstaller
     }
 
     /**
-     * Copie les fichiers en préservant certains éléments (config, uploads...)
+     * Copie les fichiers en préservant certains éléments
      */
     private function syncFiles(string $source, string $dest): void
     {
@@ -151,6 +181,7 @@ class GitHubZipInstaller
 
     private function removeDirectory(string $dir): void
     {
+        if (!is_dir($dir)) return;
         foreach (scandir($dir) as $item) {
             if ($item === '.' || $item === '..') continue;
             $path = "$dir/$item";
@@ -162,11 +193,11 @@ class GitHubZipInstaller
 
 // UTILISATION
 try {
-    if($_SERVER['HTTP_HOST']!='t2aw.lansard.ch'){
+    if ($_SERVER['HTTP_HOST'] !== 't2aw.lansard.ch') {
         $installer = new GitHubZipInstaller(
             owner: 'LightMan74',
             repo: 't2aw',
-            installDir: __DIR__ ,
+            installDir: __DIR__,
             branch: 'main'
         );
 
