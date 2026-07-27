@@ -20,7 +20,7 @@ if($_SERVER['HTTP_HOST']=='t2aw.lansard.ch'){
     define('DB_DRIVER', 'mysql');
     require_once __DIR__ . '/../configuserlogin.php';
     //  echo bdserver;
-    //  echo dbbase;
+    //  echo bdbase;
     //  echo bduser;
     //  echo bdpassword;
 }else{
@@ -56,7 +56,7 @@ try {
     } else {       
         // --- Mode MySQL (production) ---
         $pdo = new PDO(
-            "mysql:host=".bdserver.";dbname=".dbbase.";charset=utf8mb4",
+            "mysql:host=".bdserver.";dbname=".bdbase.";charset=utf8mb4",
             bduser,
             bdpassword,
             [
