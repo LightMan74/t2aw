@@ -18,7 +18,7 @@ export LD_LIBRARY_PATH="$BASE_DIR/lib:$LD_LIBRARY_PATH" &&
 cat << 'EOF' > "$HOME/php/start.sh"
 #!/data/data/com.termux/files/usr/bin/bash
 BASE_DIR="$HOME/php/env_php/data/data/com.termux/files/usr"
-PHP_INI="$HOME/php/php.ini"
+PHP_INI="$HOME/php/php_android.ini"
 mkdir -p "$HOME/php/tmp"
 export TMPDIR="$HOME/php/tmp"
 export TEMP="$HOME/php/tmp"
