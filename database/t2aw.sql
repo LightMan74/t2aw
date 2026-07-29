@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Hôte : 192.168.3.70
--- Généré le : sam. 25 juil. 2026 à 16:45
+-- Généré le : mer. 29 juil. 2026 à 19:20
 -- Version du serveur : 9.7.0
 -- Version de PHP : 8.4.23
 
@@ -242,12 +242,27 @@ CREATE TABLE `user` (
   `note` varchar(500) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
+-- --------------------------------------------------------
+
 --
--- Déchargement des données de la table `user`
+-- Structure de la table `user_local`
 --
 
-INSERT INTO `user` (`id`, `user`, `password`, `user_uid`, `expire_date`, `note`) VALUES
-(1, 'local', '$2y$12$5eHbw0MMsynCnbl7ND5jBOtVMRn5nXWH9lRZBcFdodiqJDk.B74mu', 'bb9d2203-daa6-46eb-b3b5-57510960457d', '2037-07-24 18:13:56', 'local');
+CREATE TABLE `user_local` (
+  `id` int NOT NULL,
+  `user` varchar(500) NOT NULL,
+  `password` varchar(500) NOT NULL,
+  `user_uid` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
+  `expire_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `note` varchar(500) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+--
+-- Déchargement des données de la table `user_local`
+--
+
+INSERT INTO `user_local` (`id`, `user`, `password`, `user_uid`, `expire_date`, `note`) VALUES
+(1, 'local', '$2y$12$5eHbw0MMsynCnbl7ND5jBOtVMRn5nXWH9lRZBcFdodiqJDk.B74mu', '53b32f9d-b91e-436c-9933-eafce89a0091', '2037-07-29 14:23:20', 'local');
 
 --
 -- Index pour les tables déchargées
@@ -320,6 +335,12 @@ ALTER TABLE `user`
   ADD PRIMARY KEY (`id`);
 
 --
+-- Index pour la table `user_local`
+--
+ALTER TABLE `user_local`
+  ADD PRIMARY KEY (`id`);
+
+--
 -- AUTO_INCREMENT pour les tables déchargées
 --
 
@@ -387,7 +408,13 @@ ALTER TABLE `tournoi`
 -- AUTO_INCREMENT pour la table `user`
 --
 ALTER TABLE `user`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `id` int NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT pour la table `user_local`
+--
+ALTER TABLE `user_local`
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
