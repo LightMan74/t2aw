@@ -175,5 +175,7 @@ try {
     echo json_encode(['success' => false, 'error' => $e->getMessage()]);
 }
 
-ob_end_clean();
+if (ob_get_level()) { 
+    ob_end_clean();
+}
 ?>

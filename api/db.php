@@ -66,7 +66,6 @@ try {
             ]
         );
     }
-
     // --- Requête commune (fonctionne sur les 2 moteurs) ---
     $stmt = $pdo->prepare("
         SELECT t.nom, t.user_uid, p.tournoi_password
@@ -79,7 +78,10 @@ try {
     if (isset($_SESSION['user']) && $_SESSION['user'] == "admin") {
         $tournoi_name_menu[0]["user_uid"] = "%";
     }
-    $tournoi_password =  ($tournoi_name_menu[0]["tournoi_password"] ?  "&password=".$tournoi_name_menu[0]["tournoi_password"]:"");
+    if (isset($tournoi_name_menu[0]["tournoi_password"])){
+        $tournoi_password = ($tournoi_name_menu[0]["tournoi_password"] ?  "&password=".$tournoi_name_menu[0]["tournoi_password"]:"");
+    }
+
 } catch (PDOException $e) {
     error_log('Connexion BDD echouee: ' . $e->getMessage());
     if (ob_get_level()) {
