@@ -63,7 +63,7 @@ try {
         SELECT name FROM sqlite_master
         WHERE type='table'
         AND name NOT LIKE 'sqlite_%'
-        AND name != 'user'
+        AND name != 'user' AND name != 'ordre_match_poule'
     ")->fetchAll(PDO::FETCH_COLUMN);
 
     $pdo->exec('PRAGMA foreign_keys = OFF'); // évite les erreurs de contraintes pendant les DELETE
