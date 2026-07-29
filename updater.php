@@ -65,7 +65,7 @@ class GitHubZipInstaller
         $response = file_get_contents($url, false, $context);
 
         if ($response === false) {
-            throw new RuntimeException("Impossible de contacter l'API GitHub.");
+            throw new RuntimeException("Impossible de contacter l'API GitHub. Sur Windows essayer avec updater.bat");
         }
 
         $data = json_decode($response, true);

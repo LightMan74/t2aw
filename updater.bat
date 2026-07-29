@@ -52,6 +52,7 @@ set "LOCAL_VERSION="
 if exist "%VERSION_FILE%" (
     set /p LOCAL_VERSION=<"%VERSION_FILE%"
 )
+set LOCAL_VERSION=%LOCAL_VERSION: =%
 echo Version locale  : !LOCAL_VERSION!
 
 REM ==========================================
@@ -86,7 +87,8 @@ REM ==========================================
 REM COMPARAISON DES VERSIONS (equivalent au if PHP)
 REM ==========================================
 if "!LOCAL_VERSION!"=="!REMOTE_VERSION!" (
-    echo Deja a jour ^(commit: !REMOTE_VERSION!^)
+    echo Deja a jour ^(commit: !REMOTE_VERSION!^)    
+    pause
     goto :end
 )
 
