@@ -20,6 +20,7 @@ set "PRESERVE_1=configuserlogin.php"
 set "PRESERVE_2=.gitignore"
 set "PRESERVE_3=.git"
 set "PRESERVE_4=.version"
+set "PRESERVE_5=database\t2aw.sqlite"
 
 echo ===============================================
 echo   Installation/Mise a jour depuis GitHub
