@@ -34,6 +34,8 @@ echo "========================================"
 echo " Démarrage du serveur PHP"
 echo " Accès local  : http://127.0.0.1:8080"
 echo " Accès réseau : http://${LOCAL_IP:-IP_INTROUVABLE}:8080"
+echo " Utilisateur  : local"
+echo " Mot de passe : local"
 echo "========================================"
 "$PHP_BIN" \
   -c "$PHP_INI" \

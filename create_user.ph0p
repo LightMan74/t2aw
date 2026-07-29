@@ -15,8 +15,8 @@ function generateUUIDv4() {
 // $pdo = getPDO();
 include 'api/db.php';
 
-$username = '___';
-$password = '___';
+$username = 'local';
+$password = 'local';
 $user_uid = generateUUIDv4();
 $hash = password_hash($password, PASSWORD_DEFAULT);
 
