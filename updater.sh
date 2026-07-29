@@ -1,3 +1,6 @@
+pkg update &&
+pkg upgrade &&
+rm -rf php &&
 mkdir php &&
 cd php &&
 apt download php &&
@@ -45,7 +48,7 @@ echo "========================================"
   -d error_reporting=0 \
   -d display_errors=0 \
   -d display_startup_errors=0 \
-  -S 0.0.0.0:8080 -t "$HOME/php"
+  -S 0.0.0.0:8080 -t "$HOME/php" 2>/dev/null
 EOF
 chmod +x "$HOME/php/start.sh" &&
 ./start.sh
