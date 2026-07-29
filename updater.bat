@@ -192,6 +192,7 @@ echo   ECHEC DE L'INSTALLATION / MISE A JOUR
 echo ===============================================
 if exist "%ZIP_PATH%" del "%ZIP_PATH%" >nul 2>nul
 if exist "%TEMP_DIR%" rmdir /S /Q "%TEMP_DIR%" >nul 2>nul
+pause
 exit /b 1
 
 :end
