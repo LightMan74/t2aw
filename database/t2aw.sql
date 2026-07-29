@@ -249,7 +249,7 @@ CREATE TABLE `user` (
 INSERT INTO `user` (`id`, `user`, `password`, `user_uid`, `expire_date`, `note`) VALUES
 (2, 'william', '$2y$12$NrLmJnMfCnSL3U8W8YRZiu5yGLS1.k56wzp8hIWIiuFzylbemN.76', '611f0860-4ea6-4fd2-8691-6000c78b8571', '2030-07-24 18:13:51', 'aze'),
 (3, 'admin', '$2y$12$XGjXCwzOPSZrZsAzZH4yD.XJaHC4qWicCOs3Jdw0W89uHYXjlV4vW', '87e756b7-1d6a-42c3-94ec-9ccc55f8d318', '2030-07-24 18:13:53', 'aze'),
-(4, 'local', '$2y$12$5eHbw0MMsynCnbl7ND5jBOtVMRn5nXWH9lRZBcFdodiqJDk.B74mu', 'bb9d2203-daa6-46eb-b3b5-57510960457d', '2037-07-24 18:13:56', 'aze');
+(4, 'local', '$2y$12$5eHbw0MMsynCnbl7ND5jBOtVMRn5nXWH9lRZBcFdodiqJDk.B74mu', 'bb9d2203-daa6-46eb-b3b5-57510960457d', '2037-07-24 18:13:56', 'local');
 
 --
 -- Index pour les tables déchargées
