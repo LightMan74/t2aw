@@ -2,6 +2,14 @@
  
 } */
 
+.timer-display {
+    font-size: 3em;
+    font-weight: bold;
+    text-align: center;
+    font-family: monospace;
+    padding: 10px;
+}
+
 .login-logo {
     display: block;
     width: 100px;

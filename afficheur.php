@@ -145,6 +145,7 @@ if ($id_tournoi === 0): ?>
     <header>
         <div class="login-logo" role="img" aria-label="Logo"></div>
         <h1 id="nom-tournoi">Chargement du tournoi...</h1>
+        <div id="timer-display-only"></div>
         <div class="qrcode" role="img" aria-label="qrcode"></div>
         <div class="infos-refresh">
             <div class="timer-control">
@@ -269,7 +270,17 @@ if ($id_tournoi === 0): ?>
 
     generateRotationConfig(rotator, '#rotation-menu-panel');
     </script>
-    <?php } 
+
+    <?php } ?>
+    <script src="js/timer.js"></script>
+    <script>
+    TournamentTimer.init({
+        containerId: 'timer-display-only',
+        showControls: false,
+        playSound: false
+    });
+    </script>
+    <?php   
 endif; ?>
 </body>
 
