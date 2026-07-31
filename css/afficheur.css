@@ -377,6 +377,10 @@ body.dark .poule-block {
     background: #262a33;
 }
 
+.rotation-menu-panel {
+    color: #e4e4e4;
+}
+
 /* ---------- HEADER ---------- */
 header {
     background: #2c3e50;

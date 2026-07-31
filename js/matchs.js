@@ -183,7 +183,7 @@ function cyclerStatus(index) {
 }
 
 async function autosaveandreload() {
-    console.log('autosaveandreload — START');
+    // console.log('autosaveandreload — START');
 
     if (modifiedMatchs.size === 0) {
         afficherMessage('Aucune modification à sauvegarder', 'success');
@@ -244,7 +244,7 @@ async function autosaveandreload() {
     } catch (err) {
         afficherMessage('Erreur réseau : ' + err.message, 'error');
     }
-    console.log('autosaveandreload — END');
+    // console.log('autosaveandreload — END');
 }
 
 async function sauvegarderLigne(index) {
@@ -348,7 +348,7 @@ function ajouterMinutes(heureStr, minutesAAjouter) {
     const date = new Date();
     date.setHours(h, m, 0, 0);
     date.setMinutes(date.getMinutes() + minutesAAjouter);
-    console.log(`ajouterMinutes: ${heureStr} + ${minutesAAjouter}min = ${formatHeureMinute(date)}`);
+    // console.log(`ajouterMinutes: ${heureStr} + ${minutesAAjouter}min = ${formatHeureMinute(date)}`);
     return formatHeureMinute(date);
 }
 
@@ -387,7 +387,7 @@ async function mettreHeureActuelle(index) {
     if (!terrain) {
         terrain = getTerrainVirtuel(index);
         terrainEstVirtuel = true;
-        console.log(`${nombreTerrains} Terrains - Aucun terrain défini pour le match ${index}, terrain virtuel ${terrain} attribué`);
+        // console.log(`${nombreTerrains} Terrains - Aucun terrain défini pour le match ${index}, terrain virtuel ${terrain} attribué`);
     }
 
 
@@ -521,7 +521,7 @@ function calculerDeltaMinutes(heureInitiale, heureFinale) {
     }
 
     const delta = (h2 * 60 + m2) - (h1 * 60 + m1);
-    console.log(`Delta calculé: ${heureInitiale} -> ${heureFinale} = ${delta} min`);
+    // console.log(`Delta calculé: ${heureInitiale} -> ${heureFinale} = ${delta} min`);
     return delta;
 }
 
@@ -557,7 +557,7 @@ function togglematchtermine() {
 document.addEventListener('DOMContentLoaded', async () => {
     await chargerMatchs();
     await chargerTempsDeMatch(); // si elle aussi est async
-    console.log(matchtermine);
+    // console.log(matchtermine);
     if (matchtermine) {
         document.getElementById('matchtermineCheckbox').checked = true;
         requestAnimationFrame(() => {

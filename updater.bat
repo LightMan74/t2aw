@@ -184,7 +184,6 @@ echo ===============================================
 echo   Installation terminee avec succes.
 echo   Version installee : !REMOTE_VERSION!
 echo ===============================================
-start_server.bat
 goto :end
 
 :error

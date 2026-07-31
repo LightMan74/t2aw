@@ -744,7 +744,7 @@ button:hover {
 }
 
 .user-info span {
-    color: var(--text-secondary);
+    color: var(--header-text);
     font-size: 0.9rem;
 }
 

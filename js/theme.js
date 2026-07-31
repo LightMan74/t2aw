@@ -7,7 +7,7 @@
 
 function toggleTheme() {
     const html = document.documentElement;
-    console.log(html);
+    // console.log(html);
     const current = html.getAttribute('data-theme') === 'dark' ? 'dark' : 'light';
     const next = current === 'dark' ? 'light' : 'dark';
     html.setAttribute('data-theme', next);
