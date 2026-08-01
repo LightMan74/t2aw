@@ -157,6 +157,14 @@ try {
         }
     }
 
+    $stmtInsertTimer = $pdo->prepare("
+        UPDATE `timer` SET `duration`= :duration WHERE `id_tournoi` = :id_tournoi
+    ");
+    $stmtInsertTimer->execute([
+        'duration' => $temps_de_match * 60,
+        'id_tournoi' => $id_tournoi
+    ]);
+
     $pdo->commit();
     echo json_encode(['success' => true]);
 
@@ -165,7 +173,7 @@ try {
         $pdo->rollBack();
     }
     error_log('update_tournoi PDOException: ' . $e->getMessage());
-    echo json_encode(['success' => false, 'error' => 'Erreur base de donnees' . $matchtermine]);
+    echo json_encode(['success' => false, 'error' => 'Erreur base de donnees']);
 
 } catch (Exception $e) {
     if ($pdo->inTransaction()) {

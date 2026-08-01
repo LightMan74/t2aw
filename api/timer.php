@@ -3,7 +3,7 @@ header('Content-Type: application/json');
 require_once 'db.php';
 
 $action = $_GET['action'] ?? $_POST['action'] ?? '';
-$idtournoi = 3;
+$idtournoi = $_GET['idtournoi'] ?? $_POST['idtournoi'] ?? '';
 
 switch ($action) {
 

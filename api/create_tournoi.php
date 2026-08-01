@@ -95,6 +95,15 @@ try {
         'tournoi_password' => $tournoi_password
     ]);
 
+    $stmtInsertTimer = $pdo->prepare("
+        INSERT INTO timer (`id_tournoi`, `duration`)
+        VALUES (:id_tournoi, :duration)
+    ");
+    $stmtInsertTimer->execute([
+        'id_tournoi' => $id_tournoi,
+        'duration' => $temps_de_match
+    ]);
+
     // Préparer les requêtes d'insertion
     $stmtInsertCat = $pdo->prepare("INSERT INTO categorie (id_tournoi, id_categorie, nom) VALUES (:id_tournoi, :id_categorie, :nom);");
     $stmtInsertPoule = $pdo->prepare("INSERT INTO poule (id_tournoi, id_categorie, id_poule, nom) VALUES (:id_tournoi, :id_categorie, :id_poule, :nom);");

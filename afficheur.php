@@ -277,6 +277,7 @@ if ($id_tournoi === 0): ?>
     <script>
     TournamentTimer.init({
         // containerId: 'timer-display-only',
+        idtournoi: <?php echo $_GET["id_tournoi"]; ?>,
         containerId: 'timer-container',
         showControls: false,
         playSound: false

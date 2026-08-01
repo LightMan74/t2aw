@@ -9,7 +9,7 @@ const TournamentTimer = (function () {
         containerId: 'timer-container',
         showControls: true,
         playSound: true,
-        pollInterval: 10000, // sync avec le serveur toutes les 1s
+        pollInterval: 10000, // sync avec le serveur toutes les 10s
         apiUrl: 'api/timer.php'
     };
 
@@ -25,6 +25,7 @@ const TournamentTimer = (function () {
     let displayInterval = null;
     let pollTimeout = null;
     let soundsPlayed = { start: false, middle: false, end: false };
+    let firstLoad = true; // pour éviter de jouer les sons au chargement initial
 
     // ---- Sons ----
     const sounds = {
@@ -47,7 +48,7 @@ const TournamentTimer = (function () {
 
     // ---- Communication API ----
     async function apiCall(action, idtournoi, params = {}) {
-        const body = new URLSearchParams({ action, ...params });
+        const body = new URLSearchParams({ action, idtournoi, ...params });
         const res = await fetch(config.apiUrl, {
             method: 'POST',
             headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
@@ -58,7 +59,7 @@ const TournamentTimer = (function () {
 
     async function fetchTimerState() {
         try {
-            const res = await fetch(`${config.apiUrl}?action=get`);
+            const res = await fetch(`${config.apiUrl}?action=get&idtournoi=${config.idtournoi}`);
             const data = await res.json();
             if (data.success) {
                 updateState(data.timer);
@@ -70,6 +71,7 @@ const TournamentTimer = (function () {
 
     function updateState(timer) {
         const wasStatus = state.status;
+        const wasStartTime = state.startTime;
 
         state.duration = parseInt(timer.duration);
         state.startTime = timer.start_time ? parseInt(timer.start_time) : null;
@@ -77,25 +79,68 @@ const TournamentTimer = (function () {
         state.status = timer.status;
         state.soundEnabled = !!parseInt(timer.sound_enabled);
 
-        // reset des sons si nouveau départ
-        if (wasStatus !== 'running' && state.status === 'running' && state.pausedAt === null) {
+        // Met à jour l'input avec la durée courante (en minutes) si présent
+        updateInputValue();
+
+        // Détecte un "vrai" nouveau démarrage :
+        // - le statut passe à running
+        // - OU le start_time a changé (nouveau départ après un stop/start)
+        const isNewStart = (state.status === 'running') &&
+            (wasStatus !== 'running' || wasStartTime !== state.startTime);
+
+        if (isNewStart) {
+            // On vérifie si ce démarrage est réellement récent (évite de rejouer
+            // les sons si on rejoint un timer déjà en cours depuis longtemps,
+            // par exemple lors du premier chargement de la page)
+            const elapsedSinceStart = state.startTime ? (Date.now() - state.startTime) / 1000 : Infinity;
+
+            if (firstLoad) {
+                // Au tout premier chargement, on ne joue jamais les sons de façon rétroactive.
+                // On marque comme "déjà joués" tous les sons dont le seuil est déjà dépassé.
+                const elapsed = getElapsedSecondsFor(state);
+                const half = state.duration / 2;
+                soundsPlayed.start = elapsed >= 0.5; // considéré comme déjà passé si > 0.5s
+                soundsPlayed.middle = elapsed >= half;
+                soundsPlayed.end = elapsed >= state.duration;
+            } else if (elapsedSinceStart < 2) {
+                // Nouveau départ réel et récent (déclenché par l'utilisateur) => reset complet
+                soundsPlayed = { start: false, middle: false, end: false };
+            } else {
+                // Changement de statut détecté mais le départ n'est pas "récent"
+                // (resynchronisation serveur) => on ne rejoue pas les sons déjà passés
+                const elapsed = getElapsedSecondsFor(state);
+                const half = state.duration / 2;
+                soundsPlayed.start = elapsed >= 0.5;
+                soundsPlayed.middle = elapsed >= half;
+                soundsPlayed.end = elapsed >= state.duration;
+            }
+        }
+
+        // Si le timer est stoppé, on réinitialise les sons pour le prochain départ
+        if (state.status === 'stopped') {
             soundsPlayed = { start: false, middle: false, end: false };
         }
+
+        firstLoad = false;
 
         updateUI();
     }
 
     // ---- Calcul du temps restant ----
-    function getElapsedSeconds() {
-        if (state.status === 'paused') {
-            return state.pausedAt;
+    function getElapsedSecondsFor(s) {
+        if (s.status === 'paused') {
+            return s.pausedAt;
         }
-        if (state.status === 'running' && state.startTime) {
+        if (s.status === 'running' && s.startTime) {
             const now = Date.now();
-            const elapsed = (now - state.startTime) / 1000;
-            return Math.min(elapsed, state.duration);
+            const elapsed = (now - s.startTime) / 1000;
+            return Math.min(elapsed, s.duration);
         }
         return 0;
+    }
+
+    function getElapsedSeconds() {
+        return getElapsedSecondsFor(state);
     }
 
     function getRemainingSeconds() {
@@ -159,7 +204,7 @@ const TournamentTimer = (function () {
         if (config.showControls) {
             controlsHtml = `
                 <div class="timer-controls">
-                    <input type="number" id="${config.containerId}-input" min="1" placeholder="Minutes" class="timer-input">
+                    <input type="number" id="${config.containerId}-input" min="1" placeholder="Minutes" class="timer-input" step="0.5">
                     <button class="timer-btn timer-btn-start" data-action="start">Démarrer</button>
                     <button class="timer-btn timer-btn-stop" data-action="stop">Arrêter</button>
                     <label class="timer-sound-toggle">
@@ -207,6 +252,22 @@ const TournamentTimer = (function () {
         }
     }
 
+    function updateInputValue() {
+        if (!config.showControls) return;
+        const input = document.getElementById(`${config.containerId}-input`);
+        if (!input) return;
+
+        // Ne pas écraser la saisie de l'utilisateur si le champ a le focus
+        if (document.activeElement === input) return;
+
+        // Ne remplit l'input que si une durée valide existe
+        if (state.duration && state.duration > 0) {
+            const minutes = state.duration / 60;
+            // Affiche joliment (pas de .0 inutile)
+            input.value = (minutes % 1 === 0) ? minutes : minutes.toFixed(1);
+        }
+    }
+
     function updateButtonsUI() {
         if (!config.showControls) return;
         const container = document.getElementById(config.containerId);
@@ -218,10 +279,16 @@ const TournamentTimer = (function () {
         const btnStop = container.querySelector('[data-action="stop"]');
         const soundCheckbox = container.querySelector(`#${config.containerId}-sound`);
 
-        if (btnStart) btnStart.style.display = state.status === 'stopped' ? 'inline-block' : 'none';
-        if (btnPause) btnPause.style.display = state.status === 'running' ? 'inline-block' : 'none';
+        const remaining = getRemainingSeconds();
+        const isFinished = state.status === 'running' && remaining <= 0;
+
+        // Le timer est considéré "actif" (affiche stop) seulement s'il tourne ET n'est pas fini
+        const isActive = (state.status === 'running' && !isFinished) || state.status === 'paused';
+
+        if (btnStart) btnStart.style.display = (state.status === 'stopped' || isFinished) ? 'inline-block' : 'none';
+        if (btnPause) btnPause.style.display = state.status === 'running' && !isFinished ? 'inline-block' : 'none';
         if (btnResume) btnResume.style.display = state.status === 'paused' ? 'inline-block' : 'none';
-        if (btnStop) btnStop.style.display = state.status !== 'stopped' ? 'inline-block' : 'none';
+        if (btnStop) btnStop.style.display = isActive ? 'inline-block' : 'none';
         if (soundCheckbox) soundCheckbox.checked = state.soundEnabled;
     }
 
@@ -241,6 +308,7 @@ const TournamentTimer = (function () {
     // ---- Initialisation publique ----
     function init(userConfig = {}) {
         config = { ...config, ...userConfig };
+        firstLoad = true;
         buildUI();
         fetchTimerState();
         startPolling();
