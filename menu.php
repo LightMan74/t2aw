@@ -103,11 +103,18 @@ function afficheurhrefchange() {
 </script>
 <script src="js/logout.js"></script>
 <script src="js/theme.js"></script>
+<?php
+    if (isset($_GET["id_tournoi"])){
+?>
 <script src="js/timer.js"></script>
 <script>
 TournamentTimer.init({
+    idtournoi: <?php echo $_GET["id_tournoi"]; ?>,
     containerId: 'timer-container',
     showControls: true,
     playSound: false
 });
+<?php 
+    }
+?>
 </script>

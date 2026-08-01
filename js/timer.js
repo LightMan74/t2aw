@@ -5,6 +5,7 @@
 const TournamentTimer = (function () {
 
     let config = {
+        idtournoi: null,
         containerId: 'timer-container',
         showControls: true,
         playSound: true,
@@ -45,7 +46,7 @@ const TournamentTimer = (function () {
     }
 
     // ---- Communication API ----
-    async function apiCall(action, params = {}) {
+    async function apiCall(action, idtournoi, params = {}) {
         const body = new URLSearchParams({ action, ...params });
         const res = await fetch(config.apiUrl, {
             method: 'POST',
@@ -160,8 +161,6 @@ const TournamentTimer = (function () {
                 <div class="timer-controls">
                     <input type="number" id="${config.containerId}-input" min="1" placeholder="Minutes" class="timer-input">
                     <button class="timer-btn timer-btn-start" data-action="start">Démarrer</button>
-                    <button class="timer-btn timer-btn-pause" data-action="pause">Pause</button>
-                    <button class="timer-btn timer-btn-resume" data-action="resume">Reprendre</button>
                     <button class="timer-btn timer-btn-stop" data-action="stop">Arrêter</button>
                     <label class="timer-sound-toggle">
                         <input type="checkbox" id="${config.containerId}-sound" checked>
@@ -184,26 +183,26 @@ const TournamentTimer = (function () {
                     alert('Veuillez entrer une durée valide');
                     return;
                 }
-                apiCall('start', { duration: Math.round(minutes * 60) }).then(fetchTimerState);
+                apiCall('start', config.idtournoi, { duration: Math.round(minutes * 60) }).then(fetchTimerState);
             });
 
-            container.querySelector('[data-action="pause"]').addEventListener('click', () => {
-                apiCall('pause').then(fetchTimerState);
-            });
+            // container.querySelector('[data-action="pause"]').addEventListener('click', () => {
+            //     apiCall('pause').then(fetchTimerState);
+            // });
 
-            container.querySelector('[data-action="resume"]').addEventListener('click', () => {
-                apiCall('resume').then(fetchTimerState);
-            });
+            // container.querySelector('[data-action="resume"]').addEventListener('click', () => {
+            //     apiCall('resume').then(fetchTimerState);
+            // });
 
             container.querySelector('[data-action="stop"]').addEventListener('click', () => {
                 if (confirm('Arrêter le timer ?')) {
-                    apiCall('stop').then(fetchTimerState);
+                    apiCall('stop', config.idtournoi).then(fetchTimerState);
                 }
             });
 
             container.querySelector(`#${config.containerId}-sound`).addEventListener('change', (e) => {
                 const enabled = e.target.checked ? 1 : 0;
-                apiCall('toggle_sound', { enabled }).then(fetchTimerState);
+                apiCall('toggle_sound', config.idtournoi, { enabled }).then(fetchTimerState);
             });
         }
     }

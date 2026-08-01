@@ -13,6 +13,8 @@ $id_tournoi = isset($_GET['id_tournoi']) ? (int)$_GET['id_tournoi'] : 0;
     <link rel="stylesheet" href="css/afficheur.css">
     <?php if ($id_tournoi === 0): ?>
     <link rel="stylesheet" href="css/liste_afficheur.css">
+    <?php else: ?>
+    <link rel="stylesheet" href="css/timer.css">
     <?php endif; ?>
 
 </head>
@@ -145,7 +147,7 @@ if ($id_tournoi === 0): ?>
     <header>
         <div class="login-logo" role="img" aria-label="Logo"></div>
         <h1 id="nom-tournoi">Chargement du tournoi...</h1>
-        <div id="timer-display-only"></div>
+        <div id="timer-container"></div>
         <div class="qrcode" role="img" aria-label="qrcode"></div>
         <div class="infos-refresh">
             <div class="timer-control">
@@ -270,12 +272,12 @@ if ($id_tournoi === 0): ?>
 
     generateRotationConfig(rotator, '#rotation-menu-panel');
     </script>
-
     <?php } ?>
     <script src="js/timer.js"></script>
     <script>
     TournamentTimer.init({
-        containerId: 'timer-display-only',
+        // containerId: 'timer-display-only',
+        containerId: 'timer-container',
         showControls: false,
         playSound: false
     });
