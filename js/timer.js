@@ -154,15 +154,36 @@ const TournamentTimer = (function () {
         return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
     }
 
+    function formatElapsed(totalSeconds) {
+        const minutes = Math.floor(totalSeconds / 60);
+        const seconds = Math.floor(totalSeconds % 60);
+        return `${minutes}:${seconds.toString().padStart(2, '0')}`;
+    }
+
     // ---- Boucle d'affichage (tick local à chaque frame/seconde) ----
     function tick() {
         const remaining = getRemainingSeconds();
-        const elapsed = getElapsedSeconds();
         const half = state.duration / 2;
 
         // Mise à jour affichage
         const el = document.querySelector(`#${config.containerId} .timer-display`);
-        if (el) el.textContent = formatTime(remaining);
+        if (el) {
+            el.innerHTML = ''; // vider
+            const line1 = document.createElement('div');
+            const line2 = document.createElement('div');
+            line1.textContent = formatTime(remaining);
+            line2.textContent = formatElapsed(state.duration); // <-- ici, duration au lieu de elapsed
+            // line2.style.fontSize = "50%" // <-- ici, duration au lieu de elapsed
+            line2.classList.add("timerorigine");
+
+            el.appendChild(line1);
+            el.appendChild(line2);
+            const couleur = getComputedStyle(line2.parentElement.parentElement).color;
+            line2.style.color = couleur;
+        }
+
+        // ... reste du code (utilise toujours `elapsed` pour les sons, donc on le garde en variable séparée)
+        const elapsed = getElapsedSeconds();
 
         // Gestion classes visuelles (couleur proche de la fin)
         const container = document.getElementById(config.containerId);
@@ -302,7 +323,7 @@ const TournamentTimer = (function () {
     }
 
     function startDisplayLoop() {
-        displayInterval = setInterval(tick, 250); // rafraîchissement fluide
+        displayInterval = setInterval(tick, 500); // rafraîchissement fluide
     }
 
     // ---- Initialisation publique ----

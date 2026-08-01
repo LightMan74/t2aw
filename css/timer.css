@@ -1,4 +1,6 @@
 .timer-display {
+    white-space: pre-line;
+    /* ou pre-wrap */
     font-size: 3em;
     font-weight: bold;
     text-align: center;
@@ -12,6 +14,11 @@
 
 .timer-danger .timer-display {
     color: red;
+}
+
+.timerorigine {
+    color: inherit;
+    font-size: 50%;
 }
 
 .timer-controls {
