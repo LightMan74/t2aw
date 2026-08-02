@@ -103,7 +103,7 @@ try {
     ");
     $stmtInsertTimer->execute([
         'id_tournoi' => $id_tournoi,
-        'duration' => $temps_de_match
+        'duration' => $temps_de_match * 60
     ]);
 
     // Préparer les requêtes d'insertion

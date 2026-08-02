@@ -213,7 +213,15 @@ if ($id_tournoi === 0): ?>
 
     <script>
     const ID_TOURNOI = <?php echo json_encode($id_tournoi); ?>;
-
+    </script>
+    <script src="js/colors.js"></script>
+    <!-- Configuration des liaisons du bracket (couleurs, opacité, etc.) -->
+    <!-- <script src="js/bracket-lines-config.js"></script> -->
+    <!-- <script src="js/leader-line.min.js"></script> -->
+    <script src="js/afficheur.js"></script>
+    <?php
+    if (isset($_GET["option"])){ ?>
+    <script>
     async function loadQrCode(data) {
         if (window.innerWidth <= 900) {
             return; // ne rien faire sur mobile
@@ -240,15 +248,11 @@ if ($id_tournoi === 0): ?>
     </script>
 
 
-    <script src="js/colors.js"></script>
-    <!-- Configuration des liaisons du bracket (couleurs, opacité, etc.) -->
-    <!-- <script src="js/bracket-lines-config.js"></script> -->
-    <!-- <script src="js/leader-line.min.js"></script> -->
-    <script src="js/afficheur.js"></script>
+
 
 
     <?php
-    if (isset($_GET["option"])){ ?>
+    // if (isset($_GET["option"])){ ?>
     <link rel="stylesheet" href="css/rotation-menu.css">
     <div class="rotation-menu-container">
         <button class="rotation-menu-toggle" type="button">⚙️</button>
@@ -269,7 +273,6 @@ if ($id_tournoi === 0): ?>
         // noScrollSelectors: ['.match-tab', '#tab-matchs'] // ou par classe/id du bouton onglet
         // noScrollSelectors: ['#matchs-a-venir'] // ou par classe/id du bouton onglet
     });
-
     generateRotationConfig(rotator, '#rotation-menu-panel');
     </script>
     <?php } ?>

@@ -490,8 +490,6 @@ function collectFormData() {
 
     var show_timerRaw = parseInt(document.getElementById('show_timer').value, 10);
     var show_timer = (show_timerRaw === 1) ? 1 : 0;
-    console.log(show_timerRaw);
-    console.log(show_timer);
 
     // troissets : forcer 1 ou 3 uniquement
     var troissetsRaw = parseInt(document.getElementById('troissets').value, 10);
