@@ -152,7 +152,7 @@ if ($id_tournoi === 0): ?>
         <div class="infos-refresh">
             <div class="timer-control">
                 <center>
-                    <span id="heure-actuelle">--:--:--</span><br>
+                    <span id="heure-actuelle" style="font-size: 150%;">--:--:--</span><br>
                     <!-- <label for="refresh-interval">Rafraîchissement (sec) :</label> -->
                     <!-- <nobr><span id="countdown">60</span>s -->
                     <!-- <input type="number" id="refresh-interval" value="60" min="10" max="600"> -->
