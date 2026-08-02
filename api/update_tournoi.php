@@ -35,15 +35,16 @@ try {
 
     $id_tournoi = (int)$data['id_tournoi'];
     $nom = trim($data['nom'] ?? '');
-    $nbre_terrain_poule = (int)($data['nbre_terrain_poule'] ?? 0);
-    $nbre_terrain_phasefinal = (int)($data['nbre_terrain_phasefinal'] ?? 0);
-    $temps_de_match = (int)($data['temps_de_match'] ?? 0);
+    $nbre_terrain_poule = (int)($data['nbre_terrain_poule'] ?? 4);
+    $nbre_terrain_phasefinal = (int)($data['nbre_terrain_phasefinal'] ?? 4);
+    $temps_de_match = (int)($data['temps_de_match'] ?? 15);
     $heure_debut_poule = trim($data['heure_debut_poule'] ?? '');
     $heure_debut_phasefinal = trim($data['heure_debut_phasefinal'] ?? '');
-    $matchtermine = trim($data['matchtermine'] ?? '');
+    $matchtermine = trim($data['matchtermine'] ?? 1);
     $tournoi_password = trim($data['tournoi_password'] ?? '');
-    $tournoi_cacher = trim($data['tournoi_cacher'] ?? '');
-    $show_timer = trim($data['show_timer'] ?? '');
+    $tournoi_cacher = trim($data['tournoi_cacher'] ?? 0);
+    $show_timer = trim($data['show_timer'] ?? 1);
+    $show_qrcode = trim($data['show_qrcode'] ?? 1);
 
     // Forcer troissets à 1 ou 3 uniquement
     $troissets_raw = trim($data['troissets'] ?? '');
@@ -86,7 +87,8 @@ try {
                 matchtermine = :matchtermine,
                 tournoi_password = :tournoi_password,
                 tournoi_cacher = :tournoi_cacher,
-                timer = :show_timer
+                timer = :show_timer,
+                qrcode = :show_qrcode
             WHERE id_tournoi = :id_tournoi
         ");
         $stmtUpdateParam->execute([
@@ -101,6 +103,7 @@ try {
             'tournoi_password' => $tournoi_password,
             'tournoi_cacher' => $tournoi_cacher,
             'show_timer' => $show_timer,
+            'show_qrcode' => $show_qrcode,
             'id_tournoi' => $id_tournoi
         ]);   
 

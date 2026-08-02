@@ -87,6 +87,13 @@ $mode_creation = $id_tournoi === 0;
                             <option value="1">Vrai</option>
                         </select>
                     </div>
+                    <div class="form-group">
+                        <label for="show_qrcode">Afficher le QRCode</label>
+                        <select id="show_qrcode" name="show_qrcode" required>
+                            <option value="1" selected>Vrai</option>
+                            <option value="0">Faux</option>
+                        </select>
+                    </div>
                 </div>
 
                 <div class="form-row">

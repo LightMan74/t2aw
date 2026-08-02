@@ -1,2 +1,2 @@
 <?php
-define('version_t2aw', '1.02');
+define('version_t2aw', '1.03');
