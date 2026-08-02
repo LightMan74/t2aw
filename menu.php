@@ -1,13 +1,6 @@
 <title>Tournoi All Auto Web</title>
 <link rel="icon" type="image/png" sizes="64x64" href="icon_t2aw.png">
 <link rel="stylesheet" href="css/menu.css">
-<?php
-    if (isset($_GET["id_tournoi"])){
-?>
-<link rel="stylesheet" href="css/timer.css">
-<?php 
-    }
-?>
 <?php 
 include __DIR__ . "/api/check_connected.php";
 include 'api/db.php'; 
@@ -15,6 +8,13 @@ include "version.php";
 // On récupère les infos de l'utilisateur connecté
 $currentuser_uid = $_SESSION['user_uid'];
 $currentUser = $_SESSION['user'];
+?>
+<?php
+    if (isset($_GET["id_tournoi"]) && $show_timer){
+?>
+<link rel="stylesheet" href="css/timer.css">
+<?php 
+    }
 ?>
 <script>
 // Applique le thème AVANT le rendu du header pour éviter le flash
@@ -29,7 +29,7 @@ $currentUser = $_SESSION['user'];
     <div class="login-logo" role="img" aria-label=""></div>
     <h3>Tournoi Actuel : <?php echo (isset($tournoi_name_menu[0]["nom"]) != "") ? $tournoi_name_menu[0]["nom"]: 'AUCUN'; ?></h3>
     <?php
-    if (isset($_GET["id_tournoi"])){
+    if (isset($_GET["id_tournoi"]) && $show_timer){
     ?>
     <div id="timer-container"></div>
     <?php 
@@ -104,7 +104,7 @@ function afficheurhrefchange() {
 <script src="js/logout.js"></script>
 <script src="js/theme.js"></script>
 <?php
-    if (isset($_GET["id_tournoi"])){
+    if (isset($_GET["id_tournoi"]) && $show_timer){
 ?>
 <script src="js/timer.js"></script>
 <script>

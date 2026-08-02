@@ -273,6 +273,8 @@ if ($id_tournoi === 0): ?>
     generateRotationConfig(rotator, '#rotation-menu-panel');
     </script>
     <?php } ?>
+    <?php
+    if ($show_timer){ ?>
     <script src="js/timer.js"></script>
     <script>
     TournamentTimer.init({
@@ -283,6 +285,7 @@ if ($id_tournoi === 0): ?>
         playSound: false
     });
     </script>
+    <?php } ?>
     <?php   
 endif; ?>
 </body>
