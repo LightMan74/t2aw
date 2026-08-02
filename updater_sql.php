@@ -3,7 +3,7 @@
 // Configuration
 $dbPath = __DIR__ . '/database/t2aw.sqlite';
 $tableName = 'parametre'; // À modifier
-$columnName = 'qrcode';   // À modifier
+$columnName = 'afficherheure';   // À modifier
 $defaultValue = 1;
 
 try {
