@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Hôte : 192.168.3.70
--- Généré le : mer. 29 juil. 2026 à 19:20
+-- Généré le : dim. 02 août 2026 à 14:26
 -- Version du serveur : 9.7.0
 -- Version de PHP : 8.4.23
 
@@ -177,7 +177,8 @@ CREATE TABLE `parametre` (
   `terrain_automatique` varchar(10) NOT NULL,
   `matchtermine` int DEFAULT '0',
   `tournoi_cacher` int NOT NULL DEFAULT '0',
-  `tournoi_password` varchar(500) NOT NULL DEFAULT ''
+  `tournoi_password` varchar(500) NOT NULL DEFAULT '',
+  `timer` int NOT NULL DEFAULT '0'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 -- --------------------------------------------------------
@@ -216,6 +217,23 @@ CREATE TABLE `poule` (
 -- --------------------------------------------------------
 
 --
+-- Structure de la table `timer`
+--
+
+CREATE TABLE `timer` (
+  `id` int NOT NULL,
+  `id_tournoi` int DEFAULT NULL,
+  `duration` int NOT NULL DEFAULT '0',
+  `start_time` bigint DEFAULT NULL,
+  `paused_at` int DEFAULT NULL,
+  `status` enum('stopped','running','paused','finished') DEFAULT 'stopped',
+  `sound_enabled` tinyint(1) DEFAULT '1',
+  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+-- --------------------------------------------------------
+
+--
 -- Structure de la table `tournoi`
 --
 
@@ -225,21 +243,6 @@ CREATE TABLE `tournoi` (
   `nom` varchar(50) NOT NULL,
   `user_uid` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
   `date_creation` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-
--- --------------------------------------------------------
-
---
--- Structure de la table `user`
---
-
-CREATE TABLE `user` (
-  `id` int NOT NULL,
-  `user` varchar(500) NOT NULL,
-  `password` varchar(500) NOT NULL,
-  `user_uid` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
-  `expire_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `note` varchar(500) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 -- --------------------------------------------------------
@@ -323,15 +326,15 @@ ALTER TABLE `poule`
   ADD PRIMARY KEY (`id`);
 
 --
--- Index pour la table `tournoi`
+-- Index pour la table `timer`
 --
-ALTER TABLE `tournoi`
+ALTER TABLE `timer`
   ADD PRIMARY KEY (`id`);
 
 --
--- Index pour la table `user`
+-- Index pour la table `tournoi`
 --
-ALTER TABLE `user`
+ALTER TABLE `tournoi`
   ADD PRIMARY KEY (`id`);
 
 --
@@ -399,15 +402,15 @@ ALTER TABLE `poule`
   MODIFY `id` int NOT NULL AUTO_INCREMENT;
 
 --
--- AUTO_INCREMENT pour la table `tournoi`
+-- AUTO_INCREMENT pour la table `timer`
 --
-ALTER TABLE `tournoi`
+ALTER TABLE `timer`
   MODIFY `id` int NOT NULL AUTO_INCREMENT;
 
 --
--- AUTO_INCREMENT pour la table `user`
+-- AUTO_INCREMENT pour la table `tournoi`
 --
-ALTER TABLE `user`
+ALTER TABLE `tournoi`
   MODIFY `id` int NOT NULL AUTO_INCREMENT;
 
 --
