@@ -178,7 +178,8 @@ CREATE TABLE `parametre` (
   `matchtermine` int DEFAULT '0',
   `tournoi_cacher` int NOT NULL DEFAULT '0',
   `tournoi_password` varchar(500) NOT NULL DEFAULT '',
-  `timer` int NOT NULL DEFAULT '0'
+  `timer` int NOT NULL DEFAULT '0',
+  `qrcode` int NOT NULL DEFAULT '0'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 -- --------------------------------------------------------
