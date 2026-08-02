@@ -26,7 +26,7 @@ if not exist "%~dp0php\php.exe" (
 )
 
 echo Demarrage du serveur...
-start "" http://localhost:8000
+@REM start "" http://localhost:8000
 php-win\php.exe -S localhost:8000 -t www
 if exist "%~dp0php\php.exe" (
     set PHP_EXE=%~dp0php\php.exe

@@ -166,8 +166,6 @@ if %ERRORLEVEL% GEQ 8 (
 
 php\php.exe updater_sql.php
 
-pause
-
 echo.
 echo Synchronisation terminee.
 echo.
