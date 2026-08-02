@@ -18,6 +18,7 @@ BASE_DIR="$HOME/php/env_php/data/data/com.termux/files/usr" &&
 PHP_BIN="$BASE_DIR/bin/php" &&
 export LD_LIBRARY_PATH="$BASE_DIR/lib:$LD_LIBRARY_PATH" &&
 "$PHP_BIN" "$HOME/php/updater.php" &&
+"$PHP_BIN" "$HOME/php/updater_sql.php" &&
 cat << 'EOF' > "$HOME/php/start.sh"
 #!/data/data/com.termux/files/usr/bin/bash
 BASE_DIR="$HOME/php/env_php/data/data/com.termux/files/usr"

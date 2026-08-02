@@ -164,6 +164,10 @@ if %ERRORLEVEL% GEQ 8 (
     goto :error
 )
 
+php\php.exe updater_sql.php
+
+pause
+
 echo.
 echo Synchronisation terminee.
 echo.

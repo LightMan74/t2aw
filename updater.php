@@ -34,6 +34,8 @@ class GitHubZipInstaller
         $this->saveVersion($remoteVersion);
 
         unlink($tarGzPath);
+        
+        include 'updater_sql.php';
 
         echo "Installation terminée avec succès.\n";
     }
