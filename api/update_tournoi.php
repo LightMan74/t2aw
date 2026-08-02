@@ -43,6 +43,7 @@ try {
     $matchtermine = trim($data['matchtermine'] ?? '');
     $tournoi_password = trim($data['tournoi_password'] ?? '');
     $tournoi_cacher = trim($data['tournoi_cacher'] ?? '');
+    $show_timer = trim($data['show_timer'] ?? '');
 
     // Forcer troissets à 1 ou 3 uniquement
     $troissets_raw = trim($data['troissets'] ?? '');
@@ -84,7 +85,8 @@ try {
                 terrain_automatique = :terrain_automatique,
                 matchtermine = :matchtermine,
                 tournoi_password = :tournoi_password,
-                tournoi_cacher = :tournoi_cacher
+                tournoi_cacher = :tournoi_cacher,
+                timer = :show_timer
             WHERE id_tournoi = :id_tournoi
         ");
         $stmtUpdateParam->execute([
@@ -98,6 +100,7 @@ try {
             'matchtermine' => $matchtermine,
             'tournoi_password' => $tournoi_password,
             'tournoi_cacher' => $tournoi_cacher,
+            'show_timer' => $show_timer,
             'id_tournoi' => $id_tournoi
         ]);   
 

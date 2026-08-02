@@ -80,7 +80,13 @@ $mode_creation = $id_tournoi === 0;
                             <option value="3" selected>3 sets</option>
                         </select>
                     </div>
-
+                    <div class="form-group">
+                        <label for="show_timer">Afficher le timer</label>
+                        <select id="show_timer" name="show_timer" required>
+                            <option value="1" selected>Vrai</option>
+                            <option value="0">Faux</option>
+                        </select>
+                    </div>
                 </div>
 
                 <div class="form-row">

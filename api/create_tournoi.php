@@ -41,6 +41,7 @@ try {
     $matchtermine = trim($data['matchtermine'] ?? '');
     $tournoi_password = trim($data['tournoi_password'] ?? '');
     $tournoi_cacher = trim($data['tournoi_cacher'] ?? '');
+    $show_timer = trim($data['show_timer'] ?? 0);
 
     // troissets : forcer 1 ou 3 uniquement
     $troissets = (int)($data['troissets'] ?? 3);
@@ -78,8 +79,8 @@ try {
     // exécuter au préalable :
     // ALTER TABLE parametre ADD COLUMN terrain_automatique TINYINT(1) NOT NULL DEFAULT 1;
     $stmtInsertParam = $pdo->prepare("
-        INSERT INTO parametre (id_tournoi, nbre_terrain_poule, nbre_terrain_phasefinal, temps_de_match, heure_debut_poule, heure_debut_phasefinal, troissets, terrain_automatique, matchtermine, tournoi_password, tournoi_cacher)
-        VALUES (:id_tournoi, :nbre_terrain_poule, :nbre_terrain_phasefinal, :temps_de_match, :heure_debut_poule, :heure_debut_phasefinal, :troissets, :terrain_automatique, :matchtermine, :tournoi_password, :tournoi_cacher)
+        INSERT INTO parametre (id_tournoi, nbre_terrain_poule, nbre_terrain_phasefinal, temps_de_match, heure_debut_poule, heure_debut_phasefinal, troissets, terrain_automatique, matchtermine, tournoi_password, tournoi_cacher, timer)
+        VALUES (:id_tournoi, :nbre_terrain_poule, :nbre_terrain_phasefinal, :temps_de_match, :heure_debut_poule, :heure_debut_phasefinal, :troissets, :terrain_automatique, :matchtermine, :tournoi_password, :tournoi_cacher, :show_timer)
     ");
     $stmtInsertParam->execute([
         'id_tournoi' => $id_tournoi,
@@ -92,7 +93,8 @@ try {
         'terrain_automatique' => $terrain_automatique,
         'matchtermine' => $matchtermine,
         'tournoi_cacher' => $tournoi_cacher,
-        'tournoi_password' => $tournoi_password
+        'tournoi_password' => $tournoi_password,
+        'show_timer' => $show_timer
     ]);
 
     $stmtInsertTimer = $pdo->prepare("
@@ -159,7 +161,7 @@ try {
         $pdo->rollBack();
     }
     error_log('create_tournoi PDOException: ' . $e->getMessage());
-    echo json_encode(['success' => false, 'error' => 'Erreur base de donnees']);
+    echo json_encode(['success' => false, 'error' => 'Erreur base de donnees' . $e->getMessage() . $id_tournoi]);
 } catch (Exception $e) {
     if (isset($pdo) && $pdo->inTransaction()) {
         $pdo->rollBack();

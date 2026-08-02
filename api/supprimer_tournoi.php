@@ -33,6 +33,7 @@ $tables_avec_id_tournoi = [
     'poule',
     'equipe',
     'categorie',
+    'timer',
     'parametre',
     'tournoi'
 ];

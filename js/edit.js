@@ -85,6 +85,10 @@ async function chargerDonneesTournoi() {
         document.getElementById('tournoi_cacher').value = data.parametre.tournoi_cacher || '';
 
         // troissets : select -> forcer 1 ou 3
+        var timerVal = parseInt(data.parametre.timer, 10);
+        document.getElementById('show_timer').value = (timerVal === 1) ? '1' : '0';
+
+        // troissets : select -> forcer 1 ou 3
         var troissetsVal = parseInt(data.parametre.troissets, 10);
         document.getElementById('troissets').value = (troissetsVal === 1) ? '1' : '3';
 
@@ -481,10 +485,18 @@ function collectFormData() {
     var matchtermine = document.getElementById('matchtermine').value;
     var tournoi_cacher = document.getElementById('tournoi_cacher').value;
     var tournoi_password = document.getElementById('tournoi_password').value;
+    // var show_timer = document.getElementById('show_timer').value;
+
+
+    var show_timerRaw = parseInt(document.getElementById('show_timer').value, 10);
+    var show_timer = (show_timerRaw === 1) ? 1 : 0;
+    console.log(show_timerRaw);
+    console.log(show_timer);
 
     // troissets : forcer 1 ou 3 uniquement
     var troissetsRaw = parseInt(document.getElementById('troissets').value, 10);
     var troissets = (troissetsRaw === 1) ? 1 : 3;
+
 
     // terrain_automatique : forcer 1 ou 0 uniquement
     var terrainAutoRaw = parseInt(document.getElementById('terrain_automatique').value, 10);
@@ -550,7 +562,8 @@ function collectFormData() {
         matchtermine: matchtermine,
         tournoi_password: tournoi_password,
         tournoi_cacher: tournoi_cacher,
-        categories: categories
+        categories: categories,
+        show_timer: show_timer
     };
 }
 
