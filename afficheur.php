@@ -234,8 +234,10 @@ if ($id_tournoi === 0): ?>
         container.style = "background: #d2d2d2;";
     }
     <?php $urlcode =  str_replace("option&","","https://$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]");?>
+    <?php
+    if ($show_qrcode){ ?>
     loadQrCode("<?php echo $urlcode;?>");
-
+    <?php } ?>
     document.querySelectorAll('#config-rotation input').forEach(checkbox => {
         checkbox.addEventListener('change', () => {
             const selected = Array.from(

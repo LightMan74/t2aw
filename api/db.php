@@ -68,7 +68,7 @@ try {
     }
     // --- Requête commune (fonctionne sur les 2 moteurs) ---
     $stmt = $pdo->prepare("
-        SELECT t.nom, t.user_uid, p.tournoi_password, p.timer
+        SELECT t.nom, t.user_uid, p.tournoi_password, p.timer, p.qrcode
         FROM tournoi t, parametre p
         WHERE t.id_tournoi = :id and p.id_tournoi = t.id_tournoi
     ");
@@ -84,6 +84,9 @@ try {
     if (isset($tournoi_name_menu[0]["timer"])){
         $show_timer = ($tournoi_name_menu[0]["timer"] ? $tournoi_name_menu[0]["timer"] : 0);
     }
+    if (isset($tournoi_name_menu[0]["qrcode"])){
+        $show_qrcode = ($tournoi_name_menu[0]["qrcode"] ? $tournoi_name_menu[0]["qrcode"] : 0);
+    }
 
 } catch (PDOException $e) {
     error_log('Connexion BDD echouee: ' . $e->getMessage());
@@ -94,3 +97,4 @@ try {
     echo json_encode(['success' => false, 'error' => 'Connexion base de donnees impossible']);
     exit;
 }
+// var_dump($tournoi_name_menu);
