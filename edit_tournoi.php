@@ -25,13 +25,16 @@ $mode_creation = $id_tournoi === 0;
             <?php include 'menu.php'; ?>
         </nav>
 
-        <a href="dashboard.php" class="btn btn-back">← Retour</a>
-        <button onclick="telechargerExport()" class="btn-dark" title="Exporter le tournoi Text">📥 Export TEXT</button>
-        <button onclick="exporterPDF()" class="btn-dark" title="Exporter le tournoi PDF">📥 Export PDF</button>
-
         <?php
             $id_tournoi = isset($_GET['id_tournoi']) ? (int)$_GET['id_tournoi'] : 0;
         ?>
+
+        <a href="dashboard.php" class="btn btn-back">← Retour</a>
+        <button onclick="telechargerExport()" class="btn-dark" title="Exporter le tournoi Text">📥 Export TEXT</button>
+        <button onclick="exporterPDF()" class="btn-dark" title="Exporter le tournoi PDF">📥 Export PDF</button>
+        <button onclick="exporterTournoi(<?php echo $id_tournoi;?>)" class="btn-dark" title="Exporter le tournoi JSON">📥 Export JSON (pour import)</button>
+
+
 
 
 

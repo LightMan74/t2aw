@@ -6,4 +6,5 @@ TRUNCATE TABLE `t2aw`.`match_poule`;
 TRUNCATE TABLE `t2aw`.`parametre`;
 TRUNCATE TABLE `t2aw`.`phases_finales`;
 TRUNCATE TABLE `t2aw`.`poule`;
+TRUNCATE TABLE `t2aw`.`timer`;
 TRUNCATE TABLE `t2aw`.`tournoi`;

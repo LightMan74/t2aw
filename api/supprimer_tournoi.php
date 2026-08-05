@@ -25,18 +25,20 @@ if ($id_tournoi <= 0) {
  * (supprimer d'abord les tables "enfants" avant les tables "parents")
  */
 
-$tables_avec_id_tournoi = [
-    'matchs_phase_finale',
-    'equipes_phase_finale',
-    'phases_finales',
-    'match_poule',
-    'poule',
-    'equipe',
-    'categorie',
-    'timer',
-    'parametre',
-    'tournoi'
-];
+// $tables_avec_id_tournoi = [
+//     'matchs_phase_finale',
+//     'equipes_phase_finale',
+//     'phases_finales',
+//     'match_poule',
+//     'poule',
+//     'equipe',
+//     'categorie',
+//     'timer',
+//     'parametre',
+//     'tournoi'
+// ];
+
+include 'tables_avec_id_tournoi.php';
 
 try {
     $pdo->beginTransaction();

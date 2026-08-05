@@ -24,8 +24,14 @@
         <!-- Liste des tournois -->
         <section class="section">
             <div class="section-header">
-                <h2>Tournois existants</h2>
                 <a href="edit_tournoi.php" class="btn btn-primary">+ Ajouter un tournoi</a>
+            </div>
+            <div class="section-header">
+                <input class="btn btn-primary" type="file" id="fichierImport" accept=".json">
+                <a class="btn btn-primary" onclick="importerTournoi(document.getElementById('fichierImport'))">Importer</a>
+            </div>
+            <div class="section-header">
+                <h2>Tournois existants</h2>
             </div>
             <div id="liste-tournois">
                 <p class="loading">Chargement...</p>

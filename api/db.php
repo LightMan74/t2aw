@@ -75,11 +75,14 @@ try {
     $stmt->execute(['id' => htmlspecialchars($_GET["id_tournoi"] ?? '')]);
     $tournoi_name_menu = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
+    if (isset($tournoi_name_menu[0]["nom"])){
+        $tournoi_nom = ($tournoi_name_menu[0]["nom"] ? $tournoi_name_menu[0]["nom"]:"");
+    }
     if (isset($_SESSION['user']) && $_SESSION['user'] == "admin") {
         $tournoi_name_menu[0]["user_uid"] = "%";
     }
     if (isset($tournoi_name_menu[0]["tournoi_password"])){
-        $tournoi_password = ($tournoi_name_menu[0]["tournoi_password"] ?  "&password=".$tournoi_name_menu[0]["tournoi_password"]:"");
+        $tournoi_password = ($tournoi_name_menu[0]["tournoi_password"] ? "&password=".$tournoi_name_menu[0]["tournoi_password"]:"");
     }
     if (isset($tournoi_name_menu[0]["timer"])){
         $show_timer = ($tournoi_name_menu[0]["timer"] ? $tournoi_name_menu[0]["timer"] : 0);

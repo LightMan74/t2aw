@@ -679,3 +679,7 @@ function initSecuriteInputsNumber() {
         }
     });
 }
+
+function exporterTournoi(idTournoi) {
+    window.location.href = `api/exporter_tournoi.php?id_tournoi=${idTournoi}`;
+}

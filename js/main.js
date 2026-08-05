@@ -55,7 +55,7 @@ async function chargerTournois() {
         data.tournois.forEach(t => {
             const tr = document.createElement('tr');
             tr.innerHTML = `
-                <td>${escapeHtml(t.nom)}</td>
+                <td><span style="font-size:75%;color:lightgrey;">(id:${t.id_tournoi})</span> ${escapeHtml(t.nom)}</td>
                 <td class="actions-col">
                     <a href="dashboard.php?id_tournoi=${t.id_tournoi}" class="btn btn-mini btn-open">Ouvrir</a>
                 </td>
@@ -82,4 +82,24 @@ function escapeHtml(text) {
     const div = document.createElement('div');
     div.textContent = text;
     return div.innerHTML;
+}
+async function importerTournoi(fichierInput) {
+    const formData = new FormData();
+    formData.append('fichier', fichierInput.files[0]);
+
+    try {
+        const response = await fetch('api/importer_tournoi.php', {
+            method: 'POST',
+            body: formData
+        });
+        const resultat = await response.json();
+
+        if (resultat.success) {
+            alert(resultat.message);
+        } else {
+            alert('Erreur : ' + resultat.message);
+        }
+    } catch (err) {
+        alert('Erreur réseau : ' + err.message);
+    }
 }
