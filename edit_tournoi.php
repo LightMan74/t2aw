@@ -30,7 +30,6 @@ $mode_creation = $id_tournoi === 0;
         ?>
 
         <a href="dashboard.php" class="btn btn-back">← Retour</a>
-        <button onclick="telechargerExport()" class="btn-dark" title="Exporter le tournoi Text">📥 Export TEXT</button>
         <button onclick="exporterPDF()" class="btn-dark" title="Exporter le tournoi PDF">📥 Export PDF</button>
         <button onclick="exporterTournoi(<?php echo $id_tournoi;?>)" class="btn-dark" title="Exporter le tournoi JSON">📥 Export JSON (pour import)</button>
 
@@ -156,13 +155,6 @@ $mode_creation = $id_tournoi === 0;
     </div>
     <script>
     const ID_TOURNOI = <?php echo $id_tournoi; ?>;
-
-    function telechargerExport() {
-        const url = `api/export_tournoi.php?id_tournoi=${encodeURIComponent(ID_TOURNOI)}`;
-        const link = document.createElement('a');
-        link.href = url;
-        link.click();
-    }
 
     function exporterPDF() {
         const url = `api/export_tournoi_pdf.php?id_tournoi=${encodeURIComponent(ID_TOURNOI)}`;
