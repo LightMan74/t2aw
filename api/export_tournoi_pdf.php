@@ -224,28 +224,159 @@ if (!empty($categories)) {
                 }
             }
 
-            // Classement poule (simplifié)
-            $stmtClass = $pdo->prepare("
+            // Classement poule (mêmes règles que view_classement.php)
+            $stmtClassEquipes = $pdo->prepare("
                 SELECT e.id_equipe, e.nom
                 FROM equipe e
                 WHERE e.id_poule = ? AND e.id_categorie = ? AND e.id_tournoi = ?
-                ORDER BY e.nom
             ");
-            $stmtClass->execute([$idPoule, $idCat, $id_tournoi]);
-            $classement = $stmtClass->fetchAll(PDO::FETCH_ASSOC);
+            $stmtClassEquipes->execute([$idPoule, $idCat, $id_tournoi]);
+            $equipesClassement = $stmtClassEquipes->fetchAll(PDO::FETCH_ASSOC);
+
+            $stats = [];
+            foreach ($equipesClassement as $eq) {
+                $stats[$eq['id_equipe']] = [
+                    'nom' => $eq['nom'],
+                    'id_equipe' => $eq['id_equipe'],
+                    'joues' => 0,
+                    'victoires' => 0,
+                    'defaites' => 0,
+                    'sets_gagnes' => 0,
+                    'sets_perdus' => 0,
+                    'points_marques' => 0,
+                    'points_encaisses' => 0,
+                ];
+            }
+
+            // Matchs terminés de cette poule (y compris les matchs utilisant id_poule_2).
+            $stmtClassMatchs = $pdo->prepare("
+                SELECT * FROM match_poule
+                WHERE id_tournoi = ?
+                  AND id_categorie = ?
+                  AND (id_poule = ? OR id_poule_2 = ?)
+                  AND status = 'termine'
+            ");
+            $stmtClassMatchs->execute([$id_tournoi, $idCat, $idPoule, $idPoule]);
+            $matchsClassement = $stmtClassMatchs->fetchAll(PDO::FETCH_ASSOC);
+
+            foreach ($matchsClassement as $m) {
+                $e1 = $m['id_equipe_1'];
+                $e2 = $m['id_equipe_2'];
+
+                // Un match peut référencer deux poules : ne comptabiliser que les
+                // équipes appartenant réellement à la poule en cours.
+                $pouleE1 = $m['id_poule'];
+                $pouleE2 = $m['id_poule_2'] ?? $m['id_poule'];
+                $e1DansPoule = ($pouleE1 == $idPoule) && isset($stats[$e1]);
+                $e2DansPoule = ($pouleE2 == $idPoule) && isset($stats[$e2]);
+
+                if (!$e1DansPoule && !$e2DansPoule) {
+                    continue;
+                }
+
+                $sets1 = explode('*', (string)$m['score_equipe_1']);
+                $sets2 = explode('*', (string)$m['score_equipe_2']);
+                $setsGagnes1 = 0;
+                $setsGagnes2 = 0;
+                $pointsMarques1 = 0;
+                $pointsMarques2 = 0;
+
+                // Seuls les sets présents dans les deux scores sont comparés,
+                // comme dans view_classement.php.
+                $nbSets = min(count($sets1), count($sets2));
+                for ($i = 0; $i < $nbSets; $i++) {
+                    $p1 = (int)$sets1[$i];
+                    $p2 = (int)$sets2[$i];
+                    $pointsMarques1 += $p1;
+                    $pointsMarques2 += $p2;
+                    if ($p1 > $p2) {
+                        $setsGagnes1++;
+                    } elseif ($p2 > $p1) {
+                        $setsGagnes2++;
+                    }
+                }
+
+                $victoireE1 = $setsGagnes1 > $setsGagnes2;
+                $victoireE2 = $setsGagnes2 > $setsGagnes1;
+
+                if ($e1DansPoule) {
+                    $stats[$e1]['joues']++;
+                    $stats[$e1]['sets_gagnes'] += $setsGagnes1;
+                    $stats[$e1]['sets_perdus'] += $setsGagnes2;
+                    $stats[$e1]['points_marques'] += $pointsMarques1;
+                    $stats[$e1]['points_encaisses'] += $pointsMarques2;
+                    if ($victoireE1) {
+                        $stats[$e1]['victoires']++;
+                    } elseif ($victoireE2) {
+                        $stats[$e1]['defaites']++;
+                    }
+                }
+
+                if ($e2DansPoule) {
+                    $stats[$e2]['joues']++;
+                    $stats[$e2]['sets_gagnes'] += $setsGagnes2;
+                    $stats[$e2]['sets_perdus'] += $setsGagnes1;
+                    $stats[$e2]['points_marques'] += $pointsMarques2;
+                    $stats[$e2]['points_encaisses'] += $pointsMarques1;
+                    if ($victoireE2) {
+                        $stats[$e2]['victoires']++;
+                    } elseif ($victoireE1) {
+                        $stats[$e2]['defaites']++;
+                    }
+                }
+            }
+
+            // Tri identique à view_classement.php : victoires, différence de
+            // sets, puis différence de points, toutes décroissantes.
+            $classement = array_values($stats);
+            usort($classement, function ($a, $b) {
+                if ($a['victoires'] !== $b['victoires']) {
+                    return $b['victoires'] - $a['victoires'];
+                }
+                $diffSetsA = $a['sets_gagnes'] - $a['sets_perdus'];
+                $diffSetsB = $b['sets_gagnes'] - $b['sets_perdus'];
+                if ($diffSetsA !== $diffSetsB) {
+                    return $diffSetsB - $diffSetsA;
+                }
+                $diffPtsA = $a['points_marques'] - $a['points_encaisses'];
+                $diffPtsB = $b['points_marques'] - $b['points_encaisses'];
+                return $diffPtsB - $diffPtsA;
+            });
 
             if (!empty($classement)) {
                 $pdf->Ln(2);
-                $pdf->CheckPageBreak(10);
+                $pdf->CheckPageBreak(12);
                 $pdf->SetFont('Arial', 'B', 9);
                 $pdf->Cell(0, 5, 'Classement :', 0, 1);
-                $pdf->SetFont('Arial', '', 9);
 
+                // Tableau compact (largeur totale 190 mm, adaptée à l'A4).
+                $largeurs = [10, 83, 12, 12, 20, 25, 28];
+                $entetes = ['Pos.', 'Equipe', 'V', 'D', 'Sets +/-', 'Pts +/-', 'Joues'];
+                $pdf->SetFillColor(220, 220, 220);
+                foreach ($entetes as $i => $entete) {
+                    $pdf->Cell($largeurs[$i], 6, utf8_decode($entete), 1, 0, $i === 1 ? 'L' : 'C', true);
+                }
+                $pdf->Ln();
+
+                $pdf->SetFont('Arial', '', 8);
                 $pos = 1;
                 foreach ($classement as $cl) {
                     $pdf->CheckPageBreak(6);
-                    $pdf->Cell(5);
-                    $pdf->Cell(0, 5, $pos++ . '. ' . utf8_decode($cl['nom']), 0, 1);
+                    $diffSets = $cl['sets_gagnes'] - $cl['sets_perdus'];
+                    $diffPts = $cl['points_marques'] - $cl['points_encaisses'];
+                    $valeurs = [
+                        (string)$pos++,
+                        utf8_decode($cl['nom']),
+                        (string)$cl['victoires'],
+                        (string)$cl['defaites'],
+                        $cl['sets_gagnes'] . ' / ' . $cl['sets_perdus'] . ' (' . ($diffSets >= 0 ? '+' : '') . $diffSets . ')',
+                        $cl['points_marques'] . ' / ' . $cl['points_encaisses'] . ' (' . ($diffPts >= 0 ? '+' : '') . $diffPts . ')',
+                        (string)$cl['joues'],
+                    ];
+                    foreach ($valeurs as $i => $valeur) {
+                        $pdf->Cell($largeurs[$i], 6, $valeur, 1, 0, $i === 1 ? 'L' : 'C');
+                    }
+                    $pdf->Ln();
                 }
             }
 
