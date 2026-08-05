@@ -42,13 +42,19 @@ try {
     $stmt = $pdo->query("SELECT MAX(CAST(id_tournoi AS UNSIGNED)) AS max_id FROM tournoi");
     $row = $stmt->fetch(PDO::FETCH_ASSOC);
     $nouveau_id_tournoi = ($row['max_id'] ?? 0) + 1;
-    
-    $stmt = $pdo->query("SELECT MAX(CAST(id AS UNSIGNED)) AS max_id FROM phases_finales");
+
+    /**
+     * --- 2. Récupération du prochain id disponible pour phases_finales ---
+     */
+    $stmt = $pdo->query("SELECT MAX(id) AS max_id FROM phases_finales");
     $row = $stmt->fetch(PDO::FETCH_ASSOC);
-    $nouveau_id_tournoi_pf = ($row['max_id'] ?? 0) + 1;
+    $nouveau_id_pf = ($row['max_id'] ?? 0) + 1;
 
     $total_lignes_inserees = 0;
     $details = [];
+
+    // Mapping ancien_id => nouvel_id pour equipes_phase_finale
+    $mapping_equipes_pf = [];
 
     foreach ($ordre_insertion as $table) {
         if (!isset($tables[$table]) || empty($tables[$table])) {
@@ -60,6 +66,7 @@ try {
         $nbInserees = 0;
 
         foreach ($lignes as $ligne) {
+            $ancien_id = $ligne['id'] ?? null;
             unset($ligne['id']);
 
             // Remplacement de l'id_tournoi par le nouveau, pour toutes les tables
@@ -67,18 +74,33 @@ try {
                 $ligne['id_tournoi'] = $nouveau_id_tournoi;
             }
 
+            // phases_finales : id fixe (unique tournoi, une seule ligne normalement)
             if ($table == "phases_finales") {
-                if (array_key_exists('id', $ligne)) {
-                    $ligne['id'] = $nouveau_id_tournoi_pf;
+                $ligne['id'] = $nouveau_id_pf;
+            }
+
+            // Toutes les tables qui référencent phases_finales
+            if (($table == "matchs_phase_finale" || $table == "equipes_phase_finale")
+                && array_key_exists('id_phase_finale', $ligne)) {
+                $ligne['id_phase_finale'] = $nouveau_id_pf;
+            }
+
+            // Remapping equipe1_id / equipe2_id dans matchs_phase_finale
+            if ($table == "matchs_phase_finale") {
+                if (array_key_exists('equipe1_id', $ligne) && isset($mapping_equipes_pf[$ligne['equipe1_id']])) {
+                    $ligne['equipe1_id'] = $mapping_equipes_pf[$ligne['equipe1_id']];
+                }
+                if (array_key_exists('equipe2_id', $ligne) && isset($mapping_equipes_pf[$ligne['equipe2_id']])) {
+                    $ligne['equipe2_id'] = $mapping_equipes_pf[$ligne['equipe2_id']];
+                }
+                if (array_key_exists('winner_equipe_id', $ligne) && isset($mapping_equipes_pf[$ligne['winner_equipe_id']])) {
+                    $ligne['winner_equipe_id'] = $mapping_equipes_pf[$ligne['winner_equipe_id']];
+                }
+                if (array_key_exists('loser_equipe_id', $ligne) && isset($mapping_equipes_pf[$ligne['loser_equipe_id']])) {
+                    $ligne['loser_equipe_id'] = $mapping_equipes_pf[$ligne['loser_equipe_id']];
                 }
             }
 
-            if ($table == "matchs_phase_finale" || $table == "equipes_phase_finale") {
-                if (array_key_exists('id_phase_finale', $ligne)) {
-                    $ligne['id_phase_finale'] = $nouveau_id_tournoi_pf;
-                }
-            }        
-            
             $colonnes = array_keys($ligne);
             $colonnesStr = implode(', ', array_map(fn($c) => "`$c`", $colonnes));
             $placeholders = implode(', ', array_map(fn($c) => ":$c", $colonnes));
@@ -86,6 +108,11 @@ try {
             $sql = "INSERT INTO `$table` ($colonnesStr) VALUES ($placeholders)";
             $stmt = $pdo->prepare($sql);
             $stmt->execute($ligne);
+
+            // Sauvegarde du mapping pour equipes_phase_finale
+            if ($table == "equipes_phase_finale" && $ancien_id !== null) {
+                $mapping_equipes_pf[$ancien_id] = $pdo->lastInsertId();
+            }
 
             $nbInserees++;
         }
