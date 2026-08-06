@@ -163,7 +163,7 @@ class GitHubZipInstaller
      */
     private function syncFiles(string $source, string $dest): void
     {
-        $preserve = ['configuserlogin.php', '.gitignore', '.git', '.version'];
+        $preserve = ['configuserlogin.php', '.gitignore', '.git', '.version', 'database'];
 
         foreach (scandir($source) as $item) {
             if ($item === '.' || $item === '..') continue;
