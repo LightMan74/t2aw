@@ -59,19 +59,17 @@ $currentUser = $_SESSION['user'];
 <?php
         exit;
     }
-    if (str_contains($_SERVER['REQUEST_URI'],"dashboard.php") || str_contains($_SERVER['REQUEST_URI'],"edit_tournoi.php")){
+    if (str_contains($_SERVER['REQUEST_URI'],"edit_tournoi.php")){
 ?>
 <a href="dashboard.php">Accueil</a>
 <?php
-    }else{    
+    }   
 ?>
-<a href="edit_tournoi.php<?php echo htmlspecialchars((isset($_GET["id_tournoi"])) ? '?id_tournoi='.$_GET["id_tournoi"] : '');?>">Accueil</a>
-<?php
-}
-?>
+
 <?php
     if (isset($_GET["id_tournoi"])){
 ?>
+<a href="edit_tournoi.php<?php echo htmlspecialchars((isset($_GET["id_tournoi"])) ? '?id_tournoi='.$_GET["id_tournoi"] : '');?>">Accueil</a>
 <?php 
         if (str_contains($_SERVER['REQUEST_URI'],"edit_tournoi.php")||str_contains($_SERVER['REQUEST_URI'],"generation.php")){
 ?>

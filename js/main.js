@@ -57,7 +57,7 @@ async function chargerTournois() {
             tr.innerHTML = `
                 <td><span style="font-size:75%;color:lightgrey;">(id:${t.id_tournoi})</span> ${escapeHtml(t.nom)}</td>
                 <td class="actions-col">
-                    <a href="dashboard.php?id_tournoi=${t.id_tournoi}" class="btn btn-mini btn-open">Ouvrir</a>
+                    <a href="edit_tournoi.php?id_tournoi=${t.id_tournoi}" class="btn btn-mini btn-open">Ouvrir</a>
                 </td>
                 <td class="actions-col">
                     <a href="edit_tournoi.php?id_tournoi=${t.id_tournoi}" class="btn btn-mini btn-edit">Modifier</a>

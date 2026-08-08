@@ -85,6 +85,12 @@ try {
                 $ligne['id_phase_finale'] = $nouveau_id_pf;
             }
 
+            if ($table == "tournoi") {
+                if (array_key_exists('user_uid', $ligne)) {
+                    $ligne['user_uid'] = $_SESSION['user_uid'];
+                }
+            }
+
             // Remapping equipe1_id / equipe2_id dans matchs_phase_finale
             if ($table == "matchs_phase_finale") {
                 if (array_key_exists('equipe1_id', $ligne) && isset($mapping_equipes_pf[$ligne['equipe1_id']])) {

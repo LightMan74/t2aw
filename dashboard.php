@@ -35,7 +35,7 @@
             </div>
             <div id="liste-tournois">
                 <p class="loading">Chargement...</p>
-            </div>
+            </div> 
         </section>
 
         <!-- <script src="js/test.js"></script> -->
