@@ -25,6 +25,8 @@ if not exist "%~dp0php\php.exe" (
     )
 )
 
+php\php.exe updater_sql.php
+
 echo Demarrage du serveur...
 @REM start "" http://localhost:8000
 php-win\php.exe -S localhost:8000 -t www
