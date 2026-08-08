@@ -24,12 +24,9 @@ if not exist "%~dp0php\php.exe" (
         echo ATTENTION : php.ini introuvable a la racine !
     )
 )
-
-php\php.exe updater_sql.php
-
 echo Demarrage du serveur...
 @REM start "" http://localhost:8000
-php-win\php.exe -S localhost:8000 -t www
+@REM php-win\php.exe -S localhost:8000 -t www
 if exist "%~dp0php\php.exe" (
     set PHP_EXE=%~dp0php\php.exe
     echo [OK] PHP portable detecte dans .\php\
@@ -52,6 +49,8 @@ if exist "%~dp0php\php.exe" (
 
 echo Utilisation de : !PHP_EXE!
 echo.
+
+php\php.exe updater_sql.php
 
 REM ==========================================
 REM Recuperation de l'adresse IP locale
