@@ -7,13 +7,13 @@ $dbPath = __DIR__ . '/database/t2aw.sqlite';
 // Définition des tables à créer
 // ============================================
 $tablesConfig = [
-    // 'nom_de_la_table1' => "
-    //     CREATE TABLE IF NOT EXISTS nom_de_la_table1 (
-    //         id INTEGER PRIMARY KEY AUTOINCREMENT,
-    //         nom_colonne1 TEXT NOT NULL,
-    //         date_creation TEXT DEFAULT CURRENT_TIMESTAMP
-    //     )
-    // ",
+    'preference' => "
+        CREATE TABLE IF NOT EXISTS preference (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            user varchar(50) NOT NULL,
+            largeur varchar(50) NULL
+        )
+    ",
 ];
 
 // 'ma_table' => [
@@ -28,6 +28,10 @@ $tablesConfig = [
 $columnsConfig = [
     'parametre' => [
         'afficherheure'   => ['INTEGER', 1],
+    ],
+    'preference' => [
+        'user'   => ['VARCHAR(50)', "'local'"],
+        'largeur'   => ['VARCHAR(50)', "'75'"],
     ],
 ];
 
