@@ -31,7 +31,7 @@ $columnsConfig = [
     ],
     'preference' => [
         'user'   => ['VARCHAR(50)', "'local'"],
-        'largeur'   => ['VARCHAR(50)', "'75'"],
+        'largeur'   => ['VARCHAR(50)', 'NULL'],
     ],
 ];
 
