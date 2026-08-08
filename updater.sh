@@ -1,5 +1,5 @@
-pkg update -y &&
-pkg upgrade -y &&
+apt update -y &&
+apt upgrade -y &&
 rm -rf php &&
 mkdir php &&
 cd php &&
