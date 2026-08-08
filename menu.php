@@ -68,9 +68,11 @@ $currentUser = $_SESSION['user'];
 
 <?php
     if (isset($_GET["id_tournoi"])){
+        if (!str_contains($_SERVER['REQUEST_URI'],"edit_tournoi.php")){
 ?>
 <a href="edit_tournoi.php<?php echo htmlspecialchars((isset($_GET["id_tournoi"])) ? '?id_tournoi='.$_GET["id_tournoi"] : '');?>">Accueil</a>
 <?php 
+        }
         if (str_contains($_SERVER['REQUEST_URI'],"edit_tournoi.php")||str_contains($_SERVER['REQUEST_URI'],"generation.php")){
 ?>
 <a href="generation.php<?php echo htmlspecialchars((isset($_GET["id_tournoi"])) ? '?id_tournoi='.$_GET["id_tournoi"] : '');?>">Génération</a>
