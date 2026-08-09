@@ -1,4 +1,5 @@
 <?php
+exit;
 $dbPath = __DIR__ . '/../database/t2aw.sqlite';
 echo "Chemin résolu : " . realpath(__DIR__) . "<br>";
 echo "Chemin DB attendu : " . $dbPath . "<br>";
