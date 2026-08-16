@@ -92,13 +92,18 @@ try {
         $nomEquipe = 'BYE';
 
         if (!$isBye && isset($equipesSelectionnees[$i - 1])) {
+            // $eq = $equipesSelectionnees[$i - 1];
+            // $idEquipe = (int)($eq['id_equipe'] ?? 0);
+            // $idCategorieEquipe = (int)($eq['id_categorie'] ?? 0);
+            // $idPoule = (int)($eq['id_poule'] ?? 0);
             $eq = $equipesSelectionnees[$i - 1];
-            $idEquipe = (int)($eq['id_equipe'] ?? 0);
-            $idCategorieEquipe = (int)($eq['id_categorie'] ?? 0);
-            $idPoule = (int)($eq['id_poule'] ?? 0);
-            $nomEquipe = trim($eq['nom'] ?? '') ?: ('Équipe ' . $i);
+            $idEquipe = (int)(0);
+            $idCategorieEquipe = (int)(0);
+            $idPoule = (int)(0);
+            // Le nom réel est attribué après la création depuis l'interface d'assignation.
+            $nomEquipe = 'Seed ' . $i;
         } elseif (!$isBye) {
-            $nomEquipe = 'Équipe ' . $i;
+            $nomEquipe = 'Seed ' . $i;
         }
 
         $stmtEq->execute([

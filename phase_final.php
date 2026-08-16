@@ -136,8 +136,19 @@ $tournoi_id = isset($_GET['id_tournoi']) ? (int)$_GET['id_tournoi'] : 0;
                 <p id="msg-simulation" class="msg"></p>
             </div>
             <div id="equipes-panel">
-                <h3>Équipes</h3>
+                <div class="section-header">
+                    <h3>Équipes</h3>
+                    <button type="button" id="btn-assigner-equipes" class="btn btn-modifier">Assigner les équipes</button>
+                </div>
                 <div id="liste-equipes" class="equipes-grid"></div>
+            </div>
+
+            <div id="reassignation-panel" class="hidden">
+                <h3>Réassigner les équipes (seeding)</h3>
+                <p class="text-muted">Glissez-déposez pour réordonner, ou utilisez les flèches ↑ ↓</p>
+                <ul id="liste-reassignation-equipes" class="ordre-equipes-liste"></ul>
+                <button type="button" id="btn-enregistrer-reassignation" class="btn btn-primary">Enregistrer l’assignation</button>
+                <p id="msg-reassignation" class="msg"></p>
             </div>
         </section>
         <!-- Création d'une nouvelle phase finale -->
@@ -255,6 +266,7 @@ $tournoi_id = isset($_GET['id_tournoi']) ? (int)$_GET['id_tournoi'] : 0;
     </div>
     <script>
     const tournoi_troissets_match = <?= json_encode($tournoi_troissets_match); ?>;
+    const id_tournoi_js = <?= json_encode($tournoi_id); ?>;
     </script>
     <script src="js/colors.js"></script>
     <script src="js/phase_final.js"></script>

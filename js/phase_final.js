@@ -408,6 +408,7 @@ async function ouvrirBracket(idPhaseFinale) {
 // ---------- Équipes ----------
 
 function afficherEquipes(equipes) {
+    equipesPhaseFinaleActuelles = equipes;
     const container = document.getElementById('liste-equipes');
     container.innerHTML = '';
 
@@ -1111,3 +1112,217 @@ function calculerPlageClassement(round, subKey, nbreTeam) {
     await chargerCategories();
     chargerListePhases(parseInt(inputTournoiId.value, 10));
 })();
+// ---------- Réassignation groupée des équipes après création ----------
+
+let equipesPhaseFinaleActuelles = [];
+let equipesReassignation = [];
+let draggedReassignationIndex = null;
+
+function afficherMessageReassignation(texte, type = 'success') {
+    const el = document.getElementById('msg-assignation-equipes');
+    if (!el) return;
+    el.textContent = texte;
+    el.className = 'msg ' + type;
+}
+
+/**
+ * Charge toutes les équipes de la catégorie, puis les indexe explicitement par
+ * id_equipe afin de ne jamais dépendre de l'index d'un tableau.
+ */
+async function ouvrirReassignationEquipes(idPhaseFinale, idCategorie) {
+    const phaseId = parseInt(idPhaseFinale || currentPhaseFinaleId, 10);
+    if (!phaseId) return;
+    currentPhaseFinaleId = phaseId;
+
+    try {
+        const detail = await apiFetch(`${API_BASE}/detail.php?id_phase_finale=${phaseId}`);
+        equipesPhaseFinaleActuelles = detail.equipes || [];
+        const phase = detail.phase || {};
+        const categorieId = parseInt(idCategorie || phase.id_categorie, 10);
+        const tournoiId = parseInt(inputTournoiId?.value || phase.id_tournoi, 10);
+
+        if (!categorieId || !tournoiId) {
+            throw new Error('Catégorie ou tournoi introuvable pour cette phase finale');
+        }
+
+        const classementData = await apiFetch(
+            `${API_BASE}/get_equipes_categorie.php?id_tournoi=${tournoiId}&id_categorie=${categorieId}`
+        );
+        const classement = classementData.equipes || [];
+
+        // Slots réels du bracket (hors BYE), triés par seed_position
+        const slotsReels = equipesPhaseFinaleActuelles
+            .filter(slot => !Number(slot.is_bye))
+            .sort((a, b) => Number(a.seed_position) - Number(b.seed_position));
+
+        // Clé composite car id_equipe seul n'est pas unique (répété par poule)
+        const cleEq = (idPoule, idEquipe) => `${idPoule}_${idEquipe}`;
+
+        // On tente d'abord de faire correspondre les slots déjà assignés (id_equipe != 0)
+        const parCle = new Map(classement.map(eq => [cleEq(eq.id_poule, eq.id_equipe), eq]));
+        const dejaUtilisees = new Set();
+
+        equipesReassignation = slotsReels.map(slot => {
+            const idEquipeSlot = Number(slot.id_equipe || 0);
+            if (!idEquipeSlot) {
+                // Slot vide : on le laisse à compléter plus bas
+                return { id_equipe: 0, id_categorie: categorieId, id_poule: 0, nom_equipe: '' };
+            }
+            const cle = cleEq(slot.id_poule, idEquipeSlot);
+            const eq = parCle.get(cle);
+            const source = eq || slot;
+            dejaUtilisees.add(cleEq(source.id_poule, idEquipeSlot));
+            return {
+                id_equipe: idEquipeSlot,
+                id_categorie: Number(source.id_categorie || categorieId),
+                id_poule: Number(source.id_poule || 0),
+                nom_equipe: source.nom_equipe || source.nom || ''
+            };
+        });
+
+        // Compléter les slots encore vides, dans l'ordre du classement (par rang, meilleur en premier)
+        classement.forEach(eq => {
+            const cle = cleEq(eq.id_poule, eq.id_equipe);
+            if (dejaUtilisees.has(cle)) return;
+
+            const videIndex = equipesReassignation.findIndex(item => !item.id_equipe);
+            if (videIndex < 0) return;
+
+            equipesReassignation[videIndex] = {
+                id_equipe: Number(eq.id_equipe),
+                id_categorie: Number(eq.id_categorie || categorieId),
+                id_poule: Number(eq.id_poule || 0),
+                nom_equipe: eq.nom || eq.nom_equipe || '',
+                rang_poule: eq.rang_poule ?? null
+            };
+            dejaUtilisees.add(cle);
+        });
+
+        console.log('slotsReels', slotsReels);
+        console.log('classement', classement);
+        console.log('equipesReassignation', equipesReassignation);
+
+        afficherReassignationEquipes();
+        document.getElementById('reassignation-panel')?.classList.remove('hidden');
+        document.getElementById('bracket-container')?.classList.add('hidden');
+    } catch (err) {
+        afficherMessageReassignation(err.message, 'error');
+    }
+}
+
+// Même structure/classes que afficherOrdreEquipes : drag & drop + ↑/↓.
+function afficherReassignationEquipes() {
+    const container = document.getElementById('liste-reassignation-equipes'); // <-- correction ici
+    if (!container) return;
+    container.innerHTML = '';
+
+    equipesReassignation.forEach((equipe, index) => {
+        const div = document.createElement('div');
+        div.className = 'ordre-item';
+        div.draggable = true;
+        div.dataset.index = index;
+        div.innerHTML = `
+            <span class="drag-handle">☰</span>
+            <span class="seed-num">#${index + 1}</span>
+            <div class="equipe-nom-ordre">
+                <strong></strong>
+                <span class="rang-info">Poule ${equipe.id_poule ?? '-'} — Rang ${equipe.rang_poule ?? '-'}</span>
+            </div>
+            <div class="ordre-actions">
+                <button type="button" data-action="up" data-index="${index}" title="Monter">↑</button>
+                <button type="button" data-action="down" data-index="${index}" title="Descendre">↓</button>
+            </div>`;
+        div.querySelector('strong').textContent = equipe.nom_equipe || 'Équipe non renseignée';
+
+        div.addEventListener('dragstart', e => {
+            draggedReassignationIndex = index;
+            div.classList.add('dragging');
+            e.dataTransfer.effectAllowed = 'move';
+            e.dataTransfer.setData('text/plain', String(index));
+        });
+        div.addEventListener('dragend', () => {
+            div.classList.remove('dragging');
+            draggedReassignationIndex = null;
+        });
+        div.addEventListener('dragover', e => {
+            e.preventDefault();
+            e.dataTransfer.dropEffect = 'move';
+            div.classList.add('drag-over');
+        });
+        div.addEventListener('dragleave', () => div.classList.remove('drag-over'));
+        div.addEventListener('drop', e => {
+            e.preventDefault();
+            div.classList.remove('drag-over');
+            const targetIndex = index;
+            if (draggedReassignationIndex === null || draggedReassignationIndex === targetIndex) return;
+            const [item] = equipesReassignation.splice(draggedReassignationIndex, 1);
+            equipesReassignation.splice(targetIndex, 0, item);
+            draggedReassignationIndex = null;
+            afficherReassignationEquipes();
+        });
+        container.appendChild(div);
+    });
+
+    container.querySelectorAll('button[data-action]').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const idx = parseInt(btn.dataset.index, 10);
+            const action = btn.dataset.action;
+            if (action === 'up' && idx > 0) {
+                [equipesReassignation[idx - 1], equipesReassignation[idx]] = [equipesReassignation[idx], equipesReassignation[idx - 1]];
+            } else if (action === 'down' && idx < equipesReassignation.length - 1) {
+                [equipesReassignation[idx + 1], equipesReassignation[idx]] = [equipesReassignation[idx], equipesReassignation[idx + 1]];
+            }
+            afficherReassignationEquipes();
+        });
+    });
+}
+
+async function validerReassignationEquipes() {
+    if (!currentPhaseFinaleId || !equipesReassignation.length) return;
+    try {
+        const data = await apiFetch(`${API_BASE}/assigner_equipes_liste.php`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                id_phase_finale: currentPhaseFinaleId,
+                equipes: equipesReassignation.map(equipe => ({
+                    id_equipe: equipe.id_equipe,
+                    id_poule: equipe.id_poule,
+                    id_categorie: equipe.id_categorie,
+                    id_tournoi: id_tournoi_js
+                }))
+            })
+        });
+        afficherMessageReassignation(`Assignation enregistrée (${data.updated} équipe(s))`, 'success');
+        fermerReassignationEquipes();
+        await ouvrirBracket(currentPhaseFinaleId);
+    } catch (err) {
+        afficherMessageReassignation(err.message, 'error');
+    }
+}
+
+function initialiserAssignationEquipes() {
+    document.getElementById('btn-assigner-equipes')?.addEventListener('click', () =>
+        ouvrirReassignationEquipes(currentPhaseFinaleId)
+    );
+    // phase_final.php peut ne pas encore contenir ce bouton : on le crée afin
+    // que toute la liste parte en un seul appel fetch.
+    let boutonEnregistrer = document.getElementById('btn-enregistrer-reassignation');
+    if (!boutonEnregistrer) {
+        const actions = document.querySelector('#modal-assignation-equipes .modal-actions');
+        if (actions) {
+            boutonEnregistrer = document.createElement('button');
+            boutonEnregistrer.type = 'button';
+            boutonEnregistrer.id = 'btn-enregistrer-reassignation';
+            boutonEnregistrer.className = 'btn btn-primary';
+            boutonEnregistrer.textContent = 'Enregistrer l’ordre';
+            actions.prepend(boutonEnregistrer);
+        }
+    }
+    boutonEnregistrer?.addEventListener('click', validerReassignationEquipes);
+    document.getElementById('btn-fermer-assignation')?.addEventListener('click', () =>
+        document.getElementById('modal-assignation-equipes')?.classList.add('hidden')
+    );
+}
+
+initialiserAssignationEquipes();
