@@ -187,7 +187,7 @@ $tournoi_id = isset($_GET['id_tournoi']) ? (int)$_GET['id_tournoi'] : 0;
 
                     <div class="form-group">
                         <label for="input-nb-equipes">Nombre d'équipes</label>
-                        <input type="number" id="input-nb-equipes" min="2" required readonly placeholder="—">
+                        <input type="number" id="input-nb-equipes" min="2" required placeholder="—">
                     </div>
                     <div class="form-group">
                         <label for="input_debut_ph">Debut de phase final par :</label>

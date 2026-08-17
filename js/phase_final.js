@@ -260,7 +260,8 @@ document.getElementById('form-creation').addEventListener('submit', async e => {
         id_categorie: idCategorie,
         nom: inputNom.value.trim(),
         type_bracket: document.getElementById('input-type-bracket').value,
-        nb_equipes: equipesOrdre.length,
+        // nb_equipes: equipesOrdre.length,
+        nb_equipes: document.getElementById('input-nb-equipes').value,
         equipesSelectionnees: equipesOrdre,
         reset_terrain_round: document.getElementById('input-reset-terrain').checked
     };
