@@ -130,12 +130,56 @@ $tournoi_id = isset($_GET['id_tournoi']) ? (int)$_GET['id_tournoi'] : 0;
                 <div id="liste-equipes" class="equipes-grid"></div>
             </div>
 
+            <!-- Modal d'ajout d'équipe personnalisée -->
+            <!-- Modal d'ajout d'équipe personnalisée -->
+            <div id="modal-ajout-equipe" class="modal hidden">
+                <div class="modal-content">
+                    <h2>Ajouter une équipe</h2>
+
+                    <!-- Option 1 : Choisir une équipe existante -->
+                    <div>
+                        <label for="select-equipe-existante">Équipe existante :</label>
+                        <select id="select-equipe-existante">
+                            <option value="">— Créer une nouvelle équipe —</option>
+                        </select>
+                    </div>
+
+                    <!-- Option 2 : Créer une nouvelle équipe -->
+                    <div>
+                        <label for="input-nom-equipe-custom">Nom de l'équipe :</label>
+                        <input type="text" id="input-nom-equipe-custom" placeholder="Ex: Équipe X, Non renseignée..." autofocus>
+                    </div>
+
+                    <div>
+                        <label for="select-poule-custom">Poule :</label>
+                        <select id="select-poule-custom">
+                            <option value="1">Poule 1</option>
+                        </select>
+                    </div>
+
+                    <div class="modal-actions">
+                        <button id="btn-confirmer-equipe-custom" class="btn btn-primary">Ajouter</button>
+                        <button id="btn-annuler-equipe-custom" class="btn btn-secondary">Annuler</button>
+                    </div>
+                </div>
+            </div>
+
             <div id="reassignation-panel" class="hidden">
-                <h3>Réassigner les équipes (seeding)</h3>
-                <p class="text-muted">Glissez-déposez pour réordonner, ou utilisez les flèches ↑ ↓</p>
-                <ul id="liste-reassignation-equipes" class="ordre-equipes-liste"></ul>
-                <button type="button" id="btn-enregistrer-reassignation" class="btn btn-primary">Enregistrer l’assignation</button>
-                <p id="msg-reassignation" class="msg"></p>
+                <div class="reassignation-container">
+                    <!-- Équipes disponibles à gauche -->
+                    <div class="equipes-disponibles-section">
+                        <h3>Équipes disponibles</h3>
+                        <ul id="liste-equipes-disponibles"></ul>
+                    </div>
+
+                    <!-- Équipes assignées à droite -->
+                    <div class="equipes-assignees-section">
+                        <h3>Ordre de départ</h3>
+                        <ul id="liste-reassignation-equipes"></ul>
+                        <div id="msg-assignation-equipes" class="msg"></div>
+                    </div>
+                </div>
+                <button id="btn-enregistrer-reassignation" class="btn btn-primary">Enregistrer</button>
             </div>
 
             <div id="bracket-container" class="bracket-container"></div>
@@ -279,3 +323,79 @@ $tournoi_id = isset($_GET['id_tournoi']) ? (int)$_GET['id_tournoi'] : 0;
 </body>
 
 </html>
+
+<style>
+.custom-equipe {
+    background-color: #fff3cd !important;
+    border-left: 4px solid #ffc107;
+}
+
+.badge-custom {
+    background-color: #ffc107;
+    color: #000;
+    padding: 2px 6px;
+    border-radius: 3px;
+    font-size: 0.85em;
+}
+
+.btn-ajouter-custom {
+    width: 100%;
+    padding: 10px;
+    background: #007bff;
+    color: white;
+    border: none;
+    cursor: pointer;
+    border-radius: 4px;
+    margin-top: 10px;
+}
+
+.btn-ajouter-custom:hover {
+    background: #0056b3;
+}
+
+.modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+}
+
+.modal.hidden {
+    display: none;
+}
+
+.modal-content {
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+    min-width: 300px;
+}
+
+.modal-content input {
+    width: 100%;
+    padding: 8px;
+    margin: 10px 0;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+.modal-content select {
+    width: 100%;
+    padding: 8px;
+    margin: 10px 0;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+.modal-content label {
+    display: block;
+    margin-top: 10px;
+    font-weight: bold;
+}
+</style>
