@@ -121,20 +121,7 @@ $tournoi_id = isset($_GET['id_tournoi']) ? (int)$_GET['id_tournoi'] : 0;
             <div class="section-header">
                 <h2 id="titre-bracket">Bracket</h2>
             </div>
-            <div id="bracket-container" class="bracket-container"></div>
 
-            <div id="simulation-panel" class="simulation-panel">
-                <label for="input-nb-rounds-simuler">
-                    Nombre de rounds à sauter (simulation automatique)
-                </label>
-                <div class="form-row" style="align-items: flex-end; gap: 10px;">
-                    <div class="form-group" style="margin-bottom:0">
-                        <input type="number" id="input-nb-rounds-simuler" min="1" value="1">
-                    </div>
-                    <button type="button" id="btn-simuler-rounds" class="btn btn-modifier">⏩ Simuler et sauter ces rounds</button>
-                </div>
-                <p id="msg-simulation" class="msg"></p>
-            </div>
             <div id="equipes-panel">
                 <div class="section-header">
                     <h3>Équipes</h3>
@@ -150,6 +137,22 @@ $tournoi_id = isset($_GET['id_tournoi']) ? (int)$_GET['id_tournoi'] : 0;
                 <button type="button" id="btn-enregistrer-reassignation" class="btn btn-primary">Enregistrer l’assignation</button>
                 <p id="msg-reassignation" class="msg"></p>
             </div>
+
+            <div id="bracket-container" class="bracket-container"></div>
+
+            <div id="simulation-panel" class="simulation-panel">
+                <label for="input-nb-rounds-simuler">
+                    Nombre de rounds à sauter (simulation automatique)
+                </label>
+                <div class="form-row" style="align-items: flex-end; gap: 10px;">
+                    <div class="form-group" style="margin-bottom:0">
+                        <input type="number" id="input-nb-rounds-simuler" min="1" value="1">
+                    </div>
+                    <button type="button" id="btn-simuler-rounds" class="btn btn-modifier">⏩ Simuler et sauter ces rounds</button>
+                </div>
+                <p id="msg-simulation" class="msg"></p>
+            </div>
+
         </section>
         <!-- Création d'une nouvelle phase finale -->
         <section id="section-creation" class="section">
@@ -200,7 +203,7 @@ $tournoi_id = isset($_GET['id_tournoi']) ? (int)$_GET['id_tournoi'] : 0;
                 <div class="form-group">
                     <button type="submit" id="btn-creer" class="btn btn-primary">Créer la phase finale</button>
                 </div><!-- Ordre de départ (seeding) -->
-                <div id="ordre-equipes-panel" class="hidden">
+                <div id="ordre-equipes-panel" class="hidden" style="display:none;">
                     <h3>Ordre de départ (seeding)</h3>
                     <p class="text-muted">Glissez-déposez pour réordonner, ou utilisez les flèches ↑ ↓</p>
                     <ul id="liste-ordre-equipes" class="ordre-equipes-liste"></ul>
@@ -274,8 +277,5 @@ $tournoi_id = isset($_GET['id_tournoi']) ? (int)$_GET['id_tournoi'] : 0;
 
 
 </body>
-<style>
-
-</style>
 
 </html>
