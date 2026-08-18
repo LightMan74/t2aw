@@ -1198,24 +1198,21 @@ async function afficherFormulaireAjoutEquipe() {
             const inputNom = document.getElementById('input-nom-equipe-custom');
             const selectPoule = document.getElementById('select-poule-custom');
 
-            if (this.value) {
-                // Équipe existante sélectionnée
-                const equipe = JSON.parse(this.value);
-                inputNom.value = equipe.nom;
-                inputNom.disabled = true;
-                selectPoule.value = equipe.id_poule;
-                selectPoule.disabled = true;
-            } else {
-                // Créer nouvelle équipe
-                inputNom.value = '';
-                inputNom.disabled = false;
-                selectPoule.disabled = false;
-                remplirSelectPoules(idCategorieActuelle);
-            }
-        });
+            // Équipe existante sélectionnée
+            const equipe = JSON.parse(this.value);
+            inputNom.value = equipe.nom;
+            inputNom.disabled = true;
+            // selectPoule.disabled = true;
 
-        // Remplir les poules disponibles
-        remplirSelectPoules(idCategorieActuelle);
+            // ✅ Utiliser l'id_categorie de l'équipe sélectionnée
+            selectPoule.innerHTML = '';
+            const opt = document.createElement('option');
+            opt.value = equipe.id_poule;
+            opt.textContent = `Poule ${equipe.id_poule}`;
+            selectPoule.appendChild(opt);
+            selectPoule.value = equipe.id_poule || '1';
+
+        });
 
     } catch (err) {
         afficherMessageReassignation('Erreur chargement équipes: ' + err.message, 'error');
@@ -1227,38 +1224,6 @@ async function afficherFormulaireAjoutEquipe() {
     modal.classList.remove('hidden');
 }
 
-// ✅ Remplir le select des poules
-function remplirSelectPoules(idCategorie) {
-    const selectPoule = document.getElementById('select-poule-custom');
-    selectPoule.innerHTML = '';
-
-    // Récupérer les poules de cette catégorie
-    const poules = new Set();
-    equipesDisponibles.forEach(eq => {
-        if (eq.id_categorie === idCategorie) {
-            poules.add(eq.id_poule);
-        }
-    });
-    classement.forEach(eq => {
-        if (eq.id_categorie === idCategorie && eq.id_poule) {
-            poules.add(eq.id_poule);
-        }
-    });
-
-    if (poules.size === 0) {
-        const opt = document.createElement('option');
-        opt.value = '1';
-        opt.textContent = 'Poule 1 (par défaut)';
-        selectPoule.appendChild(opt);
-    } else {
-        Array.from(poules).sort().forEach(poule => {
-            const opt = document.createElement('option');
-            opt.value = poule;
-            opt.textContent = `Poule ${poule}`;
-            selectPoule.appendChild(opt);
-        });
-    }
-}
 
 function fermerFormulaireAjoutEquipe() {
     const modal = document.getElementById('modal-ajout-equipe');
