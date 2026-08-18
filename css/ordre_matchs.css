@@ -1,0 +1,27 @@
+tr.dragging {
+    opacity: 0.5;
+}
+
+tr[draggable="true"] {
+    cursor: grab;
+}
+
+tr.drag-over {
+    border-top: 3px solid var(--primary-color, #2b7cff);
+}
+
+.drag-handle {
+    cursor: grab;
+    text-align: center;
+    font-size: 18px;
+    user-select: none;
+}
+
+.btn-ordre-save {
+    background-color: #2b7cff;
+    color: white;
+}
+
+.match-code-label {
+    font-weight: bold;
+}

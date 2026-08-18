@@ -97,7 +97,7 @@ $sqlPF = "SELECT
               AND eq2.id_equipe = e2.id_equipe
           LEFT JOIN parametre para ON para.id_tournoi = pf.id_tournoi
           WHERE pf.id_tournoi = ?
-          ORDER BY m.round ASC, m.sub_group ASC, m.id ASC";
+          ORDER BY m.round ASC, c.nom ASC, pf.nom ASC, m.sub_group ASC, m.id ASC";
 $stmtPF = $pdo->prepare($sqlPF);
 $stmtPF->execute([$id_tournoi]);
 $matchsPFRaw = $stmtPF->fetchAll();

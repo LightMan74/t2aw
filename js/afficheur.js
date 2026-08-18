@@ -138,11 +138,55 @@ function chargerTournoiInfo() {
 }
 
 // ----- Matchs -----
+// function chargerMatchs() {
+//     fetchJSON(`api/view_matchs.php?id_tournoi=${ID_TOURNOI}`, (data) => {
+//         afficherListeMatchs('matchs-en-cours', data.en_cours, 'Aucun match en cours');
+//         afficherListeMatchs('matchs-a-venir', data.a_venir, 'Aucun match à venir');
+//         afficherListeMatchs('matchs-termines', data.termines, 'Aucun résultat disponible');
+//     });
+// }
+
+// ----- Matchs -----
 function chargerMatchs() {
     fetchJSON(`api/view_matchs.php?id_tournoi=${ID_TOURNOI}`, (data) => {
-        afficherListeMatchs('matchs-en-cours', data.en_cours, 'Aucun match en cours');
-        afficherListeMatchs('matchs-a-venir', data.a_venir, 'Aucun match à venir');
-        afficherListeMatchs('matchs-termines', data.termines, 'Aucun résultat disponible');
+        fetchJSON(`api/save_match_ordre.php?id_tournoi=${ID_TOURNOI}`, (ordreData) => {
+            const ordre = (ordreData && ordreData.success && Array.isArray(ordreData.ordre))
+                ? ordreData.ordre
+                : [];
+
+            if (ordre.length > 0) {
+                // ----- Ordre personnalisé présent : on l'applique strictement -----
+                const tous = [...data.en_cours, ...data.a_venir, ...data.termines];
+
+                const indexMap = new Map();
+                ordre.forEach((code, i) => indexMap.set(code, i));
+
+                tous.sort((a, b) => {
+                    const ia = indexMap.has(a.matchnum) ? indexMap.get(a.matchnum) : Infinity;
+                    const ib = indexMap.has(b.matchnum) ? indexMap.get(b.matchnum) : Infinity;
+                    return ia - ib;
+                });
+
+                const getStatutM = (m) => (m.type_match === 'poule' ? m.status : m.statut_match);
+
+                const enCours = tous.filter(m => getStatutM(m) === 'en_cours');
+                const aVenir = tous.filter(m => {
+                    const s = getStatutM(m);
+                    return s !== 'en_cours' && s !== 'termine';
+                });
+                const termines = tous.filter(m => getStatutM(m) === 'termine');
+
+                afficherListeMatchs('matchs-en-cours', enCours, 'Aucun match en cours');
+                afficherListeMatchs('matchs-a-venir', aVenir, 'Aucun match à venir');
+                afficherListeMatchs('matchs-termines', termines, 'Aucun résultat disponible');
+
+            } else {
+                // ----- Aucun ordre personnalisé : on utilise directement view_matchs.php -----
+                afficherListeMatchs('matchs-en-cours', data.en_cours, 'Aucun match en cours');
+                afficherListeMatchs('matchs-a-venir', data.a_venir, 'Aucun match à venir');
+                afficherListeMatchs('matchs-termines', data.termines, 'Aucun résultat disponible');
+            }
+        });
     });
 }
 
