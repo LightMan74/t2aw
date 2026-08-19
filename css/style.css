@@ -360,7 +360,6 @@
     background: #ddd;
 }
 
-
 input[type="number"]::-webkit-outer-spin-button,
 input[type="number"]::-webkit-inner-spin-button {
     -webkit-appearance: none;
@@ -488,7 +487,7 @@ input[type="number"] {
 }
 
 input[type="time"] {
-    max-width: 80px;
+    max-width: 100px;
     text-align: center;
 }
 
@@ -1168,6 +1167,7 @@ th {
     margin-bottom: 0;
     /* le gap de la grille gère déjà l'espacement */
 }
+
 
 @media (max-width: 900px) {
     #zone-classement {

@@ -147,50 +147,71 @@ function afficherTable() {
         const s2set3 = scoresEquipe2[2] ?? 0;
 
         const hiddenSets = (typeof tournoi_troissets_match !== 'undefined' && tournoi_troissets_match > 1) ? '' : 'hidden';
-
         const disabledScore = (m.source === 'pf' && statutActuel !== 'termine') ? 'disabled' : '';
-        // const disabledScore = (statutActuel == 'termine') ? 'disabled' : '';
 
         const heure = m.source === 'poule' ? m.heure_debut : m.heure_debut;
 
-        const nomPoule = m.source === 'poule' ? (m.nom_poule ?? '') : '';
+        // ---------- Contenu de la 4ème colonne (poule OU infos phase finale) ----------
+        let colInfoHtml = '';
 
-        tr.innerHTML = `
-            <td class="drag-handle">⠿</td>
-            <td class="match-code-label">${m.code}</td>
-            <td class="categorie-badge ${catClass}">${m.nom_categorie ?? ''}</td>
-            <td class="poule-badge ${poleClass}">${nomPoule}</td>
-            <td>${nom1}</td>
-            <td>
-            <span style="display: block ruby;">
-            <input type="number" min="0" value="${s1set1}" id="score1s1-${index}" ${disabledScore}> - <input type="number" min="0" value="${s2set1}" id="score2s1-${index}" ${disabledScore}><span ${hiddenSets}>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;
-            <input type="number" min="0" value="${s1set2}" id="score1s2-${index}" ${disabledScore}> - <input type="number" min="0" value="${s2set2}" id="score2s2-${index}" ${disabledScore}>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;
-            <input type="number" min="0" value="${s1set3}" id="score1s3-${index}" ${disabledScore}> - <input type="number" min="0" value="${s2set3}" id="score2s3-${index}" ${disabledScore}></span>
-            </span>
-            </td>
-            <td>${nom2}</td>
-            <td><input type="number" min="1" value="${m.terrain ?? ''}" id="terrain-${index}"></td>
-            <td>
-                <span class="status-badge status-badge-${statutActuel}"
-                    id="status-badge-${index}"
-                    onclick="cyclerStatus(${index})"
-                    title="Cliquer pour changer rapidement le statut">
-                    ${STATUS_LABELS[statutActuel] ?? statutActuel}
-                </span>
-                <select id="status-${index}" style="margin-left:5px;" hidden>
-                    <option value="planifie" ${statutActuel === 'planifie' ? 'selected' : ''}>Planifié</option>
-                    <option value="en_cours" ${statutActuel === 'en_cours' ? 'selected' : ''}>En_cours</option>
-                    <option value="termine" ${statutActuel === 'termine' ? 'selected' : ''}>Terminé</option>
-                </select>
-            </td>
-            <td>
-                <input type="time" step="60" value="${(heure ?? '').substring(0, 5)}" id="hdebut-${index}">
-                <button type="button" class="btn-now" id="btn-now-${index}" title="Mettre à l'heure actuelle et décaler les matchs suivants sur ce terrain" onclick="mettreHeureActuelle(${index})">⏱️</button>
-            </td>
-            <td>
-                <span class="save-icon" id="save-icon-${index}" title="Aucune modification en attente" onclick="sauvegarderLigne(${index})"></span>
+        if (m.source === 'poule') {
+            const nomPoule = m.nom_poule ?? '';
+            colInfoHtml = `<td class="poule-badge ${poleClass}">${nomPoule}</td>`;
+        } else {
+            // Match de phase finale : calcul du libellé classement + tour + code
+            let ligneClassement = '';
+            if (m.type_bracket === 'classement_complet' && m.nb_equipes_arrondi) {
+                const roundIndexReel = m.round;
+                const skNum = Number(m.sub_group);
+                const range = calculerPlageClassement(roundIndexReel, skNum, Number(m.nb_equipes_arrondi));
+                ligneClassement = `${range}`;
+            }
+
+            colInfoHtml = `
+            <td class="pf-info">
+                <span style="margin: auto;" class="tour-label">Class ${ligneClassement}</span><br>
+                <span style="margin: auto;">${getLibelleTourPF(m.round, m.round_max_phase)}</span><br>
+                <span style="margin: auto;" class="tour-label">(${m.match_code ?? ''})</span>
             </td>
         `;
+        }
+
+        tr.innerHTML = `
+        <td class="drag-handle">⠿</td>
+        <td class="match-code-label">${m.code}</td>
+        <td class="categorie-badge ${catClass}">${m.nom_categorie ?? ''}</td>
+        ${colInfoHtml}
+        <td>${nom1}</td>
+        <td>
+        <span style="display: block ruby;">
+        <input type="number" min="0" value="${s1set1}" id="score1s1-${index}" ${disabledScore}> - <input type="number" min="0" value="${s2set1}" id="score2s1-${index}" ${disabledScore}><span ${hiddenSets}>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;
+        <input type="number" min="0" value="${s1set2}" id="score1s2-${index}" ${disabledScore}> - <input type="number" min="0" value="${s2set2}" id="score2s2-${index}" ${disabledScore}>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;
+        <input type="number" min="0" value="${s1set3}" id="score1s3-${index}" ${disabledScore}> - <input type="number" min="0" value="${s2set3}" id="score2s3-${index}" ${disabledScore}></span>
+        </span>
+        </td>
+        <td>${nom2}</td>
+        <td><input type="number" min="1" value="${m.terrain ?? ''}" id="terrain-${index}"></td>
+        <td>
+            <span class="status-badge status-badge-${statutActuel}"
+                id="status-badge-${index}"
+                onclick="cyclerStatus(${index})"
+                title="Cliquer pour changer rapidement le statut">
+                ${STATUS_LABELS[statutActuel] ?? statutActuel}
+            </span>
+            <select id="status-${index}" style="margin-left:5px;" hidden>
+                <option value="planifie" ${statutActuel === 'planifie' ? 'selected' : ''}>Planifié</option>
+                <option value="en_cours" ${statutActuel === 'en_cours' ? 'selected' : ''}>En_cours</option>
+                <option value="termine" ${statutActuel === 'termine' ? 'selected' : ''}>Terminé</option>
+            </select>
+        </td>
+        <td>
+            <input type="time" step="60" value="${(heure ?? '').substring(0, 5)}" id="hdebut-${index}">
+            <button type="button" class="btn-now" id="btn-now-${index}" title="Mettre à l'heure actuelle et décaler les matchs suivants sur ce terrain" onclick="mettreHeureActuelle(${index})">⏱️</button>
+        </td>
+        <td>
+            <span class="save-icon" id="save-icon-${index}" title="Aucune modification en attente" onclick="sauvegarderLigne(${index})"></span>
+        </td>
+    `;
 
         corps.appendChild(tr);
 
@@ -687,3 +708,71 @@ document.addEventListener('focus', function (e) {
         e.target.select();
     }
 }, true);
+
+// ---------- Fonctions utilitaires phase finale (libellé tour / classement) ----------
+
+function getLibelleTourPF(round, roundMax) {
+    const roundsRestants = roundMax - round;
+
+    switch (roundsRestants) {
+        case 0: return 'Finale';
+        case 1: return 'Demi';
+        case 2: return 'Quart';
+        case 3: return '1/8';
+        case 4: return '1/16';
+        case 5: return '1/32';
+        case 6: return '1/64';
+        case 7: return '1/128';
+        default: return `Tour ${round}`;
+    }
+}
+
+function calculerPlageClassement(round, subKey, nbreTeam) {
+    const nbBranches = Math.pow(2, round);
+    const tailleGroupe = nbreTeam / nbBranches;
+    const index = subKey - 1;
+    const debut = Math.floor(index * tailleGroupe) + 1;
+    const fin = Math.floor((index + 1) * tailleGroupe);
+    return debut + ' - ' + fin;
+}
+
+async function resetOrdre(idTournoi) {
+    if (!confirm('Êtes-vous sûr de vouloir supprimer ce tournoi et toutes ses données ?')) {
+        return;
+    }
+
+    try {
+        const response = await fetch('api/supprimer_ordre.php', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ id_tournoi: idTournoi })
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+            console.log('Suppression réussie :', result);
+            alert(`Ordre reset avec succes`);
+            // Rafraîchir la liste des tournois sans reload
+            await chargerMatchs();
+            await chargerParametres();
+
+            if (matchtermine) {
+                document.getElementById('matchtermineCheckbox').checked = true;
+                requestAnimationFrame(() => {
+                    requestAnimationFrame(() => {
+                        togglematchtermine();
+                    });
+                });
+            }
+        } else {
+            console.error('Erreur :', result.message);
+            alert('Erreur : ' + result.message);
+        }
+    } catch (error) {
+        console.error('Erreur réseau :', error);
+        alert('Erreur de connexion au serveur');
+    }
+}

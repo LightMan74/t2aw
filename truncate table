@@ -3,6 +3,7 @@ TRUNCATE TABLE `t2aw`.`equipe`;
 TRUNCATE TABLE `t2aw`.`equipes_phase_finale`;
 TRUNCATE TABLE `t2aw`.`matchs_phase_finale`;
 TRUNCATE TABLE `t2aw`.`match_poule`;
+TRUNCATE TABLE `t2aw`.`match_ordre`;
 TRUNCATE TABLE `t2aw`.`parametre`;
 TRUNCATE TABLE `t2aw`.`phases_finales`;
 TRUNCATE TABLE `t2aw`.`poule`;

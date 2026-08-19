@@ -595,7 +595,7 @@ button.danger:hover {
 }
 
 .tour-label {
-    font-size: 0.85em;
+    font-size: 50%;
     color: #666;
     font-style: italic;
 }

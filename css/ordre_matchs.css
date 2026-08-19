@@ -25,3 +25,9 @@ tr.drag-over {
 .match-code-label {
     font-weight: bold;
 }
+
+.tour-label {
+    font-size: 0.85em;
+    color: #666;
+    font-style: italic;
+}

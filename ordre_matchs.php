@@ -30,6 +30,12 @@ $tournoi_id = isset($_GET['id_tournoi']) ? (int)$_GET['id_tournoi'] : 0;
         <h1>Gestion de l'ordre des matchs (Poules + Phases finales)</h1>
 
         <div class="container-heure-message">
+            <div class="option-heure-manuelle" style="margin-right: auto;margin-left: 5px;">
+                <div class="toggle-btn">
+                    <label onclick="resetOrdre(id_tournoi_js)" class="toggle-btn-label btn-ordre-save" style="background: red;">Reinitialisé l'ordre</label>
+                    <label onclick="enregistrerOrdre()" class="toggle-btn-label btn-ordre-save">Enregistrer l'ordre</label>
+                </div>
+            </div>
             <div class="option-heure-manuelle">
                 <input type="time" id="heureManuelleInput" style="display:none;">
                 <div class="toggle-btn">
@@ -45,10 +51,6 @@ $tournoi_id = isset($_GET['id_tournoi']) ? (int)$_GET['id_tournoi'] : 0;
                 <div class="toggle-btn">
                     <label onclick="autosaveandreload()" class="toggle-btn-label">Enregistrer</label>
                 </div>
-
-                <div class="toggle-btn">
-                    <label onclick="enregistrerOrdre()" class="toggle-btn-label btn-ordre-save">💾 Enregistrer l'ordre</label>
-                </div>
             </div>
 
             <div id="message"></div>
@@ -61,17 +63,39 @@ $tournoi_id = isset($_GET['id_tournoi']) ? (int)$_GET['id_tournoi'] : 0;
         <table id="table-matchs">
             <thead>
                 <tr>
-                    <th><nobr>⠿</nobr></th>
-                    <th><nobr>Match</nobr></th>
-                    <th><nobr>Catégorie</nobr></th>
-                    <th><nobr>Poule</nobr></th>
-                    <th><nobr>Equipe 1</nobr></th>
-                    <th><nobr>SCORE</nobr></th>
-                    <th><nobr>Equipe 2</nobr></th>
-                    <th><nobr>Terrain</nobr></th>
-                    <th><nobr>Statut</nobr></th>
-                    <th><nobr>Heure début</nobr></th>
-                    <th><nobr>------</nobr></th>
+                    <th>
+                        <nobr>⠿</nobr>
+                    </th>
+                    <th>
+                        <nobr>Match</nobr>
+                    </th>
+                    <th>
+                        <nobr>Catégorie</nobr>
+                    </th>
+                    <th>
+                        <nobr>Poule</nobr>
+                    </th>
+                    <th>
+                        <nobr>Equipe 1</nobr>
+                    </th>
+                    <th>
+                        <nobr>SCORE</nobr>
+                    </th>
+                    <th>
+                        <nobr>Equipe 2</nobr>
+                    </th>
+                    <th>
+                        <nobr>Terrain</nobr>
+                    </th>
+                    <th>
+                        <nobr>Statut</nobr>
+                    </th>
+                    <th>
+                        <nobr>Heure début</nobr>
+                    </th>
+                    <th>
+                        <nobr>------</nobr>
+                    </th>
                 </tr>
             </thead>
             <tbody id="corps-table"></tbody>

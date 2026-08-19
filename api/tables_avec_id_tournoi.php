@@ -4,6 +4,7 @@ $tables_avec_id_tournoi = [
     'equipes_phase_finale',
     'phases_finales',
     'match_poule',
+    'match_ordre',
     'poule',
     'equipe',
     'categorie',
