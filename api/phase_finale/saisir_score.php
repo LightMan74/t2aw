@@ -103,6 +103,7 @@ try {
         // throw new Exception('Les 2 équipes ne sont pas encore définies');
         $score1 = null;
         $score2 = null;
+        $statutMatch = "planifie";
     }
 
     $idTournoi     = (int) $match['id_tournoi'];
@@ -149,10 +150,18 @@ try {
     propagerVersMatchsSuivants($pdo, $idTournoi, $idPhaseFinale, $codeLoss, $loserId);
     }
     $pdo->commit();
+
+    // 1. On démarre la capture du flux de sortie
+    ob_start();
+    $stmt->debugDumpParams();
+    // 2. On récupère le texte capturé dans une variable et on stoppe la capture
+    $debugDump = ob_get_clean();
+
     echo json_encode([
         'success' => true,
-        'winner_equipe_id' => $winnerId,
-        'loser_equipe_id' => $loserId,
+        'winner_equipe_id'  => $winnerId,
+        'loser_equipe_id'   => $loserId,
+        'sqllog'            => $debugDump,
     ]);
 
 } catch (Exception $e) {

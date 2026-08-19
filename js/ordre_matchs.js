@@ -149,6 +149,7 @@ function afficherTable() {
         const hiddenSets = (typeof tournoi_troissets_match !== 'undefined' && tournoi_troissets_match > 1) ? '' : 'hidden';
 
         const disabledScore = (m.source === 'pf' && statutActuel !== 'termine') ? 'disabled' : '';
+        // const disabledScore = (statutActuel == 'termine') ? 'disabled' : '';
 
         const heure = m.source === 'poule' ? m.heure_debut : m.heure_debut;
 
