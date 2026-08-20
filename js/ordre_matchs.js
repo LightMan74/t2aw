@@ -169,7 +169,7 @@ function afficherTable() {
 
             colInfoHtml = `
             <td class="pf-info">
-                <span style="margin: auto;" class="tour-label">Class ${ligneClassement}</span><br>
+                <span style="margin: auto;" class="tour-label">${ligneClassement}</span><br>
                 <span style="margin: auto;">${getLibelleTourPF(m.round, m.round_max_phase)}</span><br>
                 <span style="margin: auto;" class="tour-label">(${m.match_code ?? ''})</span>
             </td>
