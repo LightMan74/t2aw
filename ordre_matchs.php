@@ -37,6 +37,8 @@ $tournoi_id = isset($_GET['id_tournoi']) ? (int)$_GET['id_tournoi'] : 0;
                 <div class="toggle-btn">
                     <label onclick="resetOrdre(id_tournoi_js)" class="toggle-btn-label btn-ordre-save" style="background: red;">Reinitialisé l'ordre</label>
                     <label onclick="enregistrerOrdre()" class="toggle-btn-label btn-ordre-save">Enregistrer l'ordre</label>
+                    <label>---</label>
+                    <label onclick="resetTerrains()" class="toggle-btn-label btn-ordre-save" style="background: red;">Reinitialisé les terrains</label>
                     <label onclick="reassignerTerrains()" class="toggle-btn-label btn-ordre-save" style="background: #2a7ae2;">Réassigner les terrains</label>
                 </div>
             </div>
@@ -62,7 +64,8 @@ $tournoi_id = isset($_GET['id_tournoi']) ? (int)$_GET['id_tournoi'] : 0;
 
         <input type="number" id="id_tournoi" value="<?php echo $tournoi_id; ?>" style="width:100px; margin-bottom:15px;" hidden>
 
-        <p class="text-muted">Glissez-déposez les lignes (⠿) pour réordonner tous les matchs, puis cliquez sur "Enregistrer l'ordre".</p><table id="table-matchs">
+        <p class="text-muted">Glissez-déposez les lignes (⠿) pour réordonner tous les matchs, puis cliquez sur "Enregistrer l'ordre".</p>
+        <table id="table-matchs">
             <thead>
                 <tr>
                     <th>
@@ -102,7 +105,8 @@ $tournoi_id = isset($_GET['id_tournoi']) ? (int)$_GET['id_tournoi'] : 0;
             </thead>
             <tbody id="corps-table"></tbody>
         </table>
-    </div><script>
+    </div>
+    <script>
     const tournoi_troissets_match = <?= json_encode($tournoi_troissets_match); ?>;
     const id_tournoi_js = <?= json_encode($tournoi_id); ?>;
     const nbre_terrain_poule_js = <?= json_encode((int)$nbre_terrain_poule); ?>;

@@ -399,6 +399,33 @@ function reassignerTerrains() {
     afficherMessage(`Terrains réassignés ✓ (${nbModifies} match(s) modifié(s) — Pensez à Enregistrer)`, 'success');
 }
 
+function resetTerrains() {
+
+    const nbTerrainsPoule = parseInt(nbre_terrain_poule_js, 10) || 1;
+    const nbTerrainsPF = parseInt(nbre_terrain_phasefinal_js, 10) || 1;
+
+    let compteurPoule = 0;
+    let compteurPF = 0;
+    let nbModifies = 0;
+
+    // On respecte l'ordre d'affichage actuel (matchsData) pour la répartition
+    matchsData.forEach((m, index) => {
+        const statusSelect = document.getElementById(`status-${index}`);
+        const statutActuel = statusSelect?.value ?? getStatut(m);
+
+        // On ne touche qu'aux matchs planifiés (non commencés / non terminés)
+        if (statutActuel !== 'planifie') return;
+
+        const terrainInput = document.getElementById(`terrain-${index}`);
+        if (terrainInput) {
+            terrainInput.value = '';
+            marquerModifie(index);
+        }
+    });
+    // autosaveandreload();
+    afficherMessage(`Terrains réassignés ✓ (${nbModifies} match(s) modifié(s) — Pensez à Enregistrer)`, 'success');
+}
+
 // ---------- Sauvegarde des modifications (score/terrain/heure/statut) ----------
 
 function construireScoresDepuisInputs(index) {
