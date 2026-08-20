@@ -352,6 +352,53 @@ async function enregistrerOrdre() {
     }
 }
 
+// ---------- Réassignation automatique des terrains ----------
+
+function reassignerTerrains() {
+    if (typeof nbre_terrain_poule_js === 'undefined' || typeof nbre_terrain_phasefinal_js === 'undefined') {
+        afficherMessage('Nombre de terrains introuvable', 'error');
+        return;
+    }
+
+    const nbTerrainsPoule = parseInt(nbre_terrain_poule_js, 10) || 1;
+    const nbTerrainsPF = parseInt(nbre_terrain_phasefinal_js, 10) || 1;
+
+    let compteurPoule = 0;
+    let compteurPF = 0;
+    let nbModifies = 0;
+
+    // On respecte l'ordre d'affichage actuel (matchsData) pour la répartition
+    matchsData.forEach((m, index) => {
+        const statusSelect = document.getElementById(`status-${index}`);
+        const statutActuel = statusSelect?.value ?? getStatut(m);
+
+        // On ne touche qu'aux matchs planifiés (non commencés / non terminés)
+        if (statutActuel !== 'planifie') return;
+
+        let nouveauTerrain;
+
+        if (m.source === 'poule') {
+            nouveauTerrain = (compteurPoule % nbTerrainsPoule) + 1;
+            compteurPoule++;
+        } else {
+            nouveauTerrain = (compteurPF % nbTerrainsPF) + 1;
+            compteurPF++;
+        }
+
+        const terrainInput = document.getElementById(`terrain-${index}`);
+        if (terrainInput) {
+            const ancienneValeur = terrainInput.value;
+            if (String(ancienneValeur) !== String(nouveauTerrain)) {
+                terrainInput.value = nouveauTerrain;
+                marquerModifie(index);
+                nbModifies++;
+            }
+        }
+    });
+    // autosaveandreload();
+    afficherMessage(`Terrains réassignés ✓ (${nbModifies} match(s) modifié(s) — Pensez à Enregistrer)`, 'success');
+}
+
 // ---------- Sauvegarde des modifications (score/terrain/heure/statut) ----------
 
 function construireScoresDepuisInputs(index) {
