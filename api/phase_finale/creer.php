@@ -349,52 +349,54 @@ function genererBracketClassementComplet(PDO $pdo, int $idTournoi, int $idPhaseF
     $ordreSeed = genererOrdreSeeding($nbEquipes);
     $nbMatchsRound0 = $arrayRound[0][0] / 2;
 
-    for ($m = 1; $m <= $nbMatchsRound0; $m++) {
+    // for ($m = 1; $m <= $nbMatchsRound0; $m++) {
 
-        $seedA = $ordreSeed[($m - 1) * 2];
-        $seedB = $ordreSeed[($m - 1) * 2 + 1];
+    //     $seedA = $ordreSeed[($m - 1) * 2];
+    //     $seedB = $ordreSeed[($m - 1) * 2 + 1];
 
-        $matchCode = "R0_S1_M{$m}";
+    //     $matchCode = "R0_S1_M{$m}";
 
-        $terrainAssigne = $terraincurrent;
-        $heureAssignee = null;
+    //     $terrainAssigne = $terraincurrent;
+    //     $heureAssignee = null;
 
-        if ($terrainAssigne !== null && isset($heureParTerrain[$terrainAssigne])) {
-            $heureAssignee = $heureParTerrain[$terrainAssigne];
-            $heureParTerrain[$terrainAssigne] = ajouterMinutesHeure($heureAssignee, $tempsDeMatch);
-        }
+    //     if ($terrainAssigne !== null && isset($heureParTerrain[$terrainAssigne])) {
+    //         $heureAssignee = $heureParTerrain[$terrainAssigne];
+    //         $heureParTerrain[$terrainAssigne] = ajouterMinutesHeure($heureAssignee, $tempsDeMatch);
+    //     }
 
-        $stmt->execute([
-            ':id_tournoi' => $idTournoi,
-            ':id_phase_finale' => $idPhaseFinale,
-            ':round' => 0,
-            ':sub_group' => 1,
-            ':match_num' => $m,
-            ':match_code' => $matchCode,
-            ':source_team1' => null,
-            ':source_team2' => null,
-            ':equipe1_id' => $equipeIds[$seedA],
-            ':equipe2_id' => $equipeIds[$seedB],
-            ':classement_min' => null,
-            ':classement_max' => null,
-            ':statut' => 'pret',
-            ':terrain' => $terrainAssigne,
-            ':heure_debut' => $heureAssignee,
-        ]);
-        $totalMatchs++;
+    //     $stmt->execute([
+    //         ':id_tournoi' => $idTournoi,
+    //         ':id_phase_finale' => $idPhaseFinale,
+    //         ':round' => 0,
+    //         ':sub_group' => 1,
+    //         ':match_num' => $m,
+    //         ':match_code' => $matchCode,
+    //         ':source_team1' => null,
+    //         ':source_team2' => null,
+    //         ':equipe1_id' => $equipeIds[$seedA],
+    //         ':equipe2_id' => $equipeIds[$seedB],
+    //         ':classement_min' => null,
+    //         ':classement_max' => null,
+    //         ':statut' => 'pret',
+    //         ':terrain' => $terrainAssigne,
+    //         ':heure_debut' => $heureAssignee,
+    //     ]);
+    //     $totalMatchs++;
 
-        if ($terraincurrent !== null) {
-            $terraincurrent++;
-            if ($terraincurrent > $terrainph) $terraincurrent = 1;
-        }
-    }
+    //     if ($terraincurrent !== null) {
+    //         $terraincurrent++;
+    //         if ($terraincurrent > $terrainph) $terraincurrent = 1;
+    //     }
+    // }
 
     // Rounds suivants : logique Win_/Loss_ avec sous-groupes
-    for ($j = 1; $j < count($arrayRound); $j++) {
+    for ($j = 0; $j <= count($arrayRound); $j++) {
         // Réinitialisation du terrain à chaque nouveau round si demandé
         if ($resetTerrainRound && $terraincurrent !== null) {
             $terraincurrent = 1;
         }
+
+
 
         $isDernierRound = ($j === count($arrayRound) - 1);
         $classementPlace = 1;
@@ -413,14 +415,23 @@ function genererBracketClassementComplet(PDO $pdo, int $idTournoi, int $idPhaseF
 
             $nbMatchsSub = $arrayRound[$j][0] / 2;
 
-                        for ($m = 1; $m <= $nbMatchsSub; $m++) {
+            for ($m = 1; $m <= $nbMatchsSub; $m++) {
                 $matchCode = "R{$j}_S{$k}_M{$m}";
                 $sourceM1 = $m + $mplus;
                 $mplus++;
                 $sourceM2 = $m + $mplus;
+                if ($j==0){
+                    $sourceTeam1 = null;
+                    $sourceTeam2 = null;     
+                    $equipe1_id = $equipeIds[$ordreSeed[($m - 1) * 2]];
+                    $equipe2_id = $equipeIds[$ordreSeed[($m - 1) * 2 + 1]];
+                }else{
+                    $sourceTeam1 = "{$wl}R" . ($j - 1) . "_S{$splus}_M{$sourceM1}";
+                    $sourceTeam2 = "{$wl}R" . ($j - 1) . "_S{$splus}_M{$sourceM2}";                    
+                    $equipe1_id = null;
+                    $equipe2_id = null;
+                }
 
-                $sourceTeam1 = "{$wl}R" . ($j - 1) . "_S{$splus}_M{$sourceM1}";
-                $sourceTeam2 = "{$wl}R" . ($j - 1) . "_S{$splus}_M{$sourceM2}";
 
                 $terrainAssigne = $terraincurrent;
                 $heureAssignee = null;
@@ -439,8 +450,8 @@ function genererBracketClassementComplet(PDO $pdo, int $idTournoi, int $idPhaseF
                     ':match_code' => $matchCode,
                     ':source_team1' => $sourceTeam1,
                     ':source_team2' => $sourceTeam2,
-                    ':equipe1_id' => null,
-                    ':equipe2_id' => null,
+                    ':equipe1_id' => $equipe1_id,
+                    ':equipe2_id' => $equipe2_id,
                     ':classement_min' => $classementMin,
                     ':classement_max' => $classementMax,
                     ':statut' => 'en_attente',
