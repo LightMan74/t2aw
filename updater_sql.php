@@ -14,6 +14,13 @@ $tablesConfig = [
             largeur varchar(50) NULL
         )
     ",
+    'match_ordre' => "
+        CREATE TABLE IF NOT EXISTS match_ordre (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            id_tournoi INTEGER NOT NULL,
+            ordre text NULL
+        )
+    ",
 ];
 
 // 'ma_table' => [
