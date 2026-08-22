@@ -75,7 +75,22 @@ try {
     }
     unset($m);
 
+    // --- Inversion de l'ordre des matchs au sein de chaque round ---
+    $groupes = [];
+    foreach ($matchs as $m) {
+        // Clé de regroupement : phase + round (adapte si tu veux regrouper différemment)
+        $cle = $m['id_phase_finale'] . '_' . $m['round'];
+        $groupes[$cle][] = $m;
+    }
+
+    $matchs = [];
+    foreach ($groupes as $groupe) {
+        $matchs = array_merge($matchs, array_reverse($groupe));
+        // $matchs = array_merge($matchs, $groupe);
+    }
+
     echo json_encode(['success' => true, 'matchs' => $matchs]);
+
 
 } catch (Exception $e) {
     echo json_encode(['success' => false, 'error' => $e->getMessage()]);
