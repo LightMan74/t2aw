@@ -133,18 +133,6 @@ function calculerPlageClassement($round, $subKey, $nbreTeam) {
     return $debut . '-' . $fin;
 }
 
-// --------- Inversion de l'ordre des matchs au sein de chaque round ---------
-$groupesPF = [];
-foreach ($matchsPFRaw as $m) {
-    $cle = $m['id_phase_finale'] . '_' . $m['round'];
-    $groupesPF[$cle][] = $m;
-}
-
-$matchsPFRaw = [];
-foreach ($groupesPF as $groupe) {
-    $matchsPFRaw = array_merge($matchsPFRaw, array_reverse($groupe));
-    // $matchsPFRaw = array_merge($matchsPFRaw, $groupe);
-}
 
 $matchsPF = [];
 $matchfnum=0;

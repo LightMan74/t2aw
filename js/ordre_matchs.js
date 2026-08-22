@@ -17,7 +17,7 @@ function afficherMessage(texte, type) {
 
 // ---------- Chargement / fusion des données ----------
 
-async function chargerMatchs() {
+async function chargerMatchs(inverseordrematch = false) {
     const id_tournoi = document.getElementById('id_tournoi').value;
 
     try {
@@ -42,13 +42,22 @@ async function chargerMatchs() {
                 ...m
             }));
         }
+
         numbmatch = 0;
         if (dataPF.success) {
-            listePF = dataPF.matchs.map((m, i) => ({
+            // Attribution des codes dans l'ordre original (avant inversion)
+            const listePFAvecCode = dataPF.matchs.map((m, i) => ({
                 source: 'pf',
                 code: `F_${++numbmatch}`,
                 ...m
             }));
+
+            // Inversion de l'ordre d'affichage au sein de chaque round (les codes restent inchangés)
+            if (inverseordrematch) {
+                listePF = inverserParRound(listePFAvecCode);
+            } else {
+                listePF = listePFAvecCode;
+            }
         }
 
         matchsData = [...listePoule, ...listePF];
@@ -70,6 +79,24 @@ async function chargerMatchs() {
     } catch (err) {
         afficherMessage('Erreur réseau : ' + err.message, 'error');
     }
+}
+
+// Regroupe par id_phase_finale + round, puis inverse l'ordre d'affichage au sein de chaque groupe
+function inverserParRound(matchs) {
+    const groupes = new Map();
+
+    matchs.forEach(m => {
+        const cle = `${m.id_phase_finale}_${m.round}`;
+        if (!groupes.has(cle)) groupes.set(cle, []);
+        groupes.get(cle).push(m);
+    });
+
+    let resultat = [];
+    for (const groupe of groupes.values()) {
+        resultat = resultat.concat(groupe.reverse());
+    }
+
+    return resultat;
 }
 
 // ---------- Statuts ----------
