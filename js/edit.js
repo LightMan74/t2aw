@@ -683,3 +683,31 @@ function initSecuriteInputsNumber() {
 function exporterTournoi(idTournoi) {
     window.location.href = `api/export_tournoi_json.php?id_tournoi=${idTournoi}`;
 }
+
+function creerBlocCategorie(id_categorie, nom) {
+    var block = document.createElement('div');
+    block.className = 'categorie-block';
+    block.dataset.idCategorie = id_categorie;
+
+    var lettrePoule = indexToLettre(1);
+
+    block.innerHTML =
+        '<div class="categorie-header">' +
+        '<h3>Catégorie ' + id_categorie + '</h3>' +
+        '<input type="text" name="categorie_nom_' + id_categorie + '" placeholder="Nom de la catégorie" value="' + escapeHtml(nom || '') + '" required>' +
+        '<button type="button" class="btn-mini btn-plus" onclick="ajouterPoule(this)">+ Poule</button>' +
+        '<button type="button" class="btn-mini btn-tirage" onclick="ouvrirTirageModal(this)">🎲 Tirage au sort</button>' +
+        '</div>' +
+        '<div class="poules-container" data-id-categorie="' + id_categorie + '">' +
+        '<div class="poule-block" data-id-poule="1">' +
+        '<div class="poule-header">' +
+        '<h4>Poule ' + lettrePoule + '</h4>' +
+        '<input type="text" name="poule_nom_' + id_categorie + '_1" placeholder="Nom de la poule" value="' + lettrePoule + '" required>' +
+        '<button type="button" class="btn-mini btn-plus" onclick="ajouterEquipe(this)">+ Équipe</button>' +
+        '</div>' +
+        '<div class="equipes-container"></div>' +
+        '</div>' +
+        '</div>';
+
+    return block;
+}

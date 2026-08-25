@@ -317,6 +317,68 @@ $hiddenSets = ((int) $tournoi_troissets_match > 1) ? '' : 'hidden';
                 <ul id="liste-phases"></ul>
             </section>
 
+
+
+            <!-- Création d'une nouvelle phase finale -->
+            <section id="section-creation" class="section">
+                <div class="section-header">
+                    <h2>Créer une phase finale</h2>
+                </div>
+                <form id="form-creation" class="form-group">
+
+                    <input type="hidden" id="input-tournoi-id" value="<?= $tournoi_id ?>">
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="input-categorie">Catégorie</label>
+                            <select id="input-categorie" required>
+                                <option value="">— Choisir une catégorie —</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="input-type-bracket">Type de bracket</label>
+                            <select id="input-type-bracket">
+                                <option value="classement_complet">Classement complet (tous jouent tous les rounds)</option>
+                                <option value="classique">Classique (élimination directe, seeding standard)</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="input-nom">Nom de la phase</label>
+                            <input type="text" id="input-nom" required readonly placeholder="Choisir une catégorie d'abord">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="input-nb-equipes">Nombre d'équipes</label>
+                            <input type="number" id="input-nb-equipes" min="2" required placeholder="—">
+                        </div>
+                        <div class="form-group">
+                            <label for="input_debut_ph">Debut de phase final par :</label>
+                            <select id="input_debut_ph" required>
+                            </select>
+                            <label>
+                                <span><input type="checkbox" id="input-reset-terrain" checked>
+                                    Réinitialiser les terrains à 1 à chaque round</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <button type="submit" id="btn-creer" class="btn btn-primary">Créer la phase finale</button>
+                    </div><!-- Ordre de départ (seeding) -->
+                    <div id="ordre-equipes-panel" class="hidden" style="display:none;">
+                        <h3>Ordre de départ (seeding)</h3>
+                        <p class="text-muted">Glissez-déposez pour réordonner, ou utilisez les flèches ↑ ↓</p>
+                        <ul id="liste-ordre-equipes" class="ordre-equipes-liste"></ul>
+                    </div>
+
+
+                </form>
+
+            </section>
+
             <!-- Détail / Bracket -->
             <section id="section-bracket" class="section hidden">
                 <div class="section-header">
@@ -397,65 +459,6 @@ $hiddenSets = ((int) $tournoi_troissets_match > 1) ? '' : 'hidden';
                     </div>
                     <p id="msg-simulation" class="msg"></p>
                 </div>
-
-            </section>
-            <!-- Création d'une nouvelle phase finale -->
-            <section id="section-creation" class="section">
-                <div class="section-header">
-                    <h2>Créer une phase finale</h2>
-                </div>
-                <form id="form-creation" class="form-group">
-
-                    <input type="hidden" id="input-tournoi-id" value="<?= $tournoi_id ?>">
-
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label for="input-categorie">Catégorie</label>
-                            <select id="input-categorie" required>
-                                <option value="">— Choisir une catégorie —</option>
-                            </select>
-                        </div>
-
-                        <div class="form-group">
-                            <label for="input-type-bracket">Type de bracket</label>
-                            <select id="input-type-bracket">
-                                <option value="classement_complet">Classement complet (tous jouent tous les rounds)</option>
-                                <option value="classique">Classique (élimination directe, seeding standard)</option>
-                            </select>
-                        </div>
-                    </div>
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label for="input-nom">Nom de la phase</label>
-                            <input type="text" id="input-nom" required readonly placeholder="Choisir une catégorie d'abord">
-                        </div>
-
-                        <div class="form-group">
-                            <label for="input-nb-equipes">Nombre d'équipes</label>
-                            <input type="number" id="input-nb-equipes" min="2" required placeholder="—">
-                        </div>
-                        <div class="form-group">
-                            <label for="input_debut_ph">Debut de phase final par :</label>
-                            <select id="input_debut_ph" required>
-                            </select>
-                            <label>
-                                <span><input type="checkbox" id="input-reset-terrain" checked>
-                                    Réinitialiser les terrains à 1 à chaque round</span>
-                            </label>
-                        </div>
-                    </div>
-
-                    <div class="form-group">
-                        <button type="submit" id="btn-creer" class="btn btn-primary">Créer la phase finale</button>
-                    </div><!-- Ordre de départ (seeding) -->
-                    <div id="ordre-equipes-panel" class="hidden" style="display:none;">
-                        <h3>Ordre de départ (seeding)</h3>
-                        <p class="text-muted">Glissez-déposez pour réordonner, ou utilisez les flèches ↑ ↓</p>
-                        <ul id="liste-ordre-equipes" class="ordre-equipes-liste"></ul>
-                    </div>
-
-
-                </form>
                 <p id="msg-creation" class="msg"></p>
             </section>
 

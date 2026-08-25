@@ -15,6 +15,7 @@ $mode_creation = $id_tournoi === 0;
     <link rel="stylesheet" href="css/var.css">
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="css/dark-mode.css">
+    <link rel="stylesheet" href="css/tirage.css">
 
 </head>
 
@@ -169,6 +170,7 @@ $mode_creation = $id_tournoi === 0;
     // exporterPDF();
     </script>
     <script src="js/edit.js"></script>
+    <script src="js/tirage.js"></script>
 </body>
 
 </html>
