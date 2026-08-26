@@ -18,15 +18,17 @@ $tournoi_id = isset($_GET['id_tournoi']) ? (int)$_GET['id_tournoi'] : 0;
             <?php
             include 'menu.php';
             $stmt = $pdo->prepare("
-                SELECT troissets, nbre_terrain_poule, nbre_terrain_phasefinal
-                FROM parametre 
-                WHERE id_tournoi = :id
+                SELECT p.troissets, p.nbre_terrain_poule, p.nbre_terrain_phasefinal, COUNT(`id_categorie`) as nbre_categories
+                FROM parametre p
+                left join `categorie` c on c.id_tournoi = p.id_tournoi
+                WHERE p.id_tournoi = :id
             ");
             $stmt->execute(['id' => $tournoi_id]);
             $parametres = $stmt->fetch(PDO::FETCH_ASSOC);
             $tournoi_troissets_match = $parametres['troissets'] ?? 1;
             $nbre_terrain_poule = $parametres['nbre_terrain_poule'] ?? 1;
             $nbre_terrain_phasefinal = $parametres['nbre_terrain_phasefinal'] ?? 1;
+            $nbre_categories = $parametres['nbre_categories'] ?? 1;
             ?>
         </nav>
 
@@ -76,9 +78,12 @@ $tournoi_id = isset($_GET['id_tournoi']) ? (int)$_GET['id_tournoi'] : 0;
                     <th>
                         <nobr>Match</nobr>
                     </th>
+                    <?php 
+                        if ($nbre_categories > 1){?>
                     <th>
                         <nobr>Catégorie</nobr>
                     </th>
+                    <?php } ?>
                     <th>
                         <nobr>Poule</nobr>
                     </th>
@@ -113,6 +118,7 @@ $tournoi_id = isset($_GET['id_tournoi']) ? (int)$_GET['id_tournoi'] : 0;
     const id_tournoi_js = <?= json_encode($tournoi_id); ?>;
     const nbre_terrain_poule_js = <?= json_encode((int)$nbre_terrain_poule); ?>;
     const nbre_terrain_phasefinal_js = <?= json_encode((int)$nbre_terrain_phasefinal); ?>;
+    const nbre_categories_js = <?= json_encode((int)$nbre_categories); ?>;
     </script>
     <script src="js/colors.js"></script>
     <script src="js/ordre_matchs.js"></script>

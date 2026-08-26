@@ -286,7 +286,7 @@ function afficherListeMatchs(containerId, matchs, texteVide) {
         }
 
         // Tags couleur : fond coloré directement sur le texte
-        const catText = escapeHTML(m.nom_categorie || '');
+        const catText = (nbre_categories_js > 1 ? escapeHTML(m.nom_categorie || '') : '');
         const terrain = m.terrain && m.status !== 'termine' ? ` - Terrain ${m.terrain}` : '';
 
         let poleTagHTML = '';
@@ -299,7 +299,7 @@ function afficherListeMatchs(containerId, matchs, texteVide) {
             poleTagHTML = poleText ? `<span class="tag-couleur ${poleClass}">${poleText}</span>` : '';
         }
 
-        const matchInfos = `<div class="match-infos">
+        const matchInfos = `<div class="match-infos"> 
             ${catText ? `<span class="tag-couleur ${catClass}">${catText}</span>` : ''}
             ${poleTagHTML} Match ${m.matchnum}
             ${terrain}
@@ -340,9 +340,9 @@ function chargerClassement() {
                 // Tags couleur : catégorie et poule (fond sur le texte)
                 const catClass = getCategorieColorClassById(cat.id_categorie);
                 const poleClass = getPouleColorClassById(poule.id_poule, null);
-
+                const catalltext = (nbre_categories_js > 1 ? `<span class="tag-couleur ${catClass}">${escapeHTML(cat.nom_categorie)}</span>` : '');
                 let html = `<div class="poule-header">
-                    <span class="tag-couleur ${catClass}">${escapeHTML(cat.nom_categorie)}</span>
+                    ${catalltext}
                     <span class="tag-couleur ${poleClass}">${escapeHTML(poule.nom_poule)}</span>
                 </div>
                     <table>
@@ -780,9 +780,11 @@ function chargerClassementFinal() {
             wrapper.className = 'poule-block-classement';
 
             const catClass = getCategorieColorClassById(cat.id_categorie);
+            const catalltext = (nbre_categories_js > 1 ? `<span class="tag-couleur ${catClass}">${escapeHTML(cat.nom_categorie)}</span>` : '');
+
 
             let html = `<div class="poule-header">
-                <span class="tag-couleur ${catClass}">${escapeHTML(cat.nom_categorie)}</span>
+                ${catalltext}
             </div>
                 <table>
                     <thead>

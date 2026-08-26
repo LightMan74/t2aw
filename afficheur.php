@@ -20,7 +20,17 @@ $id_tournoi = isset($_GET['id_tournoi']) ? (int)$_GET['id_tournoi'] : 0;
 </head>
 
 <body>
-
+    <?php
+            include 'api/db.php';
+            $stmt = $pdo->prepare("
+                SELECT COUNT(`id_categorie`) as nbre_categories
+                FROM categorie
+                WHERE id_tournoi = :id
+            ");
+            $stmt->execute(['id' => $id_tournoi]);
+            $parametres = $stmt->fetch(PDO::FETCH_ASSOC);
+            $nbre_categories = $parametres['nbre_categories'] ?? 1;
+            ?>
     <?php  
 if ($id_tournoi === 0): ?>
 
@@ -294,5 +304,9 @@ if ($id_tournoi === 0): ?>
     <?php   
 endif; ?>
 </body>
+<script>
+const nbre_categories_js = <?= json_encode((int)$nbre_categories); ?>;
+console.log(nbre_categories_js);
+</script>
 
 </html>

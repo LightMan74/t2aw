@@ -202,11 +202,15 @@ function afficherTable() {
             </td>
         `;
         }
-
+        if (nbre_categories_js > 1) {
+            colCatHtml = `<td class="categorie-badge ${catClass}">${m.nom_categorie ?? ''}</td>`;
+        } else {
+            colCatHtml = ``;
+        }
         tr.innerHTML = `
         <td class="drag-handle">⠿</td>
         <td class="match-code-label">${m.code}</td>
-        <td class="categorie-badge ${catClass}">${m.nom_categorie ?? ''}</td>
+        ${colCatHtml}
         ${colInfoHtml}
         <td>${nom1}</td>
         <td>
