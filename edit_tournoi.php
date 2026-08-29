@@ -16,6 +16,14 @@ $mode_creation = $id_tournoi === 0;
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="css/dark-mode.css">
     <link rel="stylesheet" href="css/tirage.css">
+    <style>
+        .estimation-heure {
+            display: block;
+            margin-top: 0.35rem;
+            color: var(--couleur-secondaire, #666);
+            font-size: 0.9em;
+        }
+    </style>
 
 </head>
 
@@ -107,10 +115,12 @@ $mode_creation = $id_tournoi === 0;
                     <div class="form-group">
                         <label for="heure_debut_poule">Heure de début (poules)</label>
                         <input type="time" id="heure_debut_poule" name="heure_debut_poule" value="">
+                        <span class="estimation-heure" id="estimation-heure-poule" aria-live="polite"></span>
                     </div>
                     <div class="form-group">
                         <label for="heure_debut_phasefinal">Heure de début (phase finale)</label>
                         <input type="time" id="heure_debut_phasefinal" name="heure_debut_phasefinal" value="">
+                        <span class="estimation-heure" id="estimation-heure-phasefinal" aria-live="polite"></span>
                     </div>
                 </div>
 

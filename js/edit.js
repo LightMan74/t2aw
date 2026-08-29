@@ -4,13 +4,15 @@
 
 'use strict';
 
-document.addEventListener('DOMContentLoaded', function () {
+document.addEventListener('DOMContentLoaded', async function () {
     initSecuriteInputsNumber();
+    initialiserEstimationsHeures();
 
     if (window.modeCreation) {
         initModeCreation();
+        actualiserEstimationsHeures();
     } else {
-        chargerDonneesTournoi();
+        await chargerDonneesTournoi();
     }
     setupFormulaire();
 });
@@ -50,6 +52,7 @@ function initModeCreation() {
     poulesContainer.appendChild(defaultPoule);
 
     container.appendChild(block);
+    actualiserEstimationsHeures();
 }
 
 // ==========================================
@@ -110,6 +113,7 @@ async function chargerDonneesTournoi() {
         if (editSection) editSection.style.display = 'block';
 
         genererCategoriesAvecDonnees(data.categories);
+        actualiserEstimationsHeures();
 
     } catch (err) {
         afficherErreur('Erreur réseau : ' + err.message);
@@ -300,6 +304,7 @@ function ajusterCategories(delta) {
     }
 
     if (span) span.textContent = nbreActuel;
+    actualiserEstimationsHeures();
 }
 
 // ==========================================
@@ -323,6 +328,7 @@ function ajouterPoule(btn) {
     var eqCont = newPoule.querySelector('.equipes-container');
     ajouterChampEquipePreserve(eqCont, id_categorie, nbrePoules, '', lettrePoule);
     ajouterChampEquipePreserve(eqCont, id_categorie, nbrePoules, '', lettrePoule);
+    actualiserEstimationsHeures();
 }
 
 function supprimerPoule(btn) {
@@ -331,6 +337,7 @@ function supprimerPoule(btn) {
     if (poulesContainer.querySelectorAll('.poule-block').length <= 1) return;
     pouleBlock.remove();
     reordonnerPoules(poulesContainer);
+    actualiserEstimationsHeures();
 }
 
 /**
@@ -382,6 +389,7 @@ function ajouterEquipe(btn) {
     var id_poule = parseInt(pouleBlock.dataset.idPoule);
     var lettrePoule = indexToLettre(id_poule);
     ajouterChampEquipePreserve(equipesContainer, id_categorie, id_poule, '', lettrePoule);
+    actualiserEstimationsHeures();
 }
 
 function supprimerEquipe(btn) {
@@ -389,6 +397,7 @@ function supprimerEquipe(btn) {
     var equipesContainer = equipeItem.closest('.equipes-container');
     equipeItem.remove();
     reordonnerEquipes(equipesContainer);
+    actualiserEstimationsHeures();
 }
 
 /**
@@ -568,6 +577,89 @@ function collectFormData() {
         show_timer: show_timer,
         show_qrcode: show_qrcode
     };
+}
+
+// ==========================================
+// ESTIMATION DES HEURES DE FIN (100 % côté client)
+// ==========================================
+function initialiserEstimationsHeures() {
+    ['heure_debut_poule', 'heure_debut_phasefinal', 'temps_de_match',
+        'nbre_terrain_poule', 'nbre_terrain_phasefinal'].forEach(function (id) {
+        var input = document.getElementById(id);
+        if (input) input.addEventListener('input', actualiserEstimationsHeures);
+        if (input) input.addEventListener('change', actualiserEstimationsHeures);
+    });
+
+    var categoriesContainer = document.getElementById('categories-container');
+    if (categoriesContainer && window.MutationObserver) {
+        var observer = new MutationObserver(function () {
+            actualiserEstimationsHeures();
+        });
+        observer.observe(categoriesContainer, { childList: true, subtree: true });
+    }
+
+    // Les noms d'équipe et de catégorie ne changent pas les quantités, mais
+    // la délégation rend le recalcul robuste aux champs créés dynamiquement.
+    document.addEventListener('input', function (event) {
+        if (event.target && event.target.closest &&
+            event.target.closest('#categories-container')) {
+            actualiserEstimationsHeures();
+        }
+    });
+}
+
+function actualiserEstimationsHeures() {
+    var tempsMatch = parseInt(document.getElementById('temps_de_match').value, 10) || 0;
+    var terrainsPoules = parseInt(document.getElementById('nbre_terrain_poule').value, 10) || 0;
+    var terrainsPhaseFinale = parseInt(document.getElementById('nbre_terrain_phasefinal').value, 10) || 0;
+    var categories = document.querySelectorAll('#categories-container .categorie-block');
+    var totalMatchsPoules = 0;
+    var totalMatchsPhaseFinale = 0;
+
+    categories.forEach(function (categorie) {
+        var totalEquipesCategorie = 0;
+        categorie.querySelectorAll(':scope > .poules-container > .poule-block').forEach(function (poule) {
+            var n = poule.querySelectorAll(':scope > .equipes-container > .equipe-item').length;
+            totalMatchsPoules += n * (n - 1) / 2;
+            totalEquipesCategorie += n;
+        });
+
+        // Tableau complet par puissance de 2, comme forcerPuissanceDe2() en PHP.
+        if (totalEquipesCategorie > 1) {
+            var puissance2 = Math.pow(2, Math.ceil(Math.log2(totalEquipesCategorie)));
+            var nombreRounds = Math.log2(puissance2);
+            totalMatchsPhaseFinale += (puissance2 / 2) * nombreRounds;
+        }
+    });
+
+    afficherEstimationHeure('heure_debut_poule', 'estimation-heure-poule',
+        totalMatchsPoules, terrainsPoules, tempsMatch);
+    afficherEstimationHeure('heure_debut_phasefinal', 'estimation-heure-phasefinal',
+        totalMatchsPhaseFinale, terrainsPhaseFinale, tempsMatch);
+}
+
+function afficherEstimationHeure(idDebut, idSortie, totalMatchs, terrains, tempsMatch) {
+    var sortie = document.getElementById(idSortie);
+    var heureDebut = document.getElementById(idDebut);
+    if (!sortie || !heureDebut) return;
+
+    if (!heureDebut.value || terrains <= 0 || tempsMatch <= 0) {
+        sortie.textContent = '';
+        return;
+    }
+
+    var morceaux = heureDebut.value.split(':');
+    var minutesDebut = parseInt(morceaux[0], 10) * 60 + parseInt(morceaux[1], 10);
+    var duree = Math.ceil(totalMatchs / terrains) * tempsMatch;
+    var minutesFin = minutesDebut + duree;
+    var jours = Math.floor(minutesFin / (24 * 60));
+    var minutesDansJour = minutesFin % (24 * 60);
+    var heures = Math.floor(minutesDansJour / 60);
+    var minutes = minutesDansJour % 60;
+
+    sortie.textContent = 'Fin théorique : ' +
+        String(heures).padStart(2, '0') + ':' + String(minutes).padStart(2, '0') +
+        (jours > 0 ? ' (+' + jours + 'j)' : '');
 }
 
 // ==========================================
