@@ -38,7 +38,7 @@ $tournoi_id = isset($_GET['id_tournoi']) ? (int)$_GET['id_tournoi'] : 0;
             <div class="option-heure-manuelle" style="margin-right: auto;margin-left: 5px;">
                 <div class="toggle-btn">
                     <label onclick="resetOrdre(id_tournoi_js)" class="toggle-btn-label btn-ordre-save" style="background: red;">Reinitialisé l'ordre</label>
-                    <label onclick="enregistrerOrdre()" class="toggle-btn-label btn-ordre-save">Enregistrer l'ordre</label>
+                    <label onclick="enregistrerOrdre()" class="toggle-btn-label btn-ordre-save">Enregistrer l'ordre<span id="icone-modif-ordre" class="icone-modif-attente" hidden title="L'ordre a été modifié et n'est pas encore enregistré">⚠️💾⚠️</span></label>
                     <label>---</label>
                     <label onclick="chargerMatchs(true)" class="toggle-btn-label btn-ordre-save">Inversé ordre Phase Final</label>
                     <label>---</label>

@@ -31,3 +31,38 @@ tr.drag-over {
     color: #666;
     font-style: italic;
 }
+
+.drag-handle {
+    cursor: grab;
+    touch-action: none;
+    /* empêche le scroll du navigateur pendant le touchmove sur la poignée */
+    user-select: none;
+    padding: 8px 12px;
+    font-size: 1.2em;
+}
+
+tr.dragging {
+    background: #f0f8ff;
+}
+
+.drag-placeholder td {
+    padding: 0;
+}
+
+.icone-modif-attente {
+    margin-left: 6px;
+    font-size: 0.9em;
+    animation: pulse-warning 1.5s infinite;
+}
+
+@keyframes pulse-warning {
+
+    0%,
+    100% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0.4;
+    }
+}

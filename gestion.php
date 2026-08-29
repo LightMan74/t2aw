@@ -239,8 +239,8 @@ $hiddenSets = ((int) $tournoi_troissets_match > 1) ? '' : 'hidden';
             <!-- <main class="container"> -->
 
             <!-- NOUVEAU : Liste de tous les matchs de phase finale (toutes phases confondues) -->
-            <!-- <section id="section-liste-matchs-pf" class="section" hidden> -->
-            <section id="section-liste-matchs-pf" class="section">
+            <section id="section-liste-matchs-pf" class="section" hidden>
+                <!-- <section id="section-liste-matchs-pf" class="section"> -->
                 <div class="section-header">
                     <h2>Tous les matchs de phase finale</h2>
                 </div>

@@ -74,11 +74,18 @@ async function chargerMatchs(inverseordrematch = false) {
             });
         }
 
+        if (!inverseordrematch) {
+            ordreSauvegarde = matchsData.map(m => m.code);
+        }
         modifiedMatchs.clear();
         afficherTable();
+        majIconeOrdre();
     } catch (err) {
         afficherMessage('Erreur réseau : ' + err.message, 'error');
     }
+    // if (inverseordrematch) {
+    //     enregistrerOrdre();
+    // }
 }
 
 // Regroupe par id_phase_finale + round, puis inverse l'ordre d'affichage au sein de chaque groupe
@@ -264,14 +271,21 @@ function afficherTable() {
             });
         });
 
-        // Drag & drop
+        // Drag & drop (desktop)
         tr.addEventListener('dragstart', onDragStart);
         tr.addEventListener('dragover', onDragOver);
         tr.addEventListener('dragleave', onDragLeave);
         tr.addEventListener('drop', onDrop);
         tr.addEventListener('dragend', onDragEnd);
+
+        // Drag & drop (mobile / tactile)
+        const handle = tr.querySelector('.drag-handle');
+        if (handle) {
+            handle.addEventListener('touchstart', onTouchStart, { passive: false });
+        }
     });
 }
+
 
 function majBadgeStatus(index, nouveauStatus) {
     const badge = document.getElementById(`status-badge-${index}`);
@@ -340,19 +354,158 @@ function onDrop(e) {
     const targetIndex = parseInt(e.currentTarget.dataset.index, 10);
     if (draggedIndex === null || draggedIndex === targetIndex) return;
 
-    // Réorganisation du tableau matchsData
     const [item] = matchsData.splice(draggedIndex, 1);
     matchsData.splice(targetIndex, 0, item);
 
-    // On réinitialise les modifications en cours car les index changent
     modifiedMatchs.clear();
-
     afficherTable();
+    majIconeOrdre();
 }
 
 function onDragEnd(e) {
     e.currentTarget.classList.remove('dragging');
     document.querySelectorAll('tr.drag-over').forEach(tr => tr.classList.remove('drag-over'));
+}
+
+let touchDraggedIndex = null;
+let touchDraggedRow = null;
+let touchPlaceholder = null;
+let touchStartY = 0;
+let touchCurrentY = 0;
+let autoScrollInterval = null;
+
+function onTouchStart(e) {
+    e.preventDefault();
+    const tr = e.target.closest('tr');
+    if (!tr) return;
+
+    touchDraggedIndex = parseInt(tr.dataset.index, 10);
+    touchDraggedRow = tr;
+    touchStartY = e.touches[0].clientY;
+
+    tr.classList.add('dragging');
+
+    // Placeholder pour visualiser la position
+    touchPlaceholder = document.createElement('tr');
+    touchPlaceholder.className = 'drag-placeholder';
+    const nbCols = tr.children.length;
+    touchPlaceholder.innerHTML = `<td colspan="${nbCols}" style="height:${tr.offsetHeight}px; background:#cce5ff; border:2px dashed #2a7ae2;"></td>`;
+
+    tr.parentNode.insertBefore(touchPlaceholder, tr.nextSibling);
+
+    document.addEventListener('touchmove', onTouchMove, { passive: false });
+    document.addEventListener('touchend', onTouchEnd);
+}
+
+function onTouchMove(e) {
+    if (!touchDraggedRow) return;
+    e.preventDefault();
+
+    touchCurrentY = e.touches[0].clientY;
+    const deltaY = touchCurrentY - touchStartY;
+
+    touchDraggedRow.style.transform = `translateY(${deltaY}px)`;
+    touchDraggedRow.style.position = 'relative';
+    touchDraggedRow.style.zIndex = '1000';
+    touchDraggedRow.style.opacity = '0.8';
+    touchDraggedRow.style.background = '#fff';
+
+    // IMPORTANT : cacher temporairement la ligne trainée pour que elementFromPoint
+    // ne la retourne pas elle-même
+    touchDraggedRow.style.pointerEvents = 'none';
+
+    const touchX = e.touches[0].clientX;
+    const elemBelow = document.elementFromPoint(touchX, touchCurrentY);
+
+    touchDraggedRow.style.pointerEvents = '';
+
+    const rowBelow = elemBelow ? elemBelow.closest('tr') : null;
+
+    if (rowBelow &&
+        rowBelow !== touchDraggedRow &&
+        rowBelow !== touchPlaceholder &&
+        rowBelow.parentNode === touchDraggedRow.parentNode) {
+
+        const rect = rowBelow.getBoundingClientRect();
+        const middle = rect.top + rect.height / 2;
+
+        if (touchCurrentY < middle) {
+            rowBelow.parentNode.insertBefore(touchPlaceholder, rowBelow);
+        } else {
+            rowBelow.parentNode.insertBefore(touchPlaceholder, rowBelow.nextSibling);
+        }
+    }
+
+    // Auto-scroll
+    const scrollMargin = 60;
+    const scrollSpeed = 15;
+    clearInterval(autoScrollInterval);
+
+    if (touchCurrentY < scrollMargin) {
+        autoScrollInterval = setInterval(() => window.scrollBy(0, -scrollSpeed), 16);
+    } else if (touchCurrentY > window.innerHeight - scrollMargin) {
+        autoScrollInterval = setInterval(() => window.scrollBy(0, scrollSpeed), 16);
+    }
+}
+
+function onTouchEnd(e) {
+    clearInterval(autoScrollInterval);
+    document.removeEventListener('touchmove', onTouchMove);
+    document.removeEventListener('touchend', onTouchEnd);
+
+    if (!touchDraggedRow || !touchPlaceholder) {
+        resetTouchDragState();
+        return;
+    }
+
+    const corps = document.getElementById('corps-table');
+
+    // Compter combien de lignes AVEC data-index sont avant le placeholder
+    let targetPos = 0;
+    for (const child of Array.from(corps.children)) {
+        if (child === touchPlaceholder) break;
+        if (child.hasAttribute && child.hasAttribute('data-index')) {
+            targetPos++;
+        }
+    }
+
+    // Nettoyage visuel
+    touchDraggedRow.style.transform = '';
+    touchDraggedRow.style.position = '';
+    touchDraggedRow.style.zIndex = '';
+    touchDraggedRow.style.opacity = '';
+    touchDraggedRow.style.background = '';
+    touchDraggedRow.style.pointerEvents = '';
+    touchDraggedRow.classList.remove('dragging');
+
+    touchPlaceholder.remove();
+
+    console.log('Drag depuis', touchDraggedIndex, 'vers', targetPos);
+
+    if (touchDraggedIndex !== null && touchDraggedIndex !== targetPos) {
+        const [item] = matchsData.splice(touchDraggedIndex, 1);
+
+        let finalPos = targetPos;
+        if (touchDraggedIndex < targetPos) {
+            finalPos = targetPos - 1;
+        }
+
+        matchsData.splice(finalPos, 0, item);
+    }
+
+    modifiedMatchs.clear();
+    resetTouchDragState();
+    afficherTable();
+    majIconeOrdre();
+
+}
+
+function resetTouchDragState() {
+    touchDraggedIndex = null;
+    touchDraggedRow = null;
+    touchPlaceholder = null;
+    touchStartY = 0;
+    touchCurrentY = 0;
 }
 
 // ---------- Sauvegarde de l'ordre ----------
@@ -374,6 +527,8 @@ async function enregistrerOrdre() {
         const data = await res.json();
 
         if (data.success) {
+            ordreSauvegarde = [...ordre]; // on met à jour la référence
+            majIconeOrdre();
             afficherMessage('Ordre des matchs enregistré ✓', 'success');
         } else {
             afficherMessage(data.error || 'Erreur lors de l\'enregistrement de l\'ordre', 'error');
@@ -880,4 +1035,16 @@ async function resetOrdre(idTournoi) {
         console.error('Erreur réseau :', error);
         alert('Erreur de connexion au serveur');
     }
+}
+let ordreSauvegarde = []; // tableau de codes représentant le dernier ordre connu en BDD
+function ordreEstModifie() {
+    const ordreActuel = matchsData.map(m => m.code);
+    if (ordreActuel.length !== ordreSauvegarde.length) return true;
+    return ordreActuel.some((code, i) => code !== ordreSauvegarde[i]);
+}
+
+function majIconeOrdre() {
+    const icone = document.getElementById('icone-modif-ordre');
+    if (!icone) return;
+    icone.hidden = !ordreEstModifie();
 }
