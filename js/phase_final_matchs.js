@@ -25,14 +25,14 @@ async function chargerMatchsPF() {
         if (data.success) {
             matchsPFData = data.matchs;
             modifiedMatchsPF.clear();
-            afficherTablePF();
+            await afficherTablePF();
         } else {
             afficherMessageListePF(data.message || data.error || 'Erreur', 'error');
         }
     } catch (err) {
         afficherMessageListePF('Erreur réseau : ' + err.message, 'error');
     }
-    togglematchtermine();
+    await togglematchtermine();
 }
 
 const STATUS_CYCLE_PF = ['planifie', 'en_cours', 'termine'];
@@ -42,7 +42,7 @@ const STATUS_LABELS_PF = {
     termine: 'Terminé'
 };
 
-function marquerModifiePF(index) {
+async function marquerModifiePF(index) {
     modifiedMatchsPF.add(index);
     majIconeSavePF(index);
 }
@@ -61,7 +61,7 @@ function majIconeSavePF(index) {
     }
 }
 
-function afficherTablePF() {
+async function afficherTablePF() {
     matchcount = 0;
     const corps = document.getElementById('corps-table-pf');
     if (!corps) { console.error('Élément #corps-table-pf introuvable'); return; }
@@ -162,6 +162,7 @@ function afficherTablePF() {
             });
         });
     });
+    await new Promise(r => requestAnimationFrame(r));
 }
 
 function majBadgeStatusPF(index, nouveauStatus) {
@@ -437,7 +438,7 @@ async function mettreHeureActuellePFListe(index) {
     const hdebutInput = document.getElementById(`hdebut-pf-${index}`);
     if (hdebutInput) {
         hdebutInput.value = nouvelleHeureMatch;
-        marquerModifiePF(index);
+        await marquerModifiePF(index);
     }
 
     let nbModifies = 0;
@@ -520,7 +521,7 @@ function calculerPlageClassement(round, subKey, nbreTeam) {
 }
 
 
-function togglematchtermine() {
+async function togglematchtermine() {
 
     const lignesTerminees = document.querySelectorAll('tr.status-termine');
     const checkbox = document.getElementById('matchtermineCheckbox');

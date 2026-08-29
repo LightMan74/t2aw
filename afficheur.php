@@ -306,7 +306,7 @@ endif; ?>
 </body>
 <script>
 const nbre_categories_js = <?= json_encode((int)$nbre_categories); ?>;
-console.log(nbre_categories_js);
+// console.log(nbre_categories_js);
 </script>
 
 </html>

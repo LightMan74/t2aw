@@ -43,10 +43,12 @@
 $tournoi_id = isset($_GET['id_tournoi']) ? (int) $_GET['id_tournoi'] : 0;
 $tournoi_troissets_match = 1;
 if ($tournoi_id > 0) {
-    $stmt = $pdo->prepare("SELECT troissets FROM parametre WHERE id_tournoi = :id");
+    $stmt = $pdo->prepare("SELECT troissets,heure_debut_phasefinal,nbre_terrain_phasefinal FROM parametre WHERE id_tournoi = :id");
     $stmt->execute(['id' => $tournoi_id]);
     $parametres = $stmt->fetch(PDO::FETCH_ASSOC);
-    if ($parametres !== false && isset($parametres['troissets'])) $tournoi_troissets_match = $parametres['troissets'];
+    if ($parametres !== false && isset($parametres['troissets'])) $tournoi_troissets_match = $parametres['troissets'];    
+    if ($parametres !== false && isset($parametres['heure_debut_phasefinal'])) $tournoi_heure_debut_phasefinal = $parametres['heure_debut_phasefinal'];
+    if ($parametres !== false && isset($parametres['nbre_terrain_phasefinal'])) $tournoi_nbre_terrain_phasefinal = $parametres['nbre_terrain_phasefinal'];
 }
 $hiddenSets = ((int) $tournoi_troissets_match > 1) ? '' : 'hidden';
 ?>
@@ -237,7 +239,8 @@ $hiddenSets = ((int) $tournoi_troissets_match > 1) ? '' : 'hidden';
             <!-- <main class="container"> -->
 
             <!-- NOUVEAU : Liste de tous les matchs de phase finale (toutes phases confondues) -->
-            <section id="section-liste-matchs-pf" class="section" hidden>
+            <!-- <section id="section-liste-matchs-pf" class="section" hidden> -->
+            <section id="section-liste-matchs-pf" class="section">
                 <div class="section-header">
                     <h2>Tous les matchs de phase finale</h2>
                 </div>
@@ -545,3 +548,8 @@ $hiddenSets = ((int) $tournoi_troissets_match > 1) ? '' : 'hidden';
 </body>
 
 </html>
+
+<script>
+const heure_debut_phasefinal_js = <?= json_encode($tournoi_heure_debut_phasefinal); ?>;
+const tournoi_nbre_terrain_phasefinal_js = <?= json_encode($tournoi_nbre_terrain_phasefinal); ?>;
+</script>

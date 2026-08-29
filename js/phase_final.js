@@ -285,9 +285,32 @@ document.getElementById('form-creation').addEventListener('submit', async e => {
         afficherMessage('msg-creation', err.message, 'error');
     }
 
-    await callsimuler(currentPhaseFinaleId, selectdebutph.value); await chargerMatchsPF();
-});
+    await callsimuler(currentPhaseFinaleId, selectdebutph.value);
+    await chargerMatchsPF();
 
+    await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+
+    // console.log('chargerMatchsPF est fini');
+
+    // console.log(document.getElementById('heureManuelleInputListePF').value);
+    // console.log(document.getElementById('heureManuelleInputListePF'));
+    // console.log(heure_debut_phasefinal_js);
+    document.getElementById('heureManuelleInputListePF').value = heure_debut_phasefinal_js;
+    document.getElementById('heureManuelleCheckboxListePF').checked = true;
+    await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+    await sleep(250);
+    for (let i = 0; i < tournoi_nbre_terrain_phasefinal_js; i++) {
+        // console.log(i);
+        await mettreHeureActuellePFListe(i);
+        await sleep(250);
+    }
+    await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+    // await sleep(2000);
+    await autosaveandreloadListePF();
+    document.getElementById('heureManuelleCheckboxListePF').checked = false;
+
+});
+const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 // ---------- Liste des phases finales ----------
 
 document.getElementById('btn-rafraichir-liste').addEventListener('click', () => {
