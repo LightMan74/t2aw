@@ -1,4 +1,5 @@
 <?php
+require_once __DIR__ . '/version.php';
 $id_tournoi = isset($_GET['id_tournoi']) ? (int)$_GET['id_tournoi'] : 0;
 ?>
 <!DOCTYPE html>
@@ -303,6 +304,24 @@ if ($id_tournoi === 0): ?>
     <?php } ?>
     <?php   
 endif; ?>
+    <style>
+        .footer-t2aw {
+            padding: 1rem;
+            text-align: center;
+            color: #777;
+            font-size: 0.85rem;
+        }
+
+        .footer-t2aw a {
+            color: inherit;
+            text-decoration: underline;
+        }
+    </style>
+    <footer class="footer-t2aw">
+        Version <?php echo htmlspecialchars(version_t2aw, ENT_QUOTES, 'UTF-8'); ?> ·
+        <a href="<?php echo htmlspecialchars(url_github_t2aw, ENT_QUOTES, 'UTF-8'); ?>" target="_blank" rel="noopener noreferrer">GitHub</a> ·
+        <a href="mailto:<?php echo htmlspecialchars(email_contact_t2aw, ENT_QUOTES, 'UTF-8'); ?>">Contact</a>
+    </footer>
 </body>
 <script>
 const nbre_categories_js = <?= json_encode((int)$nbre_categories); ?>;

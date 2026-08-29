@@ -12,7 +12,7 @@ class TabRotator {
         this.subInterval = options.subInterval || 10000;
 
         // Paramètres du scroll automatique (valeurs par défaut AVANT _loadSettings)
-        this.scrollSpeed = options.scrollSpeed || 30;
+        this.scrollSpeed = options.scrollSpeed || 33;
         this.scrollPauseAtStart = options.scrollPauseAtStart || 6000;
         this.scrollPauseAtEnd = options.scrollPauseAtEnd || 1000;
 
@@ -310,7 +310,7 @@ class TabRotator {
  */
 class AutoScroller {
     constructor(options = {}) {
-        this.scrollSpeed = options.scrollSpeed || 40;
+        this.scrollSpeed = options.scrollSpeed || 33;
         this.pauseAtStart = options.scrollPauseAtStart || 500;
         this.pauseAtEnd = options.scrollPauseAtEnd || 2000;
         this.rafId = null;
