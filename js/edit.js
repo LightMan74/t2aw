@@ -200,6 +200,10 @@ function creerBlocCategorie(id_categorie, nom) {
         '<div class="categorie-header">' +
         '<h3>Catégorie ' + id_categorie + '</h3>' +
         '<input type="text" name="categorie_nom_' + id_categorie + '" placeholder="Nom de la catégorie" value="' + escapeHtml(nom || '') + '" required>' +
+        '<label class="categorie-round-depart">' +
+        '<span>Round de départ de la phase finale</span>' +
+        '<select class="round-depart-select" aria-label="Round de départ de la phase finale"></select>' +
+        '</label>' +
         '<button type="button" class="btn-mini btn-plus" onclick="ajouterPoule(this)">+ Poule</button>' +
         '</div>' +
         '<div class="poules-container" data-id-categorie="' + id_categorie + '">' +
@@ -606,15 +610,23 @@ function initialiserEstimationsHeures() {
             actualiserEstimationsHeures();
         }
     });
+
+    document.addEventListener('change', function (event) {
+        if (event.target && event.target.matches &&
+            event.target.matches('.round-depart-select')) {
+            actualiserEstimationsHeures();
+        }
+    });
 }
 
 function actualiserEstimationsHeures() {
     var tempsMatch = parseInt(document.getElementById('temps_de_match').value, 10) || 0;
     var terrainsPoules = parseInt(document.getElementById('nbre_terrain_poule').value, 10) || 0;
     var terrainsPhaseFinale = parseInt(document.getElementById('nbre_terrain_phasefinal').value, 10) || 0;
+    mettreAJourSelectsRoundDepart();
     var categories = document.querySelectorAll('#categories-container .categorie-block');
     var totalMatchsPoules = 0;
-    var totalMatchsPhaseFinale = 0;
+    var totalMatchsPhaseFinale = calculerTotalMatchsPhaseFinale();
 
     categories.forEach(function (categorie) {
         var totalEquipesCategorie = 0;
@@ -624,12 +636,6 @@ function actualiserEstimationsHeures() {
             totalEquipesCategorie += n;
         });
 
-        // Tableau complet par puissance de 2, comme forcerPuissanceDe2() en PHP.
-        if (totalEquipesCategorie > 1) {
-            var puissance2 = Math.pow(2, Math.ceil(Math.log2(totalEquipesCategorie)));
-            var nombreRounds = Math.log2(puissance2);
-            totalMatchsPhaseFinale += (puissance2 / 2) * nombreRounds;
-        }
     });
 
     afficherEstimationHeure('heure_debut_poule', 'estimation-heure-poule',
@@ -660,6 +666,82 @@ function afficherEstimationHeure(idDebut, idSortie, totalMatchs, terrains, temps
     sortie.textContent = 'Fin théorique : ' +
         String(heures).padStart(2, '0') + ':' + String(minutes).padStart(2, '0') +
         (jours > 0 ? ' (+' + jours + 'j)' : '');
+}
+
+// ==========================================
+// ROUND DE DÉPART DE LA PHASE FINALE (ESTIMATION UNIQUEMENT)
+// ==========================================
+var LIBELLES_ROUNDS_PHASE_FINALE = [
+    'Finale',
+    'Demi-finale',
+    '1/4 de finale',
+    '1/8 de finale',
+    '1/16 de finale',
+    '1/32 de finale'
+];
+
+function forcerPuissanceDe2Client(nombre) {
+    if (nombre <= 1) return 1;
+    return Math.pow(2, Math.ceil(Math.log2(nombre)));
+}
+
+function obtenirLibellesRoundsPhaseFinale(nombreRounds) {
+    // Le round 0 est le plus précoce ; le dernier est toujours la finale.
+    var nombreOptions = Math.max(1, Math.min(nombreRounds, LIBELLES_ROUNDS_PHASE_FINALE.length));
+    return LIBELLES_ROUNDS_PHASE_FINALE.slice(0, nombreOptions).reverse();
+}
+
+function mettreAJourSelectsRoundDepart() {
+    document.querySelectorAll('#categories-container .categorie-block').forEach(function (categorie) {
+        var select = categorie.querySelector(':scope > .categorie-header .round-depart-select');
+        if (!select) return;
+
+        var nombreEquipes = categorie.querySelectorAll(
+            ':scope > .poules-container > .poule-block > .equipes-container > .equipe-item'
+        ).length;
+        var puissance2 = forcerPuissanceDe2Client(nombreEquipes);
+        var nombreRounds = puissance2 > 1 ? Math.log2(puissance2) : 0;
+        var libelles = obtenirLibellesRoundsPhaseFinale(nombreRounds);
+        var ancienneValeur = parseInt(select.value, 10);
+        var valeurConservee = Number.isInteger(ancienneValeur) && ancienneValeur < libelles.length
+            ? ancienneValeur : 0;
+
+        // Évite de recréer les options à chaque passage du MutationObserver.
+        if (select.dataset.nombreRounds === String(nombreRounds) && select.options.length === libelles.length) {
+            select.value = String(valeurConservee);
+            return;
+        }
+
+        select.textContent = '';
+        libelles.forEach(function (libelle, index) {
+            var option = document.createElement('option');
+            option.value = String(index);
+            option.textContent = libelle;
+            select.appendChild(option);
+        });
+        select.dataset.nombreRounds = String(nombreRounds);
+        select.value = String(valeurConservee);
+    });
+}
+
+function calculerTotalMatchsPhaseFinale() {
+    var total = 0;
+    document.querySelectorAll('#categories-container .categorie-block').forEach(function (categorie) {
+        var nombreEquipes = categorie.querySelectorAll(
+            ':scope > .poules-container > .poule-block > .equipes-container > .equipe-item'
+        ).length;
+        if (nombreEquipes <= 1) return;
+
+        var puissance2 = forcerPuissanceDe2Client(nombreEquipes);
+        var nombreRounds = Math.log2(puissance2);
+        var select = categorie.querySelector(':scope > .categorie-header .round-depart-select');
+        var roundDepart = select ? parseInt(select.value, 10) : 0;
+        if (!Number.isInteger(roundDepart) || roundDepart < 0 || roundDepart >= nombreRounds) {
+            roundDepart = 0;
+        }
+        total += (puissance2 / 2) * (nombreRounds - roundDepart);
+    });
+    return total;
 }
 
 // ==========================================
@@ -787,6 +869,10 @@ function creerBlocCategorie(id_categorie, nom) {
         '<div class="categorie-header">' +
         '<h3>Catégorie ' + id_categorie + '</h3>' +
         '<input type="text" name="categorie_nom_' + id_categorie + '" placeholder="Nom de la catégorie" value="' + escapeHtml(nom || '') + '" required>' +
+        '<label class="categorie-round-depart">' +
+        '<span>Round de départ de la phase finale</span>' +
+        '<select class="round-depart-select" aria-label="Round de départ de la phase finale"></select>' +
+        '</label>' +
         '<button type="button" class="btn-mini btn-plus" onclick="ajouterPoule(this)">+ Poule</button>' +
         '<button type="button" class="btn-mini btn-tirage" onclick="ouvrirTirageModal(this)">🎲 Tirage au sort</button>' +
         '</div>' +

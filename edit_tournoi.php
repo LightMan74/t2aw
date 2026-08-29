@@ -23,6 +23,15 @@ $mode_creation = $id_tournoi === 0;
             color: var(--couleur-secondaire, #666);
             font-size: 0.9em;
         }
+        .categorie-round-depart {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+            margin-left: 0.75rem;
+        }
+        .categorie-round-depart span {
+            font-size: 0.9em;
+        }
     </style>
 
 </head>
