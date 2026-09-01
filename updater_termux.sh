@@ -13,11 +13,11 @@ apt download tidy tidy-static &&
 apt download $(apt-cache depends php | grep "Depends:" | awk '{print $2}') &&
 for deb in *.deb; do dpkg-deb -x "$deb" ./env_php; done &&
 rm *.deb &&
-curl -o "$HOME/php/updater_termux.php" "https://raw.githubusercontent.com/LightMan74/t2aw/refs/heads/main/updater_termux.php" &&
+curl -o "$HOME/php/updater.php" "https://raw.githubusercontent.com/LightMan74/t2aw/refs/heads/main/updater.php" &&
 BASE_DIR="$HOME/php/env_php/data/data/com.termux/files/usr" &&
 PHP_BIN="$BASE_DIR/bin/php" &&
 export LD_LIBRARY_PATH="$BASE_DIR/lib:$LD_LIBRARY_PATH" &&
-"$PHP_BIN" "$HOME/php/updater_termux.php" &&
+"$PHP_BIN" "$HOME/php/updater.php" &&
 cat << 'EOF' > "$HOME/php/start.sh"
 #!/data/data/com.termux/files/usr/bin/bash
 BASE_DIR="$HOME/php/env_php/data/data/com.termux/files/usr"
