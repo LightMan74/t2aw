@@ -225,15 +225,22 @@
             div.textContent = joueurs[0];
             container.appendChild(div);
         } else {
-            // slot "droit" (pos[0]) et slot "gauche" (pos[1]) du point de vue de l'équipe
             const divDroit = document.createElement('div');
             divDroit.className = 'joueur-slot slot-droit';
             divDroit.textContent = joueurs[pos[0]] + ' (droite)';
             const divGauche = document.createElement('div');
             divGauche.className = 'joueur-slot slot-gauche';
             divGauche.textContent = joueurs[pos[1]] + ' (gauche)';
-            container.appendChild(divDroit);
-            container.appendChild(divGauche);
+
+            if (team === 1) {
+                // équipe 1 : joueur de droite en bas => on insère gauche d'abord, droite ensuite
+                container.appendChild(divGauche);
+                container.appendChild(divDroit);
+            } else {
+                // équipe 2 (ou autre) : droite en haut, gauche en bas
+                container.appendChild(divDroit);
+                container.appendChild(divGauche);
+            }
         }
     }
 
@@ -281,26 +288,23 @@
     // Règles officielles de rotation badminton
     function gererRotationApresPoint(teamMarqueur, teamServeurAvant) {
         if (teamMarqueur === teamServeurAvant) {
-            // L'équipe au service marque : elle garde le service.
-            // En double : le même serveur change de côté (gauche/droite) avec son partenaire.
-            // En simple : le serveur change de côté automatiquement (car pair/impair), pas de changement de joueur.
             if (joueursEquipe(teamMarqueur).length === 2) {
-                // swap positions du serveur/partenaire de cette équipe
                 const pos = posEquipe(teamMarqueur);
                 pos.reverse();
             }
-            // en simple : rien à faire sur les joueurs, juste le côté visuel du score suit la parité (géré par l'arbitre visuellement)
         } else {
-            // Le service passe à l'autre équipe (perte de l'échange par le serveur)
+            // Le service passe à l'autre équipe
             match.serveur.team = teamMarqueur;
 
+            const scoreEquipeRecuperant = teamMarqueur === 1
+                ? match.sets[match.setActuel]
+                : match.setsB[match.setActuel];
+            const estPair = (scoreEquipeRecuperant % 2 === 0);
+
             if (joueursEquipe(teamMarqueur).length === 2) {
-                // En double, au changement de service, c'est le joueur qui se trouve
-                // du côté correct (celui qui n'a pas servi lors du dernier point de son équipe)
-                // qui sert. Simplification pratique : on garde l'index déjà positionné
-                // (celui en position "droite" sert), sans le changer automatiquement,
-                // l'arbitre peut corriger via le bouton si besoin.
-                match.serveur.joueurIndex = posEquipe(teamMarqueur)[0];
+                const pos = posEquipe(teamMarqueur);
+                // pos[0] = joueur de droite, pos[1] = joueur de gauche
+                match.serveur.joueurIndex = estPair ? pos[0] : pos[1];
             } else {
                 match.serveur.joueurIndex = 0;
             }
@@ -389,15 +393,21 @@
 
     // ---------- CORRECTION MANUELLE DU SERVEUR (erreur arbitre) ----------
     document.getElementById('btn-change-serveur').addEventListener('click', function () {
-        const team = match.serveur.team;
-        const joueurs = joueursEquipe(team);
-        if (joueurs.length === 2) {
-            match.serveur.joueurIndex = (match.serveur.joueurIndex === 0) ? 1 : 0;
-        } else {
-            // en simple, ce bouton change le service à l'autre équipe (cas d'erreur d'arbitrage)
-            match.serveur.team = (team === 1) ? 2 : 1;
-            match.serveur.joueurIndex = 0;
-        }
+        // Construire la liste ordonnée de tous les serveurs possibles sur le terrain
+        const candidats = [];
+        joueursEquipe(1).forEach((nom, idx) => candidats.push({ team: 1, joueurIndex: idx }));
+        joueursEquipe(2).forEach((nom, idx) => candidats.push({ team: 2, joueurIndex: idx }));
+
+        // Trouver la position actuelle du serveur dans la liste
+        let currentPos = candidats.findIndex(c =>
+            c.team === match.serveur.team && c.joueurIndex === match.serveur.joueurIndex
+        );
+        if (currentPos === -1) currentPos = 0;
+
+        // Passer au candidat suivant (cycle)
+        const nextPos = (currentPos + 1) % candidats.length;
+        match.serveur = { team: candidats[nextPos].team, joueurIndex: candidats[nextPos].joueurIndex };
+
         renderAll();
     });
 
