@@ -106,7 +106,7 @@ if ($parametres !== false) {
                 <span id="sets-gagnes-1">0</span> - <span id="sets-gagnes-2">0</span>
                 <span id="set-actuel-label"></span>
             </div>
-
+            <div id="historique-sets" class="historique-sets"></div>
             <div id="options">
                 <label>
                     <input type="checkbox" id="chk-auto-update">

@@ -399,6 +399,23 @@ html[data-theme="dark"] #serveur-actuel {
   background: var(--block-bg);
 }
 
+.historique-sets {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  justify-content: center;
+  margin: 10px 0;
+  font-size: 0.9rem;
+}
+
+.set-termine {
+  background: var(--block-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  padding: 4px 10px;
+  color: var(--text-main);
+}
+
 /* ---------- RESPONSIVE ---------- */
 @media (max-width: 700px) {
   #terrain-plan.terrain {

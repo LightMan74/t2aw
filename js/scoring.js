@@ -30,6 +30,8 @@
         // qui sert : {team: 1 ou 2, joueurIndex: 0 ou 1 (index dans joueurs[team])}
         serveur: { team: 1, joueurIndex: 0 },
         // pour le simple, joueurIndex sera toujours 0 côté "actif" mais on gère la position via le score
+        matchTermine: false,
+        gagnantSetEnAttente: null,
         matchTermine: false
     };
 
@@ -95,6 +97,7 @@
         match.setsGagnes2 = 0;
         match.coteEquipe1 = 'gauche';
         match.matchTermine = false;
+        match.gagnantSetEnAttente = null;
 
         document.getElementById('match-info').textContent =
             (data.nom_categorie ? data.nom_categorie + ' - ' : '') +
@@ -162,6 +165,7 @@
         renderTerrain();
         renderServeur();
         renderBoutonsSet();
+        renderHistoriqueSets();
     }
 
     function renderSetsInfo() {
@@ -232,12 +236,12 @@
             divGauche.className = 'joueur-slot slot-gauche';
             divGauche.textContent = joueurs[pos[1]] + ' (gauche)';
 
-            if (team === 1) {
-                // équipe 1 : joueur de droite en bas => on insère gauche d'abord, droite ensuite
+            if (cote === 'gauche') {
+                // équipe affichée à gauche du plan : joueur de droite en bas
                 container.appendChild(divGauche);
                 container.appendChild(divDroit);
             } else {
-                // équipe 2 (ou autre) : droite en haut, gauche en bas
+                // équipe affichée à droite du plan : joueur de droite en haut
                 container.appendChild(divDroit);
                 container.appendChild(divGauche);
             }
@@ -318,7 +322,6 @@
 
     function verifierFinDeSet() {
         if (match.troissets === 1) {
-            // pas de fin auto, géré manuellement par l'arbitre (bouton "Terminer le match")
             return;
         }
 
@@ -328,22 +331,27 @@
         let setFini = false;
         let gagnantSet = null;
 
-        if (s1 >= min || s2 >= min) {
-            if (s1 >= max) { setFini = true; gagnantSet = 1; }
-            else if (s2 >= max) { setFini = true; gagnantSet = 2; }
-            else if (s1 >= min && (s1 - s2) >= 2) { setFini = true; gagnantSet = 1; }
-            else if (s2 >= min && (s2 - s1) >= 2) { setFini = true; gagnantSet = 2; }
+        if (s1 >= max && s1 > s2) {
+            setFini = true;
+            gagnantSet = 1;
+        } else if (s2 >= max && s2 > s1) {
+            setFini = true;
+            gagnantSet = 2;
+        } else if (s1 >= min && (s1 - s2) >= 2) {
+            setFini = true;
+            gagnantSet = 1;
+        } else if (s2 >= min && (s2 - s1) >= 2) {
+            setFini = true;
+            gagnantSet = 2;
         }
 
         if (setFini) {
-            if (gagnantSet === 1) match.setsGagnes1++;
-            else match.setsGagnes2++;
-
+            // on stocke juste le gagnant détecté, sans incrémenter les sets gagnés
+            match.gagnantSetEnAttente = gagnantSet;
             document.getElementById('btn-set-suivant').style.display = 'inline-block';
-
-            if (match.setsGagnes1 === 2 || match.setsGagnes2 === 2) {
-                document.getElementById('btn-terminer-match').style.display = 'inline-block';
-            }
+        } else {
+            match.gagnantSetEnAttente = null;
+            document.getElementById('btn-set-suivant').style.display = 'none';
         }
     }
 
@@ -353,16 +361,29 @@
 
     // ---------- PASSAGE AU SET SUIVANT ----------
     document.getElementById('btn-set-suivant').addEventListener('click', function () {
+        if (!match.gagnantSetEnAttente) return;
         if (match.setActuel >= 2) return;
+
+        // Valider le gagnant du set (incrémente setsGagnes1/2)
+        if (match.gagnantSetEnAttente === 1) {
+            match.setsGagnes1++;
+        } else {
+            match.setsGagnes2++;
+        }
+        const gagnantPrecedent = match.gagnantSetEnAttente;
+        match.gagnantSetEnAttente = null;
+
+        if (match.setsGagnes1 === 2 || match.setsGagnes2 === 2) {
+            document.getElementById('btn-terminer-match').style.display = 'inline-block';
+        }
+
+        // Passage au set suivant
         match.setActuel++;
 
         // Changement de côté automatique à chaque set
         match.coteEquipe1 = (match.coteEquipe1 === 'gauche') ? 'droite' : 'gauche';
 
-        // Le vainqueur du set précédent sert en premier (règle officielle : le vainqueur de l'échange précédent sert)
-        // Simplification : l'équipe qui a gagné le set précédent sert en premier au set suivant.
-        const setPrecedent = match.setActuel - 1;
-        const gagnantPrecedent = match.sets[setPrecedent] > match.setsB[setPrecedent] ? 1 : 2;
+        // Le vainqueur du set précédent sert en premier
         match.serveur = { team: gagnantPrecedent, joueurIndex: 0 };
         posEquipe(1)[0] = 0; posEquipe(1)[1] = 1;
         posEquipe(2)[0] = 0; posEquipe(2)[1] = 1;
@@ -469,6 +490,23 @@
                 }
             })
             .catch(err => console.error(err));
+    }
+
+    function renderHistoriqueSets() {
+        const container = document.getElementById('historique-sets');
+        container.innerHTML = '';
+
+        if (match.setActuel === 0) {
+            return;
+        }
+
+        for (let i = 0; i < match.setActuel; i++) {
+            const div = document.createElement('div');
+            div.className = 'set-termine';
+            div.textContent = 'Set ' + (i + 1) + ' : ' +
+                match.nom_equipe_1 + ' ' + match.sets[i] + ' - ' + match.setsB[i] + ' ' + match.nom_equipe_2;
+            container.appendChild(div);
+        }
     }
 
     // ---------- INIT ----------
