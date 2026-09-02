@@ -32,7 +32,15 @@
   color: var(--text-main);
 }
 
-.scoring-header select {
+#court-selector {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.scoring-header select,
+#court-selector select {
   background: var(--input-bg);
   color: var(--text-main);
   border: 1px solid var(--input-border);
@@ -41,50 +49,129 @@
   font-size: 0.95rem;
 }
 
-.scoring-header .info-match {
-  font-size: 0.9rem;
-  color: var(--text-secondary);
+/* ---------- CONTAINER PRINCIPAL ---------- */
+#scoring-container {
+  max-width: 900px;
+  margin: 0 auto;
 }
 
-.badge-categorie {
-  background: var(--badge-cat-color);
-  color: var(--text-label);
+#match-info {
+  text-align: center;
+  color: var(--text-main);
+  margin-bottom: 15px;
+}
+
+/* ---------- SETUP JOUEURS ---------- */
+#setup-joueurs {
+  background: var(--bg-container);
+  border-radius: 10px;
+  box-shadow: 0 2px 8px var(--section-shadow);
+  padding: 15px 20px;
+  margin-bottom: 20px;
+}
+
+#setup-joueurs h3 {
+  margin-top: 0;
+  color: var(--text-main);
+}
+
+.team-setup {
+  background: var(--equipe-bg);
+  border-radius: 8px;
+  padding: 12px 15px;
+  margin-bottom: 12px;
+}
+
+.team-setup h4 {
+  margin: 0 0 8px 0;
+  color: var(--text-main);
+}
+
+.team-setup label {
+  display: block;
+  margin-bottom: 8px;
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+}
+
+.team-setup select,
+.team-setup input[type="text"] {
+  background: var(--input-bg);
+  color: var(--text-main);
+  border: 1px solid var(--input-border);
   border-radius: 6px;
-  padding: 2px 10px;
-  font-size: 0.85rem;
+  padding: 6px 10px;
+  font-size: 0.95rem;
+  margin-left: 6px;
+}
+
+/* ---------- SETS INFO ---------- */
+#sets-info {
+  text-align: center;
+  background: var(--bg-container);
+  border-radius: 10px;
+  box-shadow: 0 2px 8px var(--section-shadow);
+  padding: 12px;
+  margin-bottom: 15px;
+  color: var(--text-main);
+  font-size: 1.1rem;
+}
+
+#sets-gagnes-1,
+#sets-gagnes-2 {
+  font-weight: bold;
+  font-size: 1.4rem;
+  color: var(--th-bg);
+}
+
+html[data-theme="dark"] #sets-gagnes-1,
+html[data-theme="dark"] #sets-gagnes-2 {
+  color: var(--link-color);
+}
+
+/* ---------- OPTIONS ---------- */
+#options {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  background: var(--bg-container);
+  border-radius: 10px;
+  box-shadow: 0 2px 8px var(--section-shadow);
+  padding: 12px 15px;
+  margin-bottom: 20px;
+  color: var(--text-main);
+}
+
+#options label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.9rem;
 }
 
 /* ---------- TERRAIN ---------- */
-.terrain-wrapper {
-  max-width: 900px;
-  margin: 0 auto 20px auto;
-}
-
-.terrain {
+#terrain-plan.terrain {
   position: relative;
   background: #1f7a3d;
-  /* vert terrain — fixe volontairement, ambiance badminton */
   border: 6px solid #ffffff;
   border-radius: 4px;
   box-shadow: 0 4px 15px var(--section-shadow);
   padding: 20px;
   display: grid;
   grid-template-columns: 1fr 4px 1fr;
+  gap: 15px;
   min-height: 380px;
-  overflow: hidden;
+  margin-bottom: 20px;
 }
 
-html[data-theme="dark"] .terrain {
+html[data-theme="dark"] #terrain-plan.terrain {
   background: #144d27;
   border-color: #cfcfcf;
 }
 
 /* Filet central */
-.terrain::before {
-  content: '';
-  display: none;
-}
-
 .filet {
   grid-column: 2;
   background: repeating-linear-gradient(to bottom,
@@ -95,188 +182,140 @@ html[data-theme="dark"] .terrain {
   width: 4px;
   height: 100%;
   z-index: 2;
+  justify-self: center;
 }
 
-/* Lignes de service (simple décor) */
+/* Côté (équipe) */
 .cote {
   position: relative;
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
-  padding: 10px 15px;
+  align-items: center;
+  justify-content: flex-start;
+  padding: 15px;
   border: 2px solid rgba(255, 255, 255, 0.6);
-  margin: 4px;
+  border-radius: 6px;
+  text-align: center;
 }
 
-.cote.actif {
-  box-shadow: inset 0 0 0 3px #ffd700;
+.cote h4 {
+  color: #fff;
+  margin: 0 0 8px 0;
+  font-size: 1.1rem;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
 }
 
-/* Ligne médiane horizontale de chaque côté (zone de service) */
+/* Ligne médiane de zone de service (décor) */
 .cote::after {
   content: '';
   position: absolute;
-  left: 8px;
-  right: 8px;
+  left: 10px;
+  right: 10px;
   top: 50%;
-  border-top: 2px dashed rgba(255, 255, 255, 0.5);
+  border-top: 2px dashed rgba(255, 255, 255, 0.4);
+  pointer-events: none;
 }
 
-/* ---------- ZONES JOUEURS ---------- */
-.zone-joueur {
-  position: relative;
-  background: rgba(255, 255, 255, 0.12);
-  border: 1px solid rgba(255, 255, 255, 0.4);
-  border-radius: 8px;
-  padding: 10px;
-  margin: 6px 0;
-  min-height: 70px;
+/* Score du côté */
+.cote .score {
+  font-size: 2.6rem;
+  font-weight: bold;
+  color: #fff;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+  margin-bottom: 10px;
+}
+
+/* ---------- JOUEURS SUR LE TERRAIN ---------- */
+.joueurs-cote {
   display: flex;
   flex-direction: column;
-  align-items: center;
-  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  margin-bottom: 10px;
+}
+
+.joueur-slot {
+  background: rgba(255, 255, 255, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  border-radius: 8px;
+  padding: 8px 10px;
   color: #fff;
-  text-align: center;
-  transition: background 0.2s;
-}
-
-.zone-joueur.serveur {
-  background: rgba(255, 215, 0, 0.35);
-  border-color: #ffd700;
-}
-
-.zone-joueur .nom-joueur {
   font-weight: bold;
-  font-size: 1rem;
+  font-size: 0.95rem;
   word-break: break-word;
 }
 
-.zone-joueur input.nom-joueur-input {
-  background: rgba(255, 255, 255, 0.9);
-  color: #1a1a1a;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  padding: 4px 6px;
-  font-size: 0.9rem;
-  width: 90%;
-  text-align: center;
+.joueur-slot.slot-droit,
+.joueur-slot.slot-gauche {
+  background: rgba(255, 255, 255, 0.15);
 }
 
-.icone-volant {
-  font-size: 1.3rem;
-  margin-top: 4px;
+/* Mise en évidence du serveur (ajoutée dynamiquement en JS si besoin via classe .serveur) */
+.joueur-slot.serveur {
+  background: rgba(255, 215, 0, 0.35);
+  border-color: #ffd700;
+  box-shadow: 0 0 8px rgba(255, 215, 0, 0.6);
 }
 
-/* ---------- NOM EQUIPES + SCORE PRINCIPAL ---------- */
-.equipes-scoreboard {
-  max-width: 900px;
-  margin: 0 auto 20px auto;
-  background: var(--bg-container);
-  border-radius: 10px;
-  box-shadow: 0 2px 8px var(--section-shadow);
-  padding: 15px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 15px;
-}
-
-.equipe-bloc {
-  flex: 1;
-  text-align: center;
-}
-
-.equipe-bloc .nom-equipe {
-  font-size: 1.1rem;
-  font-weight: bold;
-  color: var(--text-main);
-  margin-bottom: 8px;
-}
-
-.score-actuel {
-  font-size: 3rem;
-  font-weight: bold;
-  color: var(--th-bg);
-}
-
-html[data-theme="dark"] .score-actuel {
-  color: var(--link-color);
-}
-
-.score-controls {
-  display: flex;
-  justify-content: center;
-  gap: 8px;
-  margin-top: 10px;
-}
-
-.score-controls button {
-  width: 42px;
-  height: 42px;
-  border-radius: 50%;
+/* Boutons +1/-1 sur le terrain */
+.cote .btn-point,
+.cote .btn-moins {
   border: none;
-  font-size: 1.3rem;
+  border-radius: 50%;
+  width: 46px;
+  height: 46px;
+  font-size: 1.2rem;
   font-weight: bold;
   cursor: pointer;
   color: #fff;
+  margin: 4px;
 }
 
-.btn-plus {
+.cote .btn-point {
   background: var(--btn-plus);
 }
 
-.btn-plus:hover {
+.cote .btn-point:hover {
   background: var(--btn-plus-hover);
 }
 
-.btn-minus {
+.cote .btn-moins {
   background: var(--btn-minus);
 }
 
-.btn-minus:hover {
+.cote .btn-moins:hover {
   background: var(--btn-minus-hover);
 }
 
-.vs-separator {
-  font-size: 1.3rem;
-  font-weight: bold;
-  color: var(--text-muted);
-  padding: 0 10px;
-}
-
-/* ---------- SETS ---------- */
-.sets-recap {
-  max-width: 900px;
-  margin: 0 auto 20px auto;
+/* ---------- SERVEUR INFO ---------- */
+#serveur-info {
   background: var(--bg-container);
   border-radius: 10px;
   box-shadow: 0 2px 8px var(--section-shadow);
   padding: 12px 15px;
-}
-
-.sets-recap table {
-  width: 100%;
-  border-collapse: collapse;
-}
-
-.sets-recap th {
-  background: var(--th-bg);
-  color: var(--th-text);
-  padding: 6px;
-  font-size: 0.85rem;
-}
-
-.sets-recap td {
-  background: var(--table-bg);
-  color: var(--text-main);
+  margin-bottom: 20px;
   text-align: center;
-  padding: 6px;
-  border: 1px solid var(--border-color-light);
-  font-size: 0.95rem;
+  color: var(--text-main);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  flex-wrap: wrap;
 }
 
-/* ---------- CONTROLES GENERAUX ---------- */
-.controles-generaux {
+#serveur-actuel {
+  font-weight: bold;
+  color: var(--th-bg);
+  font-size: 1.1rem;
+}
+
+html[data-theme="dark"] #serveur-actuel {
+  color: var(--link-color);
+}
+
+/* ---------- CONTROLES GENERAUX / SET ---------- */
+.controles-generaux,
+#controles-set {
   max-width: 900px;
   margin: 0 auto 20px auto;
   background: var(--bg-container);
@@ -287,7 +326,7 @@ html[data-theme="dark"] .score-actuel {
   flex-wrap: wrap;
   gap: 10px;
   align-items: center;
-  justify-content: space-between;
+  justify-content: center;
 }
 
 .btn-action {
@@ -329,14 +368,6 @@ html[data-theme="dark"] .score-actuel {
   background: var(--btn-logout-hover);
 }
 
-.toggle-autoupdate {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  color: var(--text-main);
-  font-size: 0.9rem;
-}
-
 /* ---------- TIMER ---------- */
 #timer-container {
   max-width: 900px;
@@ -349,23 +380,47 @@ html[data-theme="dark"] .score-actuel {
   color: var(--text-main);
 }
 
+/* ---------- THEME TOGGLE ---------- */
+.theme-toggle {
+  background: none;
+  border: 2px solid var(--border-color);
+  color: var(--text-main);
+  border-radius: 20px;
+  padding: 5px 12px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: background 0.2s;
+}
+
+.theme-toggle:hover {
+  background: var(--block-bg);
+}
+
 /* ---------- RESPONSIVE ---------- */
 @media (max-width: 700px) {
-  .terrain {
+  #terrain-plan.terrain {
     grid-template-columns: 1fr 3px 1fr;
     min-height: 300px;
     padding: 10px;
+    gap: 8px;
   }
 
-  .score-actuel {
-    font-size: 2.2rem;
+  .cote .score {
+    font-size: 2rem;
   }
 
-  .equipes-scoreboard {
+  .cote .btn-point,
+  .cote .btn-moins {
+    width: 38px;
+    height: 38px;
+    font-size: 1rem;
+  }
+
+  #options {
     flex-direction: column;
-  }
-
-  .vs-separator {
-    padding: 5px 0;
+    align-items: flex-start;
   }
 }

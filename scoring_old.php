@@ -28,31 +28,24 @@ if ($parametres !== false) {
 }
 ?>
 <!DOCTYPE html>
-<html lang="fr" data-theme="light">
+<html lang="fr">
 
 <head>
     <meta charset="UTF-8">
     <title>Arbitrage - <?php echo htmlspecialchars($nom_tournoi); ?></title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="css/var.css">
-    <link rel="stylesheet" href="css/dark-mode.css">
-    <link rel="stylesheet" href="css/scoring.css">
 </head>
 
-<body class="scoring-page">
+<body>
 
-    <div class="scoring-header">
-        <h1><?php echo htmlspecialchars($nom_tournoi); ?> - Table d'arbitrage</h1>
+    <h1><?php echo htmlspecialchars($nom_tournoi); ?> - Table d'arbitrage</h1>
 
-        <div id="court-selector">
-            <label for="terrain-select">Terrain / Match : </label>
-            <select id="terrain-select">
-                <option value="">-- Choisir un match en cours --</option>
-            </select>
-            <button id="btn-refresh-matchs" type="button" class="btn-action secondaire">Rafraîchir la liste</button>
-        </div>
-
-        <button class="theme-toggle" id="theme-toggle">🌓 Thème</button>
+    <div id="court-selector">
+        <label for="terrain-select">Terrain / Match : </label>
+        <select id="terrain-select">
+            <option value="">-- Choisir un match en cours --</option>
+        </select>
+        <button id="btn-refresh-matchs" type="button">Rafraîchir la liste</button>
     </div>
 
     <div id="scoring-container" style="display:none;">
@@ -94,7 +87,7 @@ if ($parametres !== false) {
                 </div>
             </div>
 
-            <button id="btn-start-match" type="button" class="btn-action">Démarrer le match</button>
+            <button id="btn-start-match" type="button">Démarrer le match</button>
         </div>
 
         <div id="match-play" style="display:none;">
@@ -112,10 +105,10 @@ if ($parametres !== false) {
                     <input type="checkbox" id="chk-auto-update">
                     Mise à jour auto de la BDD à chaque point
                 </label>
-                <button id="btn-save-manuel" type="button" class="btn-action secondaire">Sauvegarder le score maintenant</button>
+                <button id="btn-save-manuel" type="button">Sauvegarder le score maintenant</button>
             </div>
 
-            <div id="terrain-plan" class="terrain">
+            <div id="terrain-plan">
                 <!-- Plan du terrain avec 2 côtés -->
                 <div class="cote" id="cote-gauche">
                     <h4 id="nom-equipe-gauche"></h4>
@@ -123,37 +116,37 @@ if ($parametres !== false) {
                     <div class="joueurs-cote" id="joueurs-gauche">
                         <!-- positions générées en JS : position-haut / position-bas -->
                     </div>
-                    <button type="button" id="btn-switch-cote-gauche" class="btn-action warning">Changer position joueurs (erreur)</button>
+                    <button type="button" id="btn-switch-cote-gauche">Changer position joueurs (erreur)</button>
                     <div>
-                        <button type="button" class="btn-point btn-plus" data-team="gauche">+1 Point</button>
-                        <button type="button" class="btn-moins btn-minus" data-team="gauche">-1 Point</button>
+                        <button type="button" class="btn-point" data-team="gauche">+1 Point</button>
+                        <button type="button" class="btn-moins" data-team="gauche">-1 Point</button>
                     </div>
                 </div>
 
-                <div class="filet"></div>
+                <div class="filet">FILET</div>
 
                 <div class="cote" id="cote-droite">
                     <h4 id="nom-equipe-droite"></h4>
                     <div class="score" id="score-droite">0</div>
                     <div class="joueurs-cote" id="joueurs-droite">
                     </div>
-                    <button type="button" id="btn-switch-cote-droite" class="btn-action warning">Changer position joueurs (erreur)</button>
+                    <button type="button" id="btn-switch-cote-droite">Changer position joueurs (erreur)</button>
                     <div>
-                        <button type="button" class="btn-point btn-plus" data-team="droite">+1 Point</button>
-                        <button type="button" class="btn-moins btn-minus" data-team="droite">-1 Point</button>
+                        <button type="button" class="btn-point" data-team="droite">+1 Point</button>
+                        <button type="button" class="btn-moins" data-team="droite">-1 Point</button>
                     </div>
                 </div>
             </div>
 
             <div id="serveur-info">
                 <strong>Au service : </strong><span id="serveur-actuel">-</span>
-                <button type="button" id="btn-change-serveur" class="btn-action warning">Corriger le serveur (erreur)</button>
+                <button type="button" id="btn-change-serveur">Corriger le serveur (erreur)</button>
             </div>
 
-            <div id="controles-set" class="controles-generaux">
-                <button type="button" id="btn-changer-cote-manuel" class="btn-action secondaire">Changer de côté (manuel)</button>
-                <button type="button" id="btn-set-suivant" class="btn-action" style="display:none;">Set suivant</button>
-                <button type="button" id="btn-terminer-match" class="btn-action" style="display:none;">Terminer le match</button>
+            <div id="controles-set">
+                <button type="button" id="btn-changer-cote-manuel">Changer de côté (manuel)</button>
+                <button type="button" id="btn-set-suivant" style="display:none;">Set suivant</button>
+                <button type="button" id="btn-terminer-match" style="display:none;">Terminer le match</button>
             </div>
 
         </div>
@@ -177,14 +170,6 @@ if ($parametres !== false) {
     });
     </script>
     <?php endif; ?>
-
-    <script>
-    document.getElementById('theme-toggle').addEventListener('click', function() {
-        const html = document.documentElement;
-        const current = html.getAttribute('data-theme');
-        html.setAttribute('data-theme', current === 'dark' ? 'light' : 'dark');
-    });
-    </script>
 
 </body>
 
