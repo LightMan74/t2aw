@@ -499,12 +499,20 @@
         if (match.setActuel === 0) {
             return;
         }
+        const teamGauche = equipeCote('gauche');
+        const teamDroite = equipeCote('droite');
 
         for (let i = 0; i < match.setActuel; i++) {
+
+            const scoreGaucheSet = (teamGauche === 1) ? match.sets[i] : match.setsB[i];
+            const scoreDroiteSet = (teamDroite === 1) ? match.sets[i] : match.setsB[i];
+            const equipeGaucheSet = (teamGauche === 1) ? match.nom_equipe_1 : match.nom_equipe_2;
+            const equipeDroiteSet = (teamDroite === 1) ? match.nom_equipe_1 : match.nom_equipe_2;
+
             const div = document.createElement('div');
             div.className = 'set-termine';
             div.textContent = 'Set ' + (i + 1) + ' : ' +
-                match.nom_equipe_1 + ' ' + match.sets[i] + ' - ' + match.setsB[i] + ' ' + match.nom_equipe_2;
+                equipeGaucheSet + ' ' + scoreGaucheSet + ' - ' + scoreDroiteSet + ' ' + equipeDroiteSet;
             container.appendChild(div);
         }
     }
