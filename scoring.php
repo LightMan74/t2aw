@@ -2,26 +2,29 @@
 ini_set('display_errors', 1);
 error_reporting(E_ALL);
 
+require_once __DIR__ . '/api/db.php';
+
 $id_tournoi = isset($_GET['id_tournoi']) ? (int)$_GET['id_tournoi'] : 0;
 
 if (!$id_tournoi) {
-    die("id_tournoi manquant dans l'URL");
+    die('id_tournoi manquant');
 }
 
-require 'api/db.php';
-
-// Récupération du nom du tournoi et des paramètres
-$stmt = $pdo->prepare("SELECT nom FROM tournoi WHERE id_tournoi = :id LIMIT 1");
+// Récupération infos tournoi
+$stmt = $pdo->prepare("SELECT nom FROM tournoi WHERE id = :id");
 $stmt->execute(['id' => $id_tournoi]);
-$tournoiInfo = $stmt->fetch(PDO::FETCH_ASSOC);
-$nom_tournoi = $tournoiInfo ? $tournoiInfo['nom'] : 'Tournoi';
+$tournoi = $stmt->fetch(PDO::FETCH_ASSOC);
+$nom_tournoi = $tournoi['nom'] ?? 'Tournoi';
 
+// Paramètres tournoi
 $tournoi_troissets_match = 3;
-$stmt = $pdo->prepare("SELECT troissets FROM parametre WHERE id_tournoi = :id");
+$show_timer = false;
+$stmt = $pdo->prepare("SELECT troissets, timer FROM parametre WHERE id_tournoi = :id");
 $stmt->execute(['id' => $id_tournoi]);
 $parametres = $stmt->fetch(PDO::FETCH_ASSOC);
-if ($parametres !== false && isset($parametres['troissets'])) {
-    $tournoi_troissets_match = $parametres['troissets'];
+if ($parametres !== false) {
+    if (isset($parametres['troissets'])) $tournoi_troissets_match = (int)$parametres['troissets'];
+    if (isset($parametres['timer'])) $show_timer = ((int)$parametres['timer'] === 1);
 }
 ?>
 <!DOCTYPE html>
@@ -29,140 +32,144 @@ if ($parametres !== false && isset($parametres['troissets'])) {
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Arbitrage - <?php echo htmlspecialchars($nom_tournoi); ?></title>
-    <link rel="stylesheet" href="css/scoring.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 </head>
 
 <body>
 
-    <div id="app" data-id-tournoi="<?php echo $id_tournoi; ?>" data-troissets="<?php echo $tournoi_troissets_match; ?>">
+    <h1><?php echo htmlspecialchars($nom_tournoi); ?> - Table d'arbitrage</h1>
 
-        <header class="header-tournoi">
-            <h1><?php echo htmlspecialchars($nom_tournoi); ?></h1>
-        </header>
+    <div id="court-selector">
+        <label for="terrain-select">Terrain / Match : </label>
+        <select id="terrain-select">
+            <option value="">-- Choisir un match en cours --</option>
+        </select>
+        <button id="btn-refresh-matchs" type="button">Rafraîchir la liste</button>
+    </div>
 
-        <!-- Sélection du match -->
-        <section id="selection-match">
-            <label for="select-terrain">Choisir un match en cours :</label>
-            <select id="select-terrain">
-                <option value="">-- Sélectionner --</option>
-            </select>
-            <button id="btn-charger-match">Charger le match</button>
-        </section>
+    <div id="scoring-container" style="display:none;">
 
-        <!-- Interface de scoring -->
-        <section id="interface-scoring" style="display:none;">
+        <h2 id="match-info"></h2>
 
-            <div class="info-match">
-                <span id="info-terrain"></span> -
-                <span id="info-categorie"></span> -
-                <span id="info-poule"></span>
-            </div>
+        <div id="setup-joueurs">
+            <h3>Configuration des joueurs</h3>
 
-            <!-- Saisie des noms de joueurs -->
-            <div id="saisie-joueurs">
-                <div class="equipe-joueurs" id="joueurs-equipe-1">
-                    <h3 id="nom-equipe-1-label"></h3>
-                    <input type="text" id="joueur1-equipe1" placeholder="Joueur 1">
-                    <input type="text" id="joueur2-equipe1" placeholder="Joueur 2 (double)" style="display:none;">
-                </div>
-                <div class="equipe-joueurs" id="joueurs-equipe-2">
-                    <h3 id="nom-equipe-2-label"></h3>
-                    <input type="text" id="joueur1-equipe2" placeholder="Joueur 1">
-                    <input type="text" id="joueur2-equipe2" placeholder="Joueur 2 (double)" style="display:none;">
-                </div>
+            <div class="team-setup" id="setup-team1">
+                <h4 id="nom-equipe-1-label"></h4>
+                <label>Format :
+                    <select class="format-select" data-team="1">
+                        <option value="double" selected>Double</option>
+                        <option value="simple">Simple</option>
+                    </select>
+                </label>
                 <div>
-                    <label><input type="radio" name="type-match" value="simple" checked> Simple</label>
-                    <label><input type="radio" name="type-match" value="double"> Double</label>
+                    <label>Joueur 1 : <input type="text" class="joueur-input" data-team="1" data-joueur="1" placeholder="Nom joueur 1"></label>
                 </div>
-                <button id="btn-valider-joueurs">Valider et commencer le match</button>
+                <div class="joueur2-wrapper" data-team="1">
+                    <label>Joueur 2 : <input type="text" class="joueur-input" data-team="1" data-joueur="2" placeholder="Nom joueur 2"></label>
+                </div>
             </div>
 
-            <!-- Timer (format 1 set) -->
-            <div id="timer-container" style="display:none;"></div>
-
-            <!-- Terrain de jeu avec rotation -->
-            <div id="terrain-jeu" style="display:none;">
-
-                <div class="options-scoring">
-                    <label>
-                        <input type="checkbox" id="chk-sync-bdd" checked>
-                        Enregistrer le score en temps réel
-                    </label>
-                    <button id="btn-changer-cote">🔄 Inverser les côtés</button>
-                    <button id="btn-erreur-service">⚠️ Corriger le serveur</button>
+            <div class="team-setup" id="setup-team2">
+                <h4 id="nom-equipe-2-label"></h4>
+                <label>Format :
+                    <select class="format-select" data-team="2">
+                        <option value="double" selected>Double</option>
+                        <option value="simple">Simple</option>
+                    </select>
+                </label>
+                <div>
+                    <label>Joueur 1 : <input type="text" class="joueur-input" data-team="2" data-joueur="1" placeholder="Nom joueur 1"></label>
                 </div>
-
-                <div class="score-sets">
-                    <div id="sets-equipe-1" class="sets-gagnes"></div>
-                    <span>Sets gagnés</span>
-                    <div id="sets-equipe-2" class="sets-gagnes"></div>
+                <div class="joueur2-wrapper" data-team="2">
+                    <label>Joueur 2 : <input type="text" class="joueur-input" data-team="2" data-joueur="2" placeholder="Nom joueur 2"></label>
                 </div>
-
-                <div class="terrain-visuel">
-
-                    <!-- Côté A -->
-                    <div class="cote cote-gauche" id="cote-A">
-                        <div class="position position-haut" id="pos-A-haut"></div>
-                        <div class="position position-bas" id="pos-A-bas"></div>
-                    </div>
-
-                    <!-- Filet -->
-                    <div class="filet"></div>
-
-                    <!-- Côté B -->
-                    <div class="cote cote-droite" id="cote-B">
-                        <div class="position position-haut" id="pos-B-haut"></div>
-                        <div class="position position-bas" id="pos-B-bas"></div>
-                    </div>
-
-                </div>
-
-                <div class="score-actuel">
-                    <div class="bloc-equipe" id="bloc-equipe-1">
-                        <h2 id="nom-equipe-1-score"></h2>
-                        <div class="score-value" id="score-equipe-1">0</div>
-                        <button class="btn-point" data-equipe="1">+1 Point</button>
-                        <button class="btn-annuler" data-equipe="1">Annuler dernier point</button>
-                    </div>
-
-                    <div class="separateur-vs">VS</div>
-
-                    <div class="bloc-equipe" id="bloc-equipe-2">
-                        <h2 id="nom-equipe-2-score"></h2>
-                        <div class="score-value" id="score-equipe-2">0</div>
-                        <button class="btn-point" data-equipe="2">+1 Point</button>
-                        <button class="btn-annuler" data-equipe="2">Annuler dernier point</button>
-                    </div>
-                </div>
-
-                <div class="set-info">
-                    Set n° <span id="set-numero">1</span> / <span id="set-total"></span>
-                </div>
-
-                <div class="historique-sets" id="historique-sets"></div>
-
-                <div class="actions-match">
-                    <button id="btn-fin-match" style="display:none;">Terminer le match</button>
-                </div>
-
             </div>
 
-        </section>
+            <button id="btn-start-match" type="button">Démarrer le match</button>
+        </div>
+
+        <div id="match-play" style="display:none;">
+
+            <div id="timer-container"></div>
+
+            <div id="sets-info">
+                <span>Sets gagnés : </span>
+                <span id="sets-gagnes-1">0</span> - <span id="sets-gagnes-2">0</span>
+                <span id="set-actuel-label"></span>
+            </div>
+
+            <div id="options">
+                <label>
+                    <input type="checkbox" id="chk-auto-update">
+                    Mise à jour auto de la BDD à chaque point
+                </label>
+                <button id="btn-save-manuel" type="button">Sauvegarder le score maintenant</button>
+            </div>
+
+            <div id="terrain-plan">
+                <!-- Plan du terrain avec 2 côtés -->
+                <div class="cote" id="cote-gauche">
+                    <h4 id="nom-equipe-gauche"></h4>
+                    <div class="score" id="score-gauche">0</div>
+                    <div class="joueurs-cote" id="joueurs-gauche">
+                        <!-- positions générées en JS : position-haut / position-bas -->
+                    </div>
+                    <button type="button" id="btn-switch-cote-gauche">Changer position joueurs (erreur)</button>
+                    <div>
+                        <button type="button" class="btn-point" data-team="gauche">+1 Point</button>
+                        <button type="button" class="btn-moins" data-team="gauche">-1 Point</button>
+                    </div>
+                </div>
+
+                <div class="filet">FILET</div>
+
+                <div class="cote" id="cote-droite">
+                    <h4 id="nom-equipe-droite"></h4>
+                    <div class="score" id="score-droite">0</div>
+                    <div class="joueurs-cote" id="joueurs-droite">
+                    </div>
+                    <button type="button" id="btn-switch-cote-droite">Changer position joueurs (erreur)</button>
+                    <div>
+                        <button type="button" class="btn-point" data-team="droite">+1 Point</button>
+                        <button type="button" class="btn-moins" data-team="droite">-1 Point</button>
+                    </div>
+                </div>
+            </div>
+
+            <div id="serveur-info">
+                <strong>Au service : </strong><span id="serveur-actuel">-</span>
+                <button type="button" id="btn-change-serveur">Corriger le serveur (erreur)</button>
+            </div>
+
+            <div id="controles-set">
+                <button type="button" id="btn-changer-cote-manuel">Changer de côté (manuel)</button>
+                <button type="button" id="btn-set-suivant" style="display:none;">Set suivant</button>
+                <button type="button" id="btn-terminer-match" style="display:none;">Terminer le match</button>
+            </div>
+
+        </div>
 
     </div>
 
-    <script src="js/timer.js"></script>
-    <script src="js/scoring.js"></script>
     <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        ScoringApp.init({
-            idTournoi: <?php echo $id_tournoi; ?>,
-            troisSets: <?php echo $tournoi_troissets_match; ?>
-        });
+    const ID_TOURNOI = <?php echo (int)$id_tournoi; ?>;
+    const TOURNOI_TROISSETS = <?php echo (int)$tournoi_troissets_match; ?>;
+    const SHOW_TIMER = <?php echo $show_timer ? 'true' : 'false'; ?>;
+    </script>
+    <script src="js/scoring.js"></script>
+    <?php if ($show_timer): ?>
+    <script src="js/timer.js"></script>
+    <script>
+    TournamentTimer.init({
+        idtournoi: <?php echo (int)$id_tournoi; ?>,
+        containerId: 'timer-container',
+        showControls: false,
+        playSound: false
     });
     </script>
+    <?php endif; ?>
 
 </body>
 

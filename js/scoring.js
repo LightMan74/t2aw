@@ -1,511 +1,467 @@
-const ScoringApp = (function () {
+(function () {
 
-    let state = {
-        idTournoi: null,
-        troisSetsDefault: 3,
-        idMatch: null,
-        typeMatch: null,
-        terrain: null,
-        nomEquipe1: '',
-        nomEquipe2: '',
-        nomCategorie: '',
-        nomPoule: '',
-        formatMatch: 'simple', // simple ou double
-        joueurs: {
-            equipe1: ['', ''],
-            equipe2: ['', '']
-        },
-        nbSetsFormat: 1, // 1 ou 3 (troissets de la BDD)
-        setsGagnes: { 1: 0, 2: 0 },
-        setActuel: 1,
-        scoreActuel: { 1: 0, 2: 0 },
-        historiqueSets: [], // [{set:1, score1:21, score2:15}]
-        cotesInverses: false, // false = equipe1 à gauche
-        serveur: 1, // 1 ou 2 (equipe qui sert)
-        positionServeur: 'droite', // droite ou gauche selon le score pair/impair
-        joueurServeurIndex: 0, // pour double : index 0 ou 1 du joueur qui sert dans l'equipe
-        positionsDouble: {
-            // en double : position sur le terrain (haut/bas) pour chaque équipe
-            equipe1: { haut: 0, bas: 1 }, // index du joueur
-            equipe2: { haut: 0, bas: 1 }
-        },
-        syncBDD: true,
-        historiquePoints: [], // pile pour "annuler dernier point"
-        timerLance: false
+    let currentMatch = null; // objet retourné par get_match_details
+    // let state = {
+    //     // sets déjà validés/terminés : tableau [{s1, s2}, ...]
+    //     setsHistory = null,
+    // };
+
+    // ---------- STATE PRINCIPAL ----------
+    let match = {
+        id_match: null,
+        type_match: null,
+        nom_equipe_1: '',
+        nom_equipe_2: '',
+        troissets: 3, // 1 ou 3 (valeur brute de la BDD, on considère 1 = 1 set, sinon 3 sets)
+        format1: 'double', // simple / double équipe 1
+        format2: 'double', // simple / double équipe 2
+        joueurs1: ['', ''],
+        joueurs2: ['', ''],
+        sets: [0, 0, 0], // scores équipe1 pour set1/2/3
+        setsB: [0, 0, 0], // scores équipe2
+        setActuel: 0, // index 0,1,2
+        setsGagnes1: 0,
+        setsGagnes2: 0,
+        // côté : 'gauche' ou 'droite' pour équipe1 ; equipe2 = l'inverse
+        coteEquipe1: 'gauche',
+        // ordre des joueurs affichés côté (position 0 = haut/droit-service, 1 = bas/gauche-service) -- géré via array
+        posJoueurs1: [0, 1], // index dans joueurs1 : [positionDroite, positionGauche] selon convention choisie
+        posJoueurs2: [0, 1],
+        // qui sert : {team: 1 ou 2, joueurIndex: 0 ou 1 (index dans joueurs[team])}
+        serveur: { team: 1, joueurIndex: 0 },
+        // pour le simple, joueurIndex sera toujours 0 côté "actif" mais on gère la position via le score
+        matchTermine: false
     };
 
-    function init(config) {
-        state.idTournoi = config.idTournoi;
-        state.troisSetsDefault = config.troisSets;
+    const autoUpdateChk = document.getElementById('chk-auto-update');
 
-        chargerListeMatchs();
-
-        document.getElementById('btn-charger-match').addEventListener('click', chargerMatchSelectionne);
-        document.getElementById('btn-valider-joueurs').addEventListener('click', validerJoueursEtDemarrer);
-        document.getElementById('btn-changer-cote').addEventListener('click', inverserCotesManuel);
-        document.getElementById('btn-erreur-service').addEventListener('click', ouvrirCorrectionService);
-        document.getElementById('btn-fin-match').addEventListener('click', terminerMatch);
-        document.getElementById('chk-sync-bdd').addEventListener('change', function (e) {
-            state.syncBDD = e.target.checked;
-        });
-
-        document.querySelectorAll('input[name="type-match"]').forEach(function (radio) {
-            radio.addEventListener('change', function (e) {
-                state.formatMatch = e.target.value;
-                toggleAffichageJoueur2();
-            });
-        });
-
-        document.querySelectorAll('.btn-point').forEach(function (btn) {
-            btn.addEventListener('click', function (e) {
-                const equipe = parseInt(e.target.getAttribute('data-equipe'));
-                ajouterPoint(equipe);
-            });
-        });
-
-        document.querySelectorAll('.btn-annuler').forEach(function (btn) {
-            btn.addEventListener('click', function (e) {
-                annulerDernierPoint();
-            });
-        });
-    }
-
-    function toggleAffichageJoueur2() {
-        const isDouble = state.formatMatch === 'double';
-        document.getElementById('joueur2-equipe1').style.display = isDouble ? 'inline-block' : 'none';
-        document.getElementById('joueur2-equipe2').style.display = isDouble ? 'inline-block' : 'none';
-    }
-
-    // -------------------- Chargement liste des matchs --------------------
-
-    function chargerListeMatchs() {
-        fetch('api/view_matchs.php?id_tournoi=' + state.idTournoi)
-            .then(function (res) { return res.json(); })
-            .then(function (data) {
-                const select = document.getElementById('select-terrain');
-                select.innerHTML = '<option value="">-- Sélectionner --</option>';
-
-                if (data.en_cours && data.en_cours.length > 0) {
-                    data.en_cours.forEach(function (m) {
-                        const option = document.createElement('option');
-                        option.value = JSON.stringify({
-                            id_match: m.id,
-                            type_match: m.type_match
-                        });
-                        const terrain = m.terrain ? 'Terrain ' + m.terrain : 'Terrain ?';
-                        const eq1 = m.nom_equipe_1 || '?';
-                        const eq2 = m.nom_equipe_2 || '?';
-                        option.textContent = terrain + ' - ' + eq1 + ' vs ' + eq2 + ' (' + (m.nom_categorie || '') + ')';
-                        select.appendChild(option);
-                    });
-                }
-            })
-            .catch(function (err) {
-                console.error('Erreur chargement matchs', err);
+    // ---------- CHARGEMENT DE LA LISTE DES MATCHS EN COURS ----------
+    function chargerMatchsEnCours() {
+        fetch('api/view_matchs.php?id_tournoi=' + ID_TOURNOI)
+            .then(r => r.json())
+            .then(data => {
+                const select = document.getElementById('terrain-select');
+                select.innerHTML = '<option value="">-- Choisir un match en cours --</option>';
+                if (!data.en_cours) return;
+                data.en_cours.forEach(m => {
+                    const opt = document.createElement('option');
+                    opt.value = JSON.stringify({ id: m.id, type: m.type_match });
+                    const terrain = m.terrain ? ('Terrain ' + m.terrain) : 'Terrain ?';
+                    opt.textContent = terrain + ' - ' + m.nom_equipe_1 + ' vs ' + m.nom_equipe_2;
+                    select.appendChild(opt);
+                });
             });
     }
 
-    // -------------------- Chargement des détails du match --------------------
+    document.getElementById('btn-refresh-matchs').addEventListener('click', chargerMatchsEnCours);
 
-    function chargerMatchSelectionne() {
-        const select = document.getElementById('select-terrain');
-        if (!select.value) {
-            alert('Veuillez sélectionner un match');
+    document.getElementById('terrain-select').addEventListener('change', function () {
+        if (!this.value) {
+            document.getElementById('scoring-container').style.display = 'none';
             return;
         }
+        const infos = JSON.parse(this.value);
+        chargerDetailsMatch(infos.id, infos.type);
+    });
 
-        const infos = JSON.parse(select.value);
-
-        fetch('api/scoring/get_match_details.php?id_tournoi=' + state.idTournoi
-            + '&id_match=' + infos.id_match
-            + '&type_match=' + infos.type_match)
-            .then(function (res) { return res.json(); })
-            .then(function (data) {
+    // ---------- CHARGEMENT DES DETAILS DU MATCH ----------
+    function chargerDetailsMatch(id_match, type_match) {
+        fetch('api/scoring/get_match_details.php?id_tournoi=' + ID_TOURNOI + '&id_match=' + id_match + '&type_match=' + type_match)
+            .then(r => r.json())
+            .then(data => {
                 if (data.error) {
                     alert('Erreur : ' + data.error);
                     return;
                 }
-
-                state.idMatch = data.id_match;
-                state.typeMatch = data.type_match;
-                state.terrain = data.terrain;
-                state.nomEquipe1 = data.nom_equipe_1;
-                state.nomEquipe2 = data.nom_equipe_2;
-                state.nomCategorie = data.nom_categorie;
-                state.nomPoule = data.nom_poule;
-                state.nbSetsFormat = parseInt(data.troissets) || state.troisSetsDefault;
-
-                afficherInfoMatch();
-                afficherSaisieJoueurs();
-            })
-            .catch(function (err) {
-                console.error(err);
-                alert('Erreur lors du chargement du match');
+                initMatch(data);
             });
     }
 
-    function afficherInfoMatch() {
-        document.getElementById('info-terrain').textContent = 'Terrain ' + (state.terrain || '?');
-        document.getElementById('info-categorie').textContent = state.nomCategorie || '';
-        document.getElementById('info-poule').textContent = state.nomPoule || '';
+    function initMatch(data) {
+        match.id_match = data.id_match;
+        match.type_match = data.type_match;
+        match.nom_equipe_1 = data.nom_equipe_1;
+        match.nom_equipe_2 = data.nom_equipe_2;
+        match.troissets = parseInt(data.troissets, 10) || 3;
 
-        document.getElementById('nom-equipe-1-label').textContent = state.nomEquipe1;
-        document.getElementById('nom-equipe-2-label').textContent = state.nomEquipe2;
+        // parse score existant s'il y en a
+        const parts1 = (data.score_equipe_1 || '0*0*0').split('*').map(v => parseInt(v, 10) || 0);
+        const parts2 = (data.score_equipe_2 || '0*0*0').split('*').map(v => parseInt(v, 10) || 0);
+        match.sets = [parts1[0] || 0, parts1[1] || 0, parts1[2] || 0];
+        match.setsB = [parts2[0] || 0, parts2[1] || 0, parts2[2] || 0];
 
-        document.getElementById('selection-match').style.display = 'none';
-        document.getElementById('interface-scoring').style.display = 'block';
+        match.setActuel = 0;
+        match.setsGagnes1 = 0;
+        match.setsGagnes2 = 0;
+        match.coteEquipe1 = 'gauche';
+        match.matchTermine = false;
+
+        document.getElementById('match-info').textContent =
+            (data.nom_categorie ? data.nom_categorie + ' - ' : '') +
+            (data.nom_poule ? data.nom_poule + ' - ' : '') +
+            'Terrain ' + (data.terrain || '?');
+
+        document.getElementById('nom-equipe-1-label').textContent = match.nom_equipe_1;
+        document.getElementById('nom-equipe-2-label').textContent = match.nom_equipe_2;
+
+        // reset formulaire setup
+        document.querySelectorAll('.joueur-input').forEach(inp => inp.value = '');
+        document.querySelectorAll('.format-select').forEach(sel => {
+            sel.value = 'double';
+            toggleJoueur2Visibility(sel);
+        });
+
+        document.getElementById('setup-joueurs').style.display = 'block';
+        document.getElementById('match-play').style.display = 'none';
+        document.getElementById('scoring-container').style.display = 'block';
+
+        autoUpdateChk.checked = false;
     }
 
-    function afficherSaisieJoueurs() {
-        document.getElementById('saisie-joueurs').style.display = 'block';
-        document.getElementById('terrain-jeu').style.display = 'none';
+    // ---------- FORMAT SIMPLE/DOUBLE : affichage joueur 2 ----------
+    function toggleJoueur2Visibility(selectEl) {
+        const team = selectEl.getAttribute('data-team');
+        const wrapper = document.querySelector('.joueur2-wrapper[data-team="' + team + '"]');
+        wrapper.style.display = (selectEl.value === 'double') ? 'block' : 'none';
     }
 
-    // -------------------- Validation des joueurs et démarrage --------------------
+    document.querySelectorAll('.format-select').forEach(sel => {
+        sel.addEventListener('change', function () {
+            toggleJoueur2Visibility(this);
+        });
+    });
 
-    function validerJoueursEtDemarrer() {
-        state.joueurs.equipe1[0] = document.getElementById('joueur1-equipe1').value.trim() || 'Joueur 1';
-        state.joueurs.equipe2[0] = document.getElementById('joueur1-equipe2').value.trim() || 'Joueur 1';
+    // ---------- DEMARRAGE DU MATCH (validation des joueurs) ----------
+    document.getElementById('btn-start-match').addEventListener('click', function () {
+        match.format1 = document.querySelector('.format-select[data-team="1"]').value;
+        match.format2 = document.querySelector('.format-select[data-team="2"]').value;
 
-        if (state.formatMatch === 'double') {
-            state.joueurs.equipe1[1] = document.getElementById('joueur2-equipe1').value.trim() || 'Joueur 2';
-            state.joueurs.equipe2[1] = document.getElementById('joueur2-equipe2').value.trim() || 'Joueur 2';
-        }
+        const j1_1 = document.querySelector('.joueur-input[data-team="1"][data-joueur="1"]').value.trim() || match.nom_equipe_1;
+        const j1_2 = document.querySelector('.joueur-input[data-team="1"][data-joueur="2"]').value.trim() || (match.nom_equipe_1 + ' (2)');
+        const j2_1 = document.querySelector('.joueur-input[data-team="2"][data-joueur="1"]').value.trim() || match.nom_equipe_2;
+        const j2_2 = document.querySelector('.joueur-input[data-team="2"][data-joueur="2"]').value.trim() || (match.nom_equipe_2 + ' (2)');
 
-        document.getElementById('saisie-joueurs').style.display = 'none';
-        document.getElementById('terrain-jeu').style.display = 'block';
+        match.joueurs1 = (match.format1 === 'double') ? [j1_1, j1_2] : [j1_1];
+        match.joueurs2 = (match.format2 === 'double') ? [j2_1, j2_2] : [j2_1];
 
-        // Initialisation du set
-        state.setActuel = 1;
-        state.setsGagnes = { 1: 0, 2: 0 };
-        state.scoreActuel = { 1: 0, 2: 0 };
-        state.historiqueSets = [];
-        state.serveur = 1;
-        state.positionServeur = 'droite';
-        state.joueurServeurIndex = 0;
-        state.cotesInverses = false;
+        match.posJoueurs1 = (match.format1 === 'double') ? [0, 1] : [0];
+        match.posJoueurs2 = (match.format2 === 'double') ? [0, 1] : [0];
 
-        document.getElementById('set-total').textContent = state.nbSetsFormat;
+        // serveur initial = équipe 1, joueur 0
+        match.serveur = { team: 1, joueurIndex: 0 };
 
-        // Timer si format 1 set
-        if (state.nbSetsFormat === 1) {
-            document.getElementById('timer-container').style.display = 'block';
-            if (typeof TournamentTimer !== 'undefined' && !state.timerLance) {
-                TournamentTimer.init({
-                    idtournoi: state.idTournoi,
-                    containerId: 'timer-container',
-                    showControls: true,
-                    playSound: false
-                });
-                state.timerLance = true;
-            }
-        }
+        document.getElementById('setup-joueurs').style.display = 'none';
+        document.getElementById('match-play').style.display = 'block';
 
-        majAffichageComplet();
+        renderAll();
+    });
+
+    // ---------- RENDU GLOBAL ----------
+    function renderAll() {
+        renderSetsInfo();
+        renderTerrain();
+        renderServeur();
+        renderBoutonsSet();
     }
 
-    // -------------------- Gestion des points --------------------
-
-    function ajouterPoint(equipe) {
-        // Sauvegarde état avant modif pour annulation
-        state.historiquePoints.push(JSON.parse(JSON.stringify({
-            scoreActuel: state.scoreActuel,
-            serveur: state.serveur,
-            positionServeur: state.positionServeur,
-            joueurServeurIndex: state.joueurServeurIndex,
-            positionsDouble: state.positionsDouble
-        })));
-
-        const autreEquipe = equipe === 1 ? 2 : 1;
-        const etaitServeur = (state.serveur === equipe);
-
-        state.scoreActuel[equipe]++;
-
-        gererRotationServeur(equipe, etaitServeur);
-
-        // Vérifier fin de set
-        verifierFinSet();
-
-        majAffichageComplet();
+    function renderSetsInfo() {
+        document.getElementById('sets-gagnes-1').textContent = match.setsGagnes1;
+        document.getElementById('sets-gagnes-2').textContent = match.setsGagnes2;
+        document.getElementById('set-actuel-label').textContent =
+            ' | Set ' + (match.setActuel + 1) + (match.troissets === 1 ? ' (au temps)' : ' / ' + Math.max(3, match.troissets === 1 ? 1 : 3));
     }
 
-    function annulerDernierPoint() {
-        if (state.historiquePoints.length === 0) return;
-
-        const dernier = state.historiquePoints.pop();
-        state.scoreActuel = dernier.scoreActuel;
-        state.serveur = dernier.serveur;
-        state.positionServeur = dernier.positionServeur;
-        state.joueurServeurIndex = dernier.joueurServeurIndex;
-        state.positionsDouble = dernier.positionsDouble;
-
-        majAffichageComplet();
-    }
-
-    // -------------------- Règles officielles de rotation --------------------
-
-    function gererRotationServeur(equipeMarquante, etaitServeurAvant) {
-        if (etaitServeurAvant) {
-            // L'équipe qui servait a marqué : elle continue de servir, change de côté
-            state.positionServeur = (state.positionServeur === 'droite') ? 'gauche' : 'droite';
-
-            if (state.formatMatch === 'double') {
-                // Le service alterne entre les deux joueurs de la même équipe
-                // à chaque point gagné en servant. On échange qui est en haut/bas.
-                const key = 'equipe' + equipeMarquante;
-                const tmp = state.positionsDouble[key].haut;
-                state.positionsDouble[key].haut = state.positionsDouble[key].bas;
-                state.positionsDouble[key].bas = tmp;
-            }
-
+    // Retourne l'équipe (1 ou 2) qui est actuellement affichée à gauche
+    function equipeCote(cote) {
+        if (cote === 'gauche') {
+            return (match.coteEquipe1 === 'gauche') ? 1 : 2;
         } else {
-            // Changement de service : l'équipe qui reçoit devient serveur
-            state.serveur = equipeMarquante;
-
-            // Position de service déterminée par le score de la nouvelle équipe serveuse
-            const scoreServeur = state.scoreActuel[equipeMarquante];
-            state.positionServeur = (scoreServeur % 2 === 0) ? 'droite' : 'gauche';
-
-            if (state.formatMatch === 'double') {
-                // En double, au changement de service, le joueur qui sert est
-                // celui qui se trouve du côté correspondant (règle officielle :
-                // ne pas re-permuter les positions, seul le côté déterminé par le score compte)
-            }
+            return (match.coteEquipe1 === 'gauche') ? 2 : 1;
         }
     }
 
-    function inverserCotesManuel() {
-        state.cotesInverses = !state.cotesInverses;
-        majAffichageTerrain();
+    function scoreEquipe(team) {
+        return team === 1 ? match.sets[match.setActuel] : match.setsB[match.setActuel];
     }
 
-    function ouvrirCorrectionService() {
-        const equipeActuelle = state.serveur;
-        const nouvelleEquipe = prompt('Quelle équipe sert actuellement ? (1 ou 2)', equipeActuelle);
-        if (nouvelleEquipe === '1' || nouvelleEquipe === '2') {
-            state.serveur = parseInt(nouvelleEquipe);
-            const cote = prompt('Le serveur est-il à droite ou à gauche ? (droite/gauche)', state.positionServeur);
-            if (cote === 'droite' || cote === 'gauche') {
-                state.positionServeur = cote;
-            }
-            if (state.formatMatch === 'double') {
-                const joueurIdx = prompt('Quel joueur sert ? (1 ou 2 - position dans l\'équipe)', '1');
-                // Ajuste positionsDouble pour que le bon joueur soit du côté positionServeur
-                const key = 'equipe' + state.serveur;
-                if (joueurIdx === '1') {
-                    if (state.positionServeur === 'droite') {
-                        state.positionsDouble[key].haut = 0;
-                        state.positionsDouble[key].bas = 1;
-                    } else {
-                        state.positionsDouble[key].haut = 1;
-                        state.positionsDouble[key].bas = 0;
-                    }
-                } else if (joueurIdx === '2') {
-                    if (state.positionServeur === 'droite') {
-                        state.positionsDouble[key].haut = 1;
-                        state.positionsDouble[key].bas = 0;
-                    } else {
-                        state.positionsDouble[key].haut = 0;
-                        state.positionsDouble[key].bas = 1;
-                    }
-                }
-            }
-            majAffichageComplet();
-        }
+    function joueursEquipe(team) {
+        return team === 1 ? match.joueurs1 : match.joueurs2;
     }
 
-    // -------------------- Fin de set / fin de match --------------------
+    function posEquipe(team) {
+        return team === 1 ? match.posJoueurs1 : match.posJoueurs2;
+    }
 
-    function verifierFinSet() {
-        const s1 = state.scoreActuel[1];
-        const s2 = state.scoreActuel[2];
+    function nomEquipe(team) {
+        return team === 1 ? match.nom_equipe_1 : match.nom_equipe_2;
+    }
 
-        let setTermine = false;
+    function renderTerrain() {
+        const teamGauche = equipeCote('gauche');
+        const teamDroite = equipeCote('droite');
 
-        if (state.nbSetsFormat === 1) {
-            // Format au temps, pas de fin automatique par points
-            setTermine = false;
+        document.getElementById('nom-equipe-gauche').textContent = nomEquipe(teamGauche);
+        document.getElementById('nom-equipe-droite').textContent = nomEquipe(teamDroite);
+
+        document.getElementById('score-gauche').textContent = scoreEquipe(teamGauche);
+        document.getElementById('score-droite').textContent = scoreEquipe(teamDroite);
+
+        renderJoueursCote('gauche', teamGauche);
+        renderJoueursCote('droite', teamDroite);
+    }
+
+    // Affiche les joueurs d'une équipe sur un côté, avec indication de position
+    // convention : posEquipe(team)[0] = joueur actuellement "à droite" de son propre côté,
+    //              posEquipe(team)[1] = joueur actuellement "à gauche" (uniquement en double)
+    function renderJoueursCote(cote, team) {
+        const container = document.getElementById('joueurs-' + cote);
+        container.innerHTML = '';
+        const joueurs = joueursEquipe(team);
+        const pos = posEquipe(team);
+
+        if (joueurs.length === 1) {
+            const div = document.createElement('div');
+            div.className = 'joueur-slot';
+            div.textContent = joueurs[0];
+            container.appendChild(div);
         } else {
-            // Format 3 sets : 15 points, 2 pts d'écart, max 21
-            const seuil = 15;
-            const max = 21;
+            // slot "droit" (pos[0]) et slot "gauche" (pos[1]) du point de vue de l'équipe
+            const divDroit = document.createElement('div');
+            divDroit.className = 'joueur-slot slot-droit';
+            divDroit.textContent = joueurs[pos[0]] + ' (droite)';
+            const divGauche = document.createElement('div');
+            divGauche.className = 'joueur-slot slot-gauche';
+            divGauche.textContent = joueurs[pos[1]] + ' (gauche)';
+            container.appendChild(divDroit);
+            container.appendChild(divGauche);
+        }
+    }
 
-            if ((s1 >= seuil || s2 >= seuil) && Math.abs(s1 - s2) >= 2) {
-                setTermine = true;
-            } else if (s1 === max || s2 === max) {
-                setTermine = true;
-            }
+    function renderServeur() {
+        const team = match.serveur.team;
+        const joueurs = joueursEquipe(team);
+        const nom = joueurs[match.serveur.joueurIndex] || joueurs[0];
+        document.getElementById('serveur-actuel').textContent = nom + ' (' + nomEquipe(team) + ')';
+    }
+
+    // ---------- LOGIQUE DE POINT ----------
+    function ajouterPoint(cote) {
+        if (match.matchTermine) return;
+        const team = equipeCote(cote);
+        appliquerPoint(team);
+    }
+
+    function retirerPoint(cote) {
+        if (match.matchTermine) return;
+        const team = equipeCote(cote);
+        if (team === 1) {
+            if (match.sets[match.setActuel] > 0) match.sets[match.setActuel]--;
+        } else {
+            if (match.setsB[match.setActuel] > 0) match.setsB[match.setActuel]--;
+        }
+        renderAll();
+        autoSaveIfEnabled();
+    }
+
+    function appliquerPoint(team) {
+        const wasServeur = match.serveur.team;
+
+        if (team === 1) {
+            match.sets[match.setActuel]++;
+        } else {
+            match.setsB[match.setActuel]++;
         }
 
-        if (setTermine) {
-            const gagnantSet = s1 > s2 ? 1 : 2;
-            state.setsGagnes[gagnantSet]++;
+        gererRotationApresPoint(team, wasServeur);
+        verifierFinDeSet();
+        renderAll();
+        autoSaveIfEnabled();
+    }
 
-            state.historiqueSets.push({
-                set: state.setActuel,
-                score1: s1,
-                score2: s2
-            });
+    // Règles officielles de rotation badminton
+    function gererRotationApresPoint(teamMarqueur, teamServeurAvant) {
+        if (teamMarqueur === teamServeurAvant) {
+            // L'équipe au service marque : elle garde le service.
+            // En double : le même serveur change de côté (gauche/droite) avec son partenaire.
+            // En simple : le serveur change de côté automatiquement (car pair/impair), pas de changement de joueur.
+            if (joueursEquipe(teamMarqueur).length === 2) {
+                // swap positions du serveur/partenaire de cette équipe
+                const pos = posEquipe(teamMarqueur);
+                pos.reverse();
+            }
+            // en simple : rien à faire sur les joueurs, juste le côté visuel du score suit la parité (géré par l'arbitre visuellement)
+        } else {
+            // Le service passe à l'autre équipe (perte de l'échange par le serveur)
+            match.serveur.team = teamMarqueur;
 
-            const setsPourGagner = Math.ceil(state.nbSetsFormat / 2); // 2 pour format 3
-
-            if (state.setsGagnes[gagnantSet] >= setsPourGagner) {
-                // Match terminé
-                afficherFinMatch();
+            if (joueursEquipe(teamMarqueur).length === 2) {
+                // En double, au changement de service, c'est le joueur qui se trouve
+                // du côté correct (celui qui n'a pas servi lors du dernier point de son équipe)
+                // qui sert. Simplification pratique : on garde l'index déjà positionné
+                // (celui en position "droite" sert), sans le changer automatiquement,
+                // l'arbitre peut corriger via le bouton si besoin.
+                match.serveur.joueurIndex = posEquipe(teamMarqueur)[0];
             } else {
-                // Nouveau set
-                demarrerNouveauSet();
+                match.serveur.joueurIndex = 0;
             }
         }
     }
 
-    function demarrerNouveauSet() {
-        state.setActuel++;
-        state.scoreActuel = { 1: 0, 2: 0 };
-        state.historiquePoints = [];
+    // ---------- FIN DE SET / FIN DE MATCH ----------
+    function scoreSetActuel() {
+        return { s1: match.sets[match.setActuel], s2: match.setsB[match.setActuel] };
+    }
+
+    function verifierFinDeSet() {
+        if (match.troissets === 1) {
+            // pas de fin auto, géré manuellement par l'arbitre (bouton "Terminer le match")
+            return;
+        }
+
+        const { s1, s2 } = scoreSetActuel();
+        const max = 21;
+        const min = 15;
+        let setFini = false;
+        let gagnantSet = null;
+
+        if (s1 >= min || s2 >= min) {
+            if (s1 >= max) { setFini = true; gagnantSet = 1; }
+            else if (s2 >= max) { setFini = true; gagnantSet = 2; }
+            else if (s1 >= min && (s1 - s2) >= 2) { setFini = true; gagnantSet = 1; }
+            else if (s2 >= min && (s2 - s1) >= 2) { setFini = true; gagnantSet = 2; }
+        }
+
+        if (setFini) {
+            if (gagnantSet === 1) match.setsGagnes1++;
+            else match.setsGagnes2++;
+
+            document.getElementById('btn-set-suivant').style.display = 'inline-block';
+
+            if (match.setsGagnes1 === 2 || match.setsGagnes2 === 2) {
+                document.getElementById('btn-terminer-match').style.display = 'inline-block';
+            }
+        }
+    }
+
+    function renderBoutonsSet() {
+        // rien de spécifique ici pour l'instant, la logique est dans verifierFinDeSet
+    }
+
+    // ---------- PASSAGE AU SET SUIVANT ----------
+    document.getElementById('btn-set-suivant').addEventListener('click', function () {
+        if (match.setActuel >= 2) return;
+        match.setActuel++;
 
         // Changement de côté automatique à chaque set
-        state.cotesInverses = !state.cotesInverses;
+        match.coteEquipe1 = (match.coteEquipe1 === 'gauche') ? 'droite' : 'gauche';
 
-        // Le vainqueur du set précédent... en réalité au badminton c'est l'équipe qui a perdu
-        // le set précédent qui sert en premier au set suivant (règle officielle)
-        const dernierSet = state.historiqueSets[state.historiqueSets.length - 1];
-        state.serveur = (dernierSet.score1 > dernierSet.score2) ? 2 : 1;
-        state.positionServeur = 'droite'; // toujours à droite en début de set (score 0-0)
+        // Le vainqueur du set précédent sert en premier (règle officielle : le vainqueur de l'échange précédent sert)
+        // Simplification : l'équipe qui a gagné le set précédent sert en premier au set suivant.
+        const setPrecedent = match.setActuel - 1;
+        const gagnantPrecedent = match.sets[setPrecedent] > match.setsB[setPrecedent] ? 1 : 2;
+        match.serveur = { team: gagnantPrecedent, joueurIndex: 0 };
+        posEquipe(1)[0] = 0; posEquipe(1)[1] = 1;
+        posEquipe(2)[0] = 0; posEquipe(2)[1] = 1;
 
-        majAffichageComplet();
-    }
+        document.getElementById('btn-set-suivant').style.display = 'none';
 
-    function afficherFinMatch() {
-        document.getElementById('btn-fin-match').style.display = 'inline-block';
-        document.querySelectorAll('.btn-point').forEach(function (btn) {
-            btn.disabled = true;
-        });
-    }
+        renderAll();
+        autoSaveIfEnabled();
+    });
 
-    function terminerMatch() {
-        sauvegarderScore(true);
-        alert('Match terminé et enregistré.');
-    }
+    // ---------- CHANGEMENT DE COTE MANUEL ----------
+    document.getElementById('btn-changer-cote-manuel').addEventListener('click', function () {
+        match.coteEquipe1 = (match.coteEquipe1 === 'gauche') ? 'droite' : 'gauche';
+        renderAll();
+    });
 
-    // -------------------- Sauvegarde BDD --------------------
+    // ---------- CORRECTION MANUELLE POSITION JOUEURS (erreur arbitre) ----------
+    document.getElementById('btn-switch-cote-gauche').addEventListener('click', function () {
+        const team = equipeCote('gauche');
+        posEquipe(team).reverse();
+        renderAll();
+    });
+    document.getElementById('btn-switch-cote-droite').addEventListener('click', function () {
+        const team = equipeCote('droite');
+        posEquipe(team).reverse();
+        renderAll();
+    });
 
-    function construireChaineScore(equipe) {
-        // format 0*0*0 pour poule, on suppose même format pour phase finale
-        const sets = state.historiqueSets.map(function (s) {
-            return equipe === 1 ? s.score1 : s.score2;
-        });
-        // ajoute le set en cours si pas encore fini
-        if (state.setActuel > state.historiqueSets.length) {
-            sets.push(state.scoreActuel[equipe]);
+    // ---------- CORRECTION MANUELLE DU SERVEUR (erreur arbitre) ----------
+    document.getElementById('btn-change-serveur').addEventListener('click', function () {
+        const team = match.serveur.team;
+        const joueurs = joueursEquipe(team);
+        if (joueurs.length === 2) {
+            match.serveur.joueurIndex = (match.serveur.joueurIndex === 0) ? 1 : 0;
+        } else {
+            // en simple, ce bouton change le service à l'autre équipe (cas d'erreur d'arbitrage)
+            match.serveur.team = (team === 1) ? 2 : 1;
+            match.serveur.joueurIndex = 0;
         }
-        while (sets.length < state.nbSetsFormat) {
-            sets.push(0);
+        renderAll();
+    });
+
+    // ---------- BOUTONS POINT ----------
+    document.querySelectorAll('.btn-point').forEach(btn => {
+        btn.addEventListener('click', function () {
+            ajouterPoint(this.getAttribute('data-team'));
+        });
+    });
+    document.querySelectorAll('.btn-moins').forEach(btn => {
+        btn.addEventListener('click', function () {
+            retirerPoint(this.getAttribute('data-team'));
+        });
+    });
+
+    // ---------- TERMINER LE MATCH ----------
+    document.getElementById('btn-terminer-match').addEventListener('click', function () {
+        if (!confirm('Confirmer la fin du match ?')) return;
+        match.matchTermine = true;
+        sauvegarderScore('termine');
+        document.getElementById('btn-terminer-match').style.display = 'none';
+        document.getElementById('btn-set-suivant').style.display = 'none';
+    });
+
+    // ---------- SAUVEGARDE MANUELLE ----------
+    document.getElementById('btn-save-manuel').addEventListener('click', function () {
+        sauvegarderScore();
+    });
+
+    function autoSaveIfEnabled() {
+        if (autoUpdateChk.checked) {
+            sauvegarderScore();
         }
-        return sets.join('*');
     }
 
-    function sauvegarderScore(matchTermine) {
-        const body = {
-            id_tournoi: state.idTournoi,
-            type_match: state.typeMatch,
-            id_match: state.idMatch,
-            score_equipe_1: construireChaineScore(1),
-            score_equipe_2: construireChaineScore(2)
+    function sauvegarderScore(statut) {
+        const score_equipe_1 = match.sets.join('*');
+        const score_equipe_2 = match.setsB.join('*');
+
+        const payload = {
+            id_tournoi: ID_TOURNOI,
+            type_match: match.type_match,
+            id_match: match.id_match,
+            score_equipe_1: score_equipe_1,
+            score_equipe_2: score_equipe_2
         };
-
-        if (matchTermine) {
-            body.statut = 'termine';
-        }
+        if (statut) payload.statut = statut;
+        if (!statut) payload.statut = 'en_cours';
 
         fetch('api/scoring/update_score.php', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(body)
+            body: JSON.stringify(payload)
         })
-            .then(function (res) { return res.json(); })
-            .catch(function (err) { console.error('Erreur sauvegarde', err); });
-    }
-
-    // -------------------- Affichage --------------------
-
-    function majAffichageComplet() {
-        document.getElementById('score-equipe-1').textContent = state.scoreActuel[1];
-        document.getElementById('score-equipe-2').textContent = state.scoreActuel[2];
-        document.getElementById('nom-equipe-1-score').textContent = state.nomEquipe1;
-        document.getElementById('nom-equipe-2-score').textContent = state.nomEquipe2;
-        document.getElementById('set-numero').textContent = state.setActuel;
-
-        document.getElementById('sets-equipe-1').textContent = state.nomEquipe1 + ' : ' + state.setsGagnes[1];
-        document.getElementById('sets-equipe-2').textContent = state.nomEquipe2 + ' : ' + state.setsGagnes[2];
-
-        majHistoriqueSets();
-        majAffichageTerrain();
-
-        if (state.syncBDD) {
-            sauvegarderScore(false);
-        }
-    }
-
-    function majHistoriqueSets() {
-        const container = document.getElementById('historique-sets');
-        container.innerHTML = '';
-        state.historiqueSets.forEach(function (s) {
-            const div = document.createElement('div');
-            div.textContent = 'Set ' + s.set + ' : ' + s.score1 + ' - ' + s.score2;
-            container.appendChild(div);
-        });
-    }
-
-    function majAffichageTerrain() {
-        // Détermine quelle équipe est affichée à gauche (côté A) ou droite (côté B)
-        const equipeGauche = state.cotesInverses ? 2 : 1;
-        const equipeDroite = state.cotesInverses ? 1 : 2;
-
-        remplirCote('A', equipeGauche);
-        remplirCote('B', equipeDroite);
-    }
-
-    function remplirCote(cote, equipe) {
-        const posHaut = document.getElementById('pos-' + cote + '-haut');
-        const posBas = document.getElementById('pos-' + cote + '-bas');
-
-        posHaut.classList.remove('serveur-actif');
-        posBas.classList.remove('serveur-actif');
-
-        if (state.formatMatch === 'simple') {
-            const nomJoueur = state.joueurs['equipe' + equipe][0] || ('Équipe ' + equipe);
-            posHaut.textContent = nomJoueur;
-            posBas.textContent = '';
-
-            if (state.serveur === equipe) {
-                // en simple, un seul joueur, mais on simule sa position droite/gauche visuellement
-                if (state.positionServeur === 'droite') {
-                    posHaut.classList.add('serveur-actif');
-                } else {
-                    posBas.classList.add('serveur-actif');
+            .then(r => r.json())
+            .then(data => {
+                if (data.error) {
+                    console.error('Erreur sauvegarde score :', data.error);
                 }
-            }
-        } else {
-            const key = 'equipe' + equipe;
-            const idxHaut = state.positionsDouble[key].haut;
-            const idxBas = state.positionsDouble[key].bas;
-
-            posHaut.textContent = state.joueurs[key][idxHaut] || ('Joueur ' + (idxHaut + 1));
-            posBas.textContent = state.joueurs[key][idxBas] || ('Joueur ' + (idxBas + 1));
-
-            if (state.serveur === equipe) {
-                if (state.positionServeur === 'droite') {
-                    posHaut.classList.add('serveur-actif');
-                } else {
-                    posBas.classList.add('serveur-actif');
-                }
-            }
-        }
+            })
+            .catch(err => console.error(err));
     }
 
-    return {
-        init: init
-    };
+    // ---------- INIT ----------
+    chargerMatchsEnCours();
 
 })();
