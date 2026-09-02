@@ -418,6 +418,12 @@ html[data-theme="dark"] #serveur-actuel {
   color: var(--text-main);
 }
 
+.volant {
+  margin-left: 8px;
+  font-size: 1.2em;
+  display: inline-block;
+}
+
 /* ---------- RESPONSIVE ---------- */
 @media (max-width: 700px) {
   #terrain-plan.terrain {

@@ -226,15 +226,19 @@
         if (joueurs.length === 1) {
             const div = document.createElement('div');
             div.className = 'joueur-slot';
-            div.textContent = joueurs[0];
+            const estServeur = (match.serveur.team === team && match.serveur.joueurIndex === 0);
+            div.textContent = joueurs[0] + (estServeur ? ' 🏸' : '');
             container.appendChild(div);
         } else {
             const divDroit = document.createElement('div');
             divDroit.className = 'joueur-slot slot-droit';
-            divDroit.textContent = joueurs[pos[0]] + ' (droite)';
+            const estServeurDroit = (match.serveur.team === team && match.serveur.joueurIndex === pos[0]);
+            divDroit.textContent = (estServeurDroit ? ' 🏸' : '') + joueurs[pos[0]] + ' (Droite)';
+
             const divGauche = document.createElement('div');
             divGauche.className = 'joueur-slot slot-gauche';
-            divGauche.textContent = joueurs[pos[1]] + ' (gauche)';
+            const estServeurGauche = (match.serveur.team === team && match.serveur.joueurIndex === pos[1]);
+            divGauche.textContent = (estServeurGauche ? ' 🏸' : '') + joueurs[pos[1]] + ' (Gauche)';
 
             if (cote === 'gauche') {
                 // équipe affichée à gauche du plan : joueur de droite en bas
@@ -516,6 +520,7 @@
             container.appendChild(div);
         }
     }
+
 
     // ---------- INIT ----------
     chargerMatchsEnCours();
