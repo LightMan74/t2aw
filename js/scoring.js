@@ -92,9 +92,24 @@
         match.sets = [parts1[0] || 0, parts1[1] || 0, parts1[2] || 0];
         match.setsB = [parts2[0] || 0, parts2[1] || 0, parts2[2] || 0];
 
+        // Déterminer quel set est en cours et combien de sets gagnés
         match.setActuel = 0;
         match.setsGagnes1 = 0;
         match.setsGagnes2 = 0;
+
+        for (let i = 0; i < 3; i++) {
+            if (match.sets[i] === 0 && match.setsB[i] === 0) {
+                match.setActuel = i;
+                break;
+            }
+            // Déterminer qui a gagné ce set
+            if (match.sets[i] > match.setsB[i]) {
+                match.setsGagnes1++;
+            } else if (match.setsB[i] > match.sets[i]) {
+                match.setsGagnes2++;
+            }
+        }
+
         match.coteEquipe1 = 'gauche';
         match.matchTermine = false;
         match.gagnantSetEnAttente = null;

@@ -104,7 +104,7 @@ if ($parametres !== false) {
             <div id="sets-info">
                 <span>Sets gagnés : </span>
                 <span id="sets-gagnes-1">0</span> - <span id="sets-gagnes-2">0</span>
-                <span id="set-actuel-label"></span>
+                <span id="set-actuel-label" style="display:none;"></span>
             </div>
             <div id="historique-sets" class="historique-sets"></div>
 
