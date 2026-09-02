@@ -11,7 +11,7 @@ if (!$id_tournoi) {
 }
 
 // Récupération infos tournoi
-$stmt = $pdo->prepare("SELECT nom FROM tournoi WHERE id = :id");
+$stmt = $pdo->prepare("SELECT nom FROM tournoi WHERE id_tournoi = :id");
 $stmt->execute(['id' => $id_tournoi]);
 $tournoi = $stmt->fetch(PDO::FETCH_ASSOC);
 $nom_tournoi = $tournoi['nom'] ?? 'Tournoi';
@@ -42,7 +42,7 @@ if ($parametres !== false) {
 <body class="scoring-page">
 
     <div class="scoring-header">
-        <h1><?php echo htmlspecialchars($nom_tournoi); ?> - Table d'arbitrage</h1>
+        <h1><?php echo htmlspecialchars($nom_tournoi); ?> - SCORING</h1>
 
         <div id="court-selector">
             <label for="terrain-select">Terrain / Match : </label>
@@ -52,7 +52,7 @@ if ($parametres !== false) {
             <button id="btn-refresh-matchs" type="button" class="btn-action secondaire">Rafraîchir la liste</button>
         </div>
 
-        <button class="theme-toggle" id="theme-toggle">🌓 Thème</button>
+        <button id="btn-theme-toggle" class="theme-toggle">🌙 Sombre</button>
     </div>
 
     <div id="scoring-container" style="display:none;">
@@ -107,13 +107,6 @@ if ($parametres !== false) {
                 <span id="set-actuel-label"></span>
             </div>
             <div id="historique-sets" class="historique-sets"></div>
-            <div id="options">
-                <label>
-                    <input type="checkbox" id="chk-auto-update">
-                    Mise à jour auto de la BDD à chaque point
-                </label>
-                <button id="btn-save-manuel" type="button" class="btn-action secondaire">Sauvegarder le score maintenant</button>
-            </div>
 
             <div id="terrain-plan" class="terrain">
                 <!-- Plan du terrain avec 2 côtés -->
@@ -123,10 +116,11 @@ if ($parametres !== false) {
                     <div class="joueurs-cote" id="joueurs-gauche">
                         <!-- positions générées en JS : position-haut / position-bas -->
                     </div>
-                    <button type="button" id="btn-switch-cote-gauche" class="btn-action warning">Changer position joueurs (erreur)</button>
                     <div>
-                        <button type="button" class="btn-point btn-plus" data-team="gauche">+1 Point</button>
+                        <button type="button" class="btn-point btn-plus" data-team="gauche">+1 Point</button><br><br>
                         <button type="button" class="btn-moins btn-minus" data-team="gauche">-1 Point</button>
+                        <br><br>
+                        <button type="button" id="btn-switch-cote-gauche" class="btn-action warning">Inverser position joueurs</button>
                     </div>
                 </div>
 
@@ -137,17 +131,18 @@ if ($parametres !== false) {
                     <div class="score" id="score-droite">0</div>
                     <div class="joueurs-cote" id="joueurs-droite">
                     </div>
-                    <button type="button" id="btn-switch-cote-droite" class="btn-action warning">Changer position joueurs (erreur)</button>
                     <div>
-                        <button type="button" class="btn-point btn-plus" data-team="droite">+1 Point</button>
+                        <button type="button" class="btn-point btn-plus" data-team="droite">+1 Point</button><br><br>
                         <button type="button" class="btn-moins btn-minus" data-team="droite">-1 Point</button>
+                        <br><br>
+                        <button type="button" id="btn-switch-cote-droite" class="btn-action warning">Inverser position joueurs</button>
                     </div>
                 </div>
             </div>
 
             <div id="serveur-info">
-                <strong>Au service : </strong><span id="serveur-actuel">-</span>
-                <button type="button" id="btn-change-serveur" class="btn-action warning">Corriger le serveur (erreur)</button>
+                <strong>Au service : </strong><span id="serveur-actuel">-</span><br>
+                <button type="button" id="btn-change-serveur" class="btn-action warning">Corriger le serveur</button>
             </div>
 
             <div id="controles-set" class="controles-generaux">
@@ -155,7 +150,13 @@ if ($parametres !== false) {
                 <button type="button" id="btn-set-suivant" class="btn-action" style="display:none;">Set suivant</button>
                 <button type="button" id="btn-terminer-match" class="btn-action" style="display:none;">Terminer le match</button>
             </div>
-
+            <div id="options">
+                <label>
+                    <input type="checkbox" id="chk-auto-update">
+                    Mise à jour auto de la BDD à chaque point
+                </label>
+                <button id="btn-save-manuel" type="button" class="btn-action secondaire">Sauvegarder le score maintenant</button>
+            </div>
         </div>
 
     </div>
@@ -177,14 +178,16 @@ if ($parametres !== false) {
     });
     </script>
     <?php endif; ?>
-
+    <!-- 
     <script>
     document.getElementById('theme-toggle').addEventListener('click', function() {
         const html = document.documentElement;
         const current = html.getAttribute('data-theme');
         html.setAttribute('data-theme', current === 'dark' ? 'light' : 'dark');
     });
-    </script>
+    </script> -->
+
+    <script src="js/theme.js"></script>
 
 </body>
 
