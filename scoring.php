@@ -5,6 +5,7 @@ error_reporting(E_ALL);
 require_once __DIR__ . '/api/db.php';
 
 $id_tournoi = isset($_GET['id_tournoi']) ? (int)$_GET['id_tournoi'] : 0;
+$id_terrain = isset($_GET['id_terrain']) ? (int)$_GET['id_terrain'] : 0;
 
 if (!$id_tournoi) {
     die('id_tournoi manquant');
@@ -163,6 +164,7 @@ if ($parametres !== false) {
 
     <script>
     const ID_TOURNOI = <?php echo (int)$id_tournoi; ?>;
+    const ID_TERRAIN = <?php echo (int)$id_terrain; ?>;
     const TOURNOI_TROISSETS = <?php echo (int)$tournoi_troissets_match; ?>;
     const SHOW_TIMER = <?php echo $show_timer ? 'true' : 'false'; ?>;
     </script>

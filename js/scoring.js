@@ -46,11 +46,13 @@
                 select.innerHTML = '<option value="">-- Choisir un match en cours --</option>';
                 if (!data.en_cours) return;
                 data.en_cours.forEach(m => {
-                    const opt = document.createElement('option');
-                    opt.value = JSON.stringify({ id: m.id, type: m.type_match });
-                    const terrain = m.terrain ? ('Terrain ' + m.terrain) : 'Terrain ?';
-                    opt.textContent = terrain + ' - ' + m.nom_equipe_1 + ' vs ' + m.nom_equipe_2;
-                    select.appendChild(opt);
+                    if (m.terrain == ID_TERRAIN || !ID_TERRAIN) {
+                        const opt = document.createElement('option');
+                        opt.value = JSON.stringify({ id: m.id, type: m.type_match });
+                        const terrain = m.terrain ? ('Terrain ' + m.terrain) : 'Terrain ?';
+                        opt.textContent = terrain + ' - ' + m.nom_equipe_1 + ' vs ' + m.nom_equipe_2;
+                        select.appendChild(opt);
+                    }
                 });
             });
     }
