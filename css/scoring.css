@@ -411,11 +411,17 @@ html[data-theme="dark"] #serveur-actuel {
 }
 
 .set-termine {
-  background: var(--block-bg);
-  border: 1px solid var(--border-color);
-  border-radius: 6px;
-  padding: 4px 10px;
-  color: var(--text-main);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  padding: 4px 0;
+}
+
+.btn-edit-set {
+  font-size: 0.85em;
+  padding: 2px 8px;
+  white-space: nowrap;
 }
 
 .volant {

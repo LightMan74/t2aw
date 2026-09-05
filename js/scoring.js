@@ -170,7 +170,7 @@
         // serveur initial = équipe 1, joueur 0
         match.serveur = { team: 1, joueurIndex: 0 };
 
-        document.getElementById('setup-joueurs').style.display = 'none';
+        document.getElementById('setup-joueurs').style.display = 'block'; //none
         document.getElementById('match-play').style.display = 'block';
 
         renderAll();
@@ -190,6 +190,18 @@
         document.getElementById('sets-gagnes-2').textContent = match.setsGagnes2;
         document.getElementById('set-actuel-label').textContent =
             ' | Set ' + (match.setActuel + 1) + (match.troissets === 1 ? ' (au temps)' : ' / ' + Math.max(3, match.troissets === 1 ? 1 : 3));
+
+        const labelGagnant = document.getElementById('gagnant-match-label');
+        if (match.setsGagnes1 === 2) {
+            labelGagnant.textContent = ' 🏆 ' + match.nom_equipe_1 + ' remporte le match';
+            labelGagnant.style.display = 'block';
+        } else if (match.setsGagnes2 === 2) {
+            labelGagnant.textContent = ' 🏆 ' + match.nom_equipe_2 + ' remporte le match';
+            labelGagnant.style.display = 'block';
+        } else {
+            labelGagnant.textContent = '';
+            labelGagnant.style.display = 'none';
+        }
     }
 
     // Retourne l'équipe (1 ou 2) qui est actuellement affichée à gauche
@@ -383,7 +395,7 @@
     // ---------- PASSAGE AU SET SUIVANT ----------
     document.getElementById('btn-set-suivant').addEventListener('click', function () {
         if (!match.gagnantSetEnAttente) return;
-        if (match.setActuel >= 2) return;
+        if (match.setActuel >= 3) return;
 
         // Valider le gagnant du set (incrémente setsGagnes1/2)
         if (match.gagnantSetEnAttente === 1) {
@@ -520,6 +532,7 @@
         if (match.setActuel === 0) {
             return;
         }
+
         const teamGauche = equipeCote('gauche');
         const teamDroite = equipeCote('droite');
 
@@ -532,9 +545,88 @@
 
             const div = document.createElement('div');
             div.className = 'set-termine';
-            div.textContent = 'Set ' + (i + 1) + ' : ' +
+
+            const spanTexte = document.createElement('span');
+            spanTexte.className = 'set-termine-texte';
+            spanTexte.textContent = 'Set ' + (i + 1) + ' : ' +
                 equipeGaucheSet + ' ' + scoreGaucheSet + ' - ' + scoreDroiteSet + ' ' + equipeDroiteSet;
+
+            const btnEdit = document.createElement('button');
+            btnEdit.type = 'button';
+            btnEdit.className = 'btn-action secondaire btn-edit-set';
+            btnEdit.textContent = '✏️ Modifier';
+            btnEdit.addEventListener('click', function () {
+                ouvrirEditionSet(i);
+            });
+
+            div.appendChild(spanTexte);
+            div.appendChild(btnEdit);
             container.appendChild(div);
+        }
+    }
+
+    // ---------- EDITION D'UN SET TERMINE ----------
+    function ouvrirEditionSet(indexSet) {
+        const teamGauche = equipeCote('gauche');
+        const teamDroite = equipeCote('droite');
+
+        const scoreGaucheActuel = (teamGauche === 1) ? match.sets[indexSet] : match.setsB[indexSet];
+        const scoreDroiteActuel = (teamDroite === 1) ? match.sets[indexSet] : match.setsB[indexSet];
+
+        const nouveauGauche = prompt(
+            'Score ' + nomEquipe(teamGauche) + ' pour le set ' + (indexSet + 1) + ' :',
+            scoreGaucheActuel
+        );
+        if (nouveauGauche === null) return;
+
+        const nouveauDroite = prompt(
+            'Score ' + nomEquipe(teamDroite) + ' pour le set ' + (indexSet + 1) + ' :',
+            scoreDroiteActuel
+        );
+        if (nouveauDroite === null) return;
+
+        const valGauche = parseInt(nouveauGauche, 10);
+        const valDroite = parseInt(nouveauDroite, 10);
+
+        if (isNaN(valGauche) || isNaN(valDroite) || valGauche < 0 || valDroite < 0) {
+            alert('Score invalide.');
+            return;
+        }
+
+        // Appliquer les nouveaux scores dans les bons tableaux (sets/setsB selon l'équipe réelle 1/2)
+        if (teamGauche === 1) {
+            match.sets[indexSet] = valGauche;
+            match.setsB[indexSet] = valDroite;
+        } else {
+            match.setsB[indexSet] = valGauche;
+            match.sets[indexSet] = valDroite;
+        }
+
+        // Recalcul complet des sets gagnés à partir de tous les sets terminés
+        recalculerSetsGagnes();
+
+        renderAll();
+        autoSaveIfEnabled();
+    }
+
+    // Recalcule setsGagnes1/setsGagnes2 en se basant sur les sets terminés (0 à setActuel-1)
+    function recalculerSetsGagnes() {
+        match.setsGagnes1 = 0;
+        match.setsGagnes2 = 0;
+
+        for (let i = 0; i < match.setActuel; i++) {
+            if (match.sets[i] > match.setsB[i]) {
+                match.setsGagnes1++;
+            } else if (match.setsB[i] > match.sets[i]) {
+                match.setsGagnes2++;
+            }
+        }
+
+        // Réafficher le bouton "Terminer le match" si applicable (au cas où la correction change l'issue)
+        if ((match.setsGagnes1 === 2 || match.setsGagnes2 === 2) && !match.matchTermine) {
+            document.getElementById('btn-terminer-match').style.display = 'inline-block';
+        } else if (!match.matchTermine) {
+            document.getElementById('btn-terminer-match').style.display = 'none';
         }
     }
 

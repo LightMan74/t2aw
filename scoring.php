@@ -60,6 +60,70 @@ if ($parametres !== false) {
 
         <h2 id="match-info"></h2>
 
+        <div id="match-play" style="display:none;">
+
+            <div id="timer-container"></div>
+
+            <div id="sets-info">
+                <span id="gagnant-match-label" class="gagnant-match" style="display:none;"></span>
+                <span>Sets gagnés : </span>
+                <span id="sets-gagnes-1">0</span> - <span id="sets-gagnes-2">0</span>
+                <span id="set-actuel-label" style="display:none;"></span>
+            </div>
+            <div id="historique-sets" class="historique-sets"></div>
+
+            <div id="terrain-plan" class="terrain">
+                <!-- Plan du terrain avec 2 côtés -->
+                <div class="cote" id="cote-gauche">
+                    <h4 id="nom-equipe-gauche"></h4>
+                    <div class="score" id="score-gauche">0</div>
+                    <div class="joueurs-cote" id="joueurs-gauche">
+                        <!-- positions générées en JS : position-haut / position-bas -->
+                    </div>
+                    <div>
+                        <button type="button" class="btn-point btn-plus" data-team="gauche">+1 Point</button><br><br>
+                        <button type="button" class="btn-moins btn-minus" data-team="gauche">-1 Point</button>
+                    </div>
+                </div>
+
+                <div class="filet"></div>
+
+                <div class="cote" id="cote-droite">
+                    <h4 id="nom-equipe-droite"></h4>
+                    <div class="score" id="score-droite">0</div>
+                    <div class="joueurs-cote" id="joueurs-droite">
+                    </div>
+                    <div>
+                        <button type="button" class="btn-point btn-plus" data-team="droite">+1 Point</button><br><br>
+                        <button type="button" class="btn-moins btn-minus" data-team="droite">-1 Point</button>
+                    </div>
+                </div>
+            </div>
+
+            <div id="serveur-info">
+                <strong>Au service : </strong><span id="serveur-actuel">-</span>
+                <button type="button" id="btn-change-serveur" class="btn-action warning">Corriger le serveur</button>
+                <div id="serveur-info2">
+                    <button type="button" id="btn-switch-cote-gauche" class="btn-action warning">Inverser position joueurs (gauche)</button>
+                    <button type="button" id="btn-changer-cote-manuel" class="btn-action secondaire">Changer de côté (manuel)</button>
+                    <button type="button" id="btn-switch-cote-droite" class="btn-action warning">Inverser position joueurs (droite)</button>
+                </div>
+            </div>
+
+            <div id="controles-set" class="controles-generaux">
+                <button type="button" id="btn-set-suivant" class="btn-action" style="display:none;">Set suivant</button>
+                <button type="button" id="btn-terminer-match" class="btn-action" style="display:none;">Terminer le match</button>
+                <button id="btn-save-manuel" type="button" class="btn-action secondaire">Sauvegarder le score maintenant</button>
+            </div>
+            <div id="options" style="display:none;">
+                <label>
+                    <input type="checkbox" id="chk-auto-update">
+                    Sauvegarder automatique à chaque point
+                </label>
+                <button id="btn-save-manuel" type="button" class="btn-action secondaire">Sauvegarder le score maintenant</button>
+            </div>
+        </div>
+
         <div id="setup-joueurs">
             <h3>Configuration des joueurs</h3>
 
@@ -95,69 +159,7 @@ if ($parametres !== false) {
                 </div>
             </div>
 
-            <button id="btn-start-match" type="button" class="btn-action">Démarrer le match</button>
-        </div>
-
-        <div id="match-play" style="display:none;">
-
-            <div id="timer-container"></div>
-
-            <div id="sets-info">
-                <span>Sets gagnés : </span>
-                <span id="sets-gagnes-1">0</span> - <span id="sets-gagnes-2">0</span>
-                <span id="set-actuel-label" style="display:none;"></span>
-            </div>
-            <div id="historique-sets" class="historique-sets"></div>
-
-            <div id="terrain-plan" class="terrain">
-                <!-- Plan du terrain avec 2 côtés -->
-                <div class="cote" id="cote-gauche">
-                    <h4 id="nom-equipe-gauche"></h4>
-                    <div class="score" id="score-gauche">0</div>
-                    <div class="joueurs-cote" id="joueurs-gauche">
-                        <!-- positions générées en JS : position-haut / position-bas -->
-                    </div>
-                    <div>
-                        <button type="button" class="btn-point btn-plus" data-team="gauche">+1 Point</button><br><br>
-                        <button type="button" class="btn-moins btn-minus" data-team="gauche">-1 Point</button>
-                        <br><br>
-                        <button type="button" id="btn-switch-cote-gauche" class="btn-action warning">Inverser position joueurs</button>
-                    </div>
-                </div>
-
-                <div class="filet"></div>
-
-                <div class="cote" id="cote-droite">
-                    <h4 id="nom-equipe-droite"></h4>
-                    <div class="score" id="score-droite">0</div>
-                    <div class="joueurs-cote" id="joueurs-droite">
-                    </div>
-                    <div>
-                        <button type="button" class="btn-point btn-plus" data-team="droite">+1 Point</button><br><br>
-                        <button type="button" class="btn-moins btn-minus" data-team="droite">-1 Point</button>
-                        <br><br>
-                        <button type="button" id="btn-switch-cote-droite" class="btn-action warning">Inverser position joueurs</button>
-                    </div>
-                </div>
-            </div>
-
-            <div id="serveur-info">
-                <strong>Au service : </strong><span id="serveur-actuel">-</span><br>
-                <button type="button" id="btn-change-serveur" class="btn-action warning">Corriger le serveur</button>
-            </div>
-
-            <div id="controles-set" class="controles-generaux">
-                <button type="button" id="btn-changer-cote-manuel" class="btn-action secondaire">Changer de côté (manuel)</button>
-                <button type="button" id="btn-set-suivant" class="btn-action" style="display:none;">Set suivant</button>
-                <button type="button" id="btn-terminer-match" class="btn-action" style="display:none;">Terminer le match</button>
-            </div>
-            <div id="options">
-                <label>
-                    <input type="checkbox" id="chk-auto-update">
-                    Mise à jour auto de la BDD à chaque point
-                </label>
-                <button id="btn-save-manuel" type="button" class="btn-action secondaire">Sauvegarder le score maintenant</button>
-            </div>
+            <button id="btn-start-match" type="button" class="btn-action">Valider les joueures</button>
         </div>
 
     </div>
@@ -180,14 +182,6 @@ if ($parametres !== false) {
     });
     </script>
     <?php endif; ?>
-    <!-- 
-    <script>
-    document.getElementById('theme-toggle').addEventListener('click', function() {
-        const html = document.documentElement;
-        const current = html.getAttribute('data-theme');
-        html.setAttribute('data-theme', current === 'dark' ? 'light' : 'dark');
-    });
-    </script> -->
 
     <script src="js/theme.js"></script>
 
