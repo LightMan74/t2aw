@@ -90,6 +90,8 @@ $currentUser = $_SESSION['user'];
 <?php $tournoi_password;
     }
 ?>
+<a target="_blank" href="scoring.php?<?php echo htmlspecialchars((isset($_GET["id_tournoi"])) ? 'id_tournoi='.$_GET["id_tournoi"] : '');?>&id_terrain=0">Scoring</a>
+
 <script>
 function afficheurhrefchange() {
     let affhref = document.getElementById('afficheurhref');

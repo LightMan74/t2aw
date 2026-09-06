@@ -87,7 +87,6 @@
         match.nom_equipe_1 = data.nom_equipe_1;
         match.nom_equipe_2 = data.nom_equipe_2;
         match.troissets = parseInt(data.troissets, 10) || 3;
-
         // parse score existant s'il y en a
         const parts1 = (data.score_equipe_1 || '0*0*0').split('*').map(v => parseInt(v, 10) || 0);
         const parts2 = (data.score_equipe_2 || '0*0*0').split('*').map(v => parseInt(v, 10) || 0);
@@ -100,15 +99,27 @@
         match.setsGagnes2 = 0;
 
         for (let i = 0; i < 3; i++) {
-            if (match.sets[i] === 0 && match.setsB[i] === 0) {
+            const s1 = match.sets[i];
+            const s2 = match.setsB[i];
+
+            // Set vide = pas encore joué => c'est le set courant
+            if (s1 === 0 && s2 === 0) {
                 match.setActuel = i;
                 break;
             }
-            // Déterminer qui a gagné ce set
-            if (match.sets[i] > match.setsB[i]) {
-                match.setsGagnes1++;
-            } else if (match.setsB[i] > match.sets[i]) {
-                match.setsGagnes2++;
+
+            // Vérifier si CE set respecte une condition de fin de set validée
+            if (estSetTermine(s1, s2)) {
+                if (s1 > s2) {
+                    match.setsGagnes1++;
+                } else if (s2 > s1) {
+                    match.setsGagnes2++;
+                }
+                match.setActuel = i; // au cas où on arrive en fin de boucle sans break
+            } else {
+                // Le set n'est pas terminé => c'est le set en cours, on s'arrête ici
+                match.setActuel = i;
+                break;
             }
         }
 
@@ -120,7 +131,6 @@
             (data.nom_categorie ? data.nom_categorie + ' - ' : '') +
             (data.nom_poule ? data.nom_poule + ' - ' : '') +
             'Terrain ' + (data.terrain || '?');
-
         document.getElementById('nom-equipe-1-label').textContent = match.nom_equipe_1;
         document.getElementById('nom-equipe-2-label').textContent = match.nom_equipe_2;
 
@@ -136,6 +146,19 @@
         document.getElementById('scoring-container').style.display = 'block';
 
         autoUpdateChk.checked = false;
+    }
+
+    // ---------- UTILITAIRE : un set est-il terminé selon les règles du badminton ? ----------
+    function estSetTermine(s1, s2) {
+        // Mode "1 set au temps" : on ne peut jamais déduire automatiquement la fin d'un set
+        if (match.troissets === 1) return false;
+
+        const min = 15;
+
+        if (s1 >= min && (s1 - s2) >= 2) return true;
+        if (s2 >= min && (s2 - s1) >= 2) return true;
+
+        return false;
     }
 
     // ---------- FORMAT SIMPLE/DOUBLE : affichage joueur 2 ----------
@@ -407,7 +430,7 @@
         match.gagnantSetEnAttente = null;
 
         if (match.setsGagnes1 === 2 || match.setsGagnes2 === 2) {
-            document.getElementById('btn-terminer-match').style.display = 'inline-block';
+            // document.getElementById('btn-terminer-match').style.display = 'inline-block';
         }
 
         // Passage au set suivant
@@ -559,10 +582,76 @@
                 ouvrirEditionSet(i);
             });
 
+            const btnReprendre = document.createElement('button');
+            btnReprendre.type = 'button';
+            btnReprendre.className = 'btn-action warning btn-reprendre-set';
+            btnReprendre.textContent = '▶️ Reprendre ce set';
+            btnReprendre.addEventListener('click', function () {
+                reprendreSet(i);
+            });
+
             div.appendChild(spanTexte);
             div.appendChild(btnEdit);
+            div.appendChild(btnReprendre);
             container.appendChild(div);
         }
+    }
+
+    // ---------- REPRENDRE UN SET DEJA TERMINE ----------
+    function reprendreSet(indexSet) {
+        if (!confirm('Reprendre le set ' + (indexSet + 1) + ' ? Les sets suivants (déjà joués) seront remis à zéro.')) {
+            return;
+        }
+
+        // Remettre à zéro les scores des sets APRES celui qu'on reprend (s'il y en a)
+        for (let i = indexSet + 1; i <= 3; i++) {
+            match.sets[i] = 0;
+            match.setsB[i] = 0;
+        }
+
+        // Repositionner le set actuel sur le set choisi
+        match.setActuel = indexSet;
+
+        // Recalculer les côtés : on part du principe qu'à chaque set on change de côté,
+        // en partant de 'gauche' pour le set 0
+        match.coteEquipe1 = (indexSet % 2 === 0) ? 'gauche' : 'droite';
+
+        // Recalculer les sets gagnés en ne comptant que les sets AVANT celui repris
+        match.setsGagnes1 = 0;
+        match.setsGagnes2 = 0;
+        for (let i = 0; i < indexSet; i++) {
+            if (match.sets[i] > match.setsB[i]) {
+                match.setsGagnes1++;
+            } else if (match.setsB[i] > match.sets[i]) {
+                match.setsGagnes2++;
+            }
+        }
+
+        // Réinitialiser le serveur : par défaut le service revient à l'équipe qui était en tête
+        // au moment de la reprise (approximation raisonnable, ajustable via "Corriger le serveur")
+        const s1 = match.sets[indexSet];
+        const s2 = match.setsB[indexSet];
+        if (s1 >= s2) {
+            match.serveur = { team: 1, joueurIndex: 0 };
+        } else {
+            match.serveur = { team: 2, joueurIndex: 0 };
+        }
+
+        // Réinitialiser les positions des joueurs (position par défaut)
+        posEquipe(1)[0] = 0;
+        if (posEquipe(1).length > 1) posEquipe(1)[1] = 1;
+        posEquipe(2)[0] = 0;
+        if (posEquipe(2).length > 1) posEquipe(2)[1] = 1;
+
+        // Le match n'est plus considéré comme "en attente de validation d'un set fini"
+        match.gagnantSetEnAttente = null;
+        match.matchTermine = false;
+
+        document.getElementById('btn-set-suivant').style.display = 'none';
+        document.getElementById('btn-terminer-match').style.display = 'none';
+
+        renderAll();
+        autoSaveIfEnabled();
     }
 
     // ---------- EDITION D'UN SET TERMINE ----------
