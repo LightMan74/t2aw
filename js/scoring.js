@@ -55,8 +55,9 @@
                     }
                 });
                 if (ID_TERRAIN != 0) {
-                    document.getElementById('terrain-select').selectedIndex = 1;
+                    select.selectedIndex = 1;
                     select.dispatchEvent(new Event('change'));
+                    document.getElementById('btn-start-match').dispatchEvent(new Event('click'));
                 }
             });
     }
@@ -82,6 +83,9 @@
                     return;
                 }
                 initMatch(data);
+                // if (ID_TERRAIN != 0) {
+                document.getElementById('btn-start-match').dispatchEvent(new Event('click'));
+                // }
             });
     }
 
