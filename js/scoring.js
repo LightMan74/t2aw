@@ -430,7 +430,12 @@
         match.gagnantSetEnAttente = null;
 
         if (match.setsGagnes1 === 2 || match.setsGagnes2 === 2) {
-            // document.getElementById('btn-terminer-match').style.display = 'inline-block';
+            console.log(SCORING_MATCHTERMINE + ' addEventListener');
+            if (!SCORING_MATCHTERMINE) {
+                document.getElementById('btn-terminer-match').style.display = 'inline-block';
+            } else {
+                document.getElementById('btn-terminer-match').style.display = 'none'
+            }
         }
 
         // Passage au set suivant
@@ -533,6 +538,7 @@
         };
         if (statut) payload.statut = statut;
         if (!statut) payload.statut = 'en_cours';
+        if (SCORING_MATCHTERMINE) payload.statut = 'en_cours';
 
         fetch('api/scoring/update_score.php', {
             method: 'POST',
@@ -713,7 +719,12 @@
 
         // Réafficher le bouton "Terminer le match" si applicable (au cas où la correction change l'issue)
         if ((match.setsGagnes1 === 2 || match.setsGagnes2 === 2) && !match.matchTermine) {
-            document.getElementById('btn-terminer-match').style.display = 'inline-block';
+            console.log(SCORING_MATCHTERMINE + ' recal');
+            if (!SCORING_MATCHTERMINE) {
+                document.getElementById('btn-terminer-match').style.display = 'inline-block';
+            } else {
+                document.getElementById('btn-terminer-match').style.display = 'none'
+            }
         } else if (!match.matchTermine) {
             document.getElementById('btn-terminer-match').style.display = 'none';
         }

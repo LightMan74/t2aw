@@ -147,8 +147,6 @@ $mode_creation = $id_tournoi === 0;
                         <label for="tournoi_password">Mot de passe du tournoi (Afficheur)</label>
                         <input type="text" id="tournoi_password" name="tournoi_password">
                     </div>
-                </div>
-                <div class="form-row">
                     <div class="form-group">
                         <label for="matchtermine">Matchs terminé (interface admin)</label>
                         <select id="matchtermine" name="matchtermine" required>
@@ -156,8 +154,17 @@ $mode_creation = $id_tournoi === 0;
                             <option value="1" selected>Caché</option>
                         </select>
                     </div>
+                </div>
+                <div class="form-row">
                     <div class="form-group">
-                        <label for="matchtermine">Mot de passe du scoring (interface admin)</label>
+                        <label for="scoring_matchtermine">Validation des matchs terminé dans scoring</label>
+                        <select id="scoring_matchtermine" name="scoring_matchtermine" required>
+                            <option value="0" selected>Non</option>
+                            <option value="1">Oui</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="scoring_password">Mot de passe du scoring</label>
                         <input type="text" id="scoring_password" name="scoring_password">
                     </div>
                 </div>

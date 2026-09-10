@@ -41,6 +41,7 @@ try {
     $heure_debut_poule = trim($data['heure_debut_poule'] ?? '');
     $heure_debut_phasefinal = trim($data['heure_debut_phasefinal'] ?? '');
     $matchtermine = trim($data['matchtermine'] ?? 1);
+    $scoring_matchtermine = trim($data['scoring_matchtermine'] ?? 1);
     $tournoi_password = trim($data['tournoi_password'] ?? '');
     $scoring_password = trim($data['scoring_password'] ?? '');
     $tournoi_cacher = trim($data['tournoi_cacher'] ?? 0);
@@ -86,6 +87,7 @@ try {
                 troissets = :troissets,
                 terrain_automatique = :terrain_automatique,
                 matchtermine = :matchtermine,
+                scoring_matchtermine = :scoring_matchtermine,
                 tournoi_password = :tournoi_password,
                 tournoi_cacher = :tournoi_cacher,
                 timer = :show_timer,
@@ -102,6 +104,7 @@ try {
             'troissets' => $troissets,
             'terrain_automatique' => $terrain_automatique,
             'matchtermine' => $matchtermine,
+            'scoring_matchtermine' => $scoring_matchtermine,
             'tournoi_password' => $tournoi_password,
             'scoring_password' => $scoring_password,
             'tournoi_cacher' => $tournoi_cacher,

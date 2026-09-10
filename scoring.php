@@ -27,6 +27,7 @@ if ($parametres !== false) {
     if (isset($parametres['troissets'])) $tournoi_troissets_match = (int)$parametres['troissets'];
     if (isset($parametres['timer'])) $show_timer = ((int)$parametres['timer'] === 1);
     if (isset($parametres['scoring_password'])) $scoring_password = ($parametres['scoring_password']);
+    if (isset($parametres['scoring_matchtermine'])) $scoring_matchtermine = ($parametres['scoring_matchtermine']);
 }
 if ($scoring_password != htmlspecialchars($_GET['scoring_password'])) {
     die('scoring_password manquant');
@@ -172,6 +173,7 @@ if ($scoring_password != htmlspecialchars($_GET['scoring_password'])) {
     const ID_TOURNOI = <?php echo (int)$id_tournoi; ?>;
     const ID_TERRAIN = <?php echo (int)$id_terrain; ?>;
     const TOURNOI_TROISSETS = <?php echo (int)$tournoi_troissets_match; ?>;
+    const SCORING_MATCHTERMINE = <?php echo (int)$scoring_matchtermine; ?>;
     const SHOW_TIMER = <?php echo $show_timer ? 'true' : 'false'; ?>;
     </script>
     <script src="js/scoring.js"></script>

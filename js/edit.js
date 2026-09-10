@@ -84,6 +84,7 @@ async function chargerDonneesTournoi() {
         document.getElementById('heure_debut_poule').value = data.parametre.heure_debut_poule || '';
         document.getElementById('heure_debut_phasefinal').value = data.parametre.heure_debut_phasefinal || '';
         document.getElementById('matchtermine').value = data.parametre.matchtermine || '';
+        document.getElementById('scoring_matchtermine').value = data.parametre.scoring_matchtermine || '';
         document.getElementById('tournoi_password').value = data.parametre.tournoi_password || '';
         document.getElementById('scoring_password').value = data.parametre.scoring_password || '';
         document.getElementById('tournoi_cacher').value = data.parametre.tournoi_cacher || '';
@@ -104,6 +105,9 @@ async function chargerDonneesTournoi() {
 
         var matchtermineAutoval = parseInt(data.parametre.matchtermine, 10);
         document.getElementById('matchtermine').value = (matchtermineAutoval === 0) ? '0' : '1';
+
+        var scoring_matchtermineAutoval = parseInt(data.parametre.scoring_matchtermine, 10);
+        document.getElementById('scoring_matchtermine').value = (scoring_matchtermineAutoval === 0) ? '0' : '1';
 
         var tournoi_cacherAutoval = parseInt(data.parametre.tournoi_cacher, 10);
         document.getElementById('tournoi_cacher').value = (tournoi_cacherAutoval === 0) ? '0' : '1';
@@ -499,6 +503,7 @@ function collectFormData() {
     var heure_debut_poule = document.getElementById('heure_debut_poule').value;
     var heure_debut_phasefinal = document.getElementById('heure_debut_phasefinal').value;
     var matchtermine = document.getElementById('matchtermine').value;
+    var scoring_matchtermine = document.getElementById('scoring_matchtermine').value;
     var tournoi_cacher = document.getElementById('tournoi_cacher').value;
     var tournoi_password = document.getElementById('tournoi_password').value;
     var scoring_password = document.getElementById('scoring_password').value;
@@ -577,6 +582,7 @@ function collectFormData() {
         troissets: troissets,
         terrain_automatique: terrain_automatique,
         matchtermine: matchtermine,
+        scoring_matchtermine: scoring_matchtermine,
         tournoi_password: tournoi_password,
         scoring_password: scoring_password,
         tournoi_cacher: tournoi_cacher,
