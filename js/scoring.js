@@ -54,6 +54,10 @@
                         select.appendChild(opt);
                     }
                 });
+                if (ID_TERRAIN != 0) {
+                    document.getElementById('terrain-select').selectedIndex = 1;
+                    select.dispatchEvent(new Event('change'));
+                }
             });
     }
 
@@ -733,5 +737,10 @@
 
     // ---------- INIT ----------
     chargerMatchsEnCours();
+
+    // document.addEventListener("DOMContentLoaded", function () {
+    //     // Votre code à exécuter ici
+    //     chargerMatchsEnCours();
+    // });
 
 })();

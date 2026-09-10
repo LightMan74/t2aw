@@ -68,7 +68,7 @@ try {
     }
     // --- Requête commune (fonctionne sur les 2 moteurs) ---
     $stmt = $pdo->prepare("
-        SELECT t.nom, t.user_uid, p.tournoi_password, p.timer, p.qrcode
+        SELECT t.nom, t.user_uid, p.tournoi_password, p.timer, p.qrcode, p.scoring_password
         FROM tournoi t, parametre p
         WHERE t.id_tournoi = :id and p.id_tournoi = t.id_tournoi
     ");
@@ -89,6 +89,9 @@ try {
     }
     if (isset($tournoi_name_menu[0]["qrcode"])){
         $show_qrcode = ($tournoi_name_menu[0]["qrcode"] ? $tournoi_name_menu[0]["qrcode"] : 0);
+    }    
+    if (isset($tournoi_name_menu[0]["scoring_password"])){
+        $scoring_password = ($tournoi_name_menu[0]["scoring_password"] ? "&scoring_password=".$tournoi_name_menu[0]["scoring_password"] : "");
     }
 
 } catch (PDOException $e) {
