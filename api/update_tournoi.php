@@ -42,6 +42,7 @@ try {
     $heure_debut_phasefinal = trim($data['heure_debut_phasefinal'] ?? '');
     $matchtermine = trim($data['matchtermine'] ?? 1);
     $tournoi_password = trim($data['tournoi_password'] ?? '');
+    $scoring_password = trim($data['scoring_password'] ?? '');
     $tournoi_cacher = trim($data['tournoi_cacher'] ?? 0);
     $show_timer = trim($data['show_timer'] ?? 1);
     $show_qrcode = trim($data['show_qrcode'] ?? 1);
@@ -88,7 +89,8 @@ try {
                 tournoi_password = :tournoi_password,
                 tournoi_cacher = :tournoi_cacher,
                 timer = :show_timer,
-                qrcode = :show_qrcode
+                qrcode = :show_qrcode,
+                scoring_password = :scoring_password
             WHERE id_tournoi = :id_tournoi
         ");
         $stmtUpdateParam->execute([
@@ -101,6 +103,7 @@ try {
             'terrain_automatique' => $terrain_automatique,
             'matchtermine' => $matchtermine,
             'tournoi_password' => $tournoi_password,
+            'scoring_password' => $scoring_password,
             'tournoi_cacher' => $tournoi_cacher,
             'show_timer' => $show_timer,
             'show_qrcode' => $show_qrcode,

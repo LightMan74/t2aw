@@ -20,12 +20,16 @@ $nom_tournoi = $tournoi['nom'] ?? 'Tournoi';
 // Paramètres tournoi
 $tournoi_troissets_match = 3;
 $show_timer = false;
-$stmt = $pdo->prepare("SELECT troissets, timer FROM parametre WHERE id_tournoi = :id");
+$stmt = $pdo->prepare("SELECT troissets, timer, scoring_password FROM parametre WHERE id_tournoi = :id");
 $stmt->execute(['id' => $id_tournoi]);
 $parametres = $stmt->fetch(PDO::FETCH_ASSOC);
 if ($parametres !== false) {
     if (isset($parametres['troissets'])) $tournoi_troissets_match = (int)$parametres['troissets'];
     if (isset($parametres['timer'])) $show_timer = ((int)$parametres['timer'] === 1);
+    if (isset($parametres['scoring_password'])) $scoring_password = ($parametres['scoring_password']);
+}
+if ($scoring_password != htmlspecialchars($_GET['scoring_password'])) {
+    die('scoring_password manquant');
 }
 ?>
 <!DOCTYPE html>

@@ -85,6 +85,7 @@ async function chargerDonneesTournoi() {
         document.getElementById('heure_debut_phasefinal').value = data.parametre.heure_debut_phasefinal || '';
         document.getElementById('matchtermine').value = data.parametre.matchtermine || '';
         document.getElementById('tournoi_password').value = data.parametre.tournoi_password || '';
+        document.getElementById('scoring_password').value = data.parametre.scoring_password || '';
         document.getElementById('tournoi_cacher').value = data.parametre.tournoi_cacher || '';
 
         var timerVal = parseInt(data.parametre.timer, 10);
@@ -500,6 +501,7 @@ function collectFormData() {
     var matchtermine = document.getElementById('matchtermine').value;
     var tournoi_cacher = document.getElementById('tournoi_cacher').value;
     var tournoi_password = document.getElementById('tournoi_password').value;
+    var scoring_password = document.getElementById('scoring_password').value;
 
 
     var show_timerRaw = parseInt(document.getElementById('show_timer').value, 10);
@@ -576,6 +578,7 @@ function collectFormData() {
         terrain_automatique: terrain_automatique,
         matchtermine: matchtermine,
         tournoi_password: tournoi_password,
+        scoring_password: scoring_password,
         tournoi_cacher: tournoi_cacher,
         categories: categories,
         show_timer: show_timer,
@@ -589,10 +592,10 @@ function collectFormData() {
 function initialiserEstimationsHeures() {
     ['heure_debut_poule', 'heure_debut_phasefinal', 'temps_de_match',
         'nbre_terrain_poule', 'nbre_terrain_phasefinal'].forEach(function (id) {
-        var input = document.getElementById(id);
-        if (input) input.addEventListener('input', actualiserEstimationsHeures);
-        if (input) input.addEventListener('change', actualiserEstimationsHeures);
-    });
+            var input = document.getElementById(id);
+            if (input) input.addEventListener('input', actualiserEstimationsHeures);
+            if (input) input.addEventListener('change', actualiserEstimationsHeures);
+        });
 
     var categoriesContainer = document.getElementById('categories-container');
     if (categoriesContainer && window.MutationObserver) {

@@ -84,6 +84,7 @@ $stmtTournoi = $pdo->prepare("
             'heure_debut_phasefinal' => null,
             'matchtermine' => null,
             'tournoi_password' => null,
+            'scoring_password' => null,
             'tournoi_cacher' => null
         ],
         'categories' => $categories

@@ -17,21 +17,23 @@ $mode_creation = $id_tournoi === 0;
     <link rel="stylesheet" href="css/dark-mode.css">
     <link rel="stylesheet" href="css/tirage.css">
     <style>
-        .estimation-heure {
-            display: block;
-            margin-top: 0.35rem;
-            color: var(--couleur-secondaire, #666);
-            font-size: 0.9em;
-        }
-        .categorie-round-depart {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.35rem;
-            margin-left: 0.75rem;
-        }
-        .categorie-round-depart span {
-            font-size: 0.9em;
-        }
+    .estimation-heure {
+        display: block;
+        margin-top: 0.35rem;
+        color: var(--couleur-secondaire, #666);
+        font-size: 0.9em;
+    }
+
+    .categorie-round-depart {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.35rem;
+        margin-left: 0.75rem;
+    }
+
+    .categorie-round-depart span {
+        font-size: 0.9em;
+    }
     </style>
 
 </head>
@@ -145,6 +147,8 @@ $mode_creation = $id_tournoi === 0;
                         <label for="tournoi_password">Mot de passe du tournoi (Afficheur)</label>
                         <input type="text" id="tournoi_password" name="tournoi_password">
                     </div>
+                </div>
+                <div class="form-row">
                     <div class="form-group">
                         <label for="matchtermine">Matchs terminé (interface admin)</label>
                         <select id="matchtermine" name="matchtermine" required>
@@ -152,8 +156,11 @@ $mode_creation = $id_tournoi === 0;
                             <option value="1" selected>Caché</option>
                         </select>
                     </div>
+                    <div class="form-group">
+                        <label for="matchtermine">Mot de passe du scoring (interface admin)</label>
+                        <input type="text" id="scoring_password" name="scoring_password">
+                    </div>
                 </div>
-
                 <div class="form-group">
                     <label>Nombre de catégories</label>
                     <div class="counter-control">
