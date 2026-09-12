@@ -42,6 +42,8 @@ $tournoi_id = isset($_GET['id_tournoi']) ? (int)$_GET['id_tournoi'] : 0;
                     <label>---</label>
                     <label onclick="chargerMatchs(true)" class="toggle-btn-label btn-ordre-save">Inversé ordre Phase Final</label>
                     <label>---</label>
+                    <label id="etatverifscoringbtn" onclick="etatverifscoringfunc()" class="toggle-btn-label btn-ordre-save">Set OFF Verif Scoring</label>
+                    <label>---</label>
                     <label onclick="resetTerrains()" class="toggle-btn-label btn-ordre-save" style="background: red;">Reinitialisé les terrains</label>
                     <label onclick="reassignerTerrains()" class="toggle-btn-label btn-ordre-save" style="background: #2a7ae2;">Réassigner les terrains</label>
                 </div>

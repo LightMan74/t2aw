@@ -960,8 +960,10 @@ function togglematchtermine() {
 let intervalVerifScoring = null;
 
 async function verifierMatchsScoring() {
+
     const id_tournoi = document.getElementById('id_tournoi')?.value;
     if (!id_tournoi) return;
+    if (!etatverifscoring) return;
 
     try {
         const res = await fetch(`api/get_matchs_scoring_live.php?id_tournoi=${id_tournoi}`);
@@ -1041,10 +1043,23 @@ function demarrerVerifScoring() {
     intervalVerifScoring = setInterval(verifierMatchsScoring, 5000);
 }
 
-
+function etatverifscoringfunc(isnotinit = true) {
+    // console.log(document.getElementById('etatverifscoringbtn'));
+    if (isnotinit) {
+        etatverifscoring = !etatverifscoring;
+        // console.log(etatverifscoring);
+        localStorage.setItem('etatverifscoring', etatverifscoring);
+    }
+    // console.log(etatverifscoring);
+    if (etatverifscoring) {
+        document.getElementById('etatverifscoringbtn').innerText = "Set OFF Verif Scoring";
+    } else {
+        document.getElementById('etatverifscoringbtn').innerText = "Set ON Verif Scoring";
+    }
+}
 
 // ---------- Initialisation ----------
-
+let etatverifscoring = JSON.parse(localStorage.getItem('etatverifscoring') ?? 'true');
 document.addEventListener('DOMContentLoaded', async () => {
     await chargerMatchs();
     await chargerParametres();
@@ -1059,6 +1074,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     demarrerVerifScoring(); // <-- ajout
+    etatverifscoringfunc(false);
+
 });
 
 document.addEventListener('focus', function (e) {
