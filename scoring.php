@@ -7,10 +7,10 @@ require_once __DIR__ . '/api/db.php';
 $id_tournoi = isset($_GET['id_tournoi']) ? (int)$_GET['id_tournoi'] : 0;
 $id_terrain = isset($_GET['id_terrain']) ? (int)$_GET['id_terrain'] : 0;
 
-if (!$id_tournoi) {
-    die('id_tournoi manquant');
-}
-
+// if (!$id_tournoi) {
+//     die('id_tournoi manquant');
+// }
+if ($id_tournoi) {
 // Récupération infos tournoi
 $stmt = $pdo->prepare("SELECT nom FROM tournoi WHERE id_tournoi = :id");
 $stmt->execute(['id' => $id_tournoi]);
@@ -31,6 +31,7 @@ if ($parametres !== false) {
 }
 if ($scoring_password != htmlspecialchars($_GET['scoring_password'])) {
     die('scoring_password manquant');
+}
 }
 ?>
 <!DOCTYPE html>
