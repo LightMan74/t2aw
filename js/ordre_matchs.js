@@ -1040,7 +1040,7 @@ async function verifierMatchsScoring() {
 
 function demarrerVerifScoring() {
     if (intervalVerifScoring) clearInterval(intervalVerifScoring);
-    intervalVerifScoring = setInterval(verifierMatchsScoring, 5000);
+    intervalVerifScoring = setInterval(verifierMatchsScoring, 10000);
 }
 
 function etatverifscoringfunc(isnotinit = true) {
