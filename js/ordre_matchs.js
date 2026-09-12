@@ -639,6 +639,11 @@ async function sauvegarderLigne(index) {
     const m = matchsData[index];
     if (!m) return;
 
+    const tr = document.querySelector(`tr[data-index="${index}"]`);
+    if (tr) {
+        tr.style.backgroundColor = '';
+    }
+
     const terrain = document.getElementById(`terrain-${index}`)?.value ?? '';
     const statut = document.getElementById(`status-${index}`)?.value ?? getStatut(m);
     const heure_debut = document.getElementById(`hdebut-${index}`)?.value ?? '';
@@ -989,7 +994,7 @@ async function verifierMatchsScoring() {
             }
 
             // On ne touche pas aux champs si l'utilisateur a une modif en attente
-            if (modifiedMatchs.has(index)) return;
+            // if (modifiedMatchs.has(index)) return;
 
             const s1 = String(matchMaj.score1 ?? '0*0*0').split('*');
             const s2 = String(matchMaj.score2 ?? '0*0*0').split('*');
@@ -1003,15 +1008,28 @@ async function verifierMatchsScoring() {
                 [`score2s3-${index}`, s2[2] ?? 0],
             ];
 
+            let modifie = false;
+
             champs.forEach(([id, val]) => {
                 const el = document.getElementById(id);
-                // Ne pas écraser un champ en cours de saisie
-                if (el && el !== document.activeElement && String(el.value) !== String(val)) {
-                    el.value = val;
-                    el.dispatchEvent(new Event('input', { bubbles: true }));
-                    colorscoring(id, true);
-                }
+                // if (el && el !== document.activeElement && String(el.value) !== String(val)) {
+                el.value = val;
+                el.dispatchEvent(new Event('input', { bubbles: true }));
+                modifie = true;
+                // }
             });
+
+            if (modifie) {
+                const tr = document.getElementById(`match_${index}`) || champs[0][0] && document.getElementById(champs[0][0])?.closest('tr');
+                if (tr) {
+                    const couleurHighlight = getComputedStyle(document.documentElement)
+                        .getPropertyValue('--status-tr-en_cours-scoring-bg').trim();
+                    tr.style.backgroundColor = couleurHighlight;
+                    // setTimeout(() => {
+                    //     tr.style.backgroundColor = '';
+                    // }, 3000);
+                }
+            }
         });
     } catch (err) {
         console.error('Erreur verifierMatchsScoring :', err);
