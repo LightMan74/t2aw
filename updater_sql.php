@@ -34,7 +34,8 @@ $tablesConfig = [
 // ============================================
 $columnsConfig = [
     'parametre' => [
-        'afficherheure'   => ['INTEGER', 1],
+        'scoring_password'   => ['varchar(500)', 'NULL'],
+        'scoring_matchtermine'   => ['INTEGER', 0],
     ],
     'preference' => [
         'user'   => ['VARCHAR(50)', "'local'"],

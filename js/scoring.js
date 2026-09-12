@@ -44,6 +44,10 @@
             .then(data => {
                 const select = document.getElementById('terrain-select');
                 select.innerHTML = '<option value="">-- Choisir un match en cours --</option>';
+                const opt2 = document.createElement('option');
+                opt2.textContent = "-- Scoring uniquement (hors tournoi) --";
+                select.appendChild(opt2);
+                opt2.value = JSON.stringify({ id: 0, type: 'neutre' });
                 if (!data.en_cours) return;
                 data.en_cours.forEach(m => {
                     if (m.terrain == ID_TERRAIN || !ID_TERRAIN) {

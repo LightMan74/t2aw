@@ -6,8 +6,25 @@ require_once __DIR__ . '/../db.php';
 header('Content-Type: application/json');
 
 $id_tournoi = isset($_GET['id_tournoi']) ? (int)$_GET['id_tournoi'] : 0;
-$type_match = isset($_GET['type_match']) ? $_GET['type_match'] : '';
+$type_match = isset($_GET['type_match']) ? $_GET['type_match'] : 0;
 $id_match = isset($_GET['id_match']) ? (int)$_GET['id_match'] : 0;
+
+if (!$id_match || $type_match == 'neutre') {
+    echo json_encode([
+        'success' => true,
+        'type_match' => '',
+        'id_match' => '',
+        'terrain' => '',
+        'nom_categorie' => '',
+        'nom_poule' => '',
+        'nom_equipe_1' => 'EQUIPE A',
+        'nom_equipe_2' => 'EQUIPE B',
+        'score_equipe_1' => '0*0*0',
+        'score_equipe_2' => '0*0*0',
+        'troissets' => 3
+    ]);
+    exit;
+    }
 
 if (!$id_tournoi || !$id_match || !$type_match) {
     echo json_encode(['error' => 'Paramètres manquants']);
