@@ -18,7 +18,7 @@ try {
             $heure_debut = $data['heure_debut'] ?? null;
             $heure_fin = $data['heure_fin'] ?? null;
 
-            $stmt = $pdo->prepare("UPDATE match_poule SET terrain=?, status=?, score_equipe_1=?, score_equipe_2=?, heure_debut=?, heure_fin=? WHERE id=?");
+            $stmt = $pdo->prepare("UPDATE match_poule SET terrain=?, status=?, score_equipe_1=?, score_equipe_2=?, heure_debut=?, heure_fin=?, dernier_modifiant='admin' WHERE id=?");
             $stmt->execute([$terrain, $status, $score1, $score2, $heure_debut, $heure_fin, $id]);
 
             if ($status === 'termine') {
@@ -40,7 +40,7 @@ try {
 
             try {
                 // Préparer la requête une seule fois (hors boucle) pour la performance
-                $stmtBulk = $pdo->prepare("UPDATE match_poule SET terrain=?, status=?, score_equipe_1=?, score_equipe_2=?, heure_debut=?, heure_fin=? WHERE id=?");
+                $stmtBulk = $pdo->prepare("UPDATE match_poule SET terrain=?, status=?, score_equipe_1=?, score_equipe_2=?, heure_debut=?, heure_fin=?, dernier_modifiant='admin' WHERE id=?");
 
                 foreach ($matchs as $match) {
                     // $terrain   = $match['terrain'] ?? null;

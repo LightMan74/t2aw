@@ -37,6 +37,12 @@ $columnsConfig = [
         'scoring_password'   => ['varchar(500)', 'NULL'],
         'scoring_matchtermine'   => ['INTEGER', 0],
     ],
+    'match_poule' => [
+        'dernier_modifiant'   => ['VARCHAR(500)', "''"],
+    ],
+    'matchs_phase_finale' => [
+        'dernier_modifiant'   => ['VARCHAR(500)', "''"],
+    ],
     'preference' => [
         'user'   => ['VARCHAR(50)', "'local'"],
         'largeur'   => ['VARCHAR(50)', 'NULL'],

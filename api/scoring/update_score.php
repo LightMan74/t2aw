@@ -25,13 +25,13 @@ try {
 
         if ($statut !== null) {
             $sql = "UPDATE match_poule 
-                    SET score_equipe_1 = ?, score_equipe_2 = ?, status = ?
+                    SET score_equipe_1 = ?, score_equipe_2 = ?, status = ?, dernier_modifiant='scoring'
                     WHERE id_tournoi = ? AND id = ?";
             $stmt = $pdo->prepare($sql);
             $stmt->execute([$score1, $score2, $statut, $id_tournoi, $id_match]);
         } else {
             $sql = "UPDATE match_poule 
-                    SET score_equipe_1 = ?, score_equipe_2 = ?
+                    SET score_equipe_1 = ?, score_equipe_2 = ?, dernier_modifiant = 'scoring'
                     WHERE id_tournoi = ? AND id = ?";
             $stmt = $pdo->prepare($sql);
             $stmt->execute([$score1, $score2, $id_tournoi, $id_match]);
@@ -41,13 +41,13 @@ try {
 
         if ($statut !== null) {
             $sql = "UPDATE matchs_phase_finale 
-                    SET score1 = ?, score2 = ?, statut_match = ?
+                    SET score1 = ?, score2 = ?, statut_match = ?, dernier_modifiant='scoring'
                     WHERE id_tournoi = ? AND id = ?";
             $stmt = $pdo->prepare($sql);
             $stmt->execute([$score1, $score2, $statut, $id_tournoi, $id_match]);
         } else {
             $sql = "UPDATE matchs_phase_finale 
-                    SET score1 = ?, score2 = ?
+                    SET score1 = ?, score2 = ?, dernier_modifiant = 'scoring'
                     WHERE id_tournoi = ? AND id = ?";
             $stmt = $pdo->prepare($sql);
             $stmt->execute([$score1, $score2, $id_tournoi, $id_match]);
