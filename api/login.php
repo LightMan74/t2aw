@@ -37,7 +37,7 @@ try {
 ");
     $stmt->execute(['user' => $username]);
     $userData = $stmt->fetch();
-
+// error_log("LOGIN - USER: $username | PASSWORD SAISI: $password | HASH: " . $userData['password']);
     if ($userData && password_verify($password, $userData['password'])) {
         if ($userData['expire_date']){
         // Connexion réussie

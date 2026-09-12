@@ -49,7 +49,11 @@ $currentUser = $_SESSION['user'];
         ?>
         </center>
         <button id="btn-theme-toggle" class="theme-toggle">🌙 Sombre</button>
-        <span>👤 <?php echo htmlspecialchars($currentUser); ?></span>
+        <span style="display: flex; flex-direction: column; align-items: center;">
+            👤 <?php echo htmlspecialchars($currentUser); ?>
+            <a href="change_password.php">Change Password</a>
+        </span>
+
         <button id="btn-logout" class="btn btn-logout">Déconnexion</button>
     </div>
 </header>
@@ -87,10 +91,10 @@ $currentUser = $_SESSION['user'];
 <!-- <a target="_blank" href="afficheur.php?option<?php echo htmlspecialchars((isset($_GET["id_tournoi"])) ? '&id_tournoi='.$_GET["id_tournoi"] : '');?>">Afficheur(options)</a> -->
 <!-- <a target="_blank" href="afficheur.php?<?php echo htmlspecialchars((isset($_GET["id_tournoi"])) ? 'id_tournoi='.$_GET["id_tournoi"] : '');?>">Afficheur</a> -->
 <a target="_blank" id="afficheurhref" href="afficheur.php?<?php echo htmlspecialchars((isset($_GET["id_tournoi"])) ? 'id_tournoi='.$_GET["id_tournoi"] : '');echo $tournoi_password;?>">Afficheur, Option -><input type="checkbox" name="checkboxafficheuroption" onchange="afficheurhrefchange();">?</a>
+<a target="_blank" href="scoring.php?<?php echo htmlspecialchars((isset($_GET["id_tournoi"])) ? 'id_tournoi='.$_GET["id_tournoi"] : '');echo $scoring_password;?>&id_terrain=0">Scoring</a>
 <?php $tournoi_password;
     }
 ?>
-<a target="_blank" href="scoring.php?<?php echo htmlspecialchars((isset($_GET["id_tournoi"])) ? 'id_tournoi='.$_GET["id_tournoi"] : '');echo $scoring_password;?>&id_terrain=0">Scoring</a>
 
 <script>
 function afficheurhrefchange() {
