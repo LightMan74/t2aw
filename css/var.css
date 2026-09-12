@@ -53,6 +53,7 @@
     /* Status lignes (tr) — fond des rangées de tableau */
     --status-tr-planifie-bg: transparent;
     --status-tr-en_cours-bg: #ffeaa3;
+    --status-tr-en_cours-scoring-bg: #f0614e;
     --status-tr-termine-bg: #b2f3b7;
 
     --poule-color-1: #3498db;

@@ -947,6 +947,84 @@ function togglematchtermine() {
     if (label) label.textContent = countmachshide + " Matchs terminé caché.";
 }
 
+
+// ==========================================================================
+// ---------- Vérification périodique des matchs modifiés par le scoring ----------
+// ==========================================================================
+
+let intervalVerifScoring = null;
+
+async function verifierMatchsScoring() {
+    const id_tournoi = document.getElementById('id_tournoi')?.value;
+    if (!id_tournoi) return;
+
+    try {
+        const res = await fetch(`api/get_matchs_scoring_live.php?id_tournoi=${id_tournoi}`);
+        const data = await res.json();
+
+        if (!data.success || !Array.isArray(data.matchs) || data.matchs.length === 0) {
+            return;
+        }
+
+        const indexParCle = new Map();
+        matchsData.forEach((m, idx) => {
+            indexParCle.set(`${m.source}_${m.id}`, idx);
+        });
+
+        data.matchs.forEach(matchMaj => {
+            const cle = `${matchMaj.source}_${matchMaj.id}`;
+            const index = indexParCle.get(cle);
+            if (index === undefined) return;
+
+            const m = matchsData[index];
+            if (!m) return;
+
+            // Mise à jour des données en mémoire
+            if (m.source === 'poule') {
+                m.score_equipe_1 = matchMaj.score1;
+                m.score_equipe_2 = matchMaj.score2;
+            } else {
+                m.score1 = matchMaj.score1;
+                m.score2 = matchMaj.score2;
+            }
+
+            // On ne touche pas aux champs si l'utilisateur a une modif en attente
+            if (modifiedMatchs.has(index)) return;
+
+            const s1 = String(matchMaj.score1 ?? '0*0*0').split('*');
+            const s2 = String(matchMaj.score2 ?? '0*0*0').split('*');
+
+            const champs = [
+                [`score1s1-${index}`, s1[0] ?? 0],
+                [`score1s2-${index}`, s1[1] ?? 0],
+                [`score1s3-${index}`, s1[2] ?? 0],
+                [`score2s1-${index}`, s2[0] ?? 0],
+                [`score2s2-${index}`, s2[1] ?? 0],
+                [`score2s3-${index}`, s2[2] ?? 0],
+            ];
+
+            champs.forEach(([id, val]) => {
+                const el = document.getElementById(id);
+                // Ne pas écraser un champ en cours de saisie
+                if (el && el !== document.activeElement && String(el.value) !== String(val)) {
+                    el.value = val;
+                    el.dispatchEvent(new Event('input', { bubbles: true }));
+                    colorscoring(id, true);
+                }
+            });
+        });
+    } catch (err) {
+        console.error('Erreur verifierMatchsScoring :', err);
+    }
+}
+
+function demarrerVerifScoring() {
+    if (intervalVerifScoring) clearInterval(intervalVerifScoring);
+    intervalVerifScoring = setInterval(verifierMatchsScoring, 5000);
+}
+
+
+
 // ---------- Initialisation ----------
 
 document.addEventListener('DOMContentLoaded', async () => {
@@ -961,6 +1039,8 @@ document.addEventListener('DOMContentLoaded', async () => {
             });
         });
     }
+
+    demarrerVerifScoring(); // <-- ajout
 });
 
 document.addEventListener('focus', function (e) {
