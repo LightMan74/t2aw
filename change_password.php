@@ -76,117 +76,82 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <head>
     <meta charset="UTF-8">
     <title>Modifier le mot de passe</title>
-    <style>
-    body {
-        font-family: Arial, sans-serif;
-        background: #f4f4f4;
-    }
-
-    .form-container {
-        max-width: 400px;
-        margin: 50px auto;
-        padding: 20px;
-        background: #fff;
-        border: 1px solid #ccc;
-        border-radius: 5px;
-    }
-
-    .form-container h2 {
-        margin-top: 0;
-    }
-
-    .form-container label {
-        display: block;
-        margin-top: 10px;
-    }
-
-    .form-container input {
-        width: 100%;
-        padding: 8px;
-        margin-top: 5px;
-        box-sizing: border-box;
-    }
-
-    .form-container button {
-        margin-top: 15px;
-        padding: 10px 20px;
-        cursor: pointer;
-    }
-
-    .success {
-        color: green;
-        margin-top: 10px;
-    }
-
-    .error {
-        color: red;
-        margin-top: 10px;
-    }
-    </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- <title>Gestion Tournois Badminton</title> -->
+    <link rel="stylesheet" href="css/var.css">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/dark-mode.css">
+    <link rel="stylesheet" href="css/password.css">
 </head>
 
 <body>
+    <div class="container">
 
-    <div class="form-container">
-        <h2>Modifier le mot de passe</h2>
-        <form id="changePasswordForm">
-            <label for="old_password">Ancien mot de passe</label>
-            <input type="password" id="old_password" name="old_password" required>
+        <nav>
+            <?php include 'menu.php'; ?>
+        </nav>
 
-            <label for="new_password">Nouveau mot de passe</label>
-            <input type="password" id="new_password" name="new_password" required>
+        <div class="form-container">
+            <h2>Modifier le mot de passe</h2>
+            <form id="changePasswordForm">
+                <label for="old_password">Ancien mot de passe</label>
+                <input type="password" id="old_password" name="old_password" required>
 
-            <label for="confirm_password">Confirmer le nouveau mot de passe</label>
-            <input type="password" id="confirm_password" name="confirm_password" required>
+                <label for="new_password">Nouveau mot de passe</label>
+                <input type="password" id="new_password" name="new_password" required>
 
-            <button type="submit">Valider</button>
-        </form>
+                <label for="confirm_password">Confirmer le nouveau mot de passe</label>
+                <input type="password" id="confirm_password" name="confirm_password" required>
 
-        <p id="message"></p>
-    </div>
+                <button type="submit">Valider</button>
+            </form>
 
-    <script>
-    document.getElementById('changePasswordForm').addEventListener('submit', function(e) {
-        e.preventDefault();
+            <p id="message"></p>
+        </div>
 
-        const old_password = document.getElementById('old_password').value;
-        const new_password = document.getElementById('new_password').value;
-        const confirm_password = document.getElementById('confirm_password').value;
-        const messageEl = document.getElementById('message');
+        <script>
+        document.getElementById('changePasswordForm').addEventListener('submit', function(e) {
+            e.preventDefault();
 
-        messageEl.textContent = '';
-        messageEl.className = '';
+            const old_password = document.getElementById('old_password').value;
+            const new_password = document.getElementById('new_password').value;
+            const confirm_password = document.getElementById('confirm_password').value;
+            const messageEl = document.getElementById('message');
 
-        fetch(window.location.href, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    old_password,
-                    new_password,
-                    confirm_password
+            messageEl.textContent = '';
+            messageEl.className = '';
+
+            fetch(window.location.href, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        old_password,
+                        new_password,
+                        confirm_password
+                    })
                 })
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    messageEl.textContent = data.message;
-                    messageEl.className = 'success';
-                    document.getElementById('changePasswordForm').reset();
-                    window.location.replace("dashboard.php");
-                } else {
-                    messageEl.textContent = data.error;
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        messageEl.textContent = data.message;
+                        messageEl.className = 'success';
+                        document.getElementById('changePasswordForm').reset();
+                        window.location.replace("dashboard.php");
+                    } else {
+                        messageEl.textContent = data.error;
+                        messageEl.className = 'error';
+                    }
+                })
+                .catch(err => {
+                    messageEl.textContent = 'Erreur de connexion au serveur';
                     messageEl.className = 'error';
-                }
-            })
-            .catch(err => {
-                messageEl.textContent = 'Erreur de connexion au serveur';
-                messageEl.className = 'error';
-                console.error(err);
-            });
-    });
-    </script>
+                    console.error(err);
+                });
+        });
+        </script>
 
 </body>
 

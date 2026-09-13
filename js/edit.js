@@ -879,11 +879,11 @@ function creerBlocCategorie(id_categorie, nom) {
         '<h3>Catégorie ' + id_categorie + '</h3>' +
         '<input type="text" name="categorie_nom_' + id_categorie + '" placeholder="Nom de la catégorie" value="' + escapeHtml(nom || '') + '" required>' +
         '<label class="categorie-round-depart">' +
-        '<span>Round de départ de la phase finale</span>' +
-        '<select class="round-depart-select" aria-label="Round de départ de la phase finale"></select>' +
+        '<span>Round de départ de la phase finale (calcule uniquement)</span>' +
+        '<select class="round-depart-select" aria-label="Round de départ de la phase finale (calcule uniquement)"></select>' +
         '</label>' +
-        '<button type="button" class="btn-mini btn-plus" onclick="ajouterPoule(this)">+ Poule</button>' +
         '<button type="button" class="btn-mini btn-tirage" onclick="ouvrirTirageModal(this)">🎲 Tirage au sort</button>' +
+        '<button type="button" class="btn-mini btn-plus" onclick="ajouterPoule(this)">+ Poule</button>' +
         '</div>' +
         '<div class="poules-container" data-id-categorie="' + id_categorie + '">' +
         '<div class="poule-block" data-id-poule="1">' +

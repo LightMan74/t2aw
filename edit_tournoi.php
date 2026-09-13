@@ -120,7 +120,7 @@ $mode_creation = $id_tournoi === 0;
 
                 <div class="form-row">
                     <div class="form-group">
-                        <label for="temps_de_match">Temps de match (minutes)</label>
+                        <label for="temps_de_match">Temps de match (minutes) (rotation inclus)</label>
                         <input type="number" id="temps_de_match" name="temps_de_match" min="5" max="120" step="1" value="15" required inputmode="numeric" pattern="[0-9]*" onkeydown="return blockInvalidNumberKeys(event)" onpaste="return blockInvalidPaste(event)">
                     </div>
                     <div class="form-group">
@@ -165,7 +165,7 @@ $mode_creation = $id_tournoi === 0;
                     </div>
                     <div class="form-group">
                         <label for="scoring_password">Mot de passe du scoring</label>
-                        <input type="text" id="scoring_password" name="scoring_password">
+                        <input type="text" id="scoring_password" name="scoring_password" value="0123456">
                     </div>
                 </div>
                 <div class="form-group">
