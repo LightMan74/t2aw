@@ -53,10 +53,6 @@ $mode_creation = $id_tournoi === 0;
         <button onclick="exporterPDF()" class="btn-dark" title="Exporter le tournoi PDF">📥 Export PDF</button>
         <button onclick="exporterTournoi(<?php echo $id_tournoi;?>)" class="btn-dark" title="Exporter le tournoi JSON">📥 Export JSON (pour import)</button>
 
-
-
-
-
         <h1 id="page-title"><?php echo $mode_creation ? 'Créer un nouveau tournoi' : 'Modifier le tournoi'; ?></h1>
 
         <div id="loading-message" style="<?php echo $mode_creation ? 'display:none;' : ''; ?>">

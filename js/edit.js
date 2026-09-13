@@ -686,7 +686,9 @@ var LIBELLES_ROUNDS_PHASE_FINALE = [
     '1/4 de finale',
     '1/8 de finale',
     '1/16 de finale',
-    '1/32 de finale'
+    '1/32 de finale',
+    '1/64 de finale',
+    '1/128 de finale'
 ];
 
 function forcerPuissanceDe2Client(nombre) {

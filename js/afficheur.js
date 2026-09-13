@@ -282,7 +282,7 @@ function afficherListeMatchs(containerId, matchs, texteVide) {
         }
 
         if (m.status === 'planifie') {
-            heure_debut = `<div class="match-heure">${escapeHTML(m.heure_debut || '')}</div>`;
+            heure_debut = `<div class="match-heure">${escapeHTML(m.heure_debut.substring(0, 5) || '')}</div>`;
         }
 
         // Tags couleur : fond coloré directement sur le texte
@@ -742,7 +742,7 @@ function creerMatchBoxLectureSeule(match) {
         ? `<div class="terrain-badge-externe">Terrain ${escapeHTML(String(match.terrain))}</div>`
         : '';
     const heureBadge = (match.heure_debut && statutJeu !== 'termine')
-        ? `<div class="heure-badge-externe">${match.heure_debut}</div>`
+        ? `<div class="heure-badge-externe">${match.heure_debut.substring(0, 5)}</div>`
         : '';
 
     wrapper.innerHTML = `
