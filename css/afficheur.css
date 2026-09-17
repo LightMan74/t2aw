@@ -1295,7 +1295,7 @@ body.dark .pf-equipe-nom {
     align-items: center;
     gap: 8px;
     font-size: 0.85rem;
-    color: var(--text-color);
+    /* color: var(--text-2color); */
 }
 
 .legende-couleur {
