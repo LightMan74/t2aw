@@ -41,6 +41,7 @@ $columnsConfig = [
         'dernier_modifiant'   => ['VARCHAR(500)', "''"],
         'id_equipe_3'   => ['INTEGER', 'NULL'],
         'id_equipe_4'   => ['INTEGER', 'NULL'],
+        'numero_tour '   => ['INTEGER', 'NULL'],
     ],
     'matchs_phase_finale' => [
         'dernier_modifiant'   => ['VARCHAR(500)', "''"],
