@@ -15,6 +15,57 @@ function afficherMessage(texte, type) {
     setTimeout(() => { div.innerHTML = ''; }, 5000);
 }
 
+// ---------- Helpers "match SALADE" (4 équipes : id_equipe_3 / id_equipe_4) ----------
+// Un match est considéré "salade" si id_equipe_3 ET id_equipe_4 sont non-null.
+// Pour les matchs classiques (2 équipes), ces ids restent NULL et le rendu
+// HTML reste STRICTEMENT identique à l'original (mêmes classes, mêmes colonnes).
+
+function estMatchSalade(m) {
+    if (!m) return false;
+    const a3 = (m.id_equipe_3 !== null && m.id_equipe_3 !== undefined && m.id_equipe_3 !== '')
+        || (m.nom_equipe_3 != null && m.nom_equipe_3 !== '');
+    const a4 = (m.id_equipe_4 !== null && m.id_equipe_4 !== undefined && m.id_equipe_4 !== '')
+        || (m.nom_equipe_4 != null && m.nom_equipe_4 !== '');
+    return !!(a3 && a4);
+}
+
+function escapeHtmlSalade(s) {
+    if (s === null || s === undefined) return '';
+    return String(s)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+}
+
+function getNomEquipeAffichage(m, slot) {
+    // slot: 1|2|3|4 — cherche nom_equipe_X d'abord, retombe sur id_equipe_X
+    const nomKey = 'nom_equipe_' + slot;
+    const idKey = 'id_equipe_' + slot;
+    const nom = m[nomKey];
+    if (nom !== null && nom !== undefined && nom !== '') return escapeHtmlSalade(nom);
+    const id = m[idKey];
+    if (id !== null && id !== undefined && id !== '') return 'Équipe ' + escapeHtmlSalade(id);
+    return '';
+}
+
+function getCellulesEquipesHTML(m, nom1Defaut, nom2Defaut) {
+    // Retourne { colGauche, colDroite } en HTML.
+    // Match classique (2 équipes) : retourne nom1Defaut / nom2Defaut (comportement original).
+    // Match SALADE (4 équipes)   : "🥗 E1 / E2" | "E3 / E4"
+    if (estMatchSalade(m)) {
+        const e1 = getNomEquipeAffichage(m, 1);
+        const e2 = getNomEquipeAffichage(m, 2);
+        const e3 = getNomEquipeAffichage(m, 3);
+        const e4 = getNomEquipeAffichage(m, 4);
+        const gauche = '<span class="salade-gauche" title="Match SALADE — Équipe 1 / Équipe 2">🥗 ' + e1 + ' <span style="opacity:.55;">/</span> ' + e2 + '</span>';
+        const droite = '<span class="salade-droite" title="Match SALADE — Équipe 3 / Équipe 4">' + e3 + ' <span style="opacity:.55;">/</span> ' + e4 + '🥗</span>';
+        return { colGauche: gauche, colDroite: droite };
+    }
+    return { colGauche: nom1Defaut, colDroite: nom2Defaut };
+}
+
 // ---------- Chargement / fusion des données ----------
 
 async function chargerMatchs(inverseordrematch = false) {
@@ -167,6 +218,12 @@ function afficherTable() {
         const nom1 = m.source === 'poule' ? (m.nom_equipe_1 ?? '') : (m.nom_equipe1 ?? m.source_team1 ?? '???');
         const nom2 = m.source === 'poule' ? (m.nom_equipe_2 ?? '') : (m.nom_equipe2 ?? m.source_team2 ?? '???');
 
+        // Si c'est un match SALADE (4 équipes), on génère un rendu HTML adapté
+        // pour les deux colonnes d'équipes. Sinon, on garde nom1/nom2 intacts.
+        const cellulesEquipes = getCellulesEquipesHTML(m, nom1, nom2);
+        const cell1Html = cellulesEquipes.colGauche;
+        const cell2Html = cellulesEquipes.colDroite;
+
         const scoreRaw1 = m.source === 'poule' ? m.score_equipe_1 : m.score1;
         const scoreRaw2 = m.source === 'poule' ? m.score_equipe_2 : m.score2;
 
@@ -219,7 +276,7 @@ function afficherTable() {
         <td class="match-code-label">${m.code}</td>
         ${colCatHtml}
         ${colInfoHtml}
-        <td>${nom1}</td>
+        <td class="col-equipe-1">${cell1Html}</td>
         <td>
         <span style="display: block ruby;">
         <input type="number" min="0" value="${s1set1}" id="score1s1-${index}" ${disabledScore}> - <input type="number" min="0" value="${s2set1}" id="score2s1-${index}" ${disabledScore}><span ${hiddenSets}>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;
@@ -227,7 +284,7 @@ function afficherTable() {
         <input type="number" min="0" value="${s1set3}" id="score1s3-${index}" ${disabledScore}> - <input type="number" min="0" value="${s2set3}" id="score2s3-${index}" ${disabledScore}></span>
         </span>
         </td>
-        <td>${nom2}</td>
+        <td class="col-equipe-2">${cell2Html}</td>
         <td><input type="number" min="1" value="${m.terrain ?? ''}" id="terrain-${index}"></td>
         <td>
             <span class="status-badge status-badge-${statutActuel}"
