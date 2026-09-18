@@ -832,6 +832,8 @@ function ajouterMatchInterPoule() {
     document.getElementById('libelle-match-inter').value = '';
 }
 
+
+
 /* ------------------------------------------------------ */
 /* --------------- VALIDATION / SAUVEGARDE ---------------- */
 /* ------------------------------------------------------ */

@@ -226,6 +226,9 @@ $hiddenSets = ((int) $tournoi_troissets_match > 1) ? '' : 'hidden';
                 <button onclick="repartitionAutomatique()">⚡ Répartition automatique dans les terrains</button>
                 <button onclick="validerOrdre()">💾 Valider et enregistrer les matchs</button>
             </div>
+            <button id="btn-generer-salade" class="btn-secondaire" onclick="genererTournoiSalade()">
+                Générer tournoi salade
+            </button>
 
             <h2 style="text-align:center;">Répartition par terrain (glisser-déposer)</h2>
             <div class="zones-terrains" id="zones-terrains">
@@ -526,6 +529,7 @@ $hiddenSets = ((int) $tournoi_troissets_match > 1) ? '' : 'hidden';
     <script src="js/colors.js"></script>
     <script src="js/matchs.js"></script>
     <script src="js/generation.js"></script>
+    <script src="js/generation_salade.js"></script>
     <script src="js/phase_final.js"></script>
     <script src="js/phase_final_matchs.js"></script>
     <script>

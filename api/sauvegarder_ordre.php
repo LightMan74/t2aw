@@ -100,10 +100,21 @@ try {
         $stmt->execute(['id' => $id_tournoi]);
         $terrain_automatique = $stmt->fetchAll(PDO::FETCH_ASSOC)[0]['terrain_automatique'];
 
-    $insert = $pdo->prepare("INSERT INTO match_poule 
+    /* -----------------------------------------------------------------
+       [AJOUT SALADE] Prépare 2 INSERT distincts :
+         - $insertStd   : 2 équipes (match classique, comportement inchangé)
+         - $insertSalade: 4 équipes (match salade)
+       Le format original de l'INSERT (colonnes, ordre, statut 'planifie')
+       est strictement conservé pour ne rien casser côté base.
+    ------------------------------------------------------------------ */
+    $insertStd = $pdo->prepare("INSERT INTO match_poule
         (id_tournoi, id_categorie, id_poule, id_poule_2, id_match, terrain, id_equipe_1, id_equipe_2, status, heure_debut, heure_fin, ordre_affichage)
         VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'planifie', ?, ?, ?)");
-       
+
+    $insertSalade = $pdo->prepare("INSERT INTO match_poule
+        (id_tournoi, id_categorie, id_poule, id_poule_2, id_match, terrain, id_equipe_1, id_equipe_2, id_equipe_3, id_equipe_4, status, heure_debut, heure_fin, ordre_affichage)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'planifie', ?, ?, ?)");
+
     $ordreAffichage = 1;
 
     foreach ($planningOrdonne as $item) {
@@ -132,19 +143,50 @@ try {
         $heureFinMatch->modify("+$tempsMatch minutes");
         $heuresTerrain[$terrain] = clone $heureFinMatch;
 
-        $insert->execute([
-            $id_tournoi,
-            $id_categorie,
-            $id_poule,
-            $id_poule_2,
-            $id_match,
-            $terrainbis,
-            $m['id_equipe_1'],
-            $m['id_equipe_2'],
-            $heureDebutMatch->format('H:i:s'),
-            $heureFinMatch->format('H:i:s'),
-            $ordreAffichage
-        ]);
+        /* [AJOUT SALADE] Lecture safe des équipes 3 et 4.
+           Un match "salade" est détecté si id_equipe_3 (ou id_equipe_4)
+           est présent et non null dans le JSON envoyé par le front.
+           Si non, on conserve EXACTEMENT le comportement d'origine
+           (insert à 2 équipes, colonnes 3/4 jamais touchées). */
+        $id_equipe_3 = (isset($m['id_equipe_3']) && $m['id_equipe_3'] !== null && $m['id_equipe_3'] !== '')
+            ? (int)$m['id_equipe_3']
+            : null;
+        $id_equipe_4 = (isset($m['id_equipe_4']) && $m['id_equipe_4'] !== null && $m['id_equipe_4'] !== '')
+            ? (int)$m['id_equipe_4']
+            : null;
+        $estSalade = ($id_equipe_3 !== null || $id_equipe_4 !== null);
+
+        if ($estSalade) {
+            $insertSalade->execute([
+                $id_tournoi,
+                $id_categorie,
+                $id_poule,
+                $id_poule_2,
+                $id_match,
+                $terrainbis,
+                $m['id_equipe_1'],
+                $m['id_equipe_2'],
+                $id_equipe_3,
+                $id_equipe_4,
+                $heureDebutMatch->format('H:i:s'),
+                $heureFinMatch->format('H:i:s'),
+                $ordreAffichage
+            ]);
+        } else {
+            $insertStd->execute([
+                $id_tournoi,
+                $id_categorie,
+                $id_poule,
+                $id_poule_2,
+                $id_match,
+                $terrainbis,
+                $m['id_equipe_1'],
+                $m['id_equipe_2'],
+                $heureDebutMatch->format('H:i:s'),
+                $heureFinMatch->format('H:i:s'),
+                $ordreAffichage
+            ]);
+        }
 
         $ordreAffichage++;
     }
