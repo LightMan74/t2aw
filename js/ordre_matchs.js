@@ -880,9 +880,29 @@ function ajouterMinutes(heureStr, minutesAAjouter) {
 }
 
 function getTerrainVirtuel(index) {
-    const ordre = index;
-    let rt = (ordre % nombreTerrains);
-    if (rt == 0) rt = nombreTerrains;
+    // On calcule le rang du match parmi tous les matchs SANS terrain réel renseigné
+    // en ignorant ceux qui sont déjà terminés
+    let rang = 0;
+    for (let i = 0; i <= index; i++) {
+        const mm = matchsData[i];
+        if (!mm) continue;
+
+        const terrainInput = document.getElementById(`terrain-${i}`);
+        const terrainReel = terrainInput?.value ?? mm.terrain;
+
+        // On ne compte que les matchs sans terrain réel
+        if (terrainReel) continue;
+
+        const statusSelect = document.getElementById(`status-${i}`);
+        const statut = statusSelect?.value ?? getStatut(mm);
+
+        if (statut === 'termine') continue; // on ignore les terminés dans le comptage
+
+        rang++;
+    }
+
+    let rt = rang % nombreTerrains;
+    if (rt === 0) rt = nombreTerrains;
     return rt;
 }
 
@@ -942,7 +962,14 @@ async function mettreHeureActuelle(index) {
             .map((mm, idx) => ({ mm, idx }))
             .filter(({ mm, idx }) => {
                 const t = getTerrainEffectif(idx, mm);
-                return String(t) === String(terrainCourant);
+                if (String(t) !== String(terrainCourant)) return false;
+
+                // On exclut les matchs terminés/en cours (sauf le match courant qu'on vient de traiter)
+                if (idx === index) return true;
+
+                const statusSelect = document.getElementById(`status-${idx}`);
+                const statutCourant = statusSelect?.value ?? getStatut(mm);
+                return statutCourant !== 'en_cours' && statutCourant !== 'termine';
             })
             .sort((a, b) => a.idx - b.idx);
 
@@ -950,19 +977,10 @@ async function mettreHeureActuelle(index) {
         let heurePrecedente = nouvelleHeureMatch;
 
         const depart = String(terrainCourant) === String(terrain) ? positionActuelle + 1 : 0;
-
         for (let i = depart; i < matchsTerrain.length; i++) {
             const { mm, idx } = matchsTerrain[i];
-            const statusSelect = document.getElementById(`status-${idx}`);
-            const statutCourant = statusSelect?.value ?? getStatut(mm);
 
             const hInput = document.getElementById(`hdebut-${idx}`);
-
-            if (statutCourant === 'en_cours' || statutCourant === 'termine') {
-                if (hInput?.value) heurePrecedente = hInput.value;
-                continue;
-            }
-
             const nouvelleHeure = ajouterMinutes(heurePrecedente, tempsDeMatch);
 
             if (hInput) {
