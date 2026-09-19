@@ -146,12 +146,19 @@ function genererTournoiSalade() {
     fetch('api/get_parametres.php', { method: 'POST', body: fdParams })
         .then(r => r.json())
         .then(dataParam => {
+            // const nbTerrains = Math.max(1, parseInt(
+            //     (dataParam && (dataParam.nb_terrains || dataParam.nbre_terrain_poule)) || 1,
+            //     10
+            // ));
+
             const nbTerrains = Math.max(1, parseInt(
                 document.getElementById('nb-terrains-auto').value || 1,
                 10
             ));
 
             // 2) Fetch des équipes de la poule active.
+            //    On réutilise generer_matchs_salade.php qui, après adaptation,
+            //    renvoie la liste des équipes de la poule (champ `equipes`).
             const fdEq = new FormData();
             fdEq.append('id_tournoi', idTournoi);
             fdEq.append('id_categorie', idCategorieActive);
@@ -164,26 +171,29 @@ function genererTournoiSalade() {
                         afficherMessage(data.error || "Erreur chargement des équipes.", 'error');
                         throw new Error('stop');
                     }
+                    // data.equipes : [{ id_equipe, nom, nom_poule, id_categorie, id_tournoi }]
                     const equipes = Array.isArray(data.equipes) ? data.equipes : [];
                     const nomPoule = (equipes[0] && equipes[0].nom_poule) || '';
                     const nomCategorie = (equipes[0] && equipes[0].nom_categorie) || '';
-                    console.log('Nombre équipes reçues:', equipes.length, equipes);
                     return { nbTerrains, equipes, nomPoule, nomCategorie };
                 });
         })
         .then(({ nbTerrains, equipes, nomPoule, nomCategorie }) => {
             const n = equipes.length;
-            if (n < 4) {
+            if (n < 3) {
                 afficherMessage(
-                    "Au moins 4 équipes sont nécessaires pour générer des matchs SALADE.",
+                    "Au moins 3 équipes sont nécessaires pour générer des matchs SALADE.",
                     'error'
                 );
                 return;
             }
 
-            // 3) Nombre de tours FIXE (chaque tour = toutes les équipes jouent 1 fois,
-            //    sauf reliquat exempté si n % 4 != 0)
-            const NB_TOURS = 10;
+            // 3) Calcul du nombre de tours : floor((n-1) / 2)
+            const nombreTours = Math.floor((n - 1) / 2);
+            if (nombreTours < 1) {
+                afficherMessage("Nombre de tours calculé invalide.", 'error');
+                return;
+            }
 
             // 4) Génération des matchs en JS avec assignation de terrain
             const matchsGeneres = [];
@@ -191,7 +201,7 @@ function genererTournoiSalade() {
             let idMatch = 1;
             let compteurTerrain = 0;
 
-            for (let numTour = 1; numTour <= NB_TOURS; numTour++) {
+            for (let numTour = 1; numTour <= nombreTours; numTour++) {
                 // Shuffle 100% aléatoire, indépendant à chaque tour
                 const shuffled = [...equipes];
                 for (let i = shuffled.length - 1; i > 0; i--) {
@@ -199,17 +209,16 @@ function genererTournoiSalade() {
                     [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
                 }
 
-                // Découpage STRICT en groupes complets de 4
-                const nbGroupesComplets = Math.floor(n / 4);
+                // Découpage en groupes de 4
+                for (let i = 0; i < n; i += 4) {
+                    const e1 = shuffled[i] || null;
+                    const e2 = shuffled[i + 1] || null;
+                    const e3 = shuffled[i + 2] || null;
+                    const e4 = shuffled[i + 3] || null;
+                    if (!e1) continue;
 
-                for (let g = 0; g < nbGroupesComplets; g++) {
-                    const base = g * 4;
-                    const e1 = shuffled[base];
-                    const e2 = shuffled[base + 1];
-                    const e3 = shuffled[base + 2];
-                    const e4 = shuffled[base + 3];
-
-                    // Assignation du terrain (round-robin)
+                    // Assignation du terrain PENDANT le shuffle
+                    // (round-robin : 1, 2, ..., nbTerrains, 1, 2, ...)
                     const terrain = (compteurTerrain % nbTerrains) + 1;
                     compteurTerrain++;
 
@@ -226,26 +235,16 @@ function genererTournoiSalade() {
                         terrain: terrain,
                         id_equipe_1: e1.id_equipe,
                         nom_equipe_1: e1.nom,
-                        id_equipe_2: e2.id_equipe,
-                        nom_equipe_2: e2.nom,
-                        id_equipe_3: e3.id_equipe,
-                        nom_equipe_3: e3.nom,
-                        id_equipe_4: e4.id_equipe,
-                        nom_equipe_4: e4.nom,
+                        id_equipe_2: e2 ? e2.id_equipe : null,
+                        nom_equipe_2: e2 ? e2.nom : null,
+                        id_equipe_3: e3 ? e3.id_equipe : null,
+                        nom_equipe_3: e3 ? e3.nom : null,
+                        id_equipe_4: e4 ? e4.id_equipe : null,
+                        nom_equipe_4: e4 ? e4.nom : null,
                         status: 'planifie',
                         ordre_affichage: ordreAffichage++,
                     });
                     idMatch++;
-                }
-
-                // Le reliquat (n % 4 équipes) est exempté ce tour : pas de match créé.
-                const reliquat = n % 4;
-                if (reliquat > 0) {
-                    const exemptees = shuffled.slice(nbGroupesComplets * 4);
-                    console.log(
-                        `Tour ${numTour} : équipe(s) exemptée(s) ->`,
-                        exemptees.map(e => e.nom)
-                    );
                 }
             }
 
@@ -259,7 +258,7 @@ function genererTournoiSalade() {
             if (typeof afficherLegendePoules === 'function') afficherLegendePoules();
 
             afficherMessage(
-                `${matchsGeneres.length} match(s) SALADE généré(s) sur ${NB_TOURS} tours ✓ — envoi au serveur…`,
+                `${matchsGeneres.length} match(s) SALADE généré(s) ✓ — envoi au serveur…`,
                 'success'
             );
 
