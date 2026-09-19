@@ -211,6 +211,15 @@ function afficherListeMatchs(containerId, matchs, texteVide) {
         let heure_debut = '';
         let nomEquipe1 = escapeHTML(m.nom_equipe_1 || '?');
         let nomEquipe2 = escapeHTML(m.nom_equipe_2 || '?');
+        let nomEquipe3 = escapeHTML(m.nom_equipe_3 || '?');
+        let nomEquipe4 = escapeHTML(m.nom_equipe_4 || '?');
+
+        const isSalade = m.nom_equipe_3 && m.nom_equipe_3.trim() !== '' && m.nom_equipe_4 && m.nom_equipe_4.trim() !== '';
+
+        if (isSalade) {
+            nomEquipe1 = `${nomEquipe1} - ${nomEquipe2}`;
+            nomEquipe2 = `${nomEquipe3} - ${nomEquipe4}`;
+        }
 
         if (m.status === 'termine' || m.status === 'en_cours') {
             const sets1 = (m.score_equipe_1 || '0*0*0').split('*');
@@ -245,7 +254,6 @@ function afficherListeMatchs(containerId, matchs, texteVide) {
                 }
 
                 scoreHTML = `<div class="match-score">${setsHTML.join(' | ')}</div>`;
-
                 if (victoiresE1 > victoiresE2) {
                     nomEquipe1 = `<span class="equipe-gagnante">${nomEquipe1}</span>`;
                     nomEquipe2 = `<span class="equipe-perdante">${nomEquipe2}</span>`;
@@ -305,11 +313,16 @@ function afficherListeMatchs(containerId, matchs, texteVide) {
             ${terrain}
         </div>`;
 
-        div.innerHTML = `
+        let equipesHTML = '';
+        equipesHTML = `
         <div class="match-equipes">
             ${nomEquipe1} <span style="color:#999;">vs</span> ${nomEquipe2}
             ${matchInfos}
         </div>
+    `;
+
+        div.innerHTML = `
+        ${equipesHTML}
         ${scoreHTML}
         ${heure_debut}
     `;

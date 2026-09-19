@@ -25,6 +25,9 @@ $sql = "SELECT
             END AS nom_poule,
             e1.nom AS nom_equipe_1,
             e2.nom AS nom_equipe_2,
+            e3.nom AS nom_equipe_3,
+            e4.nom AS nom_equipe_4,
+            (m.id_equipe_3 IS NOT NULL AND m.id_equipe_4 IS NOT NULL) AS is_salade,
             para.troissets AS troissets,
             'poule' AS type_match
         FROM match_poule m
@@ -39,9 +42,18 @@ $sql = "SELECT
                             AND e2.id_categorie = m.id_categorie 
                             AND e2.id_poule = COALESCE(m.id_poule_2, m.id_poule) 
                             AND e2.id_equipe = m.id_equipe_2
+        LEFT JOIN equipe e3 ON e3.id_tournoi = m.id_tournoi 
+                            AND e3.id_categorie = m.id_categorie 
+                            AND e3.id_poule = m.id_poule 
+                            AND e3.id_equipe = m.id_equipe_3
+        LEFT JOIN equipe e4 ON e4.id_tournoi = m.id_tournoi 
+                            AND e4.id_categorie = m.id_categorie 
+                            AND e4.id_poule = m.id_poule 
+                            AND e4.id_equipe = m.id_equipe_4
         LEFT JOIN parametre para ON para.id_tournoi = m.id_tournoi
         WHERE m.id_tournoi = ?
         ORDER BY m.ordre_affichage ASC, m.heure_debut ASC";
+
 $stmt = $pdo->prepare($sql);
 $stmt->execute([$id_tournoi]);
 $matchsPouleRaw = $stmt->fetchAll();
@@ -52,6 +64,7 @@ foreach ($matchsPouleRaw as $m) {
     $m['matchnum'] = "P_" . ++$matchnum;
     $matchsPoule[] = $m;
 }
+
 // --------- Matchs de phase finale ---------
 $sqlPF = "SELECT
               m.id,
@@ -98,6 +111,7 @@ $sqlPF = "SELECT
           LEFT JOIN parametre para ON para.id_tournoi = pf.id_tournoi
           WHERE pf.id_tournoi = ?
           ORDER BY m.round ASC, c.nom ASC, pf.nom ASC, m.sub_group ASC, m.id ASC";
+
 $stmtPF = $pdo->prepare($sqlPF);
 $stmtPF->execute([$id_tournoi]);
 $matchsPFRaw = $stmtPF->fetchAll();
@@ -133,14 +147,13 @@ function calculerPlageClassement($round, $subKey, $nbreTeam) {
     return $debut . '-' . $fin;
 }
 
-
 $matchsPF = [];
-$matchfnum=0;
+$matchfnum = 0;
 foreach ($matchsPFRaw as $m) {
     $pid = $m['id_phase_finale'];
     $nbRounds = $nbRoundsParPhase[$pid] ?? 1;
     $labelRound = labelRoundPhaseFinale((int)$m['round'], $nbRounds, $m['classement_min'], $m['sub_group'], $m['nb_equipes_arrondi']);
-    if ($m['status']!="simule"){
+    if ($m['status'] != "simule") {
         $matchsPF[] = [
             'id_tournoi'        => $id_tournoi,
             'id_categorie'      => $m['id_categorie'],
@@ -152,6 +165,8 @@ foreach ($matchsPFRaw as $m) {
             'id_poule_2'        => null,
             'nom_equipe_1'      => $m['nom_equipe_1'] ?: ($m['source_team1'] ?: '?'),
             'nom_equipe_2'      => $m['nom_equipe_2'] ?: ($m['source_team2'] ?: '?'),
+            'nom_equipe_3'      => null,
+            'nom_equipe_4'      => null,
             'score_equipe_1'    => $m['score1'],
             'score_equipe_2'    => $m['score2'],
             'classement_min'    => $m['classement_min'],
@@ -162,6 +177,7 @@ foreach ($matchsPFRaw as $m) {
             'troissets'         => $m['troissets'],
             'statut_match'      => $m['statut_match'],
             'type_match'        => 'phase_finale',
+            'is_salade'         => false,
             'match_code'        => 'match_code',
             'nb_equipes'        => 'nb_equipes',
             'nb_equipes_arrondi'=> 'nb_equipes_arrondi',
@@ -202,3 +218,4 @@ foreach ($matchsPF as $m) {
 $result['termines'] = array_reverse($result['termines']);
 
 echo json_encode($result);
+?>
