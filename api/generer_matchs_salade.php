@@ -34,6 +34,8 @@ header('Content-Type: application/json; charset=utf-8');
 require __DIR__ . '/db.php';
 
 // ---------- Lecture du paramètre POST ----------
+$id_tournoi = isset($_POST['id_tournoi']) ? (int) $_POST['id_tournoi'] : 0;
+$id_categorie = isset($_POST['id_categorie']) ? (int) $_POST['id_categorie'] : 0;
 $id_poule = isset($_POST['id_poule']) ? (int) $_POST['id_poule'] : 0;
 
 if ($id_poule <= 0) {
@@ -49,38 +51,39 @@ try {
     // HYPOTHÈSE : la table 'poule' contient id_categorie, et la table
     // 'categorie' contient id_tournoi (cohérent avec l'existant
     // generer_matchs.php / sauvegarder_ordre.php).
-    $sqlPoule = "SELECT p.id_poule,
-                        p.nom       AS nom_poule,
-                        p.id_categorie,
-                        c.id_tournoi
-                 FROM poule p
-                 JOIN categorie c ON c.id_categorie = p.id_categorie
-                 WHERE p.id_poule = :id_poule
-                 LIMIT 1";
-    $stmtPoule = $pdo->prepare($sqlPoule);
-    $stmtPoule->execute([':id_poule' => $id_poule]);
-    $poule = $stmtPoule->fetch(PDO::FETCH_ASSOC);
+    // $sqlPoule = "SELECT p.id_poule,
+    //                     p.nom       AS nom_poule,
+    //                     p.id_categorie,
+    //                     c.id_tournoi
+    //              FROM poule p
+    //              JOIN categorie c ON c.id_categorie = p.id_categorie
+    //              WHERE p.id_poule = :id_poule
+    //              LIMIT 1";
+    // $stmtPoule = $pdo->prepare($sqlPoule);
+    // $stmtPoule->execute([':id_poule' => $id_poule]);
+    // $poule = $stmtPoule->fetch(PDO::FETCH_ASSOC);
 
-    if (!$poule) {
-        echo json_encode([
-            'success' => false,
-            'error'   => "Poule #$id_poule introuvable.",
-        ]);
-        exit;
-    }
+    // if (!$poule) {
+    //     echo json_encode([
+    //         'success' => false,
+    //         'error'   => "Poule #$id_poule introuvable.",
+    //     ]);
+    //     exit;
+    // }
 
-    $id_tournoi   = (int) $poule['id_tournoi'];
-    $id_categorie = (int) $poule['id_categorie'];
-    $nom_poule    = (string) $poule['nom_poule'];
+    // $id_tournoi   = (int) $poule['id_tournoi'];
+    // $id_categorie = (int) $poule['id_categorie'];
+    // $nom_poule    = (string) $poule['nom_poule'];
+    $nom_poule    = (string) 'UNIQUE';
 
     // ---------- 2. Récupérer la liste des équipes de la poule ----------
     // HYPOTHÈSE : table 'equipe' avec colonnes id_equipe, nom, id_poule.
     $sqlEquipes = "SELECT id_equipe, nom
                    FROM equipe
-                   WHERE id_poule = :id_poule
+                   WHERE id_tournoi = :id_tournoi and id_categorie = :id_categorie and id_poule = :id_poule
                    ORDER BY id_equipe ASC";
     $stmtEquipes = $pdo->prepare($sqlEquipes);
-    $stmtEquipes->execute([':id_poule' => $id_poule]);
+    $stmtEquipes->execute([':id_tournoi' => $id_tournoi,':id_categorie' => $id_categorie,':id_poule' => $id_poule]);
     $equipes = $stmtEquipes->fetchAll(PDO::FETCH_ASSOC);
 
     $n = count($equipes);
