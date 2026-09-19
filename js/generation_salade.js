@@ -146,8 +146,13 @@ function genererTournoiSalade() {
     fetch('api/get_parametres.php', { method: 'POST', body: fdParams })
         .then(r => r.json())
         .then(dataParam => {
+            // const nbTerrains = Math.max(1, parseInt(
+            //     (dataParam && (dataParam.nb_terrains || dataParam.nbre_terrain_poule)) || 1,
+            //     10
+            // ));
+
             const nbTerrains = Math.max(1, parseInt(
-                (dataParam && (dataParam.nb_terrains || dataParam.nbre_terrain_poule)) || 1,
+                document.getElementById('nb-terrains-auto').value || 1,
                 10
             ));
 
