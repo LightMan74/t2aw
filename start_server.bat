@@ -83,6 +83,9 @@ echo ========================================
 echo Appuyez sur CTRL+C pour arreter le serveur
 echo ========================================
 echo.
+echo Utilisateur  : local
+echo Mot de passe : local (defaut)
+echo.
 REM Ouvrir le QR code dans le navigateur pour scan facile
 @REM start "" "https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=http://%IP%:%PORT%"
 start "" "http://%IP%:%PORT%"
