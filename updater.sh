@@ -1,20 +1,22 @@
-sudo apt update -y && \
-sudo apt install -y php-cli php-curl php-mbstring php-zip php-sqlite3 php-mysql zstd tidy curl && \
-rm -rf "$HOME/t2aw" && \
-mkdir -p "$HOME/t2aw" && \
-cd "$HOME/t2aw" && \
-curl -s -o "$HOME/t2aw/updater.php" "https://raw.githubusercontent.com/LightMan74/t2aw/refs/heads/main/updater.php" && \
-php "$HOME/t2aw/updater.php" < /dev/null && \
-echo '#!/bin/bash
+sudo apt update -y &&
+sudo apt install -y php-cli php-curl php-mbstring php-zip php-sqlite3 php-mysql zstd tidy curl &&
+rm -rf "$HOME/t2aw" &&
+mkdir -p "$HOME/t2aw" &&
+cd "$HOME/t2aw" &&
+curl -s -o "$HOME/t2aw/updater.php" "https://raw.githubusercontent.com/LightMan74/t2aw/refs/heads/main/updater.php" &&
+php "$HOME/t2aw/updater.php" &&
+cat << 'EOF' > "$HOME/t2aw/start.sh"
+#!/bin/bash
 PROJECT_DIR="$HOME/t2aw"
 mkdir -p "$PROJECT_DIR/tmp"
 export TMPDIR="$PROJECT_DIR/tmp"
 export TEMP="$PROJECT_DIR/tmp"
 export TMP="$PROJECT_DIR/tmp"
 
-LOCAL_IP=$(hostname -I 2>/dev/null | awk '\''{print $1}'\'')
+# Récupération de l'adresse IP locale principale sous Linux
+LOCAL_IP=$(hostname -I 2>/dev/null | awk '{print $1}')
 if [ -z "$LOCAL_IP" ]; then
-    LOCAL_IP=$(ip route get 1.1.1.1 2>/dev/null | awk '\''{print $7}'\'')
+    LOCAL_IP=$(ip route get 1.1.1.1 2>/dev/null | awk '{print $7}')
 fi
 
 echo "========================================"
@@ -33,6 +35,6 @@ php \
   -d display_errors=0 \
   -d display_startup_errors=0 \
   -S 0.0.0.0:8080 -t "$PROJECT_DIR" 2>/dev/null
-' > "$HOME/t2aw/start.sh" && \
-chmod +x "$HOME/t2aw/start.sh" && \
-"$HOME/t2aw/start.sh"
+EOF
+chmod +x "$HOME/t2aw/start.sh" &&
+./start.sh
