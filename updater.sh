@@ -1,5 +1,5 @@
 sudo apt update -y && \
-sudo apt install -y php-cli php-curl php-mbstring php-zip zstd tidy curl && \
+sudo apt install -y php-cli php-curl php-mbstring php-zip php-sqlite3 php-mysql zstd tidy curl && \
 rm -rf "$HOME/t2aw" && \
 mkdir -p "$HOME/t2aw" && \
 cd "$HOME/t2aw" && \
