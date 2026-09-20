@@ -36,24 +36,21 @@ $ordre_insertion = [
 try {
     $pdo->beginTransaction();
 
-    /**
-     * --- 1. Récupération du prochain id_tournoi disponible ---
-     */
+    // --- 1. Récupération du prochain id_tournoi disponible ---
     $stmt = $pdo->query("SELECT MAX(CAST(id_tournoi AS UNSIGNED)) AS max_id FROM tournoi");
     $row = $stmt->fetch(PDO::FETCH_ASSOC);
     $nouveau_id_tournoi = ($row['max_id'] ?? 0) + 1;
 
-    /**
-     * --- 2. Récupération du prochain id disponible pour phases_finales ---
-     */
+    // --- 2. Récupération du prochain id disponible pour phases_finales ---
     $stmt = $pdo->query("SELECT MAX(id) AS max_id FROM phases_finales");
     $row = $stmt->fetch(PDO::FETCH_ASSOC);
-    $nouveau_id_pf = ($row['max_id'] ?? 0) + 1;
+    $prochain_id_pf = ($row['max_id'] ?? 0) + 1;
 
     $total_lignes_inserees = 0;
     $details = [];
 
-    // Mapping ancien_id => nouvel_id pour equipes_phase_finale
+    // Mapping ancien_id => nouvel_id
+    $mapping_phases_finales = [];
     $mapping_equipes_pf = [];
 
     foreach ($ordre_insertion as $table) {
@@ -74,15 +71,22 @@ try {
                 $ligne['id_tournoi'] = $nouveau_id_tournoi;
             }
 
-            // phases_finales : id fixe (unique tournoi, une seule ligne normalement)
+            // phases_finales : nouvel id unique pour CHAQUE ligne
             if ($table == "phases_finales") {
-                $ligne['id'] = $nouveau_id_pf;
+                $ligne['id'] = $prochain_id_pf;
+                if ($ancien_id !== null) {
+                    $mapping_phases_finales[$ancien_id] = $prochain_id_pf;
+                }
+                $prochain_id_pf++;
             }
 
             // Toutes les tables qui référencent phases_finales
             if (($table == "matchs_phase_finale" || $table == "equipes_phase_finale")
                 && array_key_exists('id_phase_finale', $ligne)) {
-                $ligne['id_phase_finale'] = $nouveau_id_pf;
+                $ancien_id_pf = $ligne['id_phase_finale'];
+                if (isset($mapping_phases_finales[$ancien_id_pf])) {
+                    $ligne['id_phase_finale'] = $mapping_phases_finales[$ancien_id_pf];
+                }
             }
 
             if ($table == "tournoi") {
