@@ -1,12 +1,33 @@
 apt update -y &&
 apt upgrade -y &&
-rm -rf php &&
-mkdir php &&
-cd php &&
-apt install php &&
-curl -o "updater.php" "https://raw.githubusercontent.com/LightMan74/t2aw/refs/heads/main/updater.php" &&
-php "updater.php" &&
-cat << 'EOF' > "start.sh"
+rm -rf t2aw &&
+mkdir t2aw &&
+cd t2aw &&
+apt download php &&
+dpkg-deb -x php_*.deb ./env_php &&
+rm php_*.deb &&
+apt download zstd &&
+dpkg-deb -x zstd_*.deb ./env_php &&
+rm zstd_*.deb &&
+apt download tidy tidy-static &&
+apt download $(apt-cache depends php | grep "Depends:" | awk '{print $2}') &&
+for deb in *.deb; do dpkg-deb -x "$deb" ./env_php; done &&
+rm *.deb &&
+curl -o "$HOME/t2aw/updater.php" "https://raw.githubusercontent.com/LightMan74/t2aw/refs/heads/main/updater.php" &&
+BASE_DIR="$HOME/t2aw/env_php/data/data/com.termux/files/usr" &&
+PHP_BIN="$BASE_DIR/bin/php" &&
+export LD_LIBRARY_PATH="$BASE_DIR/lib:$LD_LIBRARY_PATH" &&
+"$PHP_BIN" "$HOME/t2aw/updater.php" &&
+cat << 'EOF' > "$HOME/t2aw/start.sh"
+#!/data/data/com.termux/files/usr/bin/bash
+BASE_DIR="$HOME/t2aw/env_php/data/data/com.termux/files/usr"
+PHP_INI="$HOME/t2aw/php.ini"
+mkdir -p "$HOME/t2aw/tmp"
+export TMPDIR="$HOME/t2aw/tmp"
+export TEMP="$HOME/t2aw/tmp"
+export TMP="$HOME/t2aw/tmp"
+export LD_LIBRARY_PATH="$BASE_DIR/lib:$LD_LIBRARY_PATH"
+PHP_BIN="$BASE_DIR/bin/php"
 # Récupération de l'adresse IP locale
 LOCAL_IP=$(ip addr show wlan0 2>/dev/null | grep "inet " | awk '{print $2}' | cut -d/ -f1)
 if [ -z "$LOCAL_IP" ]; then
@@ -20,13 +41,14 @@ echo " Utilisateur  : local"
 echo " Mot de passe : local"
 echo "========================================"
 "$PHP_BIN" \
-  -d sys_temp_dir="$HOME/php/tmp" \
+  -c "$PHP_INI" \
+  -d sys_temp_dir="$HOME/t2aw/tmp" \
   -d opcache.enable_cli=0 \
   -d opcache.enable=0 \
   -d error_reporting=0 \
   -d display_errors=0 \
   -d display_startup_errors=0 \
-  -S 0.0.0.0:8080 -t "php" 2>/dev/null
+  -S 0.0.0.0:8080 -t "$HOME/t2aw" 2>/dev/null
 EOF
-chmod +x "start.sh" &&
+chmod +x "$HOME/t2aw/start.sh" &&
 ./start.sh
