@@ -51,7 +51,7 @@ $currentUser = $_SESSION['user'];
         <button id="btn-theme-toggle" class="theme-toggle">🌙 Sombre</button>
         <span style="display: flex; flex-direction: column; align-items: center;">
             👤 <?php echo htmlspecialchars($currentUser); ?>
-            <a href="change_password.php">Change Password</a>
+            <a href="change_password.php" id="password">Change Password</a>
         </span>
 
         <button id="btn-logout" class="btn btn-logout">Déconnexion</button>
