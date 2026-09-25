@@ -177,7 +177,12 @@ if ($id_tournoi === 0): ?>
             <button onclick="location.href='login.php?login'" class="btn-dark">👤 Login</button>
         </div>
     </header>
-
+    <?php if (!isset($_GET["option"])){ ?>
+    <div class="recherche-equipes" role="search">
+        <label for="recherche-equipe">Rechercher une équipe</label>
+        <input type="search" id="recherche-equipe" placeholder="Rechercher une équipe..." autocomplete="off">
+    </div>
+    <?php } ?>
     <nav class="tabs">
         <button class="tab-btn active" data-tab="matchs">Matchs</button>
         <button class="tab-btn" data-tab="classement">Classement</button>
@@ -306,6 +311,49 @@ if ($id_tournoi === 0): ?>
     <?php   
 endif; ?>
     <style>
+    /* Recherche d'équipe : styles volontairement limités à l'afficheur. */
+    .recherche-equipes {
+        display: flex;
+        align-items: center;
+        gap: .6rem;
+        max-width: 42rem;
+        margin: 0 auto 1rem;
+        padding: 0 .75rem;
+    }
+
+    .recherche-equipes label {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        padding: 0;
+        margin: -1px;
+        overflow: hidden;
+        clip: rect(0, 0, 0, 0);
+        white-space: nowrap;
+        border: 0;
+    }
+
+    #recherche-equipe {
+        width: 100%;
+        min-height: 2.4rem;
+        padding: .5rem .75rem;
+        border: 1px solid #aaa;
+        border-radius: .35rem;
+        font: inherit;
+    }
+
+    .equipe-highlight {
+        background-color: #ffeb3b;
+        color: #111;
+        border-radius: .15rem;
+        box-shadow: 0 0 0 2px #ffeb3b;
+    }
+
+    .equipe-dim {
+        opacity: .28;
+        filter: grayscale(.7);
+    }
+
     .footer-t2aw {
         padding: 1rem;
         text-align: center;

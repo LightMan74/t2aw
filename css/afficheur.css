@@ -305,6 +305,25 @@ body {
     transition: background 0.3s, color 0.3s;
 }
 
+.search-equipe {
+    text-align: center;
+    margin: 10px 0;
+}
+
+#recherche-equipe {
+    padding: 6px 10px;
+    width: 250px;
+    font-size: 1em;
+}
+
+.equipe-highlight {
+    background-color: yellow;
+    color: black;
+    font-weight: bold;
+    border-radius: 3px;
+    padding: 0 2px;
+}
+
 /* ---------- DARK MODE ---------- */
 body.dark {
     background: #1a1c22;

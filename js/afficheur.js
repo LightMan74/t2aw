@@ -12,6 +12,7 @@ let minsecondsLeft = 10;
 document.addEventListener('DOMContentLoaded', () => {
     initTabs();
     initDarkMode();
+    initRechercheEquipes();
     updateHorloge();
     setInterval(updateHorloge, 1000);
 
@@ -61,6 +62,39 @@ function initTabs() {
             currentTab = tab;
             chargerOngletActif();
         });
+    });
+}
+
+// ----- Recherche / filtre visuel des équipes -----
+function normaliserRechercheEquipe(texte) {
+    return String(texte || '')
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .toLocaleLowerCase();
+}
+
+function initRechercheEquipes() {
+    const champ = document.getElementById('recherche-equipe');
+    if (!champ) return;
+    champ.addEventListener('input', appliquerFiltreEquipes);
+}
+
+function appliquerFiltreEquipes() {
+    const champ = document.getElementById('recherche-equipe');
+    const recherche = normaliserRechercheEquipe(champ ? champ.value.trim() : '');
+    const selecteurEquipes = [
+        '.equipe-nom',
+        '.equipe-gagnante',
+        '.equipe-perdante',
+        '.poule-block-classement tbody td:nth-child(2)',
+        '.poule-block tbody td',
+        '.team-line span:first-child'
+    ].join(', ');
+
+    document.querySelectorAll(selecteurEquipes).forEach(element => {
+        const correspond = !recherche || normaliserRechercheEquipe(element.textContent).includes(recherche);
+        element.classList.toggle('equipe-highlight', Boolean(recherche && correspond));
+        element.classList.toggle('equipe-dim', Boolean(recherche && !correspond));
     });
 }
 
@@ -179,12 +213,14 @@ function chargerMatchs() {
                 afficherListeMatchs('matchs-en-cours', enCours, 'Aucun match en cours');
                 afficherListeMatchs('matchs-a-venir', aVenir, 'Aucun match à venir');
                 afficherListeMatchs('matchs-termines', termines, 'Aucun résultat disponible');
+                appliquerFiltreEquipes();
 
             } else {
                 // ----- Aucun ordre personnalisé : on utilise directement view_matchs.php -----
                 afficherListeMatchs('matchs-en-cours', data.en_cours, 'Aucun match en cours');
                 afficherListeMatchs('matchs-a-venir', data.a_venir, 'Aucun match à venir');
                 afficherListeMatchs('matchs-termines', data.termines, 'Aucun résultat disponible');
+                appliquerFiltreEquipes();
             }
         });
     });
@@ -316,7 +352,7 @@ function afficherListeMatchs(containerId, matchs, texteVide) {
         let equipesHTML = '';
         equipesHTML = `
         <div class="match-equipes">
-            ${nomEquipe1} <span style="color:#999;">vs</span> ${nomEquipe2}
+            <span class="equipe-nom">${nomEquipe1}</span> <span style="color:#999;">vs</span> <span class="equipe-nom">${nomEquipe2}</span>
             ${matchInfos}
         </div>
     `;
@@ -391,6 +427,7 @@ function chargerClassement() {
 
             return wrapper;
         });
+        appliquerFiltreEquipes();
     });
 }
 
@@ -463,6 +500,7 @@ function chargerJoueurs() {
 
             return wrapper;
         });
+        appliquerFiltreEquipes();
     });
 }
 
@@ -507,6 +545,7 @@ function chargerPhaseFinale() {
         construireSousOnglets(container, data.categories, 'phase_finale', (cat) => {
             return creerBracketPhaseFinale(cat, data.categories);
         });
+        appliquerFiltreEquipes();
     });
 
 }
@@ -821,6 +860,7 @@ function chargerClassementFinal() {
 
             return wrapper;
         });
+        appliquerFiltreEquipes();
     });
 }
 
