@@ -94,7 +94,7 @@ function appliquerFiltreEquipes() {
     document.querySelectorAll(selecteurEquipes).forEach(element => {
         const correspond = !recherche || normaliserRechercheEquipe(element.textContent).includes(recherche);
         element.classList.toggle('equipe-highlight', Boolean(recherche && correspond));
-        element.classList.toggle('equipe-dim', Boolean(recherche && !correspond));
+        // element.classList.toggle('equipe-dim', Boolean(recherche && !correspond));
     });
 }
 

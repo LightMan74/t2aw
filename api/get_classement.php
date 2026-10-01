@@ -155,13 +155,14 @@ try {
             $classement[$key3]['matchs_joues']++;
             $classement[$key4]['matchs_joues']++;
 
-            // Victoire/défaite
-            if ($totalScore_12 > $totalScore_34) {
+            // Victoire/défaite : le vainqueur est déterminé par la majorité des sets,
+            // jamais par la somme brute des points (utilisée uniquement ci-dessus).
+            if ($setsGagnes_12 > $setsGagnes_34) {
                 $classement[$key1]['victoire']++;
                 $classement[$key2]['victoire']++;
                 $classement[$key3]['defaite']++;
                 $classement[$key4]['defaite']++;
-            } elseif ($totalScore_34 > $totalScore_12) {
+            } elseif ($setsGagnes_34 > $setsGagnes_12) {
                 $classement[$key3]['victoire']++;
                 $classement[$key4]['victoire']++;
                 $classement[$key1]['defaite']++;
@@ -214,10 +215,11 @@ try {
             $classement[$key2]['set_gagner'] += $setsGagnesEquipe2;
             $classement[$key2]['set_perdu']  += $setsGagnesEquipe1;
 
-            if ($totalScore1 > $totalScore2) {
+            // Même règle pour un match standard : comparaison manche par manche.
+            if ($setsGagnesEquipe1 > $setsGagnesEquipe2) {
                 $classement[$key1]['victoire']++;
                 $classement[$key2]['defaite']++;
-            } elseif ($totalScore2 > $totalScore1) {
+            } elseif ($setsGagnesEquipe2 > $setsGagnesEquipe1) {
                 $classement[$key2]['victoire']++;
                 $classement[$key1]['defaite']++;
             }
