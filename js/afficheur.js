@@ -399,11 +399,11 @@ function chargerClassement() {
                             <tr>
                                 <th>#</th>
                                 <th>Équipe</th>
-                                <th>J</th>
-                                <th>V</th>
-                                <th>D</th>
+                                <th>Joué</th>
+                                <th>Victoire</th>
+                                <th>Defaite</th>
                                 <th>Sets</th>
-                                <th>Pts</th>
+                                <th>Points (Diff (+ / -))</th>
                             </tr>
                         </thead>
                         <tbody>`;
@@ -416,7 +416,7 @@ function chargerClassement() {
                         <td>${eq.victoires}</td>
                         <td>${eq.defaites}</td>
                         <td>${eq.sets_gagnes}/${eq.sets_perdus}</td>
-                        <td>${eq.points_marques}/${eq.points_encaisses}</td>
+                        <td>${eq.points_marques - eq.points_encaisses} (${eq.points_marques} / ${eq.points_encaisses})</td>
                     </tr>`;
                 });
 

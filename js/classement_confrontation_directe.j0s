@@ -1,0 +1,139 @@
+/*
+ * Proposition modulaire — confrontation directe pour classement.js
+ *
+ * Le tableau `matchs` doit contenir les lignes match_poule renvoyées par le
+ * serveur (au minimum : status, id_categorie, id_poule, id_poule_2,
+ * id_equipe_1..4, score_equipe_1 et score_equipe_2).
+ *
+ * Convention du résultat des fonctions :
+ *   -1 : l'équipe A est devant l'équipe B
+ *    1 : l'équipe B est devant l'équipe A
+ *    0 : confrontation absente ou impossible à départager
+ */
+
+function scoresEnManches(score) {
+    if (score === null || score === undefined || score === '') return [];
+    return String(score).split('*').map(Number).map(n => Number.isFinite(n) ? n : 0);
+}
+
+function resultatParManches(scoreA, scoreB) {
+    const manchesA = scoresEnManches(scoreA);
+    const manchesB = scoresEnManches(scoreB);
+    const nb = Math.max(manchesA.length, manchesB.length);
+    let setsA = 0;
+    let setsB = 0;
+
+    for (let i = 0; i < nb; i += 1) {
+        const a = manchesA[i] ?? 0;
+        const b = manchesB[i] ?? 0;
+        if (a > b) setsA += 1;
+        else if (b > a) setsB += 1;
+    }
+
+    return {
+        setsA,
+        setsB,
+        pointsA: manchesA.reduce((s, n) => s + n, 0),
+        pointsB: manchesB.reduce((s, n) => s + n, 0)
+    };
+}
+
+function idEquipeDans(id, valeur) {
+    return valeur !== null && valeur !== undefined && String(id) === String(valeur);
+}
+
+/*
+ * Décrit le face-à-face A/B dans un match.
+ * En Salade, A et B doivent être dans des paires opposées :
+ *   paire A = équipes 1-2, paire B = équipes 3-4.
+ */
+function confrontationDansMatch(equipeA, equipeB, match) {
+    if (!match || match.status !== 'termine') return null;
+    if (String(match.id_categorie) !== String(equipeA.id_categorie) ||
+        String(match.id_categorie) !== String(equipeB.id_categorie)) return null;
+
+    const pouleA = String(equipeA.id_poule);
+    const pouleB = String(equipeB.id_poule);
+    const pouleMatch1 = String(match.id_poule);
+    const pouleMatch2 = String(match.id_poule_2 ?? match.id_poule);
+
+    const estSalade = match.id_equipe_3 !== null &&
+        match.id_equipe_3 !== undefined && match.id_equipe_3 !== '';
+
+    let aDansCampA;
+    let bDansCampA;
+    if (estSalade) {
+        // Les équipes 1 et 2 peuvent éventuellement appartenir à id_poule_2.
+        const aDansPaire12 =
+            (pouleA === pouleMatch1 && idEquipeDans(equipeA.id_equipe, match.id_equipe_1)) ||
+            (pouleA === pouleMatch2 && idEquipeDans(equipeA.id_equipe, match.id_equipe_2));
+        const bDansPaire12 =
+            (pouleB === pouleMatch1 && idEquipeDans(equipeB.id_equipe, match.id_equipe_1)) ||
+            (pouleB === pouleMatch2 && idEquipeDans(equipeB.id_equipe, match.id_equipe_2));
+        const aDansPaire34 = pouleA === pouleMatch1 &&
+            (idEquipeDans(equipeA.id_equipe, match.id_equipe_3) || idEquipeDans(equipeA.id_equipe, match.id_equipe_4));
+        const bDansPaire34 = pouleB === pouleMatch1 &&
+            (idEquipeDans(equipeB.id_equipe, match.id_equipe_3) || idEquipeDans(equipeB.id_equipe, match.id_equipe_4));
+
+        aDansCampA = aDansPaire12;
+        bDansCampA = bDansPaire12;
+        if (!((aDansPaire12 || aDansPaire34) && (bDansPaire12 || bDansPaire34)) || aDansCampA === bDansCampA) {
+            return null; // même paire, ou équipe non trouvée
+        }
+    } else {
+        const aEst1 = pouleA === pouleMatch1 && idEquipeDans(equipeA.id_equipe, match.id_equipe_1);
+        const aEst2 = pouleA === pouleMatch2 && idEquipeDans(equipeA.id_equipe, match.id_equipe_2);
+        const bEst1 = pouleB === pouleMatch1 && idEquipeDans(equipeB.id_equipe, match.id_equipe_1);
+        const bEst2 = pouleB === pouleMatch2 && idEquipeDans(equipeB.id_equipe, match.id_equipe_2);
+        if (!(aEst1 || aEst2) || !(bEst1 || bEst2) || (aEst1 === bEst1)) return null;
+        aDansCampA = aEst1;
+    }
+
+    const r = resultatParManches(match.score_equipe_1, match.score_equipe_2);
+    const scoreA = aDansCampA ? r : { setsA: r.setsB, setsB: r.setsA, pointsA: r.pointsB, pointsB: r.pointsA };
+    if (scoreA.setsA === scoreA.setsB) return { resultat: 0, ...scoreA };
+    return { resultat: scoreA.setsA > scoreA.setsB ? -1 : 1, ...scoreA };
+}
+
+/*
+ * Comparateur à appeler uniquement après les critères généraux :
+ * victoires, différence de sets, puis points marqués.
+ *
+ * Pour plusieurs confrontations directes, on agrège les victoires de matchs,
+ * puis la différence de sets, sans utiliser la somme brute des points pour
+ * déclarer un vainqueur.
+ */
+function comparerConfrontationDirecte(equipeA, equipeB, matchs) {
+    const rencontres = (matchs || [])
+        .map(m => confrontationDansMatch(equipeA, equipeB, m))
+        .filter(Boolean);
+    if (!rencontres.length) return 0;
+
+    const victoiresA = rencontres.filter(r => r.resultat < 0).length;
+    const victoiresB = rencontres.filter(r => r.resultat > 0).length;
+    if (victoiresA !== victoiresB) return victoiresB - victoiresA;
+
+    const diffSetsA = rencontres.reduce((s, r) => s + r.setsA - r.setsB, 0);
+    const diffSetsB = -diffSetsA;
+    if (diffSetsA !== diffSetsB) return diffSetsB - diffSetsA;
+    return 0;
+}
+
+/*
+ * Intégration proposée dans classement.js (sans la faire ici) :
+ *
+ * 1. Charger les matchs terminés dans une source séparée, par exemple via une
+ *    API dédiée get_matchs_classement.php, puis conserver le tableau dans
+ *    `matchsClassement`.
+ * 2. Dans le comparator de `lignes.sort`, après le test de points marqués :
+ *
+ *      const direct = comparerConfrontationDirecte(a, b, matchsClassement);
+ *      if (direct !== 0) return direct;
+ *
+ * 3. Le comparator doit alors continuer avec un ordre stable de secours
+ *    (id_equipe ASC, par exemple) si `direct === 0`.
+ *
+ * Attention : get_classement.php ne renvoie actuellement que `classement`.
+ * Il faut donc fournir `matchsClassement` par un endpoint séparé ou par une
+ * évolution contrôlée de la réponse AJAX avant d'activer ce branchement.
+ */

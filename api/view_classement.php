@@ -113,8 +113,8 @@ foreach ($categories as $cat) {
                     }
                 }
 
-                $victoire_12 = $pointsMarques_12 > $pointsMarques_34;
-                $victoire_34 = $pointsMarques_34 > $pointsMarques_12;
+                $victoire_12 = $setsGagnes_12 > $setsGagnes_34;
+                $victoire_34 = $setsGagnes_34 > $setsGagnes_12;
 
                 // Mise à jour des stats pour les équipes 1&2
                 if ($e1_dans_cette_poule) {
@@ -191,8 +191,8 @@ foreach ($categories as $cat) {
                     elseif ($p2 > $p1) $setsGagnes2++;
                 }
 
-                $victoireE1 = $pointsMarques1 > $pointsMarques2;
-                $victoireE2 = $pointsMarques2 > $pointsMarques1;
+                $victoireE1 = $setsGagnes1 > $setsGagnes2;
+                $victoireE2 = $setsGagnes2 > $setsGagnes1;
 
                 // Mise à jour des stats uniquement pour l'équipe qui appartient à cette poule
                 if ($e1_dans_cette_poule) {
@@ -217,20 +217,24 @@ foreach ($categories as $cat) {
             }
         }
 
-        // Tri : victoires desc, diff sets desc, diff points desc
+        // Tri : victoires desc, sets gagnes desc, diff points desc, points marques desc, points encaisses asc
         $classement = array_values($stats);
         usort($classement, function ($a, $b) {
             if ($a['victoires'] !== $b['victoires']) {
                 return $b['victoires'] - $a['victoires'];
             }
-            $diffSetsA = $a['sets_gagnes'] - $a['sets_perdus'];
-            $diffSetsB = $b['sets_gagnes'] - $b['sets_perdus'];
-            if ($diffSetsA !== $diffSetsB) {
-                return $diffSetsB - $diffSetsA;
+            if ($a['sets_gagnes'] !== $b['sets_gagnes']) {
+                return $b['sets_gagnes'] - $a['sets_gagnes'];
             }
             $diffPtsA = $a['points_marques'] - $a['points_encaisses'];
             $diffPtsB = $b['points_marques'] - $b['points_encaisses'];
-            return $diffPtsB - $diffPtsA;
+            if ($diffPtsA !== $diffPtsB) {
+                return $diffPtsB - $diffPtsA;
+            }
+            if ($a['points_marques'] !== $b['points_marques']) {
+                return $b['points_marques'] - $a['points_marques'];
+            }
+            return $a['points_encaisses'] - $b['points_encaisses'];
         });
 
         $poulesData[] = [

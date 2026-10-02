@@ -62,15 +62,11 @@ function afficherClassement(classement) {
 
         // Tri automatique du classement :
         // 1. Nombre de victoires (desc)
-        // 2. Différence de sets (desc)
-        // 3. Points marqués (desc)
-        lignes.sort((a, b) => {
-            if (a.victoire !== b.victoire) return b.victoire - a.victoire;
-            const diffA = (a.set_gagner ?? 0) - (a.set_perdu ?? 0);
-            const diffB = (b.set_gagner ?? 0) - (b.set_perdu ?? 0);
-            if (diffB !== diffA) return diffB - diffA;
-            return (b.point_marquer ?? 0) - (a.point_marquer ?? 0);
-        });
+        // 2. Nombre de sets gagnés (desc)
+        // 3. Différence de points (desc)
+        // 4. Points marqués (desc)
+        // 5. Points encaissés (asc)
+        lignes.sort(comparerClassement);
 
         const badgeCat = `<span class="badge-pill categorie-${((groupe.id_categorie - 1) % 10) + 1}">${groupe.nom_categorie}</span>`;
         const badgePoule = groupe.id_poule
@@ -130,6 +126,28 @@ function afficherClassement(classement) {
     if (clesTriees.length === 0) {
         zone.innerHTML = '<p>Aucun classement disponible.</p>';
     }
+}
+
+function comparerClassement(a, b) {
+    const victoiresA = a.victoire ?? 0;
+    const victoiresB = b.victoire ?? 0;
+    if (victoiresA !== victoiresB) return victoiresB - victoiresA;
+
+    const setsA = a.set_gagner ?? 0;
+    const setsB = b.set_gagner ?? 0;
+    if (setsA !== setsB) return setsB - setsA;
+
+    const pointsMarquesA = a.point_marquer ?? 0;
+    const pointsMarquesB = b.point_marquer ?? 0;
+    const pointsEncaissesA = a.point_encaisser ?? 0;
+    const pointsEncaissesB = b.point_encaisser ?? 0;
+    const differencePointsA = pointsMarquesA - pointsEncaissesA;
+    const differencePointsB = pointsMarquesB - pointsEncaissesB;
+    if (differencePointsA !== differencePointsB) {
+        return differencePointsB - differencePointsA;
+    }
+    if (pointsMarquesA !== pointsMarquesB) return pointsMarquesB - pointsMarquesA;
+    return pointsEncaissesA - pointsEncaissesB;
 }
 
 // ----- Utilitaire -----
