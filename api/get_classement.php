@@ -186,7 +186,7 @@ try {
             $totalScore1 = 0;
             $totalScore2 = 0;
             $setsGagnesEquipe1 = 0;
-            $setsGagnesEquipe2 = 0;
+            $setsGagnesEquipe2 = 0;       
 
             for ($i = 0; $i < $nbSets; $i++) {
                 $s1 = (int)($sets1[$i] ?? 0);

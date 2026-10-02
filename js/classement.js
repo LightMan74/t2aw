@@ -88,10 +88,12 @@ function afficherClassement(classement) {
             <tr>
                 <th>Rang</th>
                 <th>Equipe</th>
-                <th>Match Joué</th>
-                <th>Victoire</th>
-                <th>Defaite</th>
-                <th>Sets Gagner</th>
+                <th>Matchs Joué</th>
+                <th>Victoires</th>
+                <th>Defaites</th>
+                <th>Sets Gagnés</th>
+                <th>Sets Perdus</th>
+                <th>Difference Sets</th>
                 <th>Points marqués</th>
                 <th>Points encaissés</th>
                 <th>Difference Points</th>
@@ -112,6 +114,8 @@ function afficherClassement(classement) {
             <td>${l.victoire ?? 0}</td>
             <td>${l.defaite ?? 0}</td>
             <td>${l.set_gagner ?? 0}</td>
+            <td>${l.set_perdu ?? 0}</td>
+            <td>${l.set_gagner - l.set_perdu ?? 0}</td>
             <td>${l.point_marquer ?? 0}</td>
             <td>${l.point_encaisser ?? 0}</td>
             <td>${diff >= 0 ? '+' : ''}${diff}</td>
