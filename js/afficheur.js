@@ -402,8 +402,12 @@ function chargerClassement() {
                                 <th>Joué</th>
                                 <th>Victoire</th>
                                 <th>Defaite</th>
-                                <th>Sets</th>
-                                <th>Points (Diff (+ / -))</th>
+                                <th>Sets Gagné</th>
+                                <th>Sets Perdu</th>
+                                <th>Sets Diff</th>
+                                <th>Points Marqué</th>
+                                <th>Points Encaissé</th>
+                                <th>Points Diff</th>
                             </tr>
                         </thead>
                         <tbody>`;
@@ -415,8 +419,12 @@ function chargerClassement() {
                         <td>${eq.joues}</td>
                         <td>${eq.victoires}</td>
                         <td>${eq.defaites}</td>
-                        <td>${eq.sets_gagnes}/${eq.sets_perdus}</td>
-                        <td>${eq.points_marques - eq.points_encaisses} (${eq.points_marques} / ${eq.points_encaisses})</td>
+                        <td>${eq.sets_gagnes}</td>
+                        <td>${eq.sets_perdus}</td>
+                        <td>${eq.sets_gagnes - eq.sets_perdus}</td>
+                        <td>${eq.points_marques}</td>
+                        <td>${eq.points_encaisses}</td>
+                        <td>${eq.points_marques - eq.points_encaisses}</td>
                     </tr>`;
                 });
 
