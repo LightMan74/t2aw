@@ -49,12 +49,15 @@
     --status-badge-en_cours-text: #fff;
     --status-badge-termine-bg: #5cb85c;
     --status-badge-termine-text: #fff;
+    --status-badge-annulee-bg: #a92626;
+    --status-badge-annulee-text: #fff;
 
     /* Status lignes (tr) — fond des rangées de tableau */
     --status-tr-planifie-bg: transparent;
     --status-tr-en_cours-bg: #ffeaa3;
     --status-tr-en_cours-scoring-bg: #a92626;
     --status-tr-termine-bg: #b2f3b7;
+    --status-tr-annulee-bg: #a92626;
 
     --poule-color-1: #3498db;
     --poule-color-2: #f39c12;

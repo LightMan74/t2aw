@@ -159,11 +159,12 @@ function inverserParRound(matchs) {
 
 // ---------- Statuts ----------
 
-const STATUS_CYCLE = ['planifie', 'en_cours', 'termine'];
+const STATUS_CYCLE = ['planifie', 'en_cours', 'termine', 'annulee'];
 const STATUS_LABELS = {
     planifie: 'Planifié',
     en_cours: 'En jeu',
-    termine: 'Terminé'
+    termine: 'Terminé',
+    annulee: 'Annulée'
 };
 
 function getStatut(m) {
