@@ -159,13 +159,13 @@ $hiddenSets = ((int) $tournoi_troissets_match > 1) ? '' : 'hidden';
 
                         <div style="margin-bottom:8px;">
                             <label>
-                                <input type="checkbox" id="check-terrainlibre" onchange="onterrainlibreChange()" checked>
+                                <input type="checkbox" id="check-terrainlibre" onchange="onterrainlibreChange()">
                                 Terrain libre
                             </label>
                         </div>
 
                         <!-- Cas normal : une seule poule pour les 2 équipes -->
-                        <div id="bloc-poule-unique" style="display:none;">
+                        <div id="bloc-poule-unique" style="display:block;">
                             <div style="margin-bottom:8px;">
                                 <label>Poule :</label><br>
                                 <select id="select-poule" onchange="onPouleChange()" style="width:100%;"></select>
@@ -212,8 +212,12 @@ $hiddenSets = ((int) $tournoi_troissets_match > 1) ? '' : 'hidden';
                             </div>
                         </div>
 
-                        <button onclick="ajouterMatchManuel()">Ajouter à la liste</button>
+                        <div style="margin:8px 0; font-size:0.9em;">
+                            <label><input type="radio" name="generation-destination" value="liste" checked> Ajouter à la liste de génération</label>
+                            <label style="margin-left:10px;"><input type="radio" name="generation-destination" value="base"> Ajouter directement en base</label>
+                        </div>
                         <button onclick="fermerFormulaireAjout()">Annuler</button>
+                        <button onclick="ajouterMatchManuel()">Ajouter à la liste</button>
                     </div>
 
                     <div id="message-generation"></div>
