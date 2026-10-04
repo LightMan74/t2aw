@@ -33,23 +33,23 @@ $tablesConfig = [
 // Définition des colonnes à ajouter (table => [colonne => [type, defaut]])
 // ============================================
 $columnsConfig = [
-    'parametre' => [
-        'scoring_password'   => ['varchar(500)', 'NULL'],
-        'scoring_matchtermine'   => ['INTEGER', 0],
-    ],
-    'match_poule' => [
-        'dernier_modifiant'   => ['VARCHAR(500)', "''"],
-        'id_equipe_3'   => ['INTEGER', 'NULL'],
-        'id_equipe_4'   => ['INTEGER', 'NULL'],
-        'numero_tour '   => ['INTEGER', 'NULL'],
-    ],
-    'matchs_phase_finale' => [
-        'dernier_modifiant'   => ['VARCHAR(500)', "''"],
-    ],
-    'preference' => [
-        'user'   => ['VARCHAR(50)', "'local'"],
-        'largeur'   => ['VARCHAR(50)', 'NULL'],
-    ],
+    // 'parametre' => [
+    //     'scoring_password'   => ['varchar(500)', 'NULL'],
+    //     'scoring_matchtermine'   => ['INTEGER', 0],
+    // ],
+    // 'match_poule' => [
+    //     'dernier_modifiant'   => ['VARCHAR(500)', "''"],
+    //     'id_equipe_3'   => ['INTEGER', 'NULL'],
+    //     'id_equipe_4'   => ['INTEGER', 'NULL'],
+    //     'numero_tour '   => ['INTEGER', 'NULL'],
+    // ],
+    // 'matchs_phase_finale' => [
+    //     'dernier_modifiant'   => ['VARCHAR(500)', "''"],
+    // ],
+    // 'preference' => [
+    //     'user'   => ['VARCHAR(50)', "'local'"],
+    //     'largeur'   => ['VARCHAR(50)', 'NULL'],
+    // ],
 ];
 
 try {
