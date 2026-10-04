@@ -233,8 +233,8 @@ $hiddenSets = ((int) $tournoi_troissets_match > 1) ? '' : 'hidden';
                 </button>
                 <?php } else {?>
                 <button onclick="repartitionAutomatique()">⚡ Répartition automatique dans les terrains</button>
-                <button onclick="validerOrdre()">💾 Valider et enregistrer les matchs</button>
                 <?php }?>
+                <button onclick="validerOrdre()">💾 Valider et enregistrer les matchs</button>
             </div>
 
 
