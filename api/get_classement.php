@@ -227,7 +227,23 @@ try {
     // Convertir en tableau simple
     $result = array_values($classement);
 
-    echo json_encode(['success' => true, 'classement' => $result]);
+    // echo json_encode(['success' => true, 'classement' => $result]);
+
+
+        // Exposer également les matchs terminés bruts. Le tableau contient les
+    // colonnes de match_poule ainsi que les libellés joints utiles à l'affichage
+    // ou à une future confrontation directe. La logique de calcul ci-dessus
+    // reste inchangée.
+    $matchsTermines = array_values(array_filter($matchs, function ($match) {
+        return ($match['status'] ?? null) === 'termine';
+    }));
+
+    echo json_encode([
+        'success' => true,
+        'classement' => $result,
+        'matchs' => $matchsTermines
+    ]);
+    
 
 } catch (Exception $e) {
     echo json_encode(['success' => false, 'error' => $e->getMessage()]);

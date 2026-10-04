@@ -206,13 +206,14 @@ function chargerMatchs() {
                 const enCours = tous.filter(m => getStatutM(m) === 'en_cours');
                 const aVenir = tous.filter(m => {
                     const s = getStatutM(m);
-                    return s !== 'en_cours' && s !== 'termine';
+                    return s !== 'en_cours' && s !== 'termine' && s !== 'annulee';
                 });
-                const termines = tous.filter(m => getStatutM(m) === 'termine');
+                const termines = tous.filter(m => getStatutM(m) === 'termine' || getStatutM(m) === 'annulee');
 
                 afficherListeMatchs('matchs-en-cours', enCours, 'Aucun match en cours');
                 afficherListeMatchs('matchs-a-venir', aVenir, 'Aucun match à venir');
                 afficherListeMatchs('matchs-termines', termines, 'Aucun résultat disponible');
+                console.log(termines);
                 appliquerFiltreEquipes();
 
             } else {
@@ -234,7 +235,7 @@ function afficherListeMatchs(containerId, matchs, texteVide) {
         container.innerHTML = `<div class="vide">${texteVide}</div>`;
         return;
     }
-
+    // console.log(matchs);
     matchs.forEach(m => {
         const div = document.createElement('div');
         div.className = `match-card ${m.status}`;
@@ -326,7 +327,10 @@ function afficherListeMatchs(containerId, matchs, texteVide) {
         }
 
         if (m.status === 'planifie') {
-            heure_debut = `<div class="match-heure">${escapeHTML(m.heure_debut.substring(0, 5) || '')}</div>`;
+            // console.log(nomEquipe1 + '-' + m.heure_debut);
+            if (m.heure_debut !== null) {
+                heure_debut = `<div class="match-heure">${escapeHTML(m.heure_debut.substring(0, 5) || '')}</div>`;
+            }
         }
 
         // Tags couleur : fond coloré directement sur le texte

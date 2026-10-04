@@ -19,7 +19,7 @@ const STATUS_LABELS_PH = {
 
 // ---------- Utilitaires ----------
 
-function afficherMessage(elementId, texte, type = 'success') {
+function afficherMessagePF(elementId, texte, type = 'success') {
     const el = document.getElementById(elementId);
     el.textContent = texte;
     el.className = 'msg ' + type;
@@ -98,7 +98,7 @@ selectCategorie.addEventListener('change', async () => {
         );
 
         if (checkData.existe) {
-            afficherMessage('msg-creation',
+            afficherMessagePF('msg-creation',
                 `Une phase finale existe déjà pour cette catégorie (« ${checkData.phase.nom} »). Supprimez-la avant d'en créer une nouvelle.`,
                 'error'
             );
@@ -144,9 +144,9 @@ selectCategorie.addEventListener('change', async () => {
         ordreEquipesPanel.classList.remove('hidden');
 
         if (equipesOrdre.length < 2) {
-            afficherMessage('msg-creation', 'Cette catégorie n\'a pas assez d\'équipes (minimum 2)', 'error');
+            afficherMessagePF('msg-creation', 'Cette catégorie n\'a pas assez d\'équipes (minimum 2)', 'error');
         } else {
-            afficherMessage('msg-creation', `${equipesOrdre.length} équipes chargées pour la catégorie « ${nomCat} »`, 'success');
+            afficherMessagePF('msg-creation', `${equipesOrdre.length} équipes chargées pour la catégorie « ${nomCat} »`, 'success');
             remplirSelectDebutPhase(equipesOrdre.length);
         }
 
@@ -155,7 +155,7 @@ selectCategorie.addEventListener('change', async () => {
         inputNbEquipes.value = '';
         afficherOrdreEquipes();
         ordreEquipesPanel.classList.add('hidden');
-        afficherMessage('msg-creation', err.message, 'error');
+        afficherMessagePF('msg-creation', err.message, 'error');
     }
 });
 
@@ -246,12 +246,12 @@ document.getElementById('form-creation').addEventListener('submit', async e => {
     const idCategorie = parseInt(selectCategorie.value, 10);
 
     if (!idTournoi || !idCategorie) {
-        afficherMessage('msg-creation', 'Veuillez sélectionner une catégorie', 'error');
+        afficherMessagePF('msg-creation', 'Veuillez sélectionner une catégorie', 'error');
         return;
     }
 
     if (equipesOrdre.length < 2) {
-        afficherMessage('msg-creation', 'Il faut au moins 2 équipes pour créer une phase finale', 'error');
+        afficherMessagePF('msg-creation', 'Il faut au moins 2 équipes pour créer une phase finale', 'error');
         return;
     }
 
@@ -273,7 +273,7 @@ document.getElementById('form-creation').addEventListener('submit', async e => {
             body: JSON.stringify(payload),
         });
 
-        afficherMessage('msg-creation',
+        afficherMessagePF('msg-creation',
             `Phase finale créée ! (${data.nb_matchs} matchs, ${data.nbRounds} rounds)`,
             'success');
 
@@ -282,7 +282,7 @@ document.getElementById('form-creation').addEventListener('submit', async e => {
         ouvrirBracket(data.id_phase_finale);
 
     } catch (err) {
-        afficherMessage('msg-creation', err.message, 'error');
+        afficherMessagePF('msg-creation', err.message, 'error');
     }
 
     await callsimuler(currentPhaseFinaleId, selectdebutph.value);
@@ -397,7 +397,7 @@ document.getElementById('btn-confirmer-suppression').addEventListener('click', a
         currentPhaseFinaleIdASupprimer = null;
 
     } catch (err) {
-        afficherMessage('msg-modal-suppression', err.message, 'error');
+        afficherMessagePF('msg-modal-suppression', err.message, 'error');
     }
     selectCategorie.value = "";
     selectdebutph.value = "";
@@ -791,12 +791,12 @@ document.getElementById('btn-valider-score').addEventListener('click', () => {
     const selectStatut = document.getElementById('modal-statut-match');
 
     if (isNaN(score1) || isNaN(score2)) {
-        afficherMessage('msg-modal', 'Veuillez saisir des scores valides', 'error');
+        afficherMessagePF('msg-modal', 'Veuillez saisir des scores valides', 'error');
         return;
     }
 
     if (score1 === score2 && selectStatut.value === 'termine') {
-        afficherMessage('msg-modal', 'Les scores ne peuvent pas être égaux (pas de match nul)', 'error');
+        afficherMessagePF('msg-modal', 'Les scores ne peuvent pas être égaux (pas de match nul)', 'error');
         return;
     }
 
@@ -873,7 +873,7 @@ async function validerScoreFinal(score1, score2) {
         ouvrirBracket(currentPhaseFinaleId);
 
     } catch (err) {
-        afficherMessage('msg-modal', err.message, 'error');
+        afficherMessagePF('msg-modal', err.message, 'error');
     }
 }
 
@@ -881,14 +881,14 @@ async function validerScoreFinal(score1, score2) {
 
 document.getElementById('btn-simuler-rounds').addEventListener('click', async () => {
     if (!currentPhaseFinaleId) {
-        afficherMessage('msg-simulation', 'Aucune phase finale ouverte', 'error');
+        afficherMessagePF('msg-simulation', 'Aucune phase finale ouverte', 'error');
         return;
     }
 
     const nbRounds = parseInt(document.getElementById('input-nb-rounds-simuler').value, 10);
 
     if (!nbRounds || nbRounds < 1) {
-        afficherMessage('msg-simulation', 'Nombre de rounds invalide', 'error');
+        afficherMessagePF('msg-simulation', 'Nombre de rounds invalide', 'error');
         return;
     }
 
@@ -912,13 +912,13 @@ function callsimuler(currentPhaseFinaleId, nbRounds) {
             body: JSON.stringify({ id_phase_finale: currentPhaseFinaleId, nbRounds }),
         });
 
-        afficherMessage('msg-simulation',
+        afficherMessagePF('msg-simulation',
             `${data.nb_matchs_simules} match(s) simulé(s) sur ${data.nbRounds_simules} round(s)`,
             'success');
 
         ouvrirBracket(currentPhaseFinaleId);
     } catch (err) {
-        afficherMessage('msg-simulation', err.message, 'error');
+        afficherMessagePF('msg-simulation', err.message, 'error');
     }
 }
 
@@ -1021,7 +1021,7 @@ async function mettreHeureActuellePF(matchId, btnEl) {
 
     const terrain = terrainInput?.value ?? '';
     if (!terrain) {
-        afficherMessage('msg-simulation', 'Aucun terrain défini pour ce match', 'error');
+        afficherMessagePF('msg-simulation', 'Aucun terrain défini pour ce match', 'error');
         return;
     }
 
@@ -1073,7 +1073,7 @@ async function mettreHeureActuellePF(matchId, btnEl) {
         heurePrecedente = nouvelleHeure;
     }
 
-    afficherMessage('msg-simulation', 'Heures mises à jour ✓', 'success');
+    afficherMessagePF('msg-simulation', 'Heures mises à jour ✓', 'success');
 }
 
 // ---------- Génération des rounds possibles dans input_debut_ph ----------

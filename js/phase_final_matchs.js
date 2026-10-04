@@ -69,7 +69,7 @@ async function afficherTablePF() {
 
 
     const tr2 = document.createElement('tr');
-    tr2.innerHTML = `<td colspan="10" id="numbermatchshidden">0 Matchs terminé caché.</td>`;
+    tr2.innerHTML = `<td colspan="10" id="numbermatchshiddenpf">0 Matchs terminé caché.</td>`;
     corps.appendChild(tr2);
 
     matchsPFData.forEach((m, index) => {
@@ -540,7 +540,7 @@ async function togglematchtermine() {
         });
     }
     // console.log(countmachshide);
-    document.getElementById('numbermatchshidden').textContent = countmachshide + " Matchs terminé caché.";
+    // document.getElementById('numbermatchshiddenpf').textContent = countmachshide + " Matchs terminé caché.";
 }
 
 document.addEventListener('DOMContentLoaded', async () => {

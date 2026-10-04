@@ -4,12 +4,17 @@ let matchsActuels = [];
 let donneesReferentiel = null; // catégories/poules/équipes du tournoi
 let nbTerrains = 1;
 
-function afficherMessage(texte, type) {
-    const div = document.getElementById('message');
-    div.innerHTML = `<div class="msg ${type}">${texte}</div>`;
-    setTimeout(() => div.innerHTML = '', 5000);
+// function afficherMessage(texte, type) {
+//     const div = document.getElementById('message');
+//     div.innerHTML = `<div class="msg ${type}">${texte}</div>`;
+//     setTimeout(() => div.innerHTML = '', 5000);
+// }
+function afficherMessage(elementId, texte, type = 'success') {
+    const el = document.getElementById(elementId);
+    el.textContent = texte;
+    el.className = 'msg ' + type;
+    setTimeout(() => { el.textContent = ''; el.className = 'msg'; }, 5000);
 }
-
 function chargerMatchs() {
     const id_tournoi = document.getElementById('id_tournoi').value;
 

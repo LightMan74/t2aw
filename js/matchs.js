@@ -555,7 +555,7 @@ function togglematchtermine() {
             ligne.style.display = '';
         });
     }
-    document.getElementById('numbermatchshidden').textContent = countmachshide + " Matchs terminé caché.";
+    // document.getElementById('numbermatchshidden').textContent = countmachshide + " Matchs terminé caché.";
 }
 
 // Charger le temps de match au démarrage de la page
