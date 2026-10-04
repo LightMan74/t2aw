@@ -83,7 +83,7 @@ try {
 
     // Parcourir les matchs terminés pour calculer les stats
     foreach ($matchs as $m) {
-        if ($m['status'] !== 'termine') continue;
+        if ($m['status'] !== 'termine' && $m['status'] !== 'annulee') continue;
 
         // Détecter si c'est un match SALADE (4 équipes) ou STANDARD (2 équipes)
         $estSalade = ($m['id_equipe_3'] !== null && $m['id_equipe_3'] !== '');
@@ -155,14 +155,13 @@ try {
             $classement[$key3]['matchs_joues']++;
             $classement[$key4]['matchs_joues']++;
 
-              // Victoire/défaite : le vainqueur est déterminé par la majorité des sets,
-            // jamais par la somme brute des points (utilisée uniquement ci-dessus).
-            if ($setsGagnes_12 > $setsGagnes_34) {
+            // Victoire/défaite
+            if ($totalScore_12 > $totalScore_34) {
                 $classement[$key1]['victoire']++;
                 $classement[$key2]['victoire']++;
                 $classement[$key3]['defaite']++;
                 $classement[$key4]['defaite']++;
-            } elseif ($setsGagnes_34 > $setsGagnes_12) {
+            } elseif ($totalScore_34 > $totalScore_12) {
                 $classement[$key3]['victoire']++;
                 $classement[$key4]['victoire']++;
                 $classement[$key1]['defaite']++;
@@ -186,7 +185,7 @@ try {
             $totalScore1 = 0;
             $totalScore2 = 0;
             $setsGagnesEquipe1 = 0;
-            $setsGagnesEquipe2 = 0;       
+            $setsGagnesEquipe2 = 0;
 
             for ($i = 0; $i < $nbSets; $i++) {
                 $s1 = (int)($sets1[$i] ?? 0);
@@ -215,11 +214,10 @@ try {
             $classement[$key2]['set_gagner'] += $setsGagnesEquipe2;
             $classement[$key2]['set_perdu']  += $setsGagnesEquipe1;
 
-            // Même règle pour un match standard : comparaison manche par manche.
-            if ($setsGagnesEquipe1 > $setsGagnesEquipe2) {
+            if ($totalScore1 > $totalScore2) {
                 $classement[$key1]['victoire']++;
                 $classement[$key2]['defaite']++;
-            } elseif ($setsGagnesEquipe2 > $setsGagnesEquipe1) {
+            } elseif ($totalScore2 > $totalScore1) {
                 $classement[$key2]['victoire']++;
                 $classement[$key1]['defaite']++;
             }
@@ -229,19 +227,7 @@ try {
     // Convertir en tableau simple
     $result = array_values($classement);
 
-    // Exposer également les matchs terminés bruts. Le tableau contient les
-    // colonnes de match_poule ainsi que les libellés joints utiles à l'affichage
-    // ou à une future confrontation directe. La logique de calcul ci-dessus
-    // reste inchangée.
-    $matchsTermines = array_values(array_filter($matchs, function ($match) {
-        return ($match['status'] ?? null) === 'termine';
-    }));
-
-    echo json_encode([
-        'success' => true,
-        'classement' => $result,
-        'matchs' => $matchsTermines
-    ]);
+    echo json_encode(['success' => true, 'classement' => $result]);
 
 } catch (Exception $e) {
     echo json_encode(['success' => false, 'error' => $e->getMessage()]);

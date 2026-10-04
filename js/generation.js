@@ -666,7 +666,43 @@ function onPouleE2Change() {
     }
 }
 
-function ajouterMatchManuel() {
+async function ajouterMatchSelonDestination(match, insererAuDebut, messageListe) {
+    const destination = document.querySelector('input[name="generation-destination"]:checked')?.value;
+    if (destination !== 'base') {
+        insererAuDebut ? matchsActuels.unshift(match) : matchsActuels.push(match);
+        afficherListeMatchs();
+        afficherMessage(messageListe, 'success');
+        return;
+    }
+
+    try {
+        const idTournoi = document.getElementById('id_tournoi').value;
+        const reponse = await fetch('api/ajouter_match.php', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                id_tournoi: idTournoi,
+                id_categorie: match.id_categorie,
+                id_poule: match.id_poule,
+                id_poule_2: match.id_poule_2 || null,
+                id_equipe_1: match.id_equipe_1,
+                id_equipe_2: match.id_equipe_2,
+                inter_poule: !!match.inter_poule,
+                libelle_match: match.libelle_match || ''
+            })
+        });
+        const data = await reponse.json();
+        if (!reponse.ok || !data.success) throw new Error(data.error || 'Insertion impossible.');
+        const matchEnregistre = data.match || match;
+        insererAuDebut ? matchsActuels.unshift(matchEnregistre) : matchsActuels.push(matchEnregistre);
+        afficherListeMatchs();
+        afficherMessage('Match inséré en base', 'success');
+    } catch (err) {
+        afficherMessage('Erreur : ' + err.message, 'error');
+    }
+}
+
+async function ajouterMatchManuel() {
     const isInter = document.getElementById('check-inter-poule').checked;
     const isterrainlibre = document.getElementById('check-terrainlibre').checked;
     if (isterrainlibre) {
@@ -680,7 +716,7 @@ function ajouterMatchManuel() {
     }
 }
 
-function ajouterMatchTerrainLibre() {
+async function ajouterMatchTerrainLibre() {
     const idCategorie = parseInt(0);
     const idPouleE1 = parseInt(0);
     const idPouleE2 = parseInt(0);
@@ -728,13 +764,11 @@ function ajouterMatchTerrainLibre() {
         terrain: null
     };
 
-    matchsActuels.unshift(nouveauMatch);
-    afficherListeMatchs();
-    afficherMessage('Terrain libre ajouté à la liste', 'success');
+    await ajouterMatchSelonDestination(nouveauMatch, true, 'Terrain libre ajouté à la liste');
     document.getElementById('libelle-match-inter').value = '';
 }
 
-function ajouterMatchPouleUnique() {
+async function ajouterMatchPouleUnique() {
     const idCategorie = parseInt(document.getElementById('select-categorie').value);
     const idPoule = parseInt(document.getElementById('select-poule').value);
     const idEquipe1 = parseInt(document.getElementById('select-equipe1').value);
@@ -773,12 +807,10 @@ function ajouterMatchPouleUnique() {
         terrain: null
     };
 
-    matchsActuels.push(nouveauMatch);
-    afficherListeMatchs();
-    afficherMessage('Match ajouté à la liste', 'success');
+    await ajouterMatchSelonDestination(nouveauMatch, false, 'Match ajouté à la liste');
 }
 
-function ajouterMatchInterPoule() {
+async function ajouterMatchInterPoule() {
     const idCategorie = parseInt(document.getElementById('select-categorie').value);
     const idPouleE1 = parseInt(document.getElementById('select-poule-e1').value);
     const idPouleE2 = parseInt(document.getElementById('select-poule-e2').value);
@@ -826,9 +858,7 @@ function ajouterMatchInterPoule() {
         terrain: null
     };
 
-    matchsActuels.push(nouveauMatch);
-    afficherListeMatchs();
-    afficherMessage('Match inter-poules ajouté à la liste', 'success');
+    await ajouterMatchSelonDestination(nouveauMatch, false, 'Match inter-poules ajouté à la liste');
     document.getElementById('libelle-match-inter').value = '';
 }
 

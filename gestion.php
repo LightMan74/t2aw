@@ -43,12 +43,13 @@
 $tournoi_id = isset($_GET['id_tournoi']) ? (int) $_GET['id_tournoi'] : 0;
 $tournoi_troissets_match = 1;
 if ($tournoi_id > 0) {
-    $stmt = $pdo->prepare("SELECT troissets,heure_debut_phasefinal,nbre_terrain_phasefinal FROM parametre WHERE id_tournoi = :id");
+    $stmt = $pdo->prepare("SELECT troissets,heure_debut_phasefinal,nbre_terrain_phasefinal,tournoi_salade FROM parametre WHERE id_tournoi = :id");
     $stmt->execute(['id' => $tournoi_id]);
     $parametres = $stmt->fetch(PDO::FETCH_ASSOC);
     if ($parametres !== false && isset($parametres['troissets'])) $tournoi_troissets_match = $parametres['troissets'];    
     if ($parametres !== false && isset($parametres['heure_debut_phasefinal'])) $tournoi_heure_debut_phasefinal = $parametres['heure_debut_phasefinal'];
     if ($parametres !== false && isset($parametres['nbre_terrain_phasefinal'])) $tournoi_nbre_terrain_phasefinal = $parametres['nbre_terrain_phasefinal'];
+    if ($parametres !== false && isset($parametres['tournoi_salade'])) $tournoi_salade = $parametres['tournoi_salade'];
 }
 $hiddenSets = ((int) $tournoi_troissets_match > 1) ? '' : 'hidden';
 ?>
@@ -159,13 +160,13 @@ $hiddenSets = ((int) $tournoi_troissets_match > 1) ? '' : 'hidden';
 
                         <div style="margin-bottom:8px;">
                             <label>
-                                <input type="checkbox" id="check-terrainlibre" onchange="onterrainlibreChange()" checked>
+                                <input type="checkbox" id="check-terrainlibre" onchange="onterrainlibreChange()">
                                 Terrain libre
                             </label>
                         </div>
 
                         <!-- Cas normal : une seule poule pour les 2 équipes -->
-                        <div id="bloc-poule-unique" style="display:none;">
+                        <div id="bloc-poule-unique" style="display:block;">
                             <div style="margin-bottom:8px;">
                                 <label>Poule :</label><br>
                                 <select id="select-poule" onchange="onPouleChange()" style="width:100%;"></select>
@@ -212,23 +213,30 @@ $hiddenSets = ((int) $tournoi_troissets_match > 1) ? '' : 'hidden';
                             </div>
                         </div>
 
-                        <button onclick="ajouterMatchManuel()">Ajouter à la liste</button>
+                        <div style="margin:8px 0; font-size:0.9em;">
+                            <label><input type="radio" name="generation-destination" value="liste" checked> Ajouter à la liste de génération</label>
+                            <label style="margin-left:10px;"><input type="radio" name="generation-destination" value="base"> Ajouter directement en base</label>
+                        </div>
                         <button onclick="fermerFormulaireAjout()">Annuler</button>
+                        <button onclick="ajouterMatchManuel()">Ajouter à la liste</button>
                     </div>
 
                     <div id="message-generation"></div>
                 </div>
             </center>
-
             <div style="margin: 15px 0; text-align:center;">
                 <label for="nb-terrains-auto">Nombre de terrains à utiliser pour la répartition auto :</label>
                 <input type="number" id="nb-terrains-auto" min="1" style="width:60px;">
+                <?php if ($tournoi_salade){ ?>
+                <button id="btn-generer-salade" class="btn-secondaire" onclick="genererTournoiSalade()">
+                    Générer tournoi salade
+                </button>
+                <?php } else {?>
                 <button onclick="repartitionAutomatique()">⚡ Répartition automatique dans les terrains</button>
+                <?php }?>
                 <button onclick="validerOrdre()">💾 Valider et enregistrer les matchs</button>
             </div>
-            <button id="btn-generer-salade" class="btn-secondaire" onclick="genererTournoiSalade()">
-                Générer tournoi salade
-            </button>
+
 
             <h2 style="text-align:center;">Répartition par terrain (glisser-déposer)</h2>
             <div class="zones-terrains" id="zones-terrains">

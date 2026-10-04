@@ -34,11 +34,12 @@ async function chargerMatchs() {
 }
 
 // Cycle des statuts pour le clic rapide sur le badge
-const STATUS_CYCLE = ['planifie', 'en_cours', 'termine'];
+const STATUS_CYCLE = ['planifie', 'en_cours', 'termine', 'annulee'];
 const STATUS_LABELS = {
     planifie: 'Planifié',
     en_cours: 'En jeu',
-    termine: 'Terminé'
+    termine: 'Terminé',
+    annulee: 'Annulée'
 };
 
 function marquerModifie(index) {
@@ -119,6 +120,7 @@ function afficherTable() {
                     <option value="planifie" ${statusActuel === 'planifie' ? 'selected' : ''}>Planifié</option>
                     <option value="en_cours" ${statusActuel === 'en_cours' ? 'selected' : ''}>En_cours</option>
                     <option value="termine" ${statusActuel === 'termine' ? 'selected' : ''}>Terminé</option>
+                    <option value="annulee" ${statusActuel === 'annulee' ? 'selected' : ''}>Annulée</option>
                 </select>
             </td>
             <td>
@@ -177,6 +179,9 @@ function cyclerStatus(index) {
     const actuel = select.value;
     const idxCycle = STATUS_CYCLE.indexOf(actuel);
     const suivant = STATUS_CYCLE[(idxCycle + 1) % STATUS_CYCLE.length];
+    // console.log(actuel);
+    // console.log(idxCycle);
+    // console.log(suivant);
 
     majBadgeStatus(index, suivant);
     marquerModifie(index);

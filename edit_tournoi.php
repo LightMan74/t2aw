@@ -78,6 +78,13 @@ $mode_creation = $id_tournoi === 0;
                         <input type="number" id="nbre_terrain_poule" name="nbre_terrain_poule" min="1" max="50" step="1" value="4" required inputmode="numeric" pattern="[0-9]*" onkeydown="return blockInvalidNumberKeys(event)" onpaste="return blockInvalidPaste(event)">
                     </div>
                     <div class="form-group">
+                        <label for="tournoisalade">Tournoi Salade ?</label>
+                        <select id="tournoisalade" name="tournoisalade" required>
+                            <option value="0" selected>Non</option>
+                            <option value="1">Oui</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
                         <label for="nbre_terrain_phasefinal">Nombre de terrains (phase finale)</label>
                         <input type="number" id="nbre_terrain_phasefinal" name="nbre_terrain_phasefinal" min="1" max="50" step="1" value="4" required inputmode="numeric" pattern="[0-9]*" onkeydown="return blockInvalidNumberKeys(event)" onpaste="return blockInvalidPaste(event)">
                     </div>

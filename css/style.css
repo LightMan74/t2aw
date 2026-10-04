@@ -821,6 +821,11 @@ button:hover {
     color: var(--status-badge-termine-text);
 }
 
+.status-badge-annulee {
+    background-color: var(--status-badge-annulee-bg);
+    color: var(--status-badge-annulee-text);
+}
+
 /* ---- Status rangées de tableau (tr) ---- */
 tr.status-planifie {
     background-color: var(--status-tr-planifie-bg);
@@ -832,6 +837,10 @@ tr.status-en_cours {
 
 tr.status-termine {
     background-color: var(--status-tr-termine-bg);
+}
+
+tr.status-annulee {
+    background-color: var(--status-tr-annulee-bg);
 }
 
 /* ---- Tables ---- */

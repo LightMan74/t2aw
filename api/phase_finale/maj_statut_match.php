@@ -9,7 +9,7 @@ try {
     $matchId = isset($input['match_id']) ? (int)$input['match_id'] : 0;
     $statutMatch = $input['statut_match'] ?? '';
 
-    $statutsValides = ['planifie', 'en_cours', 'termine'];
+    $statutsValides = ['planifie', 'en_cours', 'termine', 'annulee'];
 
     if (!$matchId || !in_array($statutMatch, $statutsValides, true)) {
         http_response_code(400);
