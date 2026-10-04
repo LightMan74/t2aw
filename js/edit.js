@@ -95,6 +95,9 @@ async function chargerDonneesTournoi() {
         var qrcodeVal = parseInt(data.parametre.qrcode, 10);
         document.getElementById('show_qrcode').value = (qrcodeVal === 1) ? '1' : '0';
 
+        var tournoisaladeVal = parseInt(data.parametre.tournoi_salade, 10);
+        document.getElementById('tournoisalade').value = (tournoisaladeVal === 1) ? '1' : '0';
+
         // troissets : select -> forcer 1 ou 3
         var troissetsVal = parseInt(data.parametre.troissets, 10);
         document.getElementById('troissets').value = (troissetsVal === 1) ? '1' : '3';
@@ -515,6 +518,9 @@ function collectFormData() {
     var qrcodeRaw = parseInt(document.getElementById('show_qrcode').value, 10);
     var show_qrcode = (qrcodeRaw === 1) ? 1 : 0;
 
+    var tournoisaladeRaw = parseInt(document.getElementById('tournoisalade').value, 10);
+    var tournoisalade = (tournoisaladeRaw === 1) ? 1 : 0;
+
     // troissets : forcer 1 ou 3 uniquement
     var troissetsRaw = parseInt(document.getElementById('troissets').value, 10);
     var troissets = (troissetsRaw === 1) ? 1 : 3;
@@ -588,7 +594,8 @@ function collectFormData() {
         tournoi_cacher: tournoi_cacher,
         categories: categories,
         show_timer: show_timer,
-        show_qrcode: show_qrcode
+        show_qrcode: show_qrcode,
+        tournoisalade: tournoisalade
     };
 }
 

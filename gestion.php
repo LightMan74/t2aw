@@ -43,12 +43,13 @@
 $tournoi_id = isset($_GET['id_tournoi']) ? (int) $_GET['id_tournoi'] : 0;
 $tournoi_troissets_match = 1;
 if ($tournoi_id > 0) {
-    $stmt = $pdo->prepare("SELECT troissets,heure_debut_phasefinal,nbre_terrain_phasefinal FROM parametre WHERE id_tournoi = :id");
+    $stmt = $pdo->prepare("SELECT troissets,heure_debut_phasefinal,nbre_terrain_phasefinal,tournoi_salade FROM parametre WHERE id_tournoi = :id");
     $stmt->execute(['id' => $tournoi_id]);
     $parametres = $stmt->fetch(PDO::FETCH_ASSOC);
     if ($parametres !== false && isset($parametres['troissets'])) $tournoi_troissets_match = $parametres['troissets'];    
     if ($parametres !== false && isset($parametres['heure_debut_phasefinal'])) $tournoi_heure_debut_phasefinal = $parametres['heure_debut_phasefinal'];
     if ($parametres !== false && isset($parametres['nbre_terrain_phasefinal'])) $tournoi_nbre_terrain_phasefinal = $parametres['nbre_terrain_phasefinal'];
+    if ($parametres !== false && isset($parametres['tournoi_salade'])) $tournoi_salade = $parametres['tournoi_salade'];
 }
 $hiddenSets = ((int) $tournoi_troissets_match > 1) ? '' : 'hidden';
 ?>
@@ -223,16 +224,19 @@ $hiddenSets = ((int) $tournoi_troissets_match > 1) ? '' : 'hidden';
                     <div id="message-generation"></div>
                 </div>
             </center>
-
             <div style="margin: 15px 0; text-align:center;">
                 <label for="nb-terrains-auto">Nombre de terrains à utiliser pour la répartition auto :</label>
                 <input type="number" id="nb-terrains-auto" min="1" style="width:60px;">
+                <?php if ($tournoi_salade){ ?>
+                <button id="btn-generer-salade" class="btn-secondaire" onclick="genererTournoiSalade()">
+                    Générer tournoi salade
+                </button>
+                <?php } else {?>
                 <button onclick="repartitionAutomatique()">⚡ Répartition automatique dans les terrains</button>
                 <button onclick="validerOrdre()">💾 Valider et enregistrer les matchs</button>
+                <?php }?>
             </div>
-            <button id="btn-generer-salade" class="btn-secondaire" onclick="genererTournoiSalade()">
-                Générer tournoi salade
-            </button>
+
 
             <h2 style="text-align:center;">Répartition par terrain (glisser-déposer)</h2>
             <div class="zones-terrains" id="zones-terrains">

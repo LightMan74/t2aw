@@ -47,6 +47,7 @@ try {
     $tournoi_cacher = trim($data['tournoi_cacher'] ?? 0);
     $show_timer = trim($data['show_timer'] ?? 1);
     $show_qrcode = trim($data['show_qrcode'] ?? 1);
+    $tournoisalade = trim($data['tournoisalade'] ?? 0);
 
     // Forcer troissets à 1 ou 3 uniquement
     $troissets_raw = trim($data['troissets'] ?? '');
@@ -92,6 +93,7 @@ try {
                 tournoi_cacher = :tournoi_cacher,
                 timer = :show_timer,
                 qrcode = :show_qrcode,
+                tournoi_salade = :tournoi_salade,
                 scoring_password = :scoring_password
             WHERE id_tournoi = :id_tournoi
         ");
@@ -110,6 +112,7 @@ try {
             'tournoi_cacher' => $tournoi_cacher,
             'show_timer' => $show_timer,
             'show_qrcode' => $show_qrcode,
+            'tournoi_salade' => $tournoisalade,
             'id_tournoi' => $id_tournoi
         ]);   
 
