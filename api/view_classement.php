@@ -55,7 +55,7 @@ foreach ($categories as $cat) {
             WHERE id_tournoi = ? 
               AND id_categorie = ? 
               AND (id_poule = ? OR id_poule_2 = ?) 
-              AND status = 'termine'
+              AND status = 'termine' or status = 'annulee'
         ");
         $stmtM->execute([$id_tournoi, $id_categorie, $id_poule, $id_poule]);
         $matchs = $stmtM->fetchAll();

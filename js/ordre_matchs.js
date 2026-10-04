@@ -298,6 +298,7 @@ function afficherTable() {
                 <option value="planifie" ${statutActuel === 'planifie' ? 'selected' : ''}>Planifié</option>
                 <option value="en_cours" ${statutActuel === 'en_cours' ? 'selected' : ''}>En_cours</option>
                 <option value="termine" ${statutActuel === 'termine' ? 'selected' : ''}>Terminé</option>
+                <option value="annulee" ${statutActuel === 'annulee' ? 'selected' : ''}>Annulée</option>
             </select>
         </td>
         <td>
@@ -1012,6 +1013,7 @@ function toggleHeureManuelle() {
 
 function togglematchtermine() {
     const lignesTerminees = document.querySelectorAll('tr.status-termine');
+    const lignesAnnulee = document.querySelectorAll('tr.status-annulee');
     const checkbox = document.getElementById('matchtermineCheckbox');
     let countmachshide = 0;
     if (checkbox.checked) {
@@ -1019,9 +1021,17 @@ function togglematchtermine() {
             ligne.style.display = 'none';
             countmachshide++;
         });
+        lignesAnnulee.forEach(ligne => {
+            ligne.style.display = 'none';
+            countmachshide++;
+        });
     } else {
         lignesTerminees.forEach(ligne => {
             ligne.style.display = '';
+        });
+        lignesAnnulee.forEach(ligne => {
+            ligne.style.display = '';
+            countmachshide++;
         });
     }
     const label = document.getElementById('numbermatchshidden');

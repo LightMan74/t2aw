@@ -120,6 +120,7 @@ function afficherTable() {
                     <option value="planifie" ${statusActuel === 'planifie' ? 'selected' : ''}>Planifié</option>
                     <option value="en_cours" ${statusActuel === 'en_cours' ? 'selected' : ''}>En_cours</option>
                     <option value="termine" ${statusActuel === 'termine' ? 'selected' : ''}>Terminé</option>
+                    <option value="annulee" ${statusActuel === 'annulee' ? 'selected' : ''}>Annulée</option>
                 </select>
             </td>
             <td>

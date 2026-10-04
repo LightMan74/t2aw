@@ -83,7 +83,7 @@ try {
 
     // Parcourir les matchs terminés pour calculer les stats
     foreach ($matchs as $m) {
-        if ($m['status'] !== 'termine') continue;
+        if ($m['status'] !== 'termine' && $m['status'] !== 'annulee') continue;
 
         // Détecter si c'est un match SALADE (4 équipes) ou STANDARD (2 équipes)
         $estSalade = ($m['id_equipe_3'] !== null && $m['id_equipe_3'] !== '');

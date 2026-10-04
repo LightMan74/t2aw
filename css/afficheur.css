@@ -592,6 +592,10 @@ body.dark .scroll-colonne::-webkit-scrollbar-thumb {
     border-left: 5px solid var(--status-tr-termine-bg);
 }
 
+.match-card.annulee {
+    border-left: 5px solid var(--status-tr-annulee-bg);
+}
+
 .match-infos {
     font-size: 0.75rem;
     color: #777;
