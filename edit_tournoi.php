@@ -94,8 +94,8 @@ $mode_creation = $id_tournoi === 0;
                     <div class="form-group">
                         <label for="terrain_automatique">Attribution automatique des terrains</label>
                         <select id="terrain_automatique" name="terrain_automatique" required>
-                            <option value="1" selected>Vrai</option>
-                            <option value="0">Faux</option>
+                            <option value="1" selected>Oui</option>
+                            <option value="0">Non</option>
                         </select>
                     </div>
                     <div class="form-group">
