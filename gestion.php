@@ -554,7 +554,7 @@ $hiddenSets = ((int) $tournoi_troissets_match > 1) ? '' : 'hidden';
         }
         tabs.forEach(t => t.addEventListener('click', () => show(t.dataset.tournoiTab, true)));
         const n = (location.hash || '').slice(1);
-        show(['poules', 'generation', 'phase-final'].includes(n) ? n : 'poules', false)
+        show(['generation', 'phase-final'].includes(n) ? n : 'generation', false)
     })();
     </script>
 </body>

@@ -81,7 +81,7 @@ $currentUser = $_SESSION['user'];
         }
         // if (str_contains($_SERVER['REQUEST_URI'],"edit_tournoi.php")||(str_contains($_SERVER['REQUEST_URI'],"gestion.php"))){
 ?>
-<a href="gestion.php<?php echo htmlspecialchars((isset($_GET["id_tournoi"])) ? '?id_tournoi='.$_GET["id_tournoi"] : '');?>#generation">Gestion</a>
+<a href="gestion.php<?php echo htmlspecialchars((isset($_GET["id_tournoi"])) ? '?id_tournoi='.$_GET["id_tournoi"] : '');?>">Gestion</a>
 <?php
         // }   
 ?>
