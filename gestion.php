@@ -142,9 +142,6 @@ $hiddenSets = ((int) $tournoi_troissets_match > 1) ? '' : 'hidden';
                 <div style="max-width:30%">
 
                     <button onclick="ouvrirFormulaireAjout()" style="margin-bottom:15px;">+ Ajouter un match</button>
-                    <?php if ($tournoi_salade) { ?>
-                    <button onclick="ouvrirFormulaireAjoutSalade()" style="margin-bottom:15px;">+ Ajouter un match salade</button>
-                    <?php } ?>
 
                     <!-- Formulaire d'ajout de match (masqué par défaut) -->
                     <div id="form-ajout-match" style="display:none; border:1px solid #ccc; padding:10px; margin-bottom:15px; text-align:left;">
@@ -156,8 +153,8 @@ $hiddenSets = ((int) $tournoi_troissets_match > 1) ? '' : 'hidden';
 
                         <div style="margin-bottom:8px;">
                             <label>
-                                <input type="checkbox" id="check-inter-poule" onchange="onInterPouleChange()">
-                                Match inter-poules
+                                <input type="checkbox" id="check-inter-poule" onchange="onInterPouleChange()" <?= $tournoi_salade ? 'disabled hidden' : '' ?>>
+                                <span <?= $tournoi_salade ? 'hidden' : '' ?>>Match inter-poules</span>
                             </label>
                         </div>
 
@@ -182,6 +179,16 @@ $hiddenSets = ((int) $tournoi_troissets_match > 1) ? '' : 'hidden';
                                 <label>Équipe 2 :</label><br>
                                 <select id="select-equipe2" style="width:100%;"></select>
                             </div>
+                            <?php if ($tournoi_salade) { ?>
+                            <div style="margin-bottom:8px;">
+                                <label>Équipe 3 :</label><br>
+                                <select id="select-equipe3" style="width:100%;"></select>
+                            </div>
+                            <div style="margin-bottom:8px;">
+                                <label>Équipe 4 :</label><br>
+                                <select id="select-equipe4" style="width:100%;"></select>
+                            </div>
+                            <?php } ?>
                         </div>
 
                         <!-- Cas inter-poules : poule et équipe séparées -->
@@ -223,30 +230,7 @@ $hiddenSets = ((int) $tournoi_troissets_match > 1) ? '' : 'hidden';
                         <button onclick="fermerFormulaireAjout()">Annuler</button>
                         <button onclick="ajouterMatchManuel()">Ajouter à la liste</button>
                     </div>
-                    <?php if ($tournoi_salade) { ?>
-                    <div id="form-ajout-match-salade" style="display:none; border:1px solid #ccc; padding:10px; margin-bottom:15px; text-align:left;">
-                        <div style="margin-bottom:8px;">
-                            <label>Catégorie :</label><br>
-                            <select id="salade-select-categorie" onchange="onCategorieSaladeChange()" style="width:100%;"></select>
-                        </div>
-                        <div style="margin-bottom:8px;">
-                            <label>Poule :</label><br>
-                            <select id="salade-select-poule" onchange="onPouleSaladeChange()" style="width:100%;"></select>
-                        </div>
-                        <div style="margin-bottom:8px;"><label>Équipe 1 :</label><br><select id="salade-select-equipe1" style="width:100%;"></select></div>
-                        <div style="margin-bottom:8px;"><label>Équipe 2 :</label><br><select id="salade-select-equipe2" style="width:100%;"></select></div>
-                        <div style="text-align:center;margin:4px 0;"><strong>VS</strong></div>
-                        <div style="margin-bottom:8px;"><label>Équipe 3 :</label><br><select id="salade-select-equipe3" style="width:100%;"></select></div>
-                        <div style="margin-bottom:8px;"><label>Équipe 4 :</label><br><select id="salade-select-equipe4" style="width:100%;"></select></div>
 
-                        <div style="margin:8px 0; font-size:0.9em;">
-                            <label><input type="radio" name="generation-destination" value="liste" checked> Ajouter à la liste de génération</label>
-                            <label style="margin-left:10px;"><input type="radio" name="generation-destination" value="base"> Ajouter directement en base</label>
-                        </div>
-                        <button onclick="fermerFormulaireAjoutSalade()">Annuler</button>
-                        <button onclick="ajouterMatchSalade()">Ajouter le match salade</button>
-                    </div>
-                    <?php } ?>
                     <div id="message-generation"></div>
                 </div>
             </center>
@@ -559,10 +543,115 @@ $hiddenSets = ((int) $tournoi_troissets_match > 1) ? '' : 'hidden';
     <script>
     const tournoi_troissets_match = <?= json_encode($tournoi_troissets_match); ?>;
     const id_tournoi_js = <?= json_encode($tournoi_id); ?>;
+    const tournoi_salade_js = <?= json_encode((bool)$tournoi_salade); ?>;
     </script>
     <script src="js/colors.js"></script>
     <script src="js/matchs.js"></script>
     <script src="js/generation.js"></script>
+    <?php if ($tournoi_salade) { ?>
+    <script>
+    // Le tournoi salade utilise le formulaire de match unique, avec quatre équipes.
+    (function() {
+        const onCategorieChangeStandard = window.onCategorieChange;
+        const onPouleChangeStandard = window.onPouleChange;
+
+        function remplirEquipesSalade() {
+            const cat = typeof getCategorieSelectionnee === 'function' ? getCategorieSelectionnee() : null;
+            const selectPoule = document.getElementById('select-poule');
+            const poule = cat && selectPoule ? cat.poules.find(p => p.id_poule == parseInt(selectPoule.value)) : null;
+            const selects = [1, 2, 3, 4].map(n => document.getElementById('select-equipe' + n));
+            selects.forEach(select => {
+                if (select) select.innerHTML = '';
+            });
+            if (!poule) return;
+            poule.equipes.forEach((equipe, index) => {
+                selects.forEach(select => {
+                    if (!select) return;
+                    const option = document.createElement('option');
+                    option.value = equipe.id_equipe;
+                    option.textContent = equipe.nom;
+                    select.appendChild(option);
+                });
+            });
+            selects.forEach((select, index) => {
+                if (select && poule.equipes[index]) select.value = poule.equipes[index].id_equipe;
+            });
+        }
+
+        window.onCategorieChange = function() {
+            onCategorieChangeStandard();
+            remplirEquipesSalade();
+        };
+        window.onPouleChange = function() {
+            onPouleChangeStandard();
+            remplirEquipesSalade();
+        };
+        window.onInterPouleChange = function() {
+            const checkbox = document.getElementById('check-inter-poule');
+            if (checkbox) checkbox.checked = false;
+        };
+        window.ouvrirFormulaireAjout = (function(ouvrirStandard) {
+            return function() {
+                ouvrirStandard();
+                const checkbox = document.getElementById('check-inter-poule');
+                const inter = document.getElementById('bloc-inter-poule');
+                if (checkbox) {
+                    checkbox.checked = false;
+                    checkbox.disabled = true;
+                    checkbox.hidden = true;
+                }
+                if (inter) inter.style.display = 'none';
+                remplirEquipesSalade();
+            };
+        })(window.ouvrirFormulaireAjout);
+        window.ajouterMatchManuel = async function() {
+            const idCategorie = parseInt(document.getElementById('select-categorie').value);
+            const idPoule = parseInt(document.getElementById('select-poule').value);
+            const ids = [1, 2, 3, 4].map(n => parseInt(document.getElementById('select-equipe' + n).value));
+            if (!idCategorie || !idPoule || ids.some(id => !id)) {
+                afficherMessage('Veuillez sélectionner la catégorie, la poule et les quatre équipes.', 'error');
+                return;
+            }
+            if (new Set(ids).size !== 4) {
+                afficherMessage('Les quatre équipes doivent être différentes.', 'error');
+                return;
+            }
+            const cat = donneesReferentiel.find(c => c.id_categorie == idCategorie);
+            const poule = cat && cat.poules.find(p => p.id_poule == idPoule);
+            if (!poule) {
+                afficherMessage('Poule introuvable.', 'error');
+                return;
+            }
+            const equipes = ids.map(id => poule.equipes.find(e => e.id_equipe == id));
+            if (equipes.some(e => !e)) {
+                afficherMessage('Les quatre équipes doivent appartenir à la poule sélectionnée.', 'error');
+                return;
+            }
+            const match = {
+                id_categorie: idCategorie,
+                nom_categorie: cat.nom_categorie,
+                id_poule: idPoule,
+                nom_poule: poule.nom_poule,
+                id_equipe_1: equipes[0].id_equipe,
+                nom_equipe_1: equipes[0].nom,
+                id_equipe_2: equipes[1].id_equipe,
+                nom_equipe_2: equipes[1].nom,
+                id_equipe_3: equipes[2].id_equipe,
+                nom_equipe_3: equipes[2].nom,
+                id_equipe_4: equipes[3].id_equipe,
+                nom_equipe_4: equipes[3].nom,
+                num_match_poule: matchsActuels.filter(m => m.id_poule == idPoule && !m.inter_poule).length + 1,
+                ajout_manuel: true,
+                inter_poule: false,
+                terrain_libre: false,
+                salade: true,
+                terrain: null
+            };
+            await ajouterMatchSelonDestination(match, false, 'Match salade ajouté à la liste');
+        };
+    })();
+    </script>
+    <?php } ?>
     <script src="js/generation_salade.js"></script>
     <script src="js/phase_final.js"></script>
     <script src="js/phase_final_matchs.js"></script>
