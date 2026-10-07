@@ -21,14 +21,26 @@ $idPoule = filter_var($input['id_poule'] ?? null, FILTER_VALIDATE_INT);
 $idPoule2 = filter_var($input['id_poule_2'] ?? null, FILTER_VALIDATE_INT, FILTER_NULL_ON_FAILURE);
 $idEquipe1 = filter_var($input['id_equipe_1'] ?? null, FILTER_VALIDATE_INT);
 $idEquipe2 = filter_var($input['id_equipe_2'] ?? null, FILTER_VALIDATE_INT);
+$idEquipe3 = filter_var($input['id_equipe_3'] ?? null, FILTER_VALIDATE_INT, FILTER_NULL_ON_FAILURE);
+$idEquipe4 = filter_var($input['id_equipe_4'] ?? null, FILTER_VALIDATE_INT, FILTER_NULL_ON_FAILURE);
+$isSalade = ($idEquipe3 !== null && $idEquipe3 !== false && $idEquipe4 !== null && $idEquipe4 !== false);
 
 if ($idTournoi === '' || $idCategorie === false || $idPoule === false || $idEquipe1 === false || $idEquipe2 === false) {
     reponse(false, 'Tournoi, catégorie, poule et deux équipes sont obligatoires.');
 }
-if ($idEquipe1 === $idEquipe2 && ($idPoule2 === false || $idPoule2 === null || $idPoule2 === $idPoule)) {
+
+if ($isSalade) {
+    $ids = [$idEquipe1, $idEquipe2, $idEquipe3, $idEquipe4];
+    if (count(array_unique($ids)) !== 4) {
+        reponse(false, 'Les 4 équipes doivent être différentes.');
+    }
+    $idPoule2 = false; // un match salade n'est pas inter-poule
+} elseif ($idEquipe1 === $idEquipe2 && ($idPoule2 === false || $idPoule2 === null || $idPoule2 === $idPoule)) {
     reponse(false, 'Les deux équipes doivent être différentes.');
 }
+
 $isInter = ($idPoule2 !== false && $idPoule2 !== null && $idPoule2 > 0);
+
 if (!$isInter) $idPoule2 = null;
 
 try {
@@ -56,6 +68,14 @@ try {
     $eq->execute([$idTournoi, $idCategorie, $isInter ? $idPoule2 : $idPoule, $idEquipe2]);
     $equipe2 = $eq->fetch(PDO::FETCH_ASSOC);
     if (!$equipe1 || !$equipe2) throw new RuntimeException('Une équipe ne correspond pas à la poule sélectionnée.');
+    $equipe3 = $equipe4 = null;
+    if ($isSalade) {
+        $eq->execute([$idTournoi, $idCategorie, $idPoule, $idEquipe3]);
+        $equipe3 = $eq->fetch(PDO::FETCH_ASSOC);
+        $eq->execute([$idTournoi, $idCategorie, $idPoule, $idEquipe4]);
+        $equipe4 = $eq->fetch(PDO::FETCH_ASSOC);
+        if (!$equipe3 || !$equipe4) throw new RuntimeException('Une équipe ne correspond pas à la poule sélectionnée.');
+    }
 
     // id_match est le numéro dans la poule; ordre_affichage est global au tournoi.
     $q = $pdo->prepare('SELECT COALESCE(MAX(id_match), 0) + 1 FROM match_poule WHERE id_tournoi = ? AND id_categorie = ? AND id_poule = ?');
@@ -70,8 +90,8 @@ try {
          id_equipe_1, id_equipe_2, id_equipe_3, id_equipe_4, status,
          score_equipe_1, score_equipe_2, heure_debut, heure_fin,
          ordre_affichage, dernier_modifiant, numero_tour)
-        VALUES (?, ?, ?, ?, ?, NULL, ?, ?, NULL, NULL, 'planifie', '0*0*0', '0*0*0', NULL, NULL, ?, '', NULL)");
-    $insert->execute([$idTournoi, $idCategorie, $idPoule, $idPoule2, $numMatch, $idEquipe1, $idEquipe2, $ordre]);
+        VALUES (?, ?, ?, ?, ?, NULL, ?, ?, ?, ?, 'planifie', '0*0*0', '0*0*0', NULL, NULL, ?, '', NULL)");
+    $insert->execute([$idTournoi, $idCategorie, $idPoule, $idPoule2, $numMatch, $idEquipe1, $idEquipe2, $isSalade ? $idEquipe3 : null, $isSalade ? $idEquipe4 : null, $ordre]);
     $id = (int)$pdo->lastInsertId();
     $pdo->commit();
 
@@ -84,7 +104,11 @@ try {
         'id_equipe_1' => (int)$idEquipe1, 'id_equipe_2' => (int)$idEquipe2,
         'nom_categorie' => $categorie['nom'], 'nom_poule' => $isInter ? ($poule1['nom'] . ' / ' . $poule2['nom']) : $poule1['nom'],
         'nom_equipe_1' => $equipe1['nom'], 'nom_equipe_2' => $equipe2['nom'],
-        'id_equipe_3' => null, 'id_equipe_4' => null, 'ajout_manuel' => true,
+        'id_equipe_3' => $isSalade ? (int)$idEquipe3 : null,
+        'id_equipe_4' => $isSalade ? (int)$idEquipe4 : null,
+        'nom_equipe_3' => $equipe3['nom'] ?? null,
+        'nom_equipe_4' => $equipe4['nom'] ?? null,
+        'ajout_manuel' => true,
         'inter_poule' => $isInter, 'terrain_libre' => false
     ]);
 } catch (Throwable $e) {

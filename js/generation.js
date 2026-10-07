@@ -506,6 +506,8 @@ function repartitionAutomatique() {
 /* ------------------------------------------------------ */
 
 function ouvrirFormulaireAjout() {
+    const fs = document.getElementById('form-ajout-match-salade');
+    if (fs) fs.style.display = 'none';
     document.getElementById('form-ajout-match').style.display = 'block';
 
     if (donneesReferentiel) {
@@ -692,6 +694,8 @@ async function ajouterMatchSelonDestination(match, insererAuDebut, messageListe)
                 id_poule_2: match.id_poule_2 || null,
                 id_equipe_1: match.id_equipe_1,
                 id_equipe_2: match.id_equipe_2,
+                id_equipe_3: match.id_equipe_3 || null,
+                id_equipe_4: match.id_equipe_4 || null,
                 inter_poule: !!match.inter_poule,
                 libelle_match: match.libelle_match || ''
             })

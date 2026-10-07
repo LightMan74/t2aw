@@ -142,6 +142,9 @@ $hiddenSets = ((int) $tournoi_troissets_match > 1) ? '' : 'hidden';
                 <div style="max-width:30%">
 
                     <button onclick="ouvrirFormulaireAjout()" style="margin-bottom:15px;">+ Ajouter un match</button>
+                    <?php if ($tournoi_salade) { ?>
+                    <button onclick="ouvrirFormulaireAjoutSalade()" style="margin-bottom:15px;">+ Ajouter un match salade</button>
+                    <?php } ?>
 
                     <!-- Formulaire d'ajout de match (masqué par défaut) -->
                     <div id="form-ajout-match" style="display:none; border:1px solid #ccc; padding:10px; margin-bottom:15px; text-align:left;">
@@ -220,7 +223,30 @@ $hiddenSets = ((int) $tournoi_troissets_match > 1) ? '' : 'hidden';
                         <button onclick="fermerFormulaireAjout()">Annuler</button>
                         <button onclick="ajouterMatchManuel()">Ajouter à la liste</button>
                     </div>
+                    <?php if ($tournoi_salade) { ?>
+                    <div id="form-ajout-match-salade" style="display:none; border:1px solid #ccc; padding:10px; margin-bottom:15px; text-align:left;">
+                        <div style="margin-bottom:8px;">
+                            <label>Catégorie :</label><br>
+                            <select id="salade-select-categorie" onchange="onCategorieSaladeChange()" style="width:100%;"></select>
+                        </div>
+                        <div style="margin-bottom:8px;">
+                            <label>Poule :</label><br>
+                            <select id="salade-select-poule" onchange="onPouleSaladeChange()" style="width:100%;"></select>
+                        </div>
+                        <div style="margin-bottom:8px;"><label>Équipe 1 :</label><br><select id="salade-select-equipe1" style="width:100%;"></select></div>
+                        <div style="margin-bottom:8px;"><label>Équipe 2 :</label><br><select id="salade-select-equipe2" style="width:100%;"></select></div>
+                        <div style="text-align:center;margin:4px 0;"><strong>VS</strong></div>
+                        <div style="margin-bottom:8px;"><label>Équipe 3 :</label><br><select id="salade-select-equipe3" style="width:100%;"></select></div>
+                        <div style="margin-bottom:8px;"><label>Équipe 4 :</label><br><select id="salade-select-equipe4" style="width:100%;"></select></div>
 
+                        <div style="margin:8px 0; font-size:0.9em;">
+                            <label><input type="radio" name="generation-destination" value="liste" checked> Ajouter à la liste de génération</label>
+                            <label style="margin-left:10px;"><input type="radio" name="generation-destination" value="base"> Ajouter directement en base</label>
+                        </div>
+                        <button onclick="fermerFormulaireAjoutSalade()">Annuler</button>
+                        <button onclick="ajouterMatchSalade()">Ajouter le match salade</button>
+                    </div>
+                    <?php } ?>
                     <div id="message-generation"></div>
                 </div>
             </center>

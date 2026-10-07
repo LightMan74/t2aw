@@ -420,3 +420,101 @@ function creerElementMatch(m, index) {
 
     return div;
 }
+/* ===== Ajout manuel d'un match salade (4 équipes) ===== */
+
+function _saladeOptions(select, items, valeur, libelle, placeholder) {
+    select.innerHTML = '';
+    const opt0 = document.createElement('option');
+    opt0.value = '';
+    opt0.textContent = placeholder;
+    select.appendChild(opt0);
+    items.forEach(it => {
+        const o = document.createElement('option');
+        o.value = it[valeur];
+        o.textContent = it[libelle];
+        select.appendChild(o);
+    });
+}
+
+function ouvrirFormulaireAjoutSalade() {
+    const f = document.getElementById('form-ajout-match');
+    if (f) f.style.display = 'none';
+    document.getElementById('form-ajout-match-salade').style.display = 'block';
+
+    _saladeOptions(
+        document.getElementById('salade-select-categorie'),
+        donneesReferentiel, 'id_categorie', 'nom_categorie', '-- Catégorie --'
+    );
+    onCategorieSaladeChange();
+}
+
+function fermerFormulaireAjoutSalade() {
+    document.getElementById('form-ajout-match-salade').style.display = 'none';
+}
+
+function onCategorieSaladeChange() {
+    const idCat = document.getElementById('salade-select-categorie').value;
+    const cat = donneesReferentiel.find(c => c.id_categorie == idCat);
+    _saladeOptions(
+        document.getElementById('salade-select-poule'),
+        cat ? cat.poules : [], 'id_poule', 'nom_poule', '-- Poule --'
+    );
+    onPouleSaladeChange();
+}
+
+function onPouleSaladeChange() {
+    const idCat = document.getElementById('salade-select-categorie').value;
+    const idPoule = document.getElementById('salade-select-poule').value;
+    const cat = donneesReferentiel.find(c => c.id_categorie == idCat);
+    const poule = cat ? cat.poules.find(p => p.id_poule == idPoule) : null;
+    const equipes = poule ? poule.equipes : [];
+    [1, 2, 3, 4].forEach(n => {
+        _saladeOptions(
+            document.getElementById('salade-select-equipe' + n),
+            equipes, 'id_equipe', 'nom', '-- Équipe ' + n + ' --'
+        );
+    });
+}
+
+async function ajouterMatchSalade() {
+    const idCategorie = parseInt(document.getElementById('salade-select-categorie').value);
+    const idPoule = parseInt(document.getElementById('salade-select-poule').value);
+    const ids = [1, 2, 3, 4].map(n =>
+        parseInt(document.getElementById('salade-select-equipe' + n).value)
+    );
+
+    if (!idCategorie || !idPoule || ids.some(id => !id)) {
+        afficherMessage('Veuillez sélectionner la catégorie, la poule et les 4 équipes', 'error');
+        return;
+    }
+    if (new Set(ids).size !== 4) {
+        afficherMessage('Les 4 équipes doivent être différentes', 'error');
+        return;
+    }
+
+    const cat = donneesReferentiel.find(c => c.id_categorie == idCategorie);
+    const poule = cat.poules.find(p => p.id_poule == idPoule);
+    const eq = ids.map(id => poule.equipes.find(e => e.id_equipe == id));
+
+    const nbMatchsPoule = matchsActuels.filter(m => m.id_poule == idPoule && !m.inter_poule).length;
+
+    const nouveauMatch = {
+        id_categorie: idCategorie,
+        nom_categorie: cat.nom_categorie,
+        id_poule: idPoule,
+        nom_poule: poule.nom_poule,
+        id_poule_2: null,
+        id_equipe_1: eq[0].id_equipe, nom_equipe_1: eq[0].nom,
+        id_equipe_2: eq[1].id_equipe, nom_equipe_2: eq[1].nom,
+        id_equipe_3: eq[2].id_equipe, nom_equipe_3: eq[2].nom,
+        id_equipe_4: eq[3].id_equipe, nom_equipe_4: eq[3].nom,
+        num_match_poule: nbMatchsPoule + 1,
+        ajout_manuel: true,
+        inter_poule: false,
+        terrain_libre: false,
+        status: 'planifie',
+        terrain: null
+    };
+
+    await ajouterMatchSelonDestination(nouveauMatch, false, 'Match salade ajouté à la liste');
+}

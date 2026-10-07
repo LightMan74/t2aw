@@ -258,7 +258,7 @@ function ajouterChampEquipePreserve(equipesContainer, id_categorie, id_poule, no
     var nbreEquipes = equipesContainer.querySelectorAll('.equipe-item').length + 1;
     if (!lettrePoule) lettrePoule = indexToLettre(id_poule);
 
-    var nomAuto = nbreEquipes + lettrePoule;
+    var nomAuto = id_categorie + '_' + nbreEquipes + lettrePoule;
     var nomFinal = (nom !== undefined && nom !== null && nom !== '') ? nom : nomAuto;
 
     var div = document.createElement('div');
