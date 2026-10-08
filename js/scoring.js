@@ -66,10 +66,12 @@
                     for (let i = 0; i < count; i += 1) {
                         const nom1 = data.nom_equipe_1 || 'Équipe A';
                         const nom2 = data.nom_equipe_2 || 'Équipe B';
-                        const hideThird = (i === 2 && scores1[i] === 0 && scores2[i] === 0);
+                        // const hideThird = (i === 2 && scores1[i] === 0 && scores2[i] === 0);
 
                         const row = document.createElement('div');
                         row.className = 'table-score-set-row';
+                        row.id = 'table-score-set-' + (i + 1);
+                        if (i === 2) row.style.display = 'none';
 
                         const setTitle = document.createElement('div');
                         setTitle.className = 'table-score-set-title';
@@ -85,7 +87,7 @@
                         input1.type = 'number'; input1.min = '0'; input1.step = '1'; input1.inputMode = 'numeric';
                         input1.className = 'table-score-input';
                         input1.id = 'table-score-a-' + i;
-                        input1.value = hideThird ? '' : scores1[i];
+                        input1.value = scores1[i];
                         label1.appendChild(input1);
 
                         const label2 = document.createElement('label');
@@ -93,7 +95,7 @@
                         input2.type = 'number'; input2.min = '0'; input2.step = '1'; input2.inputMode = 'numeric';
                         input2.className = 'table-score-input';
                         input2.id = 'table-score-b-' + i;
-                        input2.value = hideThird ? '' : scores2[i];
+                        input2.value = scores2[i];
                         label2.appendChild(input2);
                         label2.appendChild(document.createTextNode(' ' + nom2));
 
@@ -104,6 +106,23 @@
                     }
                     list.style.display = 'none';
                     entry.hidden = false;
+
+                    function updateThirdSet() {
+                        const set3 = document.getElementById('table-score-set-3');
+                        if (!set3) return;
+                        const a0 = Number(document.getElementById('table-score-a-0').value) || 0;
+                        const b0 = Number(document.getElementById('table-score-b-0').value) || 0;
+                        const a1 = Number(document.getElementById('table-score-a-1').value) || 0;
+                        const b1 = Number(document.getElementById('table-score-b-1').value) || 0;
+                        const unSetPartout = (a0 > b0 && a1 < b1) || (a0 < b0 && a1 > b1);
+                        set3.style.display = unSetPartout ? '' : 'none';
+                    }
+
+                    if (count === 3) {
+                        ['table-score-a-0', 'table-score-b-0', 'table-score-a-1', 'table-score-b-1']
+                            .forEach(id => document.getElementById(id).addEventListener('input', updateThirdSet));
+                        updateThirdSet();
+                    }
                 })
                 .catch(error => { message.textContent = 'Erreur : ' + error.message; });
         }

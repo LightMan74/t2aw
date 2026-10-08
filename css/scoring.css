@@ -578,3 +578,16 @@ html[data-theme="dark"] #serveur-actuel {
   margin-left: auto !important;
   margin-right: auto !important;
 }
+
+/* Chrome, Safari, Edge, Opera */
+.table-score-input::-webkit-outer-spin-button,
+.table-score-input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* Firefox */
+.table-score-input {
+  -moz-appearance: textfield;
+  appearance: textfield;
+}
