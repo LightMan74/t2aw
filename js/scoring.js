@@ -30,9 +30,9 @@
                         const button = document.createElement('button');
                         button.type = 'button';
                         button.className = 'btn-action secondaire table-score-match-button';
-                        const terrain = item.terrain ? ' — Terrain ' + item.terrain : '';
-                        button.textContent = (item.nom_equipe_1 || 'Équipe A') + ' vs ' +
-                            (item.nom_equipe_2 || 'Équipe B') + terrain;
+                        const terrain = item.terrain ? 'Terrain ' + item.terrain + ' — ' : '';
+                        button.textContent = terrain + (item.nom_equipe_1 || 'Équipe A') + ' vs ' +
+                            (item.nom_equipe_2 || 'Équipe B');
                         button.addEventListener('click', () => openMatch(item));
                         list.appendChild(button);
                     });
@@ -133,10 +133,14 @@
             for (let i = 0; i < (threeSets ? 3 : 1); i += 1) {
                 const rawA = document.getElementById('table-score-a-' + i).value.trim();
                 const rawB = document.getElementById('table-score-b-' + i).value.trim();
-                if (threeSets && i === 2 && rawA === '' && rawB === '') {
+                const rowSet = document.getElementById('table-score-set-' + (i + 1));
+                const setMasque = rowSet && rowSet.style.display === 'none';
+
+                if (threeSets && i === 2 && (setMasque || ((rawA === '' || rawA === '0') && (rawB === '' || rawB === '0')))) {
                     a.push(0); b.push(0);
                     continue;
                 }
+
                 const av = Number.parseInt(rawA, 10);
                 const bv = Number.parseInt(rawB, 10);
                 if (!Number.isInteger(av) || !Number.isInteger(bv) || av < 0 || bv < 0 || av === bv) {
