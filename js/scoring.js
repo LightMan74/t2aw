@@ -1,5 +1,133 @@
 (function () {
 
+    // Mode « table de score » : flux séparé, sans modifier le scoring classique.
+    if (TABLE_DE_SCORE) {
+        const list = document.getElementById('table-score-list');
+        const entry = document.getElementById('table-score-entry');
+        const title = document.getElementById('table-score-match-title');
+        const fields = document.getElementById('table-score-fields');
+        const message = document.getElementById('table-score-message');
+        let selectedMatch = null;
+        let selectedDetails = null;
+
+        function apiJson(url, options) {
+            return fetch(url, options).then(response => response.json());
+        }
+
+        function loadList() {
+            list.textContent = 'Chargement…';
+            entry.style.display = 'none';
+            apiJson('api/view_matchs.php?id_tournoi=' + encodeURIComponent(ID_TOURNOI))
+                .then(data => {
+                    list.textContent = '';
+                    const matches = Array.isArray(data.en_cours) ? data.en_cours : [];
+                    if (!matches.length) {
+                        list.textContent = 'Aucun match en cours.';
+                        return;
+                    }
+                    matches.forEach(item => {
+                        const button = document.createElement('button');
+                        button.type = 'button';
+                        const terrain = item.terrain ? ' — Terrain ' + item.terrain : '';
+                        button.textContent = (item.nom_equipe_1 || 'Équipe A') + ' vs ' +
+                            (item.nom_equipe_2 || 'Équipe B') + terrain;
+                        button.addEventListener('click', () => openMatch(item));
+                        list.appendChild(button);
+                    });
+                })
+                .catch(() => { list.textContent = 'Impossible de charger les matchs.'; });
+        }
+
+        function scoreParts(value) {
+            return String(value || '0*0*0').split('*').map(v => {
+                const n = Number.parseInt(v, 10);
+                return Number.isFinite(n) && n >= 0 ? n : 0;
+            });
+        }
+
+        function openMatch(item) {
+            selectedMatch = item;
+            message.textContent = '';
+            apiJson('api/scoring/get_match_details.php?id_tournoi=' + encodeURIComponent(ID_TOURNOI) +
+                '&id_match=' + encodeURIComponent(item.id) + '&type_match=' + encodeURIComponent(item.type_match))
+                .then(data => {
+                    if (data.error) throw new Error(data.error);
+                    selectedDetails = data;
+                    title.textContent = (data.nom_equipe_1 || 'Équipe A') + ' vs ' + (data.nom_equipe_2 || 'Équipe B');
+                    fields.textContent = '';
+                    const threeSets = Number.parseInt(data.troissets, 10) !== 1 && Number.parseInt(TOURNOI_TROISSETS, 10) !== 1;
+                    const scores1 = scoreParts(data.score_equipe_1);
+                    const scores2 = scoreParts(data.score_equipe_2);
+                    const count = threeSets ? 3 : 1;
+                    for (let i = 0; i < count; i += 1) {
+                        const label = document.createElement('label');
+                        label.textContent = 'Set ' + (i + 1) + ' — ' + (data.nom_equipe_1 || 'Équipe A') + ': ';
+                        const input1 = document.createElement('input');
+                        input1.type = 'number'; input1.min = '0'; input1.step = '1'; input1.inputMode = 'numeric';
+                        input1.id = 'table-score-a-' + i; input1.value = (i === 2 && scores1[i] === 0 && scores2[i] === 0) ? '' : scores1[i];
+                        label.appendChild(input1);
+                        const separator = document.createTextNode(' / ' + (data.nom_equipe_2 || 'Équipe B') + ': ');
+                        label.appendChild(separator);
+                        const input2 = document.createElement('input');
+                        input2.type = 'number'; input2.min = '0'; input2.step = '1'; input2.inputMode = 'numeric';
+                        input2.id = 'table-score-b-' + i; input2.value = (i === 2 && scores1[i] === 0 && scores2[i] === 0) ? '' : scores2[i];
+                        label.appendChild(input2);
+                        fields.appendChild(label);
+                    }
+                    list.style.display = 'none';
+                    entry.style.display = 'block';
+                })
+                .catch(error => { message.textContent = 'Erreur : ' + error.message; });
+        }
+
+        function readScores() {
+            const threeSets = fields.querySelectorAll('input').length === 6;
+            const a = [], b = [];
+            for (let i = 0; i < (threeSets ? 3 : 1); i += 1) {
+                const rawA = document.getElementById('table-score-a-' + i).value.trim();
+                const rawB = document.getElementById('table-score-b-' + i).value.trim();
+                if (threeSets && i === 2 && rawA === '' && rawB === '') {
+                    a.push(0); b.push(0);
+                    continue;
+                }
+                const av = Number.parseInt(rawA, 10);
+                const bv = Number.parseInt(rawB, 10);
+                if (!Number.isInteger(av) || !Number.isInteger(bv) || av < 0 || bv < 0 || av === bv) {
+                    throw new Error('Chaque set renseigné doit contenir deux scores entiers différents et positifs ou nuls.');
+                }
+                a.push(av); b.push(bv);
+            }
+            if (threeSets) {
+                const winsA = a.filter((v, i) => v > b[i]).length;
+                const winsB = b.filter((v, i) => v > a[i]).length;
+                if (winsA < 2 && winsB < 2) throw new Error('Le vainqueur doit être déterminé par le nombre de sets gagnés.');
+                if (winsA === 2 || winsB === 2) { a[2] = a[2] || 0; b[2] = b[2] || 0; }
+            }
+            return { a, b };
+        }
+
+        document.getElementById('table-score-confirm').addEventListener('click', () => {
+            let scores;
+            try { scores = readScores(); } catch (error) { message.textContent = error.message; return; }
+            const winsA = scores.a.filter((v, i) => v > scores.b[i]).length;
+            const winsB = scores.b.filter((v, i) => v > scores.a[i]).length;
+            const winner = scores.a.length === 1 ?
+                (scores.a[0] > scores.b[0] ? selectedDetails.nom_equipe_1 : selectedDetails.nom_equipe_2) :
+                (winsA > winsB ? selectedDetails.nom_equipe_1 : selectedDetails.nom_equipe_2);
+            if (!window.confirm('Vainqueur : ' + winner + '\nConfirmer l’enregistrement du score ?')) return;
+            const payload = {
+                id_tournoi: ID_TOURNOI, type_match: selectedDetails.type_match, id_match: selectedDetails.id_match,
+                score_equipe_1: scores.a.join('*'), score_equipe_2: scores.b.join('*'), statut: 'termine'
+            };
+            apiJson('api/scoring/update_score.php', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(payload) })
+                .then(data => { if (data.error) throw new Error(data.error); loadList(); })
+                .catch(error => { message.textContent = 'Erreur : ' + error.message; });
+        });
+        document.getElementById('table-score-back').addEventListener('click', loadList);
+        loadList();
+        return;
+    }
+
     let currentMatch = null; // objet retourné par get_match_details
     // let state = {
     //     // sets déjà validés/terminés : tableau [{s1, s2}, ...]

@@ -4,7 +4,13 @@ error_reporting(E_ALL);
 
 require_once __DIR__ . '/api/db.php';
 
-$id_tournoi = isset($_GET['id_tournoi']) ? (int)$_GET['id_tournoi'] : 0;
+$id_tournoi = isset($_GET['id_tournoi']) ? (int)$_GET['id_tournoi'] : (isset($_GET['tournoi']) ? (int)$_GET['tournoi'] : 0);
+$table_de_score = isset($_GET['table_de_score']);
+$nom_tournoi = 'Tournoi';
+$tournoi_troissets_match = 3;
+$show_timer = false;
+$scoring_password = '';
+$scoring_matchtermine = 0;
 $id_terrain = isset($_GET['id_terrain']) ? (int)$_GET['id_terrain'] : 0;
 
 // if (!$id_tournoi) {
@@ -18,8 +24,6 @@ $tournoi = $stmt->fetch(PDO::FETCH_ASSOC);
 $nom_tournoi = $tournoi['nom'] ?? 'Tournoi';
 
 // Paramètres tournoi
-$tournoi_troissets_match = 3;
-$show_timer = false;
 $stmt = $pdo->prepare("SELECT troissets, timer, scoring_password FROM parametre WHERE id_tournoi = :id");
 $stmt->execute(['id' => $id_tournoi]);
 $parametres = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -29,7 +33,7 @@ if ($parametres !== false) {
     if (isset($parametres['scoring_password'])) $scoring_password = ($parametres['scoring_password']);
     if (isset($parametres['scoring_matchtermine'])) $scoring_matchtermine = ($parametres['scoring_matchtermine']);
 }
-if ($scoring_password != htmlspecialchars($_GET['scoring_password'])) {
+if ($scoring_password !== (isset($_GET['scoring_password']) ? (string)$_GET['scoring_password'] : '')) {
     die('scoring_password manquant');
 }
 }
@@ -44,13 +48,43 @@ if ($scoring_password != htmlspecialchars($_GET['scoring_password'])) {
     <link rel="stylesheet" href="css/var.css">
     <link rel="stylesheet" href="css/dark-mode.css">
     <link rel="stylesheet" href="css/scoring.css">
+    <?php if ($table_de_score): ?>
+    <style>
+    #table-score-list button {
+        display: block;
+        margin: .5rem 0;
+        padding: .7rem;
+        width: 100%;
+        text-align: left
+    }
+
+    #table-score-fields label {
+        display: block;
+        margin: .6rem 0
+    }
+
+    #table-score-fields input {
+        width: 5rem
+    }
+    </style>
+    <?php endif; ?>
 </head>
 
 <body class="scoring-page">
 
     <div class="scoring-header">
-        <h1><?php echo htmlspecialchars($nom_tournoi); ?> - SCORING</h1>
+        <h1><?php echo htmlspecialchars($nom_tournoi) . $table_de_score; ?> - SCORING</h1>
 
+        <?php if ($table_de_score): ?>
+        <div id="table-score-list" aria-live="polite"></div>
+        <div id="table-score-entry" style="display:none;">
+            <h2 id="table-score-match-title"></h2>
+            <div id="table-score-fields"></div>
+            <button id="table-score-confirm" type="button">Valider le score</button>
+            <button id="table-score-back" type="button">Retour à la liste</button>
+            <p id="table-score-message" role="status"></p>
+        </div>
+        <?php else: ?>
         <div id="court-selector">
             <label for="terrain-select">Terrain / Match : </label>
             <select id="terrain-select">
@@ -58,6 +92,7 @@ if ($scoring_password != htmlspecialchars($_GET['scoring_password'])) {
             </select>
             <button id="btn-refresh-matchs" type="button" class="btn-action secondaire">Rafraîchir la liste</button>
         </div>
+        <?php endif; ?>
 
         <button id="btn-theme-toggle" class="theme-toggle">🌙 Sombre</button>
     </div>
@@ -176,6 +211,7 @@ if ($scoring_password != htmlspecialchars($_GET['scoring_password'])) {
     const TOURNOI_TROISSETS = <?php echo (int)$tournoi_troissets_match; ?>;
     const SCORING_MATCHTERMINE = <?php echo (int)$scoring_matchtermine; ?>;
     const SHOW_TIMER = <?php echo $show_timer ? 'true' : 'false'; ?>;
+    const TABLE_DE_SCORE = <?php echo $table_de_score ? 'true' : 'false'; ?>;
     </script>
     <script src="js/scoring.js"></script>
     <?php if ($show_timer): ?>
