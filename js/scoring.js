@@ -16,7 +16,8 @@
 
         function loadList() {
             list.textContent = 'Chargement…';
-            entry.style.display = 'none';
+            list.style.display = 'flex';
+            entry.hidden = true;
             apiJson('api/view_matchs.php?id_tournoi=' + encodeURIComponent(ID_TOURNOI))
                 .then(data => {
                     list.textContent = '';
@@ -28,6 +29,7 @@
                     matches.forEach(item => {
                         const button = document.createElement('button');
                         button.type = 'button';
+                        button.className = 'btn-action secondaire table-score-match-button';
                         const terrain = item.terrain ? ' — Terrain ' + item.terrain : '';
                         button.textContent = (item.nom_equipe_1 || 'Équipe A') + ' vs ' +
                             (item.nom_equipe_2 || 'Équipe B') + terrain;
@@ -62,22 +64,46 @@
                     const scores2 = scoreParts(data.score_equipe_2);
                     const count = threeSets ? 3 : 1;
                     for (let i = 0; i < count; i += 1) {
-                        const label = document.createElement('label');
-                        label.textContent = 'Set ' + (i + 1) + ' — ' + (data.nom_equipe_1 || 'Équipe A') + ': ';
+                        const nom1 = data.nom_equipe_1 || 'Équipe A';
+                        const nom2 = data.nom_equipe_2 || 'Équipe B';
+                        const hideThird = (i === 2 && scores1[i] === 0 && scores2[i] === 0);
+
+                        const row = document.createElement('div');
+                        row.className = 'table-score-set-row';
+
+                        const setTitle = document.createElement('div');
+                        setTitle.className = 'table-score-set-title';
+                        setTitle.textContent = 'Set ' + (i + 1);
+                        row.appendChild(setTitle);
+
+                        const inputs = document.createElement('div');
+                        inputs.className = 'table-score-set-inputs';
+
+                        const label1 = document.createElement('label');
+                        label1.textContent = nom1 + ' : ';
                         const input1 = document.createElement('input');
                         input1.type = 'number'; input1.min = '0'; input1.step = '1'; input1.inputMode = 'numeric';
-                        input1.id = 'table-score-a-' + i; input1.value = (i === 2 && scores1[i] === 0 && scores2[i] === 0) ? '' : scores1[i];
-                        label.appendChild(input1);
-                        const separator = document.createTextNode(' / ' + (data.nom_equipe_2 || 'Équipe B') + ': ');
-                        label.appendChild(separator);
+                        input1.className = 'table-score-input';
+                        input1.id = 'table-score-a-' + i;
+                        input1.value = hideThird ? '' : scores1[i];
+                        label1.appendChild(input1);
+
+                        const label2 = document.createElement('label');
                         const input2 = document.createElement('input');
                         input2.type = 'number'; input2.min = '0'; input2.step = '1'; input2.inputMode = 'numeric';
-                        input2.id = 'table-score-b-' + i; input2.value = (i === 2 && scores1[i] === 0 && scores2[i] === 0) ? '' : scores2[i];
-                        label.appendChild(input2);
-                        fields.appendChild(label);
+                        input2.className = 'table-score-input';
+                        input2.id = 'table-score-b-' + i;
+                        input2.value = hideThird ? '' : scores2[i];
+                        label2.appendChild(input2);
+                        label2.appendChild(document.createTextNode(' ' + nom2));
+
+                        inputs.appendChild(label1);
+                        inputs.appendChild(label2);
+                        row.appendChild(inputs);
+                        fields.appendChild(row);
                     }
                     list.style.display = 'none';
-                    entry.style.display = 'block';
+                    entry.hidden = false;
                 })
                 .catch(error => { message.textContent = 'Erreur : ' + error.message; });
         }

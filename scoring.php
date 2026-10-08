@@ -48,26 +48,6 @@ if ($scoring_password !== (isset($_GET['scoring_password']) ? (string)$_GET['sco
     <link rel="stylesheet" href="css/var.css">
     <link rel="stylesheet" href="css/dark-mode.css">
     <link rel="stylesheet" href="css/scoring.css">
-    <?php if ($table_de_score): ?>
-    <style>
-    #table-score-list button {
-        display: block;
-        margin: .5rem 0;
-        padding: .7rem;
-        width: 100%;
-        text-align: left
-    }
-
-    #table-score-fields label {
-        display: block;
-        margin: .6rem 0
-    }
-
-    #table-score-fields input {
-        width: 5rem
-    }
-    </style>
-    <?php endif; ?>
 </head>
 
 <body class="scoring-page">
@@ -93,13 +73,15 @@ if ($scoring_password !== (isset($_GET['scoring_password']) ? (string)$_GET['sco
     <div id="scoring-container" style="display:none;">
 
         <?php if ($table_de_score): ?>
-        <div id="table-score-list" aria-live="polite"></div>
-        <div id="table-score-entry" style="display:none;">
+        <div id="table-score-list" class="table-score-list" aria-live="polite"></div>
+        <div id="table-score-entry" class="table-score-entry" hidden>
             <h2 id="table-score-match-title"></h2>
-            <div id="table-score-fields"></div>
-            <button id="table-score-confirm" type="button">Valider le score</button>
-            <button id="table-score-back" type="button">Retour à la liste</button>
-            <p id="table-score-message" role="status"></p>
+            <div id="table-score-fields" class="table-score-fields"></div>
+            <div class="table-score-actions">
+                <button id="table-score-confirm" type="button" class="btn-action">Valider le score</button>
+                <button id="table-score-back" type="button" class="btn-action secondaire">Retour à la liste</button>
+            </div>
+            <p id="table-score-message" class="table-score-message" role="status"></p>
         </div>
         <?php else: ?>
 

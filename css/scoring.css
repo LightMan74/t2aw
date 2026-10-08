@@ -457,3 +457,124 @@ html[data-theme="dark"] #serveur-actuel {
     align-items: flex-start;
   }
 }
+
+/* ---------- TABLE DE SCORE ---------- */
+.table-score-list,
+.table-score-entry {
+  background: var(--bg-container);
+  border-radius: 10px;
+  box-shadow: 0 2px 8px var(--section-shadow);
+  padding: 15px 20px;
+  margin-bottom: 20px;
+  /* display: flex; */
+  flex-direction: column;
+  align-items: center;
+}
+
+.table-score-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.table-score-match-button {
+  width: 100%;
+  text-align: left;
+}
+
+.table-score-entry h2 {
+  margin-top: 0;
+  color: var(--text-main);
+}
+
+.table-score-fields {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin: 15px 0;
+}
+
+.table-score-set-row {
+  display: block;
+  margin-bottom: 12px;
+}
+
+.table-score-set-title {
+  font-weight: bold;
+  margin-bottom: 6px;
+}
+
+.table-score-set-inputs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+}
+
+.table-score-input {
+  width: 5rem;
+  box-sizing: border-box;
+  background: var(--input-bg);
+  color: var(--text-main);
+  border: 1px solid var(--input-border);
+  border-radius: 6px;
+  padding: 6px 10px;
+  font-size: 0.95rem;
+}
+
+.table-score-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: center;
+}
+
+.table-score-message {
+  min-height: 1.2em;
+  margin-bottom: 0;
+  color: var(--msg-error-color);
+}
+
+/* Classes d'état utilisées par le rendu dynamique */
+.gagnant-match {
+  display: block;
+  margin-bottom: 8px;
+  color: var(--equipe-accent);
+  font-weight: bold;
+}
+
+.set-termine-texte {
+  color: var(--text-secondary);
+}
+
+/* Alias explicites pour les classes portées par les contrôles existants */
+.btn-plus,
+.btn-minus {
+  cursor: pointer;
+}
+
+.format-select,
+.joueur-input,
+.joueur2-wrapper {
+  box-sizing: border-box;
+}
+
+.table-score-fields {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.table-score-set-inputs {
+  justify-content: center;
+}
+
+#table-score-match-title,
+.table-score-match-title {
+  display: block !important;
+  width: 100% !important;
+  text-align: center !important;
+  margin-left: auto !important;
+  margin-right: auto !important;
+}
