@@ -34,6 +34,8 @@
                         button.addEventListener('click', () => openMatch(item));
                         list.appendChild(button);
                     });
+
+                    document.getElementById('scoring-container').style.display = 'block';
                 })
                 .catch(() => { list.textContent = 'Impossible de charger les matchs.'; });
         }
@@ -119,12 +121,12 @@
                 id_tournoi: ID_TOURNOI, type_match: selectedDetails.type_match, id_match: selectedDetails.id_match,
                 score_equipe_1: scores.a.join('*'), score_equipe_2: scores.b.join('*'), statut: 'termine'
             };
-            apiJson('api/scoring/update_score.php', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(payload) })
+            apiJson('api/scoring/update_score.php', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) })
                 .then(data => { if (data.error) throw new Error(data.error); loadList(); })
                 .catch(error => { message.textContent = 'Erreur : ' + error.message; });
         });
-        document.getElementById('table-score-back').addEventListener('click', loadList);
         loadList();
+        document.getElementById('table-score-back').addEventListener('click', loadList);
         return;
     }
 

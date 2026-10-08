@@ -75,16 +75,7 @@ if ($scoring_password !== (isset($_GET['scoring_password']) ? (string)$_GET['sco
     <div class="scoring-header">
         <h1><?php echo htmlspecialchars($nom_tournoi) . $table_de_score; ?> - SCORING</h1>
 
-        <?php if ($table_de_score): ?>
-        <div id="table-score-list" aria-live="polite"></div>
-        <div id="table-score-entry" style="display:none;">
-            <h2 id="table-score-match-title"></h2>
-            <div id="table-score-fields"></div>
-            <button id="table-score-confirm" type="button">Valider le score</button>
-            <button id="table-score-back" type="button">Retour à la liste</button>
-            <p id="table-score-message" role="status"></p>
-        </div>
-        <?php else: ?>
+        <?php if (!$table_de_score): ?>
         <div id="court-selector">
             <label for="terrain-select">Terrain / Match : </label>
             <select id="terrain-select">
@@ -97,7 +88,20 @@ if ($scoring_password !== (isset($_GET['scoring_password']) ? (string)$_GET['sco
         <button id="btn-theme-toggle" class="theme-toggle">🌙 Sombre</button>
     </div>
 
+
+
     <div id="scoring-container" style="display:none;">
+
+        <?php if ($table_de_score): ?>
+        <div id="table-score-list" aria-live="polite"></div>
+        <div id="table-score-entry" style="display:none;">
+            <h2 id="table-score-match-title"></h2>
+            <div id="table-score-fields"></div>
+            <button id="table-score-confirm" type="button">Valider le score</button>
+            <button id="table-score-back" type="button">Retour à la liste</button>
+            <p id="table-score-message" role="status"></p>
+        </div>
+        <?php else: ?>
 
         <h2 id="match-info"></h2>
 
@@ -203,6 +207,7 @@ if ($scoring_password !== (isset($_GET['scoring_password']) ? (string)$_GET['sco
             <button id="btn-start-match" type="button" class="btn-action">Valider les joueures</button>
         </div>
 
+        <?php endif; ?>
     </div>
 
     <script>
