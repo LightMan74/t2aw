@@ -91,7 +91,7 @@ $currentUser = $_SESSION['user'];
 <!-- <a target="_blank" href="afficheur.php?option<?php echo htmlspecialchars((isset($_GET["id_tournoi"])) ? '&id_tournoi='.$_GET["id_tournoi"] : '');?>">Afficheur(options)</a> -->
 <!-- <a target="_blank" href="afficheur.php?<?php echo htmlspecialchars((isset($_GET["id_tournoi"])) ? 'id_tournoi='.$_GET["id_tournoi"] : '');?>">Afficheur</a> -->
 <a target="_blank" id="afficheurhref" href="afficheur.php?<?php echo htmlspecialchars((isset($_GET["id_tournoi"])) ? 'id_tournoi='.$_GET["id_tournoi"] : '');echo $tournoi_password;?>">Afficheur, Option -><input type="checkbox" name="checkboxafficheuroption" onchange="afficheurhrefchange();">?</a>
-<a target="_blank" href="scoring.php?<?php echo htmlspecialchars((isset($_GET["id_tournoi"])) ? 'id_tournoi='.$_GET["id_tournoi"] : '');echo $scoring_password;?>&id_terrain=0">Scoring</a>
+<a target="_blank" id="scoringhref" href="scoring.php?<?php echo htmlspecialchars((isset($_GET["id_tournoi"])) ? 'id_tournoi='.$_GET["id_tournoi"] : '');echo $scoring_password;?>&table_de_score">Scoring, Terrain -><input type="checkbox" name="checkboxscoringterrain" onchange="scoringhrefchange();">?</a>
 <?php $tournoi_password;
     }
 ?>
@@ -104,6 +104,17 @@ function afficheurhrefchange() {
         affhref.href = affhref.href.replace("afficheur.php?option&", "afficheur.php?")
     } else {
         affhref.href = affhref.href.replace("afficheur.php?", "afficheur.php?option&")
+    }
+    // console.table(affhref);
+}
+
+function scoringhrefchange() {
+    let affhref = document.getElementById('scoringhref');
+    // console.table(affhref);
+    if (affhref.href.includes("&table_de_score")) {
+        affhref.href = affhref.href.replace("&table_de_score", "&id_terrain=0")
+    } else {
+        affhref.href = affhref.href.replace("&id_terrain=0", "&table_de_score")
     }
     // console.table(affhref);
 }
