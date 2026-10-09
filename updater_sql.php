@@ -7,20 +7,20 @@ $dbPath = __DIR__ . '/database/t2aw.sqlite';
 // Définition des tables à créer
 // ============================================
 $tablesConfig = [
-    'preference' => "
-        CREATE TABLE IF NOT EXISTS preference (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            user varchar(50) NOT NULL,
-            largeur varchar(50) NULL
-        )
-    ",
-    'match_ordre' => "
-        CREATE TABLE IF NOT EXISTS match_ordre (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            id_tournoi INTEGER NOT NULL,
-            ordre text NULL
-        )
-    ",
+    // 'preference' => "
+    //     CREATE TABLE IF NOT EXISTS preference (
+    //         id INTEGER PRIMARY KEY AUTOINCREMENT,
+    //         user varchar(50) NOT NULL,
+    //         largeur varchar(50) NULL
+    //     )
+    // ",
+    // 'match_ordre' => "
+    //     CREATE TABLE IF NOT EXISTS match_ordre (
+    //         id INTEGER PRIMARY KEY AUTOINCREMENT,
+    //         id_tournoi INTEGER NOT NULL,
+    //         ordre text NULL
+    //     )
+    // ",
 ];
 
 // 'ma_table' => [

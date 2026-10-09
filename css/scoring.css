@@ -2,6 +2,9 @@
    Scoring — Interface arbitre
    Terrain de badminton stylisé
    ======================================== */
+.scoring-page {
+  zoom: 1.5;
+}
 
 .scoring-page {
   background: var(--bg-body);
