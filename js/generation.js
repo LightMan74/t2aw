@@ -4,6 +4,64 @@ let matchsActuels = [];
 let donneesReferentiel = null; // catégories/poules/équipes du tournoi
 let nbTerrains = 1;
 
+/* Barre de défilement horizontale fixe, synchronisée avec la zone des terrains. */
+let scrollbarProxyTerrains = null;
+let scrollbarProxyContent = null;
+let scrollbarProxyResizeObserver = null;
+let scrollbarProxyMutationObserver = null;
+
+function initialiserScrollbarProxyTerrains() {
+    const container = document.getElementById('zones-terrains');
+    if (!container) return;
+
+    if (!scrollbarProxyTerrains) {
+        scrollbarProxyTerrains = document.createElement('div');
+        scrollbarProxyTerrains.id = 'scrollbar-proxy-terrains';
+        scrollbarProxyTerrains.className = 'scrollbar-proxy-terrains';
+        scrollbarProxyTerrains.setAttribute('aria-label', 'Défilement horizontal des terrains');
+        scrollbarProxyContent = document.createElement('div');
+        scrollbarProxyTerrains.appendChild(scrollbarProxyContent);
+        document.body.appendChild(scrollbarProxyTerrains);
+
+        scrollbarProxyTerrains.addEventListener('scroll', () => {
+            if (container.scrollLeft !== scrollbarProxyTerrains.scrollLeft) {
+                container.scrollLeft = scrollbarProxyTerrains.scrollLeft;
+            }
+        });
+        container.addEventListener('scroll', () => {
+            if (scrollbarProxyTerrains.scrollLeft !== container.scrollLeft) {
+                scrollbarProxyTerrains.scrollLeft = container.scrollLeft;
+            }
+        });
+
+        scrollbarProxyResizeObserver = new ResizeObserver(actualiserScrollbarProxyTerrains);
+        scrollbarProxyResizeObserver.observe(container);
+        scrollbarProxyMutationObserver = new MutationObserver(actualiserScrollbarProxyTerrains);
+        scrollbarProxyMutationObserver.observe(container, { childList: true, subtree: true });
+        const sectionGeneration = document.getElementById('section-generation');
+        if (sectionGeneration) {
+            scrollbarProxyMutationObserver.observe(sectionGeneration, { attributes: true, attributeFilter: ['class'] });
+        }
+        window.addEventListener('resize', actualiserScrollbarProxyTerrains);
+    }
+
+    actualiserScrollbarProxyTerrains();
+}
+
+function actualiserScrollbarProxyTerrains() {
+    const container = document.getElementById('zones-terrains');
+    if (!container || !scrollbarProxyTerrains || !scrollbarProxyContent) return;
+
+    const sectionGeneration = document.getElementById('section-generation');
+    const ongletActif = sectionGeneration?.classList.contains('is-active');
+    const debordement = container.scrollWidth > container.clientWidth + 1;
+    scrollbarProxyContent.style.width = `${container.scrollWidth}px`;
+    scrollbarProxyTerrains.classList.toggle('is-visible', Boolean(ongletActif && debordement));
+    if (scrollbarProxyTerrains.classList.contains('is-visible')) {
+        scrollbarProxyTerrains.scrollLeft = container.scrollLeft;
+    }
+}
+
 // function afficherMessage(texte, type) {
 //     const div = document.getElementById('message');
 //     div.innerHTML = `<div class="msg ${type}">${texte}</div>`;
@@ -51,6 +109,7 @@ function chargerMatchs() {
             if (data.success) {
                 matchsActuels = data.matchs.map(m => ({ ...m, terrain: null }));
                 genererZonesTerrains();
+                initialiserScrollbarProxyTerrains();
                 afficherListeMatchs();
                 afficherMessage('Ordre généré avec succès', 'success');
             } else {
@@ -110,6 +169,7 @@ function afficherListeMatchs() {
     });
     afficherLegendeCategories();
     afficherLegendePoules();
+    actualiserScrollbarProxyTerrains();
 }
 
 const PALETTE_CATEGORIES = [

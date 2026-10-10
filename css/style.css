@@ -381,7 +381,7 @@ body {
     color: var(--text-main);
     font-family: Arial, sans-serif;
     line-height: 1.6;
-    padding: 20px;
+    padding: 20px 20px 42px;
     transition: background 0.2s ease, color 0.2s ease;
 }
 
@@ -885,7 +885,13 @@ th {
     display: flex;
     gap: 10px;
     overflow-x: auto;
+    overflow-y: visible;
     padding-bottom: 10px;
+    scrollbar-width: none;
+}
+
+.zones-terrains::-webkit-scrollbar {
+    display: none;
 }
 
 .zone-terrain {
@@ -1224,4 +1230,48 @@ th {
     .login-logo {
         margin: 0px auto;
     }
+}
+
+/* Barre horizontale proxy : le défilement vertical reste celui de la fenêtre. */
+.scrollbar-proxy-terrains {
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 18px;
+    display: none;
+    overflow-x: auto;
+    overflow-y: hidden;
+    background: var(--block-bg);
+    border-top: 1px solid var(--border-color);
+    box-shadow: 0 -2px 6px var(--section-shadow);
+    scrollbar-color: var(--btn-primary) var(--block-bg);
+    scrollbar-width: auto;
+}
+
+.scrollbar-proxy-terrains.is-visible {
+    display: block;
+}
+
+.scrollbar-proxy-terrains > div {
+    height: 1px;
+}
+
+.scrollbar-proxy-terrains::-webkit-scrollbar {
+    height: 16px;
+}
+
+.scrollbar-proxy-terrains::-webkit-scrollbar-track {
+    background: var(--block-bg);
+}
+
+.scrollbar-proxy-terrains::-webkit-scrollbar-thumb {
+    background: var(--btn-primary);
+    border: 2px solid var(--block-bg);
+    border-radius: 8px;
+}
+
+.scrollbar-proxy-terrains::-webkit-scrollbar-thumb:hover {
+    background: var(--btn-primary-hover);
 }
