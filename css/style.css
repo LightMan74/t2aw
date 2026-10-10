@@ -890,7 +890,7 @@ th {
 
 .zone-terrain {
     min-width: 220px;
-    max-width: 220px;
+    max-width: 450px;
     border: 1px solid var(--border-color);
     border-radius: 6px;
     padding: 8px;

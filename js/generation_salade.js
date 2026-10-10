@@ -189,36 +189,46 @@ function genererTournoiSalade() {
             }
 
             // 3) Calcul du nombre de tours : floor((n-1) / 2)
-            const nombreTours = Math.floor((n - 1) / 2);
+            // const nombreTours = Math.floor((n - 1) / 2);
+            const nombreTours = Math.floor((n - 1));
             if (nombreTours < 1) {
                 afficherMessage("Nombre de tours calculé invalide.", 'error');
                 return;
             }
 
-            // 4) Génération des matchs en JS avec assignation de terrain
+            // 4) Génération des matchs : coéquipiers jamais répétés
+            const tours = _genererToursSansDoublonCoequipier(equipes, nombreTours);
+            if (!tours) {
+                afficherMessage(
+                    "Impossible de générer ces tours sans qu'une équipe rejoue avec la même. " +
+                    "Réduisez le nombre de tours ou vérifiez les équipes.",
+                    'error'
+                );
+                return;
+            }
+
             const matchsGeneres = [];
             let ordreAffichage = 1;
             let idMatch = 1;
             let compteurTerrain = 0;
 
-            for (let numTour = 1; numTour <= nombreTours; numTour++) {
-                // Shuffle 100% aléatoire, indépendant à chaque tour
-                const shuffled = [...equipes];
-                for (let i = shuffled.length - 1; i > 0; i--) {
-                    const j = Math.floor(Math.random() * (i + 1));
-                    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
-                }
+            tours.forEach((paires, indexTour) => {
+                const numTour = indexTour + 1;
 
-                // Découpage en groupes de 4
-                for (let i = 0; i < n; i += 4) {
-                    const e1 = shuffled[i] || null;
-                    const e2 = shuffled[i + 1] || null;
-                    const e3 = shuffled[i + 2] || null;
-                    const e4 = shuffled[i + 3] || null;
+                // Mélange des paires pour varier les adversaires, puis
+                // regroupement 2 par 2 : (paire A) vs (paire B)
+                const pairesMelangees = _shuffle(paires);
+
+                for (let i = 0; i < pairesMelangees.length; i += 2) {
+                    const pA = pairesMelangees[i];
+                    const pB = pairesMelangees[i + 1] || [];
+
+                    const e1 = pA[0] || null;
+                    const e2 = pA[1] || null;
+                    const e3 = pB[0] || null;
+                    const e4 = pB[1] || null;
                     if (!e1) continue;
 
-                    // Assignation du terrain PENDANT le shuffle
-                    // (round-robin : 1, 2, ..., nbTerrains, 1, 2, ...)
                     const terrain = (compteurTerrain % nbTerrains) + 1;
                     compteurTerrain++;
 
@@ -246,8 +256,7 @@ function genererTournoiSalade() {
                     });
                     idMatch++;
                 }
-            }
-
+            });
             // 5) Mise à jour du tableau JS
             matchsActuels = matchsGeneres.map(m => ({ ...m }));
 
@@ -517,4 +526,89 @@ async function ajouterMatchSalade() {
     };
 
     await ajouterMatchSelonDestination(nouveauMatch, false, 'Match salade ajouté à la liste');
+}
+/* =====================================================================
+   OUTILS : coéquipiers uniques
+   ===================================================================== */
+function _clePaire(a, b) {
+    const x = Number(a.id_equipe), y = Number(b.id_equipe);
+    return x < y ? `${x}-${y}` : `${y}-${x}`;
+}
+
+function _shuffle(arr) {
+    const s = [...arr];
+    for (let i = s.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [s[i], s[j]] = [s[j], s[i]];
+    }
+    return s;
+}
+
+/**
+ * Forme les paires de coéquipiers d'un tour sans réutiliser
+ * une paire déjà présente dans `pairesUtilisees`.
+ * Backtracking : prend la 1ère équipe libre, essaie un partenaire
+ * (ordre aléatoire) jamais associé, puis continue.
+ * Retourne un tableau de paires [[eqA, eqB], ...] ou null.
+ */
+function _formerPaires(equipes, pairesUtilisees) {
+    const restantes = _shuffle(equipes);
+    const resultat = [];
+    let compteur = 0;
+    const LIMITE = 20000; // garde-fou anti-explosion
+
+    function bt(liste) {
+        if (liste.length === 0) return true;
+        if (++compteur > LIMITE) return false;
+
+        // Cas équipe en trop (nombre impair) : elle reste seule
+        if (liste.length === 1) {
+            resultat.push([liste[0]]);
+            return true;
+        }
+
+        const [premiere, ...reste] = liste;
+        const candidats = _shuffle(reste);
+
+        for (const partenaire of candidats) {
+            const cle = _clePaire(premiere, partenaire);
+            if (pairesUtilisees.has(cle)) continue;
+
+            resultat.push([premiere, partenaire]);
+            const nouvelleListe = reste.filter(e => e !== partenaire);
+            if (bt(nouvelleListe)) return true;
+            resultat.pop();
+        }
+        return false;
+    }
+
+    return bt(restantes) ? resultat : null;
+}
+
+/**
+ * Génère les `nombreTours` tours en garantissant l'unicité des
+ * coéquipiers. Réessaie plusieurs fois si un tour échoue.
+ * Retourne un tableau de tours : chaque tour = liste de paires.
+ * Retourne null si impossible après X tentatives.
+ */
+function _genererToursSansDoublonCoequipier(equipes, nombreTours) {
+    const MAX_ESSAIS_GLOBAUX = 200;
+
+    for (let essai = 0; essai < MAX_ESSAIS_GLOBAUX; essai++) {
+        const pairesUtilisees = new Set();
+        const tours = [];
+        let ok = true;
+
+        for (let t = 0; t < nombreTours; t++) {
+            const paires = _formerPaires(equipes, pairesUtilisees);
+            if (!paires) { ok = false; break; }
+
+            paires.forEach(p => {
+                if (p.length === 2) pairesUtilisees.add(_clePaire(p[0], p[1]));
+            });
+            tours.push(paires);
+        }
+        if (ok) return tours;
+    }
+    return null;
 }
