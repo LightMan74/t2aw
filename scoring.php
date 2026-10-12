@@ -186,6 +186,19 @@ if ($scoring_password !== (isset($_GET['scoring_password']) ? (string)$_GET['sco
                 </div>
             </div>
 
+            <div class="team-setup salade-team-setup" id="setup-team3" style="display:none;">
+                <h4 id="nom-equipe-3-label"></h4>
+                <label>Format : <select class="format-select" data-team="3"><option value="double" selected>Double</option><option value="simple">Simple</option></select></label>
+                <div><label>Joueur 1 : <input type="text" class="joueur-input" data-team="3" data-joueur="1" placeholder="Nom joueur 1"></label></div>
+                <div class="joueur2-wrapper" data-team="3"><label>Joueur 2 : <input type="text" class="joueur-input" data-team="3" data-joueur="2" placeholder="Nom joueur 2"></label></div>
+            </div>
+            <div class="team-setup salade-team-setup" id="setup-team4" style="display:none;">
+                <h4 id="nom-equipe-4-label"></h4>
+                <label>Format : <select class="format-select" data-team="4"><option value="double" selected>Double</option><option value="simple">Simple</option></select></label>
+                <div><label>Joueur 1 : <input type="text" class="joueur-input" data-team="4" data-joueur="1" placeholder="Nom joueur 1"></label></div>
+                <div class="joueur2-wrapper" data-team="4"><label>Joueur 2 : <input type="text" class="joueur-input" data-team="4" data-joueur="2" placeholder="Nom joueur 2"></label></div>
+            </div>
+
             <button id="btn-start-match" type="button" class="btn-action">Valider les joueures</button>
         </div>
 

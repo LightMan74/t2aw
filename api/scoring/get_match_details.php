@@ -36,9 +36,12 @@ if ($type_match === 'poule') {
     $sql = "SELECT 
                 m.*,
                 c.nom AS nom_categorie,
-                p.nom AS nom_poule,
+                CASE WHEN m.id_poule_2 IS NOT NULL THEN CONCAT(p.nom, ' / ', p2.nom) ELSE p.nom END AS nom_poule,
                 e1.nom AS nom_equipe_1,
                 e2.nom AS nom_equipe_2,
+                e3.nom AS nom_equipe_3,
+                e4.nom AS nom_equipe_4,
+                (m.id_equipe_3 IS NOT NULL AND m.id_equipe_4 IS NOT NULL) AS is_salade,
                 para.troissets AS troissets
             FROM match_poule m
             LEFT JOIN categorie c ON c.id_tournoi = m.id_tournoi AND c.id_categorie = m.id_categorie
@@ -51,6 +54,9 @@ if ($type_match === 'poule') {
                                 AND e2.id_categorie = m.id_categorie 
                                 AND e2.id_poule = COALESCE(m.id_poule_2, m.id_poule) 
                                 AND e2.id_equipe = m.id_equipe_2
+            LEFT JOIN poule p2 ON p2.id_tournoi = m.id_tournoi AND p2.id_categorie = m.id_categorie AND p2.id_poule = m.id_poule_2
+            LEFT JOIN equipe e3 ON e3.id_tournoi = m.id_tournoi AND e3.id_categorie = m.id_categorie AND e3.id_poule = m.id_poule AND e3.id_equipe = m.id_equipe_3
+            LEFT JOIN equipe e4 ON e4.id_tournoi = m.id_tournoi AND e4.id_categorie = m.id_categorie AND e4.id_poule = m.id_poule AND e4.id_equipe = m.id_equipe_4
             LEFT JOIN parametre para ON para.id_tournoi = m.id_tournoi
             WHERE m.id_tournoi = ? AND m.id = ?";
     $stmt = $pdo->prepare($sql);
@@ -71,6 +77,9 @@ if ($type_match === 'poule') {
         'nom_poule' => $match['nom_poule'],
         'nom_equipe_1' => $match['nom_equipe_1'],
         'nom_equipe_2' => $match['nom_equipe_2'],
+        'nom_equipe_3' => $match['nom_equipe_3'],
+        'nom_equipe_4' => $match['nom_equipe_4'],
+        'is_salade' => (bool)$match['is_salade'],
         'score_equipe_1' => $match['score_equipe_1'],
         'score_equipe_2' => $match['score_equipe_2'],
         'troissets' => $match['troissets']

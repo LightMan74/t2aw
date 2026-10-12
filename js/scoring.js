@@ -1,5 +1,12 @@
 (function () {
 
+    function formatMatchName(data) {
+        if (data && (data.is_salade === true || data.is_salade === 1 || data.nom_equipe_3)) {
+            return (data.nom_equipe_1 || 'Équipe A') + ' - ' + (data.nom_equipe_2 || 'Équipe B') + ' vs ' + (data.nom_equipe_3 || 'Équipe C') + ' - ' + (data.nom_equipe_4 || 'Équipe D');
+        }
+        return (data.nom_equipe_1 || 'Équipe A') + ' vs ' + (data.nom_equipe_2 || 'Équipe B');
+    }
+
     // Mode « table de score » : flux séparé, sans modifier le scoring classique.
     if (TABLE_DE_SCORE) {
         const list = document.getElementById('table-score-list');
@@ -31,8 +38,7 @@
                         button.type = 'button';
                         button.className = 'btn-action secondaire table-score-match-button';
                         const terrain = item.terrain ? 'Terrain ' + item.terrain + ' — ' : '';
-                        button.textContent = terrain + (item.nom_equipe_1 || 'Équipe A') + ' vs ' +
-                            (item.nom_equipe_2 || 'Équipe B');
+                        button.textContent = terrain + formatMatchName(item);
                         button.addEventListener('click', () => openMatch(item));
                         list.appendChild(button);
                     });
@@ -57,15 +63,15 @@
                 .then(data => {
                     if (data.error) throw new Error(data.error);
                     selectedDetails = data;
-                    title.textContent = (data.nom_equipe_1 || 'Équipe A') + ' vs ' + (data.nom_equipe_2 || 'Équipe B');
+                    title.textContent = formatMatchName(data);
                     fields.textContent = '';
                     const threeSets = Number.parseInt(data.troissets, 10) !== 1 && Number.parseInt(TOURNOI_TROISSETS, 10) !== 1;
                     const scores1 = scoreParts(data.score_equipe_1);
                     const scores2 = scoreParts(data.score_equipe_2);
                     const count = threeSets ? 3 : 1;
                     for (let i = 0; i < count; i += 1) {
-                        const nom1 = data.nom_equipe_1 || 'Équipe A';
-                        const nom2 = data.nom_equipe_2 || 'Équipe B';
+                        const nom1 = data.is_salade ? ((data.nom_equipe_1 || 'Équipe A') + ' - ' + (data.nom_equipe_2 || 'Équipe B')) : (data.nom_equipe_1 || 'Équipe A');
+                        const nom2 = data.is_salade ? ((data.nom_equipe_3 || 'Équipe C') + ' - ' + (data.nom_equipe_4 || 'Équipe D')) : (data.nom_equipe_2 || 'Équipe B');
                         // const hideThird = (i === 2 && scores1[i] === 0 && scores2[i] === 0);
 
                         const row = document.createElement('div');
@@ -157,15 +163,37 @@
             return { a, b };
         }
 
+        // Libellé d'un côté du match : "E1 + E2" en salade, sinon "E1"
+        function getSideLabel(details, side) {
+            const isSalade = Number(details.is_salade) === 1 ||
+                (details.nom_equipe_3 && details.nom_equipe_4);
+            if (side === 1) {
+                return isSalade
+                    ? details.nom_equipe_1 + ' - ' + details.nom_equipe_2
+                    : details.nom_equipe_1;
+            }
+            return isSalade
+                ? details.nom_equipe_3 + ' - ' + details.nom_equipe_4
+                : details.nom_equipe_2;
+        }
+
         document.getElementById('table-score-confirm').addEventListener('click', () => {
             let scores;
             try { scores = readScores(); } catch (error) { message.textContent = error.message; return; }
+
             const winsA = scores.a.filter((v, i) => v > scores.b[i]).length;
             const winsB = scores.b.filter((v, i) => v > scores.a[i]).length;
-            const winner = scores.a.length === 1 ?
-                (scores.a[0] > scores.b[0] ? selectedDetails.nom_equipe_1 : selectedDetails.nom_equipe_2) :
-                (winsA > winsB ? selectedDetails.nom_equipe_1 : selectedDetails.nom_equipe_2);
+
+            const sideAWins = scores.a.length === 1
+                ? scores.a[0] > scores.b[0]
+                : winsA > winsB;
+
+            const winner = sideAWins
+                ? getSideLabel(selectedDetails, 1)
+                : getSideLabel(selectedDetails, 2);
+
             if (!window.confirm('Vainqueur : ' + winner + '\nConfirmer l’enregistrement du score ?')) return;
+
             const payload = {
                 id_tournoi: ID_TOURNOI, type_match: selectedDetails.type_match, id_match: selectedDetails.id_match,
                 score_equipe_1: scores.a.join('*'), score_equipe_2: scores.b.join('*'), statut: 'termine'
@@ -191,6 +219,9 @@
         type_match: null,
         nom_equipe_1: '',
         nom_equipe_2: '',
+        nom_equipe_3: '',
+        nom_equipe_4: '',
+        isSalade: false,
         troissets: 3, // 1 ou 3 (valeur brute de la BDD, on considère 1 = 1 set, sinon 3 sets)
         format1: 'double', // simple / double équipe 1
         format2: 'double', // simple / double équipe 2
@@ -233,7 +264,7 @@
                         const opt = document.createElement('option');
                         opt.value = JSON.stringify({ id: m.id, type: m.type_match });
                         const terrain = m.terrain ? ('Terrain ' + m.terrain) : 'Terrain ?';
-                        opt.textContent = terrain + ' - ' + m.nom_equipe_1 + ' vs ' + m.nom_equipe_2;
+                        opt.textContent = terrain + ' - ' + formatMatchName(m);
                         select.appendChild(opt);
                     }
                 });
@@ -277,6 +308,9 @@
         match.type_match = data.type_match;
         match.nom_equipe_1 = data.nom_equipe_1;
         match.nom_equipe_2 = data.nom_equipe_2;
+        match.nom_equipe_3 = data.nom_equipe_3 || '';
+        match.nom_equipe_4 = data.nom_equipe_4 || '';
+        match.isSalade = !!(data.is_salade || (data.nom_equipe_3 && data.nom_equipe_4));
         match.troissets = parseInt(data.troissets, 10) || 3;
         // parse score existant s'il y en a
         const parts1 = (data.score_equipe_1 || '0*0*0').split('*').map(v => parseInt(v, 10) || 0);
@@ -323,7 +357,11 @@
             (data.nom_poule ? data.nom_poule + ' - ' : '') +
             'Terrain ' + (data.terrain || '?');
         document.getElementById('nom-equipe-1-label').textContent = match.nom_equipe_1;
-        document.getElementById('nom-equipe-2-label').textContent = match.nom_equipe_2;
+        document.getElementById('nom-equipe-2-label').textContent = match.isSalade ? (match.nom_equipe_3 + ' + ' + match.nom_equipe_4) : match.nom_equipe_2;
+        document.getElementById('nom-equipe-1-label').textContent = match.isSalade ? (match.nom_equipe_1 + ' + ' + match.nom_equipe_2) : match.nom_equipe_1;
+        document.getElementById('nom-equipe-3-label').textContent = match.nom_equipe_3;
+        document.getElementById('nom-equipe-4-label').textContent = match.nom_equipe_4;
+        document.querySelectorAll('.salade-team-setup').forEach(el => { el.style.display = match.isSalade ? 'block' : 'none'; });
 
         // reset formulaire setup
         document.querySelectorAll('.joueur-input').forEach(inp => inp.value = '');
@@ -374,12 +412,16 @@
         const j1_2 = document.querySelector('.joueur-input[data-team="1"][data-joueur="2"]').value.trim() || (match.nom_equipe_1 + ' (2)');
         const j2_1 = document.querySelector('.joueur-input[data-team="2"][data-joueur="1"]').value.trim() || match.nom_equipe_2;
         const j2_2 = document.querySelector('.joueur-input[data-team="2"][data-joueur="2"]').value.trim() || (match.nom_equipe_2 + ' (2)');
+        const j3_1 = document.querySelector('.joueur-input[data-team="3"][data-joueur="1"]')?.value.trim() || match.nom_equipe_3;
+        const j3_2 = document.querySelector('.joueur-input[data-team="3"][data-joueur="2"]')?.value.trim() || (match.nom_equipe_3 + ' (2)');
+        const j4_1 = document.querySelector('.joueur-input[data-team="4"][data-joueur="1"]')?.value.trim() || match.nom_equipe_4;
+        const j4_2 = document.querySelector('.joueur-input[data-team="4"][data-joueur="2"]')?.value.trim() || (match.nom_equipe_4 + ' (2)');
 
-        match.joueurs1 = (match.format1 === 'double') ? [j1_1, j1_2] : [j1_1];
-        match.joueurs2 = (match.format2 === 'double') ? [j2_1, j2_2] : [j2_1];
+        match.joueurs1 = match.isSalade ? [j1_1, j1_2, j2_1, j2_2] : ((match.format1 === 'double') ? [j1_1, j1_2] : [j1_1]);
+        match.joueurs2 = match.isSalade ? [j3_1, j3_2, j4_1, j4_2] : ((match.format2 === 'double') ? [j2_1, j2_2] : [j2_1]);
 
-        match.posJoueurs1 = (match.format1 === 'double') ? [0, 1] : [0];
-        match.posJoueurs2 = (match.format2 === 'double') ? [0, 1] : [0];
+        match.posJoueurs1 = match.joueurs1.map((_, index) => index);
+        match.posJoueurs2 = match.joueurs2.map((_, index) => index);
 
         // serveur initial = équipe 1, joueur 0
         match.serveur = { team: 1, joueurIndex: 0 };
@@ -440,6 +482,7 @@
     }
 
     function nomEquipe(team) {
+        if (match.isSalade) return team === 1 ? (match.nom_equipe_1 + ' + ' + match.nom_equipe_2) : (match.nom_equipe_3 + ' + ' + match.nom_equipe_4);
         return team === 1 ? match.nom_equipe_1 : match.nom_equipe_2;
     }
 
@@ -473,25 +516,13 @@
             div.textContent = joueurs[0] + (estServeur ? ' 🏸' : '');
             container.appendChild(div);
         } else {
-            const divDroit = document.createElement('div');
-            divDroit.className = 'joueur-slot slot-droit';
-            const estServeurDroit = (match.serveur.team === team && match.serveur.joueurIndex === pos[0]);
-            divDroit.textContent = (estServeurDroit ? ' 🏸' : '') + joueurs[pos[0]] + ' (Droite)';
-
-            const divGauche = document.createElement('div');
-            divGauche.className = 'joueur-slot slot-gauche';
-            const estServeurGauche = (match.serveur.team === team && match.serveur.joueurIndex === pos[1]);
-            divGauche.textContent = (estServeurGauche ? ' 🏸' : '') + joueurs[pos[1]] + ' (Gauche)';
-
-            if (cote === 'gauche') {
-                // équipe affichée à gauche du plan : joueur de droite en bas
-                container.appendChild(divGauche);
-                container.appendChild(divDroit);
-            } else {
-                // équipe affichée à droite du plan : joueur de droite en haut
-                container.appendChild(divDroit);
-                container.appendChild(divGauche);
-            }
+            joueurs.forEach((joueur, index) => {
+                const div = document.createElement('div');
+                div.className = 'joueur-slot';
+                const estServeur = match.serveur.team === team && match.serveur.joueurIndex === index;
+                div.textContent = (estServeur ? ' 🏸' : '') + joueur;
+                container.appendChild(div);
+            });
         }
     }
 
@@ -637,8 +668,8 @@
 
         // Le vainqueur du set précédent sert en premier
         match.serveur = { team: gagnantPrecedent, joueurIndex: 0 };
-        posEquipe(1)[0] = 0; posEquipe(1)[1] = 1;
-        posEquipe(2)[0] = 0; posEquipe(2)[1] = 1;
+        posEquipe(1).forEach((_, i) => posEquipe(1)[i] = i);
+        posEquipe(2).forEach((_, i) => posEquipe(2)[i] = i);
 
         document.getElementById('btn-set-suivant').style.display = 'none';
 
