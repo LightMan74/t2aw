@@ -262,7 +262,7 @@ function construireFeuilleA5(m, idx) {
         <table class="fs-tableau">
             <thead>
                 <tr>
-                    <th class="col-set">Set</th>
+                    <th class="col-set">${(nbSets > 1) ? 'Set' : ''}</th>
                     <th class="col-points">Score Équipe A</th>
                     <th class="col-points">Score Équipe B</th>
                 </tr>
@@ -270,7 +270,7 @@ function construireFeuilleA5(m, idx) {
             <tbody>
                 ${sets.map(s => `
                 <tr>
-                    <th class="col-set">Set ${s}</th>
+                    <th class="col-set">${(nbSets > 1) ? 'Set ' + s : 'Set'}</th>
                     <td class="col-points"><span class="fs-cell-line">____ points</span></td>
                     <td class="col-points"><span class="fs-cell-line">____ points</span></td>
                 </tr>
