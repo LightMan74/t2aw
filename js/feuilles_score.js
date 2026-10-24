@@ -4,6 +4,8 @@
  * - Aucun reload : tout passe via fetch + DOM
  * - Filtres écran + cases à cocher + bouton Imprimer
  * - Génère des feuilles A5 (1 par page) côté #zone-impression
+ * - Nombre de sets piloté par nb_sets_js (1 ou 3) exposé depuis PHP
+ * - Pas de colonne/grille service dans la feuille imprimée
  */
 
 let matchsData = []; // fusion { source: 'poule'|'pf', ... }
@@ -61,6 +63,16 @@ function afficherMessage(texte, type) {
     if (!div) return;
     div.innerHTML = `<div class="msg ${type}">${escapeHtml(texte)}</div>`;
     setTimeout(() => { div.innerHTML = ''; }, 5000);
+}
+
+// ---------- Helpers pour le nombre de sets ----------
+// nb_sets_js vient du PHP : entier 1 ou 3 (dérivé du paramètre `troissets`).
+// 1 -> [1] ; 3 -> [1, 2, 3] ; toute autre valeur retombe sur [1, 2] par sécurité.
+function getSetsFromNb(nb) {
+    const n = Number(nb);
+    if (n === 1) return [1];
+    if (n === 3) return [1, 2, 3];
+    return [1, 2];
 }
 
 // ---------- Chargement des matchs (réutilisation des API existantes) ----------
@@ -209,25 +221,30 @@ function construireFeuilleA5(m, idx) {
     const contexte = getContexte(m);
     const categorie = m.nom_categorie ? m.nom_categorie : '';
     const tournoi = (typeof tournoi_nom_js !== 'undefined' && tournoi_nom_js) ? tournoi_nom_js : ('Tournoi #' + id_tournoi_js);
-    const troisSets = (typeof tournoi_troissets_match !== 'undefined') ? tournoi_troissets_match : 1;
-    const sets = troisSets ? [1, 2, 3] : [1, 2];
-
+    // Nombre de sets : nb_sets_js est un entier 1 ou 3 exposé par le PHP depuis `parametre.troissets`.
+    const nbSets = (typeof nb_sets_js !== 'undefined') ? Number(nb_sets_js) : 3;
+    const ptsnbSets = (nbSets > 1) ? 21 : 105;
+    const setnbSets = (nbSets > 1) ? 3 : 1;
+    const sets = getSetsFromNb(nbSets);
     // Grille service : 21 cases (0 à 21) - on en affiche 21, numérotées
     const casesService = (equipeLabel) => {
-        let html = `<div style="text-align:center; font-size:8pt; margin-bottom:1mm;">${escapeHtml(equipeLabel)}</div>`;
-        html += '<div class="fs-service">';
-        for (let i = 1; i <= 21; i++) {
-            html += `<div class="case">${i}</div>`;
+        // let html = `<div style="text-align:center; font-size:8pt; margin-bottom:1mm;">${escapeHtml(equipeLabel)}</div>`;
+        let html = ``;
+        for (let j = 1; j <= setnbSets; j++) {
+            html += `<div style="text-align:center; font-size:8pt; margin-bottom:1mm;">SET ${j} - ${escapeHtml(equipeLabel)}</div>`;
+            html += '<div class="fs-service">';
+            for (let i = 1; i <= ptsnbSets; i++) {
+                html += `<div class="case">${i}</div>`;
+            }
+            html += '</div>';
         }
-        html += '</div>';
         return html;
     };
-
     return `
     <section class="feuille-score">
         <header class="fs-entete">
             <div class="fs-tournoi">${escapeHtml(tournoi)}<br>
-                <span style="font-size:9pt; font-weight:normal;">${escapeHtml(contexte)}${categorie ? ' — ' + escapeHtml(categorie) : ''}</span>
+                <span class="fs-contexte">${escapeHtml(contexte)}${categorie ? ' — ' + escapeHtml(categorie) : ''}</span>
             </div>
             <div class="fs-meta">
                 <strong>Match ${escapeHtml(num)}</strong><br>
@@ -237,19 +254,25 @@ function construireFeuilleA5(m, idx) {
         </header>
 
         <div class="fs-equipes">
-            <div class="fs-equipe">Équipe A<br><span style="font-weight:normal; font-size:10pt;">${escapeHtml(nom1)}</span></div>
+            <div class="fs-equipe equipe-a">Équipe A<br><span class="fs-equipe-nom">${escapeHtml(nom1)}</span></div>
             <div class="fs-vs">vs</div>
-            <div class="fs-equipe">Équipe B<br><span style="font-weight:normal; font-size:10pt;">${escapeHtml(nom2)}</span></div>
+            <div class="fs-equipe equipe-b">Équipe B<br><span class="fs-equipe-nom">${escapeHtml(nom2)}</span></div>
         </div>
 
         <table class="fs-tableau">
+            <thead>
+                <tr>
+                    <th class="col-set">Set</th>
+                    <th class="col-points">Score Équipe A</th>
+                    <th class="col-points">Score Équipe B</th>
+                </tr>
+            </thead>
             <tbody>
                 ${sets.map(s => `
                 <tr>
-                    <th>Set ${s}</th>
-                    <td class="col-points">Score final :<br>A ___<br>B ___</td>
-                    <td>${casesService('A')}</td>
-                    <td>${casesService('B')}</td>
+                    <th class="col-set">Set ${s}</th>
+                    <td class="col-points"><span class="fs-cell-line">____ points</span></td>
+                    <td class="col-points"><span class="fs-cell-line">____ points</span></td>
                 </tr>
                 `).join('')}
             </tbody>
@@ -261,7 +284,16 @@ function construireFeuilleA5(m, idx) {
             <label><input type="checkbox"> Équipe B</label>
             <label><input type="checkbox"> Forfait / Annulé</label>
         </div>
+     <table class="fs-tableau">
+            <tbody>
+                <tr>
+                    <td>${casesService('A')}</td>
+                    <td>${casesService('B')}</td>
+                </tr>
+            </tbody>
+        </table>
     </section>
+
     `;
 }
 
