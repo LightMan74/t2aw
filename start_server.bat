@@ -14,7 +14,7 @@ REM ==========================================
 set PHP_EXE=
 if not exist "%~dp0php\php.exe" (
     echo Premiere utilisation - extraction de PHP en cours...
-    powershell -Command "Expand-Archive -Path 'php-8.4.23-nts-Win32-vs17-x64.zip' -DestinationPath 'php' -Force"
+    powershell -Command "Expand-Archive -Path 'php-8.4.27-1-nts-Win32-vs17-x64.zip' -DestinationPath 'php' -Force"
     echo Extraction terminee !
     if exist "php.ini" (
         echo Copie de php.ini vers php\ ...
