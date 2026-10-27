@@ -92,6 +92,7 @@ $currentUser = $_SESSION['user'];
 <!-- <a target="_blank" href="afficheur.php?<?php echo htmlspecialchars((isset($_GET["id_tournoi"])) ? 'id_tournoi='.$_GET["id_tournoi"] : '');?>">Afficheur</a> -->
 <a target="_blank" id="afficheurhref" href="afficheur.php?<?php echo htmlspecialchars((isset($_GET["id_tournoi"])) ? 'id_tournoi='.$_GET["id_tournoi"] : '');echo $tournoi_password;?>">Afficheur, Option -><input type="checkbox" name="checkboxafficheuroption" onchange="afficheurhrefchange();">?</a>
 <a target="_blank" id="scoringhref" href="scoring.php?<?php echo htmlspecialchars((isset($_GET["id_tournoi"])) ? 'id_tournoi='.$_GET["id_tournoi"] : '');echo $scoring_password;?>&table_de_score">Scoring, Terrain -><input type="checkbox" name="checkboxscoringterrain" onchange="scoringhrefchange();">?</a>
+<a href="feuilles_score.php?<?php echo htmlspecialchars((isset($_GET["id_tournoi"])) ? 'id_tournoi='.$_GET["id_tournoi"] : '');?>">Feuilles de Scores</a>
 <?php $tournoi_password;
     }
 ?>

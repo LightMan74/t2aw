@@ -29,7 +29,7 @@
 }
 
 #table-matchs thead th {
-    background: var(--thead-bg, #f4f4f4);
+    background: var(--th-bg, #f4f4f4);
 }
 
 #table-matchs tbody tr.match-termine td {
