@@ -47,17 +47,18 @@ $tournoi_id = isset($_GET['id_tournoi']) ? (int)$_GET['id_tournoi'] : 0;
             // NB: la table `parametre` vue dans ordre_matchs.php ne contient pas
             // explicitement un nom de tournoi. On essaie sans casser si la colonne
             // n'existe pas : fallback sur "Tournoi #ID".
-            $tournoi_nom = 'Tournoi #' . $tournoi_id;
-            try {
-                $stmtNom = $pdo->prepare("SELECT nom FROM parametre WHERE id_tournoi = :id LIMIT 1");
-                $stmtNom->execute(['id' => $tournoi_id]);
-                $rowNom = $stmtNom->fetch(PDO::FETCH_ASSOC);
-                if ($rowNom && !empty($rowNom['nom'])) {
-                    $tournoi_nom = $rowNom['nom'];
-                }
-            } catch (Exception $e) {
-                // silencieux : on garde le placeholder
-            }
+            // $tournoi_nom = 'Tournoi #' . $tournoi_id;
+            // try {
+            //     $stmtNom = $pdo->prepare("SELECT nom FROM parametre WHERE id_tournoi = :id LIMIT 1");
+            //     $stmtNom->execute(['id' => $tournoi_id]);
+            //     $rowNom = $stmtNom->fetch(PDO::FETCH_ASSOC);
+            //     if ($rowNom && !empty($rowNom['nom'])) {
+            //         $tournoi_nom = $rowNom['nom'];
+            //     }
+            // } catch (Exception $e) {
+            //     // silencieux : on garde le placeholder
+            // }
+            $tournoi_nom = 'Tournoi # ' . $tournoi_name_menu[0]["nom"];
             ?>
         </nav>
 
