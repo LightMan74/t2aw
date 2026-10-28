@@ -51,11 +51,9 @@ function getNumeroAffichage(m, index) {
 function getContexte(m) {
     // pour la colonne "Poule / Phase" du tableau écran
     if (m.source === 'poule') {
-        return m.nom_poule ? m.nom_poule : '';
+        return 'Poule' + ' — ' + m.nom_poule;
     }
-    const phase = m.nom_phase ? m.nom_phase : ('Phase finale');
-    const round = m.round != null ? ('Tour ' + m.round) : '';
-    return [phase, round].filter(Boolean).join(' — ');
+    return 'Phase finale';
 }
 
 function afficherMessage(texte, type) {
@@ -292,7 +290,7 @@ function construireFeuilleA5(m, idx) {
     <section class="feuille-score">
         <header class="fs-entete">
             <div class="fs-tournoi">${escapeHtml(tournoi)}<br>
-                <span class="fs-contexte">${escapeHtml(contexte)}${categorie ? ' — ' + escapeHtml(categorie) : ''}</span>
+                <span class="fs-contexte">${categorie} — ${escapeHtml(contexte)}</span>
             </div>
             <div class="fs-meta">
                 <strong>Match ${escapeHtml(num)}</strong><br>
