@@ -33,7 +33,7 @@
 }
 
 #table-matchs tbody tr.match-termine td {
-    opacity: 0.7;
+    /* opacity: 0.7; */
 }
 
 .check-match {
@@ -223,5 +223,23 @@
 
     .fs-vainqueur input[type="checkbox"] {
         margin: 0;
+    }
+}
+
+@media screen {
+    .ligne-selectionnable {
+        cursor: pointer;
+        opacity: 0.45;
+    }
+
+    .ligne-selectionnable:hover {
+        /* background: #f0f0f0; */
+    }
+
+    .ligne-selectionnable.ligne-selectionnee {
+        opacity: 1;
+        background: #132900;
+        /* outline: 2px solid #1976d2; */
+        /* outline-offset: -2px; */
     }
 }

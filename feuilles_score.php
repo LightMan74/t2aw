@@ -65,6 +65,7 @@ $tournoi_id = isset($_GET['id_tournoi']) ? (int)$_GET['id_tournoi'] : 0;
         <h1>Impression des feuilles de score</h1>
 
         <div class="container-heure-message">
+            <span id="compteur-selection"></span>
             <div class="option-heure-manuelle zone-selection">
                 <div class="toggle-btn">
                     <label onclick="toutSelectionner()" class="toggle-btn-label">Tout sélectionner</label>

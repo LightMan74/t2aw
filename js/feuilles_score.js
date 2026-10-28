@@ -151,7 +151,7 @@ function appliquerFiltres() {
         const labelStatut = STATUS_LABELS[statutActuel] ?? statutActuel;
 
         fragments.push(`
-            <tr class="match-${statutActuel}" data-idx="${idx}">
+            <tr class="match-${statutActuel} ligne-selectionnable ligne-selectionnee" data-idx="${idx}">
                 <td><input type="checkbox" class="check-match" data-idx="${idx}" checked></td>
                 <td>${escapeHtml(num)}</td>
                 <td>${m.source === 'poule' ? 'Poule' : 'Phase finale'}</td>
@@ -171,22 +171,70 @@ function appliquerFiltres() {
     if (fragments.length === 0) {
         tbody.innerHTML = `<tr><td colspan="11" style="text-align:center; opacity:0.6;">Aucun match ne correspond aux filtres.</td></tr>`;
     }
+    majCompteur();
+}
+
+function majVisuelLigne(checkbox) {
+    if (!checkbox) return;
+    const ligne = checkbox.closest('tr');
+    if (ligne) ligne.classList.toggle('ligne-selectionnee', checkbox.checked);
+}
+
+function majCompteur() {
+    const compteur = document.getElementById('compteur-selection');
+    if (!compteur) return;
+    const cases = Array.from(document.querySelectorAll('#corps-table .check-match'));
+    const selectionnees = cases.filter(cb => cb.checked).length;
+    compteur.textContent = `${selectionnees} feuille(s) sélectionnée(s) sur ${cases.length}`;
+}
+
+function initClicLigne() {
+    const tbody = document.getElementById('corps-table');
+    if (!tbody || tbody.dataset.selectionEventsInitialises === 'true') return;
+    tbody.dataset.selectionEventsInitialises = 'true';
+    tbody.addEventListener('click', event => {
+        const cible = event.target;
+        if (cible.closest('a, button, input, select, textarea, label')) return;
+        const ligne = cible.closest('tr');
+        if (!ligne || !tbody.contains(ligne)) return;
+        const checkbox = ligne.querySelector('.check-match');
+        if (!checkbox || checkbox.disabled) return;
+        checkbox.checked = !checkbox.checked;
+        majVisuelLigne(checkbox);
+        majCompteur();
+    });
+    tbody.addEventListener('change', event => {
+        if (event.target.matches('.check-match')) {
+            majVisuelLigne(event.target);
+            majCompteur();
+        }
+    });
 }
 
 function toutSelectionner() {
-    document.querySelectorAll('.check-match').forEach(cb => cb.checked = true);
+    document.querySelectorAll('#corps-table .check-match').forEach(cb => {
+        cb.checked = true;
+        majVisuelLigne(cb);
+    });
+    majCompteur();
 }
 function toutDeselectionner() {
-    document.querySelectorAll('.check-match').forEach(cb => cb.checked = false);
+    document.querySelectorAll('#corps-table .check-match').forEach(cb => {
+        cb.checked = false;
+        majVisuelLigne(cb);
+    });
+    majCompteur();
 }
 function selectionnerNonTermines() {
-    document.querySelectorAll('.check-match').forEach(cb => {
+    document.querySelectorAll('#corps-table .check-match').forEach(cb => {
         const idx = parseInt(cb.getAttribute('data-idx'), 10);
         const m = matchsData[idx];
         if (!m) return;
         const s = getStatut(m);
         cb.checked = (s !== 'termine' && s !== 'annulee');
+        majVisuelLigne(cb);
     });
+    majCompteur();
 }
 
 // ---------- Génération des feuilles A5 + impression ----------
@@ -220,7 +268,7 @@ function construireFeuilleA5(m, idx) {
     const heure = (m.heure_debut !== null && m.heure_debut !== undefined && m.heure_debut !== '') ? m.heure_debut : '—';
     const contexte = getContexte(m);
     const categorie = m.nom_categorie ? m.nom_categorie : '';
-    const tournoi = (typeof tournoi_nom_js !== 'undefined' && tournoi_nom_js) ? tournoi_nom_js : ('Tournoi #' + id_tournoi_js);
+    const tournoi = (typeof tournoi_nom_js !== 'undefined' && tournoi_nom_js) ? tournoi_nom_js : ('Tournoi #' + ((typeof id_tournoi_js !== 'undefined') ? id_tournoi_js : ''));
     // Nombre de sets : nb_sets_js est un entier 1 ou 3 exposé par le PHP depuis `parametre.troissets`.
     const nbSets = (typeof nb_sets_js !== 'undefined') ? Number(nb_sets_js) : 3;
     const ptsnbSets = (nbSets > 1) ? 21 : 105;
@@ -310,9 +358,17 @@ function lancerImpression() {
 
 // ---------- Auto-chargement à l'ouverture ----------
 window.addEventListener('DOMContentLoaded', () => {
-    if (id_tournoi_js && Number(id_tournoi_js) > 0) {
+    initClicLigne();
+    if (typeof id_tournoi_js !== 'undefined' && id_tournoi_js && Number(id_tournoi_js) > 0) {
         chargerMatchs();
     } else {
         afficherMessage('Aucun id_tournoi dans l\'URL. Ajoutez ?id_tournoi=…', 'error');
     }
 });
+
+/* CSS écran minimal suggéré :
+@media screen {
+    .ligne-selectionnable { cursor: pointer; opacity: .45; }
+    .ligne-selectionnee { opacity: 1; background: #e3f2fd; outline: 2px solid #1976d2; }
+}
+*/
