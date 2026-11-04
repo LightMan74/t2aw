@@ -56,8 +56,12 @@ if (empty($matchs)) {
 }
 
 foreach ($matchs as $i => $m) {
-    if (!isset($m['id_categorie']) || !isset($m['id_poule'])
-        || (int)$m['id_categorie'] <= 0 || (int)$m['id_poule'] <= 0) {
+    $estTerrainLibre = !empty($m['terrain_libre']);
+    if (!$estTerrainLibre && (
+        !isset($m['id_categorie'], $m['id_poule']) ||
+        (int)$m['id_categorie'] <= 0 ||
+        (int)$m['id_poule'] <= 0
+    )) {
         echo json_encode([
             'success' => false,
             'error'   => "Match #$i invalide : id_categorie et id_poule sont obligatoires."
