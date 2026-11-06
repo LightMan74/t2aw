@@ -516,7 +516,12 @@
             div.textContent = joueurs[0] + (estServeur ? ' 🏸' : '');
             container.appendChild(div);
         } else {
-            joueurs.forEach((joueur, index) => {
+            // pos[0] = joueur de droite de son équipe, pos[1] = joueur de gauche.
+            // Pour l'équipe affichée à gauche de l'écran, l'ordre visuel est inversé.
+            const ordreAffichage = (cote === 'gauche') ? [...pos].reverse() : pos;
+
+            ordreAffichage.forEach(index => {
+                const joueur = joueurs[index];
                 const div = document.createElement('div');
                 div.className = 'joueur-slot';
                 const estServeur = match.serveur.team === team && match.serveur.joueurIndex === index;
@@ -569,10 +574,15 @@
 
     // Règles officielles de rotation badminton
     function gererRotationApresPoint(teamMarqueur, teamServeurAvant) {
+        console.log(match.serveur.joueurIndex);
+        console.log(teamMarqueur + " " + teamServeurAvant);
         if (teamMarqueur === teamServeurAvant) {
             if (joueursEquipe(teamMarqueur).length === 2) {
                 const pos = posEquipe(teamMarqueur);
+                console.log(pos);
                 pos.reverse();
+
+                console.log(pos);
             }
         } else {
             // Le service passe à l'autre équipe
@@ -588,9 +598,10 @@
                 // pos[0] = joueur de droite, pos[1] = joueur de gauche
                 match.serveur.joueurIndex = estPair ? pos[0] : pos[1];
             } else {
-                match.serveur.joueurIndex = 0;
+                match.serveur.joueurIndex = 55;
             }
         }
+        console.log(match.serveur.joueurIndex);
     }
 
     // ---------- FIN DE SET / FIN DE MATCH ----------
