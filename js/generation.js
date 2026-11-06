@@ -107,7 +107,7 @@ function chargerMatchs() {
         .then(res => res.json())
         .then(data => {
             if (data.success) {
-                matchsActuels = data.matchs.map(m => ({ ...m, terrain: null }));
+                matchsActuels = data.matchs.map(m => ({ ...m, terrain: m.terrain ?? null }));
                 genererZonesTerrains();
                 initialiserScrollbarProxyTerrains();
                 afficherListeMatchs();
@@ -458,8 +458,8 @@ function matchDragOver(e) {
 }
 
 function matchDrop(e) {
+    // Laisser l'événement remonter vers zoneDrop, qui valide le nouvel ordre.
     e.preventDefault();
-    e.stopPropagation();
 }
 
 function zoneDragOver(e) {
@@ -488,42 +488,28 @@ function zoneDrop(e) {
 
     if (dragSrcIndex === null || !placeholder) return;
 
-    const terrainCible = this.dataset.terrain ? parseInt(this.dataset.terrain) : null;
-    const zoneContent = this.querySelector('.zone-content');
-
-    // Construire le nouvel ordre en lisant le DOM de CETTE zone (placeholder inclus)
     const draggedItem = matchsActuels[dragSrcIndex];
+    if (!draggedItem) return;
 
-    // Retirer l'élément déplacé du tableau global
-    matchsActuels.splice(dragSrcIndex, 1);
-    draggedItem.terrain = terrainCible;
+    // Le parent de la carte reçoit aussi les drops sur une carte (matchDrop les
+    // laisse remonter). Le placeholder fixe exactement le rang demandé.
+    const ordreAffiche = lireOrdreAffichageTerrains(
+        document.getElementById('zones-terrains'),
+        matchsActuels,
+        draggedItem
+    );
+    if (!ordreAffiche.some(entree => entree.match === draggedItem)) return;
 
-    // Trouver la position d'insertion : on compte les match-item-terrain
-    // (hors placeholder) qui précèdent le placeholder DANS CETTE ZONE
-    const enfants = Array.from(zoneContent.children);
-    const posPlaceholder = enfants.indexOf(placeholder);
-
-    // Récupérer les indices (dans matchsActuels) des matchs qui précèdent le placeholder dans cette zone
-    let matchAvant = null;
-    for (let i = posPlaceholder - 1; i >= 0; i--) {
-        if (enfants[i].dataset.index !== undefined) {
-            matchAvant = enfants[i]._matchRef;
-            break;
-        }
-    }
-
-    let insertIndex;
-    if (matchAvant) {
-        insertIndex = matchsActuels.indexOf(matchAvant) + 1;
-    } else {
-        // Aucun match avant dans cette zone -> on insère au début de cette zone
-        // On cherche le premier match de cette zone dans le tableau global
-        const premierMatchZone = matchsActuels.find(m => (m.terrain || null) === terrainCible);
-        insertIndex = premierMatchZone ? matchsActuels.indexOf(premierMatchZone) : matchsActuels.length;
-    }
-
-    matchsActuels.splice(insertIndex, 0, draggedItem);
-
+    // Mettre à jour l'état avec l'ordre visible: rang de ligne puis terrain.
+    // Les matchs de la file d'attente suivent les matchs affectés, dans leur
+    // propre ordre visuel. Cela évite de conserver l'ancien ordre_global.
+    ordreAffiche.forEach(({ match, terrain }) => {
+        match.terrain = terrain;
+    });
+    matchsActuels = ordreAffiche.map((entree, index) => {
+        entree.match.ordre_global = index + 1;
+        return entree.match;
+    });
     afficherListeMatchs();
     dragSrcIndex = null;
     placeholder = null;
@@ -937,16 +923,97 @@ async function ajouterMatchInterPoule() {
 /* --------------- VALIDATION / SAUVEGARDE ---------------- */
 /* ------------------------------------------------------ */
 
+/**
+ * Ordonne des terrains en rotations visuelles: rang de ligne d'abord, puis
+ * terrain dans l'ordre affiché. La file d'attente (sans terrain) suit ensuite,
+ * dans l'ordre de ses cartes. Tous les matchs, y compris « Terrain Libre »,
+ * sont traités comme des cartes ordinaires.
+ */
+function ordonnerParRangEtTerrain(lignesParTerrain, fileAttente = []) {
+    const resultat = [];
+    const nombreRangs = lignesParTerrain.reduce((max, terrain) => Math.max(max, terrain.length), 0);
+    for (let rang = 0; rang < nombreRangs; rang++) {
+        for (const matchsDuTerrain of lignesParTerrain) {
+            if (matchsDuTerrain[rang] !== undefined) resultat.push(matchsDuTerrain[rang]);
+        }
+    }
+    return resultat.concat(fileAttente);
+}
+
+/** Lit les colonnes de terrains et leur ordre DOM, en remplaçant le
+ * placeholder par le match glissé pendant la validation d'un drop. */
+function lireOrdreAffichageTerrains(conteneur, matchs = matchsActuels, matchGlisse = null) {
+    if (!conteneur) {
+        const terrains = [...new Set(matchs.map(m => m.terrain).filter(t => t !== null && t !== undefined))]
+            .sort((a, b) => Number(a) - Number(b));
+        const colonnes = terrains.map(terrain => matchs.filter(m => Number(m.terrain) === Number(terrain)));
+        const attente = matchs.filter(m => m.terrain === null || m.terrain === undefined || m.terrain === '');
+        return ordonnerParRangEtTerrain(colonnes, attente)
+            .map(match => ({ match, terrain: match.terrain ?? null }));
+    }
+
+    const zones = Array.from(conteneur.querySelectorAll('.zone-terrain'));
+    const colonnes = [];
+    let fileAttente = [];
+    const dejaAjoutes = new Set();
+
+    for (const zone of zones) {
+        const zoneContent = zone.querySelector('.zone-content');
+        if (!zoneContent) continue;
+        const terrainAffiche = zone.dataset.terrain;
+        const terrain = terrainAffiche === '' ? null : (Number(terrainAffiche) || null);
+        const cartes = [];
+
+        for (const element of Array.from(zoneContent.children)) {
+            let match = null;
+            if (element === placeholder && matchGlisse) {
+                match = matchGlisse;
+            } else if (!element.classList.contains('placeholder') && !element.classList.contains('dragging')) {
+                match = element._matchRef || matchs[Number(element.dataset.index)];
+            }
+            if (!match || dejaAjoutes.has(match)) continue;
+            dejaAjoutes.add(match);
+            cartes.push({ match, terrain });
+        }
+
+        if (terrain === null) fileAttente = cartes;
+        else colonnes.push(cartes);
+    }
+
+    const rotations = ordonnerParRangEtTerrain(colonnes, fileAttente);
+    // Cas défensif: inclure les matchs encore dans l'état mais absents du DOM.
+    for (const match of matchs) {
+        if (!dejaAjoutes.has(match)) {
+            const terrain = match.terrain ?? null;
+            rotations.push({ match, terrain });
+            dejaAjoutes.add(match);
+        }
+    }
+    return rotations;
+}
+
+/** Construit la sauvegarde selon la rotation affichée des terrains. */
+function construirePlanningSauvegarde(matchs = matchsActuels) {
+    const conteneur = document.getElementById('zones-terrains');
+    const ordreAffiche = lireOrdreAffichageTerrains(conteneur, matchs);
+
+    return ordreAffiche.map(({ match, terrain }, index) => ({
+        ...match,
+        terrain,
+        terrain_libre: Boolean(match.terrain_libre),
+        ajout_manuel: Boolean(match.ajout_manuel),
+        ordre_global: index + 1
+    }));
+}
+
 function validerOrdre() {
     const id_tournoi = document.getElementById('id_tournoi').value;
+    const matchsAEnvoyer = construirePlanningSauvegarde(matchsActuels);
 
     fetch('api/sauvegarder_ordre.php', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-            id_tournoi: id_tournoi,
-            matchs: matchsActuels
-        })
+        body: JSON.stringify({ id_tournoi: id_tournoi, matchs: matchsAEnvoyer })
     })
         .then(res => res.json())
         .then(data => {
