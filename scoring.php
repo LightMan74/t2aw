@@ -32,7 +32,7 @@ if ($parametres !== false) {
     if (isset($parametres['timer'])) $show_timer = ((int)$parametres['timer'] === 1);
     if (isset($parametres['scoring_password'])) $scoring_password = ($parametres['scoring_password']);
     if (isset($parametres['scoring_matchtermine'])) $scoring_matchtermine = ($parametres['scoring_matchtermine']);
-    echo $scoring_matchtermine;
+    // echo $scoring_matchtermine;
 }
 if ($scoring_password !== (isset($_GET['scoring_password']) ? (string)$_GET['scoring_password'] : '')) {
     die('scoring_password manquant');

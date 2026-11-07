@@ -140,34 +140,34 @@
             'table-score-a-0',
             'table-score-b-0',
             'table-score-a-1',
-            'table-score-b-1'
+            'table-score-b-1',
+            'table-score-a-2',
+            'table-score-b-2'
         ];
 
         // À mettre une seule fois, au chargement de ton script principal
         (function initScoreInputsAutoSelect() {
             const isScoreInput = (el) =>
-                el && el.id && /^table-score-[ab]-[01]$/.test(el.id);
+                el && el.id && /^table-score-[ab]-[012]$/.test(el.id);
 
-            // Sélection du contenu dès que l'input reçoit le focus
+            const selectAll = (input) => {
+                // setTimeout 0 : on passe APRES le placement du curseur par le navigateur
+                setTimeout(() => {
+                    // Évite de resélectionner si l'input a perdu le focus entre temps
+                    if (document.activeElement === input) {
+                        input.select();
+                    }
+                }, 0);
+            };
+
+            // Premier focus (clic, tabulation, tactile)
             document.addEventListener('focusin', (e) => {
-                if (isScoreInput(e.target)) {
-                    e.target.select();
-                }
+                if (isScoreInput(e.target)) selectAll(e.target);
             });
 
-            // Empêche le navigateur de désélectionner le texte au relâchement du clic
-            document.addEventListener('mouseup', (e) => {
-                if (isScoreInput(e.target)) {
-                    e.preventDefault();
-                }
-            });
-
-            // Mobile : re-sélection après le placement du curseur par le navigateur
-            document.addEventListener('touchend', (e) => {
-                if (isScoreInput(e.target)) {
-                    const input = e.target;
-                    setTimeout(() => input.select(), 0);
-                }
+            // Clic dans un input déjà focus (cas qui ne marchait pas avant)
+            document.addEventListener('click', (e) => {
+                if (isScoreInput(e.target)) selectAll(e.target);
             });
         })();
         function readScores() {
