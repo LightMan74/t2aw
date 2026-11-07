@@ -102,4 +102,5 @@ async function importerTournoi(fichierInput) {
     } catch (err) {
         alert('Erreur réseau : ' + err.message);
     }
+    chargerTournois();
 }

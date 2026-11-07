@@ -1,6 +1,6 @@
 <?php
 ini_set('display_errors', 1);
-error_reporting(E_ALL);
+error_reporting(E_ALL); 
 
 require_once __DIR__ . '/api/db.php';
 
@@ -53,7 +53,7 @@ if ($scoring_password !== (isset($_GET['scoring_password']) ? (string)$_GET['sco
 <body class="scoring-page">
 
     <div class="scoring-header">
-        <h1><?php echo htmlspecialchars($nom_tournoi) . $table_de_score; ?> - SCORING</h1>
+        <h1><?php echo htmlspecialchars($nom_tournoi); ?> - SCORING</h1>
 
         <?php if (!$table_de_score): ?>
         <div id="court-selector">
@@ -188,13 +188,19 @@ if ($scoring_password !== (isset($_GET['scoring_password']) ? (string)$_GET['sco
 
             <div class="team-setup salade-team-setup" id="setup-team3" style="display:none;">
                 <h4 id="nom-equipe-3-label"></h4>
-                <label>Format : <select class="format-select" data-team="3"><option value="double" selected>Double</option><option value="simple">Simple</option></select></label>
+                <label>Format : <select class="format-select" data-team="3">
+                        <option value="double" selected>Double</option>
+                        <option value="simple">Simple</option>
+                    </select></label>
                 <div><label>Joueur 1 : <input type="text" class="joueur-input" data-team="3" data-joueur="1" placeholder="Nom joueur 1"></label></div>
                 <div class="joueur2-wrapper" data-team="3"><label>Joueur 2 : <input type="text" class="joueur-input" data-team="3" data-joueur="2" placeholder="Nom joueur 2"></label></div>
             </div>
             <div class="team-setup salade-team-setup" id="setup-team4" style="display:none;">
                 <h4 id="nom-equipe-4-label"></h4>
-                <label>Format : <select class="format-select" data-team="4"><option value="double" selected>Double</option><option value="simple">Simple</option></select></label>
+                <label>Format : <select class="format-select" data-team="4">
+                        <option value="double" selected>Double</option>
+                        <option value="simple">Simple</option>
+                    </select></label>
                 <div><label>Joueur 1 : <input type="text" class="joueur-input" data-team="4" data-joueur="1" placeholder="Nom joueur 1"></label></div>
                 <div class="joueur2-wrapper" data-team="4"><label>Joueur 2 : <input type="text" class="joueur-input" data-team="4" data-joueur="2" placeholder="Nom joueur 2"></label></div>
             </div>

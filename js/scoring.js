@@ -16,12 +16,15 @@
         const message = document.getElementById('table-score-message');
         let selectedMatch = null;
         let selectedDetails = null;
+        let matchOpen = false;
+        const tableDeScoreParam = new URLSearchParams(window.location.search).has('table_de_score');
 
         function apiJson(url, options) {
             return fetch(url, options).then(response => response.json());
         }
 
         function loadList() {
+            matchOpen = false;
             list.textContent = 'Chargement…';
             list.style.display = 'flex';
             entry.hidden = true;
@@ -56,6 +59,7 @@
         }
 
         function openMatch(item) {
+            matchOpen = true;
             selectedMatch = item;
             message.textContent = '';
             apiJson('api/scoring/get_match_details.php?id_tournoi=' + encodeURIComponent(ID_TOURNOI) +
@@ -204,6 +208,11 @@
         });
         loadList();
         document.getElementById('table-score-back').addEventListener('click', loadList);
+        if (tableDeScoreParam) {
+            window.setInterval(() => {
+                if (!matchOpen) loadList();
+            }, 30000);
+        }
         return;
     }
 
