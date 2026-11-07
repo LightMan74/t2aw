@@ -41,7 +41,6 @@
 </head>
 
 <body>
-
     <button id="btn-start">Sélectionner l'onglet à dupliquer</button>
     <video id="video-miroir" autoplay playsinline></video>
 
