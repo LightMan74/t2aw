@@ -136,7 +136,40 @@
                 })
                 .catch(error => { message.textContent = 'Erreur : ' + error.message; });
         }
+        const scoreInputIds = [
+            'table-score-a-0',
+            'table-score-b-0',
+            'table-score-a-1',
+            'table-score-b-1'
+        ];
 
+        // À mettre une seule fois, au chargement de ton script principal
+        (function initScoreInputsAutoSelect() {
+            const isScoreInput = (el) =>
+                el && el.id && /^table-score-[ab]-[01]$/.test(el.id);
+
+            // Sélection du contenu dès que l'input reçoit le focus
+            document.addEventListener('focusin', (e) => {
+                if (isScoreInput(e.target)) {
+                    e.target.select();
+                }
+            });
+
+            // Empêche le navigateur de désélectionner le texte au relâchement du clic
+            document.addEventListener('mouseup', (e) => {
+                if (isScoreInput(e.target)) {
+                    e.preventDefault();
+                }
+            });
+
+            // Mobile : re-sélection après le placement du curseur par le navigateur
+            document.addEventListener('touchend', (e) => {
+                if (isScoreInput(e.target)) {
+                    const input = e.target;
+                    setTimeout(() => input.select(), 0);
+                }
+            });
+        })();
         function readScores() {
             const threeSets = fields.querySelectorAll('input').length === 6;
             const a = [], b = [];
@@ -197,10 +230,11 @@
                 : getSideLabel(selectedDetails, 2);
 
             if (!window.confirm('Vainqueur : ' + winner + '\nConfirmer l’enregistrement du score ?')) return;
-
+            if (!SCORING_MATCHTERMINE) payloadstatus = 'en_cours';
+            if (SCORING_MATCHTERMINE) payloadstatus = 'termine';
             const payload = {
                 id_tournoi: ID_TOURNOI, type_match: selectedDetails.type_match, id_match: selectedDetails.id_match,
-                score_equipe_1: scores.a.join('*'), score_equipe_2: scores.b.join('*'), statut: 'termine'
+                score_equipe_1: scores.a.join('*'), score_equipe_2: scores.b.join('*'), statut: payloadstatus
             };
             apiJson('api/scoring/update_score.php', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) })
                 .then(data => { if (data.error) throw new Error(data.error); loadList(); })

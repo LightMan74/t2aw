@@ -5,9 +5,9 @@ cd /d "%~dp0"
 :: ============================================
 ::   PARAMETRES (a modifier ici)
 :: ============================================
-set "BDD=..\database\t2aw.sqlite"
+set "BDD=..\database\t2aw.sqlite" 
 set "FREQ=5"
-set "GARDER=20"
+set "GARDER=30"
 
 :: Emplacements de sauvegarde (un par ligne, max 5, laisser vide si inutilise)
 set "DEST1=D:\sauvegardes\t2aw"

@@ -22,9 +22,9 @@ $stmt = $pdo->prepare("SELECT nom FROM tournoi WHERE id_tournoi = :id");
 $stmt->execute(['id' => $id_tournoi]);
 $tournoi = $stmt->fetch(PDO::FETCH_ASSOC);
 $nom_tournoi = $tournoi['nom'] ?? 'Tournoi';
-
+ 
 // Paramètres tournoi
-$stmt = $pdo->prepare("SELECT troissets, timer, scoring_password FROM parametre WHERE id_tournoi = :id");
+$stmt = $pdo->prepare("SELECT troissets, timer, scoring_matchtermine, scoring_password FROM parametre WHERE id_tournoi = :id");
 $stmt->execute(['id' => $id_tournoi]);
 $parametres = $stmt->fetch(PDO::FETCH_ASSOC);
 if ($parametres !== false) {
@@ -32,6 +32,7 @@ if ($parametres !== false) {
     if (isset($parametres['timer'])) $show_timer = ((int)$parametres['timer'] === 1);
     if (isset($parametres['scoring_password'])) $scoring_password = ($parametres['scoring_password']);
     if (isset($parametres['scoring_matchtermine'])) $scoring_matchtermine = ($parametres['scoring_matchtermine']);
+    echo $scoring_matchtermine;
 }
 if ($scoring_password !== (isset($_GET['scoring_password']) ? (string)$_GET['scoring_password'] : '')) {
     die('scoring_password manquant');
