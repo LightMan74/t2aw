@@ -198,9 +198,9 @@ foreach ($matchsPoule as $m) {
     $m['type_match'] = 'poule';
     if ($m['status'] === 'en_cours') {
         $result['en_cours'][] = $m;
-    } elseif ($m['status'] === 'termine' || $m['status'] === 'annulee') {
+    } elseif ($m['status'] === 'termine') {
         $result['termines'][] = $m;
-    } else {
+    } elseif ($m['status'] !== 'annulee') {
         $result['a_venir'][] = $m;
     }
 }
@@ -208,9 +208,9 @@ foreach ($matchsPoule as $m) {
 foreach ($matchsPF as $m) {
     if ($m['statut_match'] === 'en_cours') {
         $result['en_cours'][] = $m;
-    } elseif ($m['statut_match'] === 'termine' || $m['status'] === 'annulee') {
+    } elseif ($m['statut_match'] === 'termine') {
         $result['termines'][] = $m;
-    } else {
+    } elseif ($m['status'] !== 'annulee') {
         $result['a_venir'][] = $m;
     }
 }
