@@ -778,27 +778,62 @@ document.getElementById('btn-annuler-score').addEventListener('click', () => {
 });
 
 document.getElementById('btn-valider-score').addEventListener('click', () => {
-    const score1 = parseInt(document.getElementById('modal-score1s1').value, 10) + parseInt(document.getElementById('modal-score1s2').value, 10) + parseInt(document.getElementById('modal-score1s3').value, 10);
-    const score2 = parseInt(document.getElementById('modal-score2s1').value, 10) + parseInt(document.getElementById('modal-score2s2').value, 10) + parseInt(document.getElementById('modal-score2s3').value, 10);
+    // Lecture sécurisée : champ vide ou invalide => 0
+    const val = (id) => {
+        const v = parseInt(document.getElementById(id).value, 10);
+        return isNaN(v) ? 0 : v;
+    };
 
-    let score3ss1 = parseInt(document.getElementById('modal-score1s1').value, 10) + ' - ' + parseInt(document.getElementById('modal-score2s1').value, 10);
-    let score3ss2 = ' | ' + parseInt(document.getElementById('modal-score1s2').value, 10) + ' - ' + parseInt(document.getElementById('modal-score2s2').value, 10);
-    let score3ss3 = ' | ' + parseInt(document.getElementById('modal-score1s3').value, 10) + ' - ' + parseInt(document.getElementById('modal-score2s3').value, 10);
+    // Scores de chaque set [equipe1, equipe2]
+    const sets = [
+        [val('modal-score1s1'), val('modal-score2s1')],
+        [val('modal-score1s2'), val('modal-score2s2')],
+        [val('modal-score1s3'), val('modal-score2s3')],
+    ];
 
-    score3ss2 = score3ss2 != ' | 0 - 0' ? score3ss2 : '';
-    score3ss3 = score3ss3 != ' | 0 - 0' ? score3ss3 : '';
+    // On ne garde que les sets réellement joués (pas 0-0)
+    const setsJoues = sets.filter(([a, b]) => !(a === 0 && b === 0));
+
+    // Nombre de sets gagnés par équipe
+    let setsGagnes1 = 0;
+    let setsGagnes2 = 0;
+    setsJoues.forEach(([a, b]) => {
+        if (a > b) setsGagnes1++;
+        else if (b > a) setsGagnes2++;
+    });
+
+    // Total de points (utile en cas d'égalité de sets)
+    const totalPoints1 = setsJoues.reduce((s, [a]) => s + a, 0);
+    const totalPoints2 = setsJoues.reduce((s, [, b]) => s + b, 0);
+
+    // Chaînes envoyées au PHP : "15*5*15" / "13*13*7"
+    const score1 = sets.map(([a]) => a).join('*');
+    const score2 = sets.map(([, b]) => b).join('*');
+
+    // Rétrocompatibilité : anciennes variables d'affichage
+    // Format identique à avant : "15 - 13", " | 5 - 13", " | 15 - 7"
+    const score3ss1 = `${sets[0][0]} - ${sets[0][1]}`;
+    const score3ss2 = (sets[1][0] === 0 && sets[1][1] === 0) ? '' : ` | ${sets[1][0]} - ${sets[1][1]}`;
+    const score3ss3 = (sets[2][0] === 0 && sets[2][1] === 0) ? '' : ` | ${sets[2][0]} - ${sets[2][1]}`;
 
     const selectStatut = document.getElementById('modal-statut-match');
 
-    if (isNaN(score1) || isNaN(score2)) {
-        afficherMessagePF('msg-modal', 'Veuillez saisir des scores valides', 'error');
+    if (setsJoues.length === 0 && selectStatut.value === 'termine') {
+        afficherMessagePF('msg-modal', 'Veuillez saisir au moins un set', 'error');
         return;
     }
 
-    if (score1 === score2 && selectStatut.value === 'termine') {
-        afficherMessagePF('msg-modal', 'Les scores ne peuvent pas être égaux (pas de match nul)', 'error');
+    // Match nul : égalité en sets ET en points
+    if (selectStatut.value === 'termine'
+        && setsGagnes1 === setsGagnes2
+        && totalPoints1 === totalPoints2) {
+        afficherMessagePF('msg-modal', 'Match nul impossible : les équipes sont à égalité', 'error');
         return;
     }
+
+    // Suite de ton code (envoi fetch) : utiliser score1 / score2 (chaînes "a*b*c")
+    // Exemple d'affichage :
+    // const affichage = setsJoues.map(([a, b]) => `${a} - ${b}`).join(' | ');
 
     console.log(selectStatut.value);
 
