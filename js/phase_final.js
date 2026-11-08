@@ -764,7 +764,7 @@ function ouvrirModalScore(match, nom1, nom2) {
 
 
     // const selectStatut = document.getElementById('modal-statut-match');
-    const selectStatut = "termine";
+    const selectStatut = document.getElementById('modal-statut-match');
     if (selectStatut) selectStatut.value = match.statut_match ?? 'planifie';
 
     const inputTerrain = document.getElementById('modal-terrain');
@@ -839,8 +839,13 @@ document.getElementById('btn-valider-score').addEventListener('click', () => {
 
     // Si le match est marqué comme terminé, on demande confirmation du vainqueur
     if (selectStatut.value === 'termine') {
-        const gagnant = score1 > score2 ? currentMatchNoms.nom1 : currentMatchNoms.nom2;
-        const perdant = score1 > score2 ? currentMatchNoms.nom2 : currentMatchNoms.nom1;
+        // Gagnant : sets gagnés, puis total de points en cas d'égalité de sets
+        const equipe1Gagne = setsGagnes1 !== setsGagnes2
+            ? setsGagnes1 > setsGagnes2
+            : totalPoints1 > totalPoints2;
+
+        const gagnant = equipe1Gagne ? currentMatchNoms.nom1 : currentMatchNoms.nom2;
+        const perdant = equipe1Gagne ? currentMatchNoms.nom2 : currentMatchNoms.nom1;
 
         // document.getElementById('modal-confirmation-texte').innerHTML =
         //     `<strong> ${currentMatchNoms.nom1}</strong > vs <strong> ${currentMatchNoms.nom2}</strong> <br><br>` +
