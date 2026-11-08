@@ -155,6 +155,7 @@ foreach ($matchsPFRaw as $m) {
     $labelRound = labelRoundPhaseFinale((int)$m['round'], $nbRounds, $m['classement_min'], $m['sub_group'], $m['nb_equipes_arrondi']);
     if ($m['status'] != "simule") {
         $matchsPF[] = [
+            'id'                => $m['id'],
             'id_tournoi'        => $id_tournoi,
             'id_categorie'      => $m['id_categorie'],
             'nom_categorie'     => $m['nom_categorie'],
