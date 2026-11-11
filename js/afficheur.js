@@ -405,10 +405,10 @@ function chargerClassement() {
                                 <th>Équipe</th>
                                 <th>Joué</th>
                                 <th>Victoires</th>
-                                <th>Sets Gagnés</th>
+                                <th>Diff Sets</th>
                                 <th>Points Marqués</th>
                                 <th>Points Encaissés</th>
-                                <th>Points Diff</th>
+                                <th>Diff Points</th>
                             </tr>
                         </thead>
                         <tbody>`;
@@ -419,7 +419,7 @@ function chargerClassement() {
                         <td style="text-align:left;">${escapeHTML(eq.nom)}</td>
                         <td>${eq.joues}</td>
                         <td>${eq.victoires}</td>
-                        <td>${eq.sets_gagnes}</td>
+                        <td>${eq.sets_gagnes - eq.sets_perdus ?? 0}</td>
                         <td>${eq.points_marques}</td>
                         <td>${eq.points_encaisses}</td>
                         <td>${eq.points_marques - eq.points_encaisses}</td>
