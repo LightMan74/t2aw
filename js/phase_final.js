@@ -35,6 +35,100 @@ async function apiFetch(url, options = {}) {
     return data;
 }
 
+// Classe les équipes de toutes les poules avec le même barème, sans rechargement.
+// Les matchs de poule sont utilisés quand l'API les fournit dans sa réponse.
+function statsMatchsPoule(matchs) {
+    const stats = new Map();
+    const get = id => {
+        const key = String(id ?? '');
+        if (!key) return null;
+        if (!stats.has(key)) stats.set(key, { victoires: 0, diff_sets: 0, diff_points: 0, points_marques: 0, points_encaisses: 0 });
+        return stats.get(key);
+    };
+    const valeurs = score => {
+        if (Array.isArray(score)) return score.map(Number);
+        return String(score ?? '').split('*').map(v => v.trim() === '' ? NaN : Number(v.trim()));
+    };
+
+    (Array.isArray(matchs) ? matchs : []).forEach(match => {
+        // Les routes renvoient parfois des matchs d'autres états : on ignore explicitement
+        // les matchs non terminés, tout en acceptant une liste de poule déjà filtrée sans état.
+        const statut = String(match.statut_match ?? match.statut ?? '').toLowerCase();
+        if (statut && !['termine', 'terminé', 'simule', 'simulé'].includes(statut)) return;
+        const id1 = match.equipe1_id ?? match.id_equipe1;
+        const id2 = match.equipe2_id ?? match.id_equipe2;
+        const s1 = valeurs(match.score1);
+        const s2 = valeurs(match.score2);
+        if (id1 == null || id2 == null || !s1.some(Number.isFinite) || !s2.some(Number.isFinite)) return;
+
+        let sets1 = 0, sets2 = 0, pts1 = 0, pts2 = 0;
+        for (let i = 0; i < Math.max(s1.length, s2.length); i++) {
+            const a = Number.isFinite(s1[i]) ? s1[i] : 0;
+            const b = Number.isFinite(s2[i]) ? s2[i] : 0;
+            if (a === 0 && b === 0) continue;
+            pts1 += a; pts2 += b;
+            if (a > b) sets1++;
+            else if (b > a) sets2++;
+        }
+        const a = get(id1), b = get(id2);
+        if (!a || !b) return;
+        a.diff_sets += sets1 - sets2; b.diff_sets += sets2 - sets1;
+        a.points_marques += pts1; a.points_encaisses += pts2;
+        b.points_marques += pts2; b.points_encaisses += pts1;
+        const gagnantId = match.winner_equipe_id ?? match.gagnant_equipe_id;
+        if (gagnantId != null) {
+            if (String(gagnantId) === String(id1)) a.victoires++;
+            else if (String(gagnantId) === String(id2)) b.victoires++;
+        } else if (sets1 !== sets2) {
+            if (sets1 > sets2) a.victoires++;
+            else b.victoires++;
+        } else if (pts1 !== pts2) {
+            if (pts1 > pts2) a.victoires++;
+            else b.victoires++;
+        }
+    });
+    return stats;
+}
+
+function valeurStat(equipe, aliases, fallback) {
+    for (const nom of aliases) {
+        if (equipe[nom] !== undefined && equipe[nom] !== null && equipe[nom] !== '') {
+            const n = Number(equipe[nom]);
+            if (Number.isFinite(n)) return n;
+        }
+    }
+    return fallback;
+}
+
+function trierEquipesParClassement(equipes, matchsPoule = []) {
+    const statsMatchs = statsMatchsPoule(matchsPoule);
+    const equipeAvecStats = (Array.isArray(equipes) ? equipes : []).map((equipe, index) => {
+        const match = statsMatchs.get(String(equipe.id_equipe ?? '')) || {};
+        const pointsMarques = valeurStat(equipe, ['points_marques', 'points_marques_total', 'points_pour'], match.points_marques);
+        const pointsEncaisses = valeurStat(equipe, ['points_encaisses', 'points_encaisses_total', 'points_contre'], match.points_encaisses);
+        const diffPointsDerivee = Number.isFinite(pointsMarques) && Number.isFinite(pointsEncaisses)
+            ? pointsMarques - pointsEncaisses : 0;
+        return {
+            equipe,
+            index,
+            victoires: valeurStat(equipe, ['victoires', 'nb_victoires', 'nombre_victoires'], match.victoires ?? 0),
+            diffSets: valeurStat(equipe, ['diff_sets', 'difference_sets', 'diff_set'], match.diff_sets ?? 0),
+            diffPoints: valeurStat(equipe, ['diff_points', 'difference_points', 'diff_points_total'], diffPointsDerivee),
+            pointsMarques: Number.isFinite(pointsMarques) ? pointsMarques : 0,
+            pointsEncaisses: Number.isFinite(pointsEncaisses) ? pointsEncaisses : 0
+        };
+    });
+    equipeAvecStats.sort((a, b) =>
+        (b.victoires - a.victoires) ||
+        (b.diffSets - a.diffSets) ||
+        (b.diffPoints - a.diffPoints) ||
+        (b.pointsMarques - a.pointsMarques) ||
+        (a.pointsEncaisses - b.pointsEncaisses) ||
+        (a.index - b.index)
+    );
+    return equipeAvecStats.map(item => item.equipe);
+}
+
 // ---------- Chargement des catégories au démarrage ---------- 
 
 const inputTournoiId = document.getElementById('input-tournoi-id');
@@ -126,7 +220,12 @@ selectCategorie.addEventListener('change', async () => {
             `${API_BASE}/get_equipes_categorie.php?id_tournoi=${idTournoi}&id_categorie=${idCategorie}`
         );
 
-        equipesOrdre = data.equipes.map(e => ({
+        const equipesRecues = data.equipes || [];
+        const equipesPourSeed = trierEquipesParClassement(
+            equipesRecues,
+            data.matchs_poule || data.matchs || data.matches
+        );
+        equipesOrdre = equipesPourSeed.map(e => ({
             id_equipe: e.id_equipe,
             id_categorie: e.id_categorie,
             id_poule: e.id_poule,
@@ -1180,6 +1279,7 @@ function calculerPlageClassement(round, subKey, nbreTeam) {
 
 let equipesPhaseFinaleActuelles = [];
 let classement = [];
+let matchsPouleClassement = [];
 let draggedReassignationIndex = null;
 let equipesDisponibles = [];
 let idTournoiActuel = null;
@@ -1211,7 +1311,9 @@ async function ouvrirReassignationEquipes(idPhaseFinale, idCategorie) {
         const classementData = await apiFetch(
             `${API_BASE}/get_equipes_categorie.php?id_tournoi=${idTournoiActuel}&id_categorie=${idCategorieActuelle}`
         );
-        const toutesEquipes = classementData.equipes || [];
+        const equipesRecues = classementData.equipes || [];
+        matchsPouleClassement = classementData.matchs_poule || classementData.matchs || classementData.matches || [];
+        const toutesEquipes = trierEquipesParClassement(equipesRecues, matchsPouleClassement);
 
         classement = toutesEquipes.slice(0, equipesPhaseFinaleActuelles.filter(e => !e.is_bye).length);
         equipesDisponibles = toutesEquipes.slice(classement.length);
@@ -1409,9 +1511,7 @@ function retirerEquipe(indexClassement) {
     } else {
         // Sinon, on la remet dans les disponibles
         equipesDisponibles.push(equipe);
-        equipesDisponibles.sort((a, b) =>
-            (a.id_poule - b.id_poule) || (a.rang_poule - b.rang_poule)
-        );
+        equipesDisponibles = trierEquipesParClassement(equipesDisponibles, matchsPouleClassement);
         classement.splice(indexClassement, 1);
     }
 
