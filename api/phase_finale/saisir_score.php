@@ -100,8 +100,8 @@ function propagerVersMatchsSuivants(PDO $pdo, int $idTournoi, int $idPhaseFinale
         $matchMaj = $stmtCheck->fetch(PDO::FETCH_ASSOC);
 
         if ($matchMaj
-            && $matchMaj['equipe1_id'] !== null
-            && $matchMaj['equipe2_id'] !== null
+            && ($matchMaj['equipe1_id'] !== null
+            || $matchMaj['equipe2_id'] !== null)
             && $matchMaj['statut'] === 'en_attente'
         ) {
             $stmtStatut = $pdo->prepare("UPDATE matchs_phase_finale SET statut = 'pret' WHERE id = :id");
@@ -139,11 +139,11 @@ try {
         throw new Exception('Match introuvable');
     }
 
-    if (!$match['equipe1_id'] || !$match['equipe2_id']) {
-        $score1 = null;
-        $score2 = null;
-        $statutMatch = "planifie";
-    }
+    // if (!$match['equipe1_id'] || !$match['equipe2_id']) {
+    //     $score1 = null;
+    //     $score2 = null;
+    //     $statutMatch = "planifie";
+    // }
 
     $idTournoi     = (int)$match['id_tournoi'];
     $idPhaseFinale = (int)$match['id_phase_finale'];
@@ -189,7 +189,7 @@ try {
     ]);
 
     // Propager uniquement si le match est terminé et qu'il y a un vainqueur
-    if ($statutMatch === 'termine' && $winnerId && $loserId) {
+    if ($statutMatch === 'termine' && ($winnerId || $loserId)) {
         propagerVersMatchsSuivants($pdo, $idTournoi, $idPhaseFinale, "Win_{$match['match_code']}", (int)$winnerId);
         propagerVersMatchsSuivants($pdo, $idTournoi, $idPhaseFinale, "Loss_{$match['match_code']}", (int)$loserId);
     }

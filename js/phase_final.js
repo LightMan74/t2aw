@@ -653,7 +653,8 @@ function creerMatchBox(match) {
         ? '<div class="simule-badge">⏩ Simulé</div>' : '';
 
     const statutJeu = match.statut_match ?? 'planifie';
-    const peutJouer = match.equipe1_id && match.equipe2_id;
+    // const peutJouer = match.equipe1_id && match.equipe2_id;
+    const peutJouer = 1;
 
     const statutBadgeHtml = peutJouer
         ? `<span class="status-badge status-badge-${statutJeu}"

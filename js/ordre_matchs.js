@@ -239,7 +239,8 @@ function afficherTable() {
         const s2set3 = scoresEquipe2[2] ?? 0;
 
         const hiddenSets = (typeof tournoi_troissets_match !== 'undefined' && tournoi_troissets_match > 1) ? '' : 'hidden';
-        const disabledScore = (m.source === 'pf' && statutActuel !== 'termine') ? 'disabled' : '';
+        // const disabledScore = (m.source === 'pf' && statutActuel !== 'termine') ? 'disabled' : '';
+        const disabledScore = '';
 
         const heure = m.source === 'poule' ? m.heure_debut : m.heure_debut;
 
@@ -367,13 +368,13 @@ function majBadgeStatus(index, nouveauStatus) {
     }
 
     // Pour les matchs PF, activer/désactiver le score selon le statut
-    if (m.source === 'pf') {
-        const disabled = nouveauStatus !== 'termine';
-        ['1s1', '1s2', '1s3', '2s1', '2s2', '2s3'].forEach(suffix => {
-            const el = document.getElementById(`score${suffix}-${index}`);
-            if (el) el.disabled = disabled;
-        });
-    }
+    // if (m.source === 'pf') {
+    //     const disabled = nouveauStatus !== 'termine';
+    //     ['1s1', '1s2', '1s3', '2s1', '2s2', '2s3'].forEach(suffix => {
+    //         const el = document.getElementById(`score${suffix}-${index}`);
+    //         if (el) el.disabled = disabled;
+    //     });
+    // }
 }
 
 function cyclerStatus(index) {
@@ -728,7 +729,7 @@ async function sauvegarderLigne(index) {
             });
         } else {
             let s1 = score1, s2 = score2;
-            if (statut !== 'termine') { s1 = null; s2 = null; }
+            // if (statut !== 'termine') { s1 = null; s2 = null; }
 
             res = await fetch('api/phase_finale/saisir_score.php', {
                 method: 'POST',
