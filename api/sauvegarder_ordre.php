@@ -109,7 +109,17 @@ try {
     // Les colonnes descriptives sont ajoutées si elles existent dans le schéma.
     // Cela conserve les flags quand la table les supporte, sans rendre l'API
     // incompatible avec les installations plus anciennes.
-    $colonnesTable = $pdo->query("SHOW COLUMNS FROM match_poule")->fetchAll(PDO::FETCH_COLUMN);
+    
+    // $colonnesTable = $pdo->query("SHOW COLUMNS FROM match_poule")->fetchAll(PDO::FETCH_COLUMN);
+    // Récupération des colonnes de la table (compatible MySQL + SQLite)
+    $driver = $pdo->getAttribute(PDO::ATTR_DRIVER_NAME);
+    if ($driver === 'sqlite') {
+        $colonnesTable = $pdo->query("PRAGMA table_info(match_poule)")
+                            ->fetchAll(PDO::FETCH_COLUMN, 1); // colonne 1 = name
+    } else {
+        $colonnesTable = $pdo->query("SHOW COLUMNS FROM match_poule")
+                            ->fetchAll(PDO::FETCH_COLUMN);    // colonne 0 = Field
+    }
     $colonnesOptionnelles = array_values(array_intersect(
         ['terrain_libre', 'ajout_manuel', 'num_tour'],
         $colonnesTable
