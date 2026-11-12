@@ -10,6 +10,8 @@ let scrollbarProxyContent = null;
 let scrollbarProxyResizeObserver = null;
 let scrollbarProxyMutationObserver = null;
 
+let terrain_automatique;
+
 function initialiserScrollbarProxyTerrains() {
     const container = document.getElementById('zones-terrains');
     if (!container) return;
@@ -87,8 +89,8 @@ function chargerMatchs() {
         .then(dataParam => {
             if (dataParam.success) {
                 nbTerrains = parseInt(dataParam.nbre_terrain_poule) || 1;
+                terrain_automatique = dataParam.terrain_automatique;
             }
-
             // Initialise le champ "nombre de terrains à utiliser" avec le max par défaut
             const inputNbTerrainsAuto = document.getElementById('nb-terrains-auto');
             if (inputNbTerrainsAuto) {
@@ -1013,7 +1015,7 @@ function validerOrdre() {
     fetch('api/sauvegarder_ordre.php', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ id_tournoi: id_tournoi, matchs: matchsAEnvoyer })
+        body: JSON.stringify({ id_tournoi: id_tournoi, terrain_automatique: terrain_automatique, matchs: matchsAEnvoyer })
     })
         .then(res => res.json())
         .then(data => {

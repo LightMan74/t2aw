@@ -18,13 +18,14 @@ try {
     $stmt->execute([$id_tournoi]);
     $param = $stmt->fetch();
 
-    echo json_encode([
+    echo json_encode([ 
         'success' => true,
         'nbre_terrain_poule' => $param['nbre_terrain_poule'] ?? 1,
         'nbre_terrain_phasefinal' => $param['nbre_terrain_phasefinal'] ?? 1,
         'temps_de_match' => $param['temps_de_match'] ?? 20,
         'matchtermine' => $param['matchtermine'] ?? 20,
-        'tournoisalade' => $param['tournoisalade'] ?? 0
+        'tournoisalade' => $param['tournoisalade'] ?? 0,
+        'terrain_automatique' => $param['terrain_automatique'] ?? 0
     ]);
 } catch (Exception $e) {
     echo json_encode(['success' => false, 'error' => $e->getMessage()]);

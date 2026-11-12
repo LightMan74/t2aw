@@ -57,6 +57,7 @@ $hiddenSets = ((int) $tournoi_troissets_match > 1) ? '' : 'hidden';
 
         <div id="message"></div>
         <input type="number" id="id_tournoi" value="<?= htmlspecialchars((string)$tournoi_id, ENT_QUOTES, 'UTF-8') ?>" hidden>
+        <input type="number" id="terrain_automatique" value="0" hidden>
         <div class="tournoi-tabs" role="tablist" aria-label="Sections du tournoi">
             <button type="button" role="tab" data-tournoi-tab="generation" aria-controls="section-generation">Génération Matchs de Poule</button>
             <!-- <button type="button" role="tab" data-tournoi-tab="poules" aria-controls="section-poules">Matchs de poule</button> -->

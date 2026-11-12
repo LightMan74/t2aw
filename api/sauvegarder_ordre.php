@@ -41,6 +41,7 @@ require __DIR__ . "/db.php";
 $data = json_decode(file_get_contents('php://input'), true);
 
 $id_tournoi = isset($data['id_tournoi']) ? (int)$data['id_tournoi'] : 0;
+$terrain_automatique = isset($data['terrain_automatique']) ? (int)$data['terrain_automatique'] : 0;
 $matchs     = isset($data['matchs']) && is_array($data['matchs']) ? $data['matchs'] : [];
 
 // Trier sur ordre_global fourni sans le réécrire ; les rangs manquants sont
@@ -150,9 +151,9 @@ try {
         $id_poule_2   = isset($m['id_poule_2']) && $m['id_poule_2'] !== null && $m['id_poule_2'] !== ''
             ? (int)$m['id_poule_2']
             : null;
-        $terrain      = isset($m['terrain']) && $m['terrain'] !== null && $m['terrain'] !== ''
+        $terrain      = ($terrain_automatique == 0 ? null : (isset($m['terrain']) && $m['terrain'] !== null && $m['terrain'] !== ''
             ? (int)$m['terrain']
-            : null;
+            : null));
 
         // Conserver le numéro fourni par le générateur/DOM ; recalculer seulement
         // pour les anciens clients qui n'envoient aucun numéro de match.
